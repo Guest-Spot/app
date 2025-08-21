@@ -1,4 +1,8 @@
 // app global css in SCSS form
+body, html {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
 .container {
   width: 100%;
   max-width: 500px;
