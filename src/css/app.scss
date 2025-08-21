@@ -45,11 +45,6 @@ body, html {
   gap: 32px;
 }
 
-// Inputs
-.custom-input {
-  background: #FDFDFD !important;
-}
-
 .custom-input :deep(.q-field__control) {
   border: 1px solid #D1D1D1 !important;
   border-radius: 10px !important;

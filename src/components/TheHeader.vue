@@ -30,29 +30,26 @@ defineOptions({
 
 <style scoped>
 .custom-header {
-  background: white !important;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   border-bottom-left-radius: 24px;
   border-bottom-right-radius: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
-.header-toolbar {
-  background: white;
-}
-
 .menu-btn {
-  color: var(--text-dark, #333) !important;
-  background: transparent !important;
+  color: var(--text-dark, #333);
+  background: transparent;
   transition: all 0.3s ease;
 }
 
 .menu-btn:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .header-title {
-  color: var(--text-dark, #333) !important;
+  color: var(--text-dark, #333);
   font-weight: 600;
 }
 </style>

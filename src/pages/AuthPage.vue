@@ -18,7 +18,6 @@
           <div class="flex column q-gap-md">
             <div class="button-group">
               <q-btn
-                size="lg"
                 color="dark"
                 class="auth-btn full-width"
                 @click="navigateToLogin('shop')"
@@ -32,7 +31,6 @@
 
             <div class="button-group">
               <q-btn
-                size="lg"
                 color="dark"
                 class="auth-btn full-width"
                 @click="navigateToLogin('artist')"
@@ -52,7 +50,6 @@
 
             <div class="button-group">
               <q-btn
-                size="lg"
                 outline
                 color="grey-7"
                 class="guest-btn full-width"
@@ -91,7 +88,8 @@ const continueAsGuest = () => {
 
 .content {
   width: 100%;
-  background: white;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 30px;
   box-shadow: 0 10px 30px var(--shadow-light);
   padding: 20px;
@@ -105,21 +103,21 @@ const continueAsGuest = () => {
 }
 
 .auth-btn {
-  background: var(--brand-dark) !important;
-  color: white !important;
-  font-weight: 700 !important;
-  font-size: 18.8px !important;
-  letter-spacing: 0.6px !important;
-  height: 56px !important;
-  text-transform: none !important;
+  background: var(--brand-dark);
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.6px;
+  height: 56px;
+  text-transform: none;
   transition: all 0.3s ease;
 }
 
 .guest-btn {
-  height: 56px !important;
-  font-weight: 600 !important;
-  font-size: 1.1rem !important;
-  text-transform: none !important;
+  height: 56px;
+  font-weight: 600;
+  font-size: 18px;
+  text-transform: none;
   transition: all 0.3s ease;
 }
 

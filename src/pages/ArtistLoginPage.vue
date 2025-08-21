@@ -3,9 +3,9 @@
     <div class="container flex no-wrap items-center justify-start q-gap-md">
       <q-btn
         round
-        color="grey-6"
         @click="goBack"
         class="back-btn"
+        text-color="grey-7"
       >
         <q-icon name="arrow_back" />
       </q-btn>
@@ -19,7 +19,7 @@
             <div class="input-group">
               <label class="input-label">Enter your login</label>
               <q-input
-                v-model="form.email"
+                v-model="form.login"
                 type="text"
                 placeholder="Login"
                 outlined
@@ -27,7 +27,7 @@
                 size="lg"
                 :rules="[val => !!val || 'Login is required']"
                 class="full-width custom-input"
-                bg-color="white"
+                bg-color="transparent"
               >
                 <template v-slot:prepend>
                   <q-icon name="person" color="grey-7" />
@@ -46,7 +46,7 @@
                 size="lg"
                 :rules="[val => !!val || 'Password is required', val => val.length >= 6 || 'Password must be at least 6 characters']"
                 class="full-width custom-input"
-                bg-color="white"
+                bg-color="transparent"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" color="grey-7" />
@@ -91,7 +91,7 @@ const $q = useQuasar();
 
 const loading = ref(false);
 const form = ref({
-  email: '',
+  login: '',
   password: ''
 });
 
@@ -137,7 +137,8 @@ const goBack = () => {
 
 .content {
   width: 100%;
-  background: white;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 30px;
   box-shadow: 0 10px 30px var(--shadow-light);
   padding: 20px;
@@ -161,19 +162,13 @@ const goBack = () => {
   gap: 15px;
 }
 
-.back-btn {
-  background: var(--background-light) !important;
-  color: var(--text-secondary) !important;
-  border: 1px solid var(--border-light) !important;
-}
-
 .login-btn {
-  background: var(--brand-dark) !important;
-  color: white !important;
-  font-weight: 700 !important;
-  font-size: 18.8px !important;
-  letter-spacing: 0.6px !important;
-  height: 32px !important;
-  text-transform: none !important;
+  background: var(--brand-dark);
+  color: white;
+  font-weight: 700;
+  font-size: 18.8px;
+  letter-spacing: 0.6px;
+  height: 32px;
+  text-transform: none;
 }
 </style>

@@ -3,7 +3,7 @@
     <div class="container flex no-wrap items-center justify-start q-gap-md">
       <q-btn
         round
-        color="grey-6"
+        text-color="grey-7"
         @click="goBack"
         class="back-btn"
       >
@@ -17,20 +17,20 @@
         <div class="content text-center full-width">
           <q-form @submit="handleLogin" class="login-form">
             <div class="input-group">
-              <label class="input-label">Enter your email</label>
+              <label class="input-label">Enter your login</label>
               <q-input
-                v-model="form.email"
-                type="email"
-                placeholder="Email Address"
+                v-model="form.login"
+                type="text"
+                placeholder="Login"
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Email is required', val => validateEmail(val) || 'Invalid email format']"
+                :rules="[val => !!val || 'Login is required']"
                 class="full-width custom-input"
-                bg-color="white"
+                bg-color="transparent"
               >
                 <template v-slot:prepend>
-                  <q-icon name="email" color="grey-7" />
+                  <q-icon name="person" color="grey-7" />
                 </template>
               </q-input>
             </div>
@@ -46,7 +46,7 @@
                 size="lg"
                 :rules="[val => !!val || 'Password is required', val => val.length >= 6 || 'Password must be at least 6 characters']"
                 class="full-width custom-input"
-                bg-color="white"
+                bg-color="transparent"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" color="grey-7" />
@@ -90,14 +90,9 @@ const $q = useQuasar();
 
 const loading = ref(false);
 const form = ref({
-  email: '',
+  login: '',
   password: ''
 });
-
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
 
 const handleLogin = async () => {
   loading.value = true;
@@ -137,12 +132,12 @@ const goBack = () => {
 <style scoped>
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .content {
   width: 100%;
-  background: white;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 30px;
   box-shadow: 0 10px 30px var(--shadow-light);
   padding: 20px;
@@ -166,19 +161,13 @@ const goBack = () => {
   gap: 15px;
 }
 
-.back-btn {
-  background: var(--background-light) !important;
-  color: var(--text-secondary) !important;
-  border: 1px solid var(--border-light) !important;
-}
-
 .login-btn {
-  background: var(--brand-dark) !important;
-  color: white !important;
-  font-weight: 700 !important;
-  font-size: 18.8px !important;
-  letter-spacing: 0.6px !important;
-  height: 32px !important;
-  text-transform: none !important;
+  background: var(--brand-dark);
+  color: white;
+  font-weight: 700;
+  font-size: 18.8px;
+  letter-spacing: 0.6px;
+  height: 32px;
+  text-transform: none;
 }
 </style>
