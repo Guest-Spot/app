@@ -144,14 +144,14 @@ const goBack = () => {
   width: 100%;
   background: white;
   border-radius: 30px;
-  box-shadow: 0 10px 30px var(--auth-shadow);
+  box-shadow: 0 10px 30px var(--shadow-light);
   padding: 20px;
 }
 
 .input-label {
   display: block;
   text-align: left;
-  color: var(--auth-label);
+  color: var(--text-dark);
   font-size: 14px;
   font-weight: 400;
   line-height: 1.57;
@@ -167,13 +167,13 @@ const goBack = () => {
 }
 
 .back-btn {
-  background: var(--auth-background) !important;
-  color: var(--auth-text-secondary) !important;
-  border: 1px solid var(--auth-border) !important;
+  background: var(--background-light) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-light) !important;
 }
 
 .login-btn {
-  background: var(--auth-dark) !important;
+  background: var(--brand-dark) !important;
   color: white !important;
   font-weight: 700 !important;
   font-size: 18.8px !important;

@@ -3,15 +3,15 @@
 // Import Quasar variables
 @import 'quasar.variables.scss';
 
-// CSS variables for authentication colors (imported from quasar.variables.scss)
+// CSS variables for general colors (imported from quasar.variables.scss)
 :root {
-  --auth-dark: #{$auth-dark};
-  --auth-divider: #{$auth-divider};
-  --auth-shadow: #{$auth-shadow};
-  --auth-background: #{$auth-background};
-  --auth-text-secondary: #{$auth-text-secondary};
-  --auth-border: #{$auth-border};
-  --auth-label: #{$auth-label};
+  --brand-dark: #{$brand-dark};
+  --divider-light: #{$divider-light};
+  --shadow-light: #{$shadow-light};
+  --background-light: #{$background-light};
+  --text-secondary: #{$text-secondary};
+  --border-light: #{$border-light};
+  --text-dark: #{$text-dark};
 }
 
 body, html {
