@@ -45,9 +45,9 @@
             </div>
 
             <div class="flex no-wrap items-center justify-center q-gap-md">
-              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid #E0E0E0;" />
+              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid var(--auth-divider);" />
               <span class="text-subtitle1 text-grey-7">or</span>
-              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid #E0E0E0;" />
+              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid var(--auth-divider);" />
             </div>
 
             <div class="button-group">
@@ -93,7 +93,7 @@ const continueAsGuest = () => {
   width: 100%;
   background: white;
   border-radius: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px var(--auth-shadow);
   padding: 20px;
 }
 
@@ -105,7 +105,7 @@ const continueAsGuest = () => {
 }
 
 .auth-btn {
-  background: #151515 !important;
+  background: var(--auth-dark) !important;
   color: white !important;
   font-weight: 700 !important;
   font-size: 18.8px !important;
@@ -124,7 +124,7 @@ const continueAsGuest = () => {
 }
 
 .info-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--auth-shadow);
   padding-top: 1.5rem;
 }
 </style>

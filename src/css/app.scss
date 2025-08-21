@@ -1,4 +1,19 @@
 // app global css in SCSS form
+
+// Import Quasar variables
+@import 'quasar.variables.scss';
+
+// CSS variables for authentication colors (imported from quasar.variables.scss)
+:root {
+  --auth-dark: #{$auth-dark};
+  --auth-divider: #{$auth-divider};
+  --auth-shadow: #{$auth-shadow};
+  --auth-background: #{$auth-background};
+  --auth-text-secondary: #{$auth-text-secondary};
+  --auth-border: #{$auth-border};
+  --auth-label: #{$auth-label};
+}
+
 body, html {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
