@@ -2,14 +2,13 @@
   <q-page class="login-page flex flex-center">
     <div class="container text-center">
       <div class="welcome-section q-mb-xl">
-        <q-icon name="store" size="80px" color="primary" class="q-mb-md" />
-        <h2 class="text-h3 text-weight-bold q-mb-md">Welcome, Shop Owner!</h2>
+        <h2 class="text-h4 text-weight-bold q-mb-md">Welcome, <span class="text-primary">Shop Owner!</span></h2>
         <p class="text-h6 text-grey-7">
           Manage your tattoo studio, services, and artist team
         </p>
       </div>
 
-      <q-form @submit="handleLogin" class="login-form q-gutter-y-md">
+      <q-form @submit="handleLogin" class="login-form">
         <q-input
           v-model="form.email"
           type="email"
@@ -40,29 +39,31 @@
           </template>
         </q-input>
 
-        <q-btn
-          type="submit"
-          size="lg"
-          color="primary"
-          class="login-btn full-width"
-          :loading="loading"
-        >
-          <q-icon name="login" class="q-mr-sm" />
-          Login
-        </q-btn>
+        <div class="flex justify-between no-wrap">
+          <q-btn
+            round
+            color="grey-6"
+            @click="goBack"
+            size="lg"
+            class="q-mr-sm"
+          >
+            <q-icon name="arrow_back" />
+          </q-btn>
+          <q-btn
+            type="submit"
+            size="lg"
+            color="primary"
+            class="login-btn full-width"
+            :loading="loading"
+            rounded
+          >
+            <q-icon name="login" class="q-mr-sm" size="24px" />
+            Login
+          </q-btn>
+        </div>
       </q-form>
 
-      <div class="actions-section q-mt-lg">
-        <q-btn
-          flat
-          color="grey-7"
-          @click="goBack"
-          class="q-mb-sm"
-        >
-          <q-icon name="arrow_back" class="q-mr-sm" />
-          Back to Auth
-        </q-btn>
-        
+      <div class="actions-section q-mt-lg">    
         <div class="text-caption text-grey-6">
           Don't have an account? 
           <q-btn flat dense color="primary" label="Contact Support" />
@@ -129,28 +130,5 @@ const goBack = () => {
 <style scoped>
 .login-page {
   min-height: 100vh;
-}
-
-.login-form .q-input {
-  margin-bottom: 1rem;
-}
-
-.login-btn {
-  height: 56px;
-  border-radius: 28px;
-  font-weight: 600;
-  text-transform: none;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.actions-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  padding-top: 1.5rem;
 }
 </style>

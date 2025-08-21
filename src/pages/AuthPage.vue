@@ -2,7 +2,7 @@
   <q-page class="auth-page flex flex-center">
     <div class="container text-center">
       <div class="welcome-section q-mb-xl">
-        <h2 class="text-h3 text-weight-bold q-mb-md">Welcome to GuestSpot</h2>
+        <h2 class="text-h4 text-weight-bold q-mb-md">Welcome to GuestSpot</h2>
         <p class="text-h6 text-grey-7">
           Your ultimate destination for tattoo artistry and shop discovery
         </p>
