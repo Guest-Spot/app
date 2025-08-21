@@ -1,52 +1,68 @@
 <template>
-  <q-page class="auth-page flex flex-center">
-    <div class="container text-center">
-      <div class="welcome-section q-mb-xl">
-        <h2 class="text-h4 text-weight-bold q-mb-md">Welcome to GuestSpot</h2>
-        <p class="text-h6 text-grey-7">
-          Your ultimate destination for tattoo artistry and shop discovery
-        </p>
+  <q-page class="auth-page q-py-md flex column items-start q-gap-md">
+    <div class="q-my-auto full-width">
+      <div class="container flex no-wrap items-center justify-center q-mb-md">
+        <q-img src="~/assets/logo-dark.png" class="logo" width="150px" />
       </div>
+      <div class="container">
+        <div class="content text-center full-width">
+          <div class="container flex column items-center justify-start q-gap-md">
+            <h2 class="text-h5 q-my-none">Welcome to <span class="text-primary">GuestSpot</span></h2>
+            <div class="welcome-section">
+              <p class="text-subtitle1 text-grey-7 q-mb-lg">
+                Your ultimate destination for tattoo artistry and shop discovery
+              </p>
+            </div>
+          </div>
 
-      <div class="auth-buttons q-gutter-y-md">
-        <q-btn
-          size="lg"
-          color="primary"
-          class="auth-btn full-width"
-          @click="navigateToLogin('shop')"
-        >
-          <q-icon name="store" class="q-mr-sm" />
-          Login as a Shop
-        </q-btn>
+          <div class="auth-buttons q-gutter-y-md">
+            <div class="button-group">
+              <q-btn
+                size="lg"
+                color="dark"
+                class="auth-btn full-width"
+                @click="navigateToLogin('shop')"
+                rounded
+                unelevated
+              >
+                <q-icon name="store" class="q-mr-sm" size="24px" />
+                Login as a Shop
+              </q-btn>
+            </div>
 
-        <q-btn
-          size="lg"
-          color="secondary"
-          class="auth-btn full-width"
-          @click="navigateToLogin('artist')"
-        >
-          <q-icon name="brush" class="q-mr-sm" />
-          Login as an Artist
-        </q-btn>
+            <div class="button-group">
+              <q-btn
+                size="lg"
+                color="dark"
+                class="auth-btn full-width"
+                @click="navigateToLogin('artist')"
+                rounded
+                unelevated
+              >
+                <q-icon name="brush" class="q-mr-sm" size="24px" />
+                Login as an Artist
+              </q-btn>
+            </div>
 
-        <q-btn
-          size="lg"
-          outline
-          color="grey-7"
-          class="auth-btn full-width"
-          @click="continueAsGuest"
-        >
-          <q-icon name="person" class="q-mr-sm" />
-          Continue as Guest
-        </q-btn>
-      </div>
+            <div class="flex no-wrap items-center justify-center q-gap-md">
+              <span class="text-subtitle1 text-grey-7">or continue as a Guest</span>
+            </div>
 
-      <div class="info-section q-mt-xl">
-        <p class="text-caption text-grey-6">
-          Shops can manage their services and bookings<br>
-          Artists can showcase their portfolio and skills<br>
-          Guests can browse and discover without registration
-        </p>
+            <div class="button-group">
+              <q-btn
+                size="lg"
+                outline
+                color="grey-7"
+                class="guest-btn full-width"
+                @click="continueAsGuest"
+                rounded
+              >
+                <q-icon name="person" class="q-mr-sm" size="24px" />
+                Continue as Guest
+              </q-btn>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </q-page>
@@ -71,18 +87,38 @@ const continueAsGuest = () => {
   min-height: 100vh;
 }
 
+.content {
+  width: 100%;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
 .auth-btn {
-  height: 56px;
-  border-radius: 28px;
-  font-weight: 600;
-  text-transform: none;
-  font-size: 1.1rem;
+  background: #151515 !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 18.8px !important;
+  letter-spacing: 0.6px !important;
+  height: 56px !important;
+  text-transform: none !important;
   transition: all 0.3s ease;
 }
 
-.auth-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.guest-btn {
+  height: 56px !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  text-transform: none !important;
+  transition: all 0.3s ease;
 }
 
 .info-section {
