@@ -1,5 +1,5 @@
 <template>
-  <q-page class="auth-page q-py-md flex column items-start q-gap-md">
+  <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
       <div class="container flex no-wrap items-center justify-center q-mb-md">
         <q-img src="~/assets/logo-dark.png" class="logo" width="150px" />
@@ -82,10 +82,6 @@ const continueAsGuest = () => {
 </script>
 
 <style scoped>
-.auth-page {
-  min-height: 100vh;
-}
-
 .content {
   width: 100%;
   backdrop-filter: blur(10px);
@@ -114,7 +110,6 @@ const continueAsGuest = () => {
 }
 
 .guest-btn {
-  height: 56px;
   font-weight: 600;
   font-size: 18px;
   text-transform: none;

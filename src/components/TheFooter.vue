@@ -39,6 +39,11 @@ defineOptions({
 </script>
 
 <style scoped>
+.footer-toolbar {
+  padding: 0 !important;
+  min-height: auto !important;
+}
+
 .custom-footer {
   margin-bottom: 16px;
   margin-left: 16px;

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="login-page q-py-md flex column items-start q-gap-md">
+  <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
       <q-btn
         round
@@ -131,10 +131,6 @@ const goBack = () => {
 </script>
 
 <style scoped>
-.login-page {
-  min-height: 100vh;
-}
-
 .content {
   width: 100%;
   backdrop-filter: blur(10px);
