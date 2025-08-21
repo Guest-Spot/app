@@ -17,11 +17,11 @@
         <div class="content text-center full-width">
           <q-form @submit="handleLogin" class="login-form">
             <div class="input-group">
-              <label class="input-label">Enter your Email</label>
+              <label class="input-label">Enter your login</label>
               <q-input
                 v-model="form.email"
                 type="text"
-                placeholder="Enter your login"
+                placeholder="Login"
                 outlined
                 rounded
                 size="lg"
@@ -155,36 +155,6 @@ const goBack = () => {
   margin-bottom: 4px;
 }
 
-.custom-input {
-  background: #FDFDFD !important;
-}
-
-.custom-input :deep(.q-field__control) {
-  border: 1.17px solid #D1D1D1 !important;
-  border-radius: 17.6px !important;
-  background: #FDFDFD !important;
-}
-
-.custom-input :deep(.q-field__control:hover) {
-  border-color: #B0B0B0 !important;
-}
-
-.custom-input :deep(.q-field__control--focused) {
-  border-color: #151515 !important;
-  box-shadow: 0 0 0 2px rgba(21, 21, 21, 0.1) !important;
-}
-
-.custom-input :deep(.q-field__native) {
-  color: #696969 !important;
-  font-size: 16.4px !important;
-  font-weight: 500 !important;
-}
-
-.custom-input :deep(.q-field__native::placeholder) {
-  color: #696969 !important;
-  opacity: 0.8;
-}
-
 .button-group {
   display: flex;
   justify-content: space-between;
@@ -204,7 +174,6 @@ const goBack = () => {
   font-weight: 700 !important;
   font-size: 18.8px !important;
   letter-spacing: 0.6px !important;
-  border-radius: 17.6px !important;
   height: 32px !important;
   text-transform: none !important;
 }
