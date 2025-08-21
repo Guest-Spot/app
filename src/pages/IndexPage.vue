@@ -1,11 +1,13 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <h6>Hello World</h6>
+  <q-page class="flex flex-center">
+    <div class="text-center">
+      <q-icon name="search" size="100px" color="primary" />
+      <h4 class="q-mt-md">Search</h4>
+      <p class="text-grey-6">Search functionality will be implemented here</p>
+    </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-defineOptions({
-  name: 'IndexPage',
-});
+// Search page component
 </script>
