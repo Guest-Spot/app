@@ -15,7 +15,7 @@
             </div>
           </div>
 
-          <div class="auth-buttons q-gutter-y-md">
+          <div class="flex column q-gap-md">
             <div class="button-group">
               <q-btn
                 size="lg"
@@ -45,7 +45,9 @@
             </div>
 
             <div class="flex no-wrap items-center justify-center q-gap-md">
-              <span class="text-subtitle1 text-grey-7">or continue as a Guest</span>
+              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid #E0E0E0;" />
+              <span class="text-subtitle1 text-grey-7">or</span>
+              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid #E0E0E0;" />
             </div>
 
             <div class="button-group">
