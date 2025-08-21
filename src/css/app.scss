@@ -1,6 +1,27 @@
 // app global css in SCSS form
 .container {
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+.q-gap-xs {
+  gap: 4px;
+}
+
+.q-gap-sm {
+  gap: 8px;
+}
+
+.q-gap-md {
+  gap: 16px;
+}
+
+.q-gap-lg {
+  gap: 24px;
+}
+
+.q-gap-xl {
+  gap: 32px;
 }
