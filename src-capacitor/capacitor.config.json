@@ -1,0 +1,61 @@
+{
+  "appId": "org.guestspot.app",
+  "appName": "GuestSpot",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "hostname": "localhost",
+    "port": 8080,
+    "allowNavigation": [
+      "*.yourdomain.com",
+      "*.googleapis.com"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffffff",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true,
+      "androidSpinnerStyle": "large",
+      "iosSpinnerStyle": "small",
+      "spinnerColor": "#999999",
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "layoutName": "launch_screen",
+      "useDialog": true
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#000000",
+      "overlaysWebView": false
+    },
+    "Device": {
+      "deviceInfo": true
+    },
+    "Haptics": {
+      "enabled": true
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "default",
+      "resizeOnFullScreen": true
+    }
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "limitsNavigationsToAppBoundDomains": true,
+    "scheme": "guestspot",
+    "webContentsDebuggingEnabled": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "initialFocus": false,
+    "mixedContentMode": "compatibility"
+  }
+}
