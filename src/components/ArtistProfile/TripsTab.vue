@@ -54,22 +54,12 @@
               <span class="info-value">{{ trip.venue }}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Type:</span>
-              <q-chip
-                :label="trip.type"
-                :color="getTripTypeColor(trip.type)"
-                text-color="white"
-                size="sm"
-              />
+              <span class="info-label">Start time:</span>
+              <span class="info-value">{{ trip.startTime }}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Status:</span>
-              <q-chip
-                :label="trip.status"
-                :color="getStatusColor(trip.status)"
-                text-color="white"
-                size="sm"
-              />
+              <span class="info-label">End time:</span>
+              <span class="info-value">{{ trip.endTime }}</span>
             </div>
           </div>
           
@@ -77,7 +67,7 @@
             <p>{{ trip.description }}</p>
           </div>
           
-          <div class="trip-photos" v-if="trip.photos && trip.photos.length > 0">
+          <div class="trip-photos hidden" v-if="trip.photos && trip.photos.length > 0">
             <h5 class="photos-title">Photos from this trip:</h5>
             <div class="photos-grid">
               <q-img
@@ -109,19 +99,39 @@
         unelevated
       />
     </div>
+
+    <!-- Trip Dialog -->
+    <TripDialog
+      v-model="showTripDialog"
+      :trip="currentTrip"
+      :is-editing="isEditingTrip"
+      @confirm="handleTripConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import TripDialog from 'src/components/Dialogs/TripDialog.vue';
 
 interface Trip {
   id: number;
   location: string;
   date: string;
   venue: string;
-  type: string;
-  status: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+  photos: string[];
+}
+
+interface TripForm {
+  id: number;
+  location: string;
+  date: string;
+  venue: string;
+  startTime: string;
+  endTime: string;
   description: string;
   photos: string[];
 }
@@ -133,8 +143,8 @@ const trips = ref<Trip[]>([
     location: 'New York, NY',
     date: '2024-01-15',
     venue: 'Madison Square Garden',
-    type: 'Concert',
-    status: 'Completed',
+    startTime: '20:00',
+    endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
     photos: [
       'https://picsum.photos/200/200?random=10',
@@ -146,8 +156,8 @@ const trips = ref<Trip[]>([
     location: 'Los Angeles, CA',
     date: '2024-02-20',
     venue: 'The Hollywood Bowl',
-    type: 'Festival',
-    status: 'Upcoming',
+    startTime: '19:30',
+    endTime: '21:45',
     description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
     photos: []
   },
@@ -156,8 +166,8 @@ const trips = ref<Trip[]>([
     location: 'Miami, FL',
     date: '2024-01-30',
     venue: 'American Airlines Arena',
-    type: 'Club Show',
-    status: 'Completed',
+    startTime: '23:00',
+    endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
     photos: [
       'https://picsum.photos/200/200?random=12'
@@ -165,34 +175,52 @@ const trips = ref<Trip[]>([
   }
 ]);
 
-const getTripTypeColor = (type: string): string => {
-  const colors: { [key: string]: string } = {
-    'Concert': 'primary',
-    'Festival': 'secondary',
-    'Club Show': 'accent',
-    'Studio Session': 'info'
-  };
-  return colors[type] || 'grey';
-};
-
-const getStatusColor = (status: string): string => {
-  const colors: { [key: string]: string } = {
-    'Completed': 'positive',
-    'Upcoming': 'warning',
-    'Cancelled': 'negative',
-    'In Progress': 'info'
-  };
-  return colors[status] || 'grey';
-};
+// Dialog state
+const showTripDialog = ref(false);
+const isEditingTrip = ref(false);
+const currentTrip = ref<TripForm>({
+  id: 0,
+  location: '',
+  date: '',
+  venue: '',
+  startTime: '',
+  endTime: '',
+  description: '',
+  photos: []
+});
 
 const addNewTrip = () => {
-  console.log('Add new trip clicked');
-  // TODO: Implement add new trip functionality
+  isEditingTrip.value = false;
+  currentTrip.value = {
+    id: Date.now(), // Generate temporary ID
+    location: '',
+    date: '',
+    venue: '',
+    startTime: '',
+    endTime: '',
+    description: '',
+    photos: []
+  };
+  showTripDialog.value = true;
 };
 
 const editTrip = (index: number) => {
-  console.log('Edit trip clicked', index);
-  // TODO: Implement edit trip functionality
+  isEditingTrip.value = true;
+  currentTrip.value = { ...trips.value[index] } as TripForm;
+  showTripDialog.value = true;
+};
+
+const handleTripConfirm = (trip: TripForm) => {
+  if (isEditingTrip.value) {
+    // Update existing trip
+    const index = trips.value.findIndex(t => t.id === trip.id);
+    if (index !== -1) {
+      trips.value[index] = { ...trip };
+    }
+  } else {
+    // Add new trip
+    trips.value.push({ ...trip });
+  }
 };
 
 // const deleteTrip = (index: number) => {
@@ -301,8 +329,6 @@ defineExpose({
 }
 
 .trip-description {
-  margin-bottom: 20px;
-  
   p {
     margin: 0;
     color: var(--brand-dark);

@@ -1,0 +1,235 @@
+<template>
+  <q-dialog
+    v-model="isVisible"
+    position="bottom"
+  >
+    <q-card class="trip-dialog">
+      <q-card-section class="dialog-header">
+        <div class="text-subtitle1 text-bold">{{ title }}</div>
+        <q-btn
+          icon="close"
+          color="dark"
+          round
+          dense
+          size="sm"
+          @click="closeDialog"
+        />
+      </q-card-section>
+
+      <q-card-section class="dialog-content">
+        <div class="input-group">
+          <label class="input-label">Location</label>
+          <q-input
+            v-model="formData.location"
+            outlined
+            dense
+            rounded
+            placeholder="Enter trip location"
+            class="custom-input"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Date</label>
+          <q-input
+            v-model="formData.date"
+            outlined
+            dense
+            rounded
+            type="date"
+            placeholder="Select date"
+            class="custom-input"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Venue</label>
+          <q-input
+            v-model="formData.venue"
+            outlined
+            dense
+            rounded
+            placeholder="Enter venue name"
+            class="custom-input"
+          />
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label class="input-label">Start Time</label>
+            <q-input
+              v-model="formData.startTime"
+              outlined
+              dense
+              rounded
+              type="time"
+              placeholder="Start time"
+              class="custom-input"
+            />
+          </div>
+          <div class="input-group">
+            <label class="input-label">End Time</label>
+            <q-input
+              v-model="formData.endTime"
+              outlined
+              dense
+              rounded
+              type="time"
+              placeholder="End time"
+              class="custom-input"
+            />
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Description</label>
+          <q-input
+            v-model="formData.description"
+            outlined
+            dense
+            rounded
+            type="textarea"
+            placeholder="Enter trip description"
+            class="custom-input"
+            rows="3"
+          />
+        </div>
+      </q-card-section>
+
+      <q-card-actions class="dialog-actions">
+        <q-btn
+          label="Отмена"
+          rounded
+          color="grey-6"
+          @click="closeDialog"
+        />
+        <q-btn
+          :label="isEditing ? 'Обновить' : 'Добавить'"
+          rounded
+          color="dark"
+          @click="confirmTrip"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, watch, computed } from 'vue';
+
+interface TripForm {
+  id: number;
+  location: string;
+  date: string;
+  venue: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+  photos: string[];
+}
+
+interface Props {
+  modelValue: boolean;
+  trip: TripForm;
+  isEditing: boolean;
+}
+
+interface Emits {
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'confirm', trip: TripForm): void;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+
+const isVisible = ref(props.modelValue);
+const formData = ref<TripForm>({ ...props.trip });
+
+// Watch for external changes to modelValue
+watch(() => props.modelValue, (newValue) => {
+  isVisible.value = newValue;
+});
+
+// Watch for external changes to trip
+watch(() => props.trip, (newValue) => {
+  formData.value = { ...newValue };
+});
+
+// Watch for internal changes to isVisible
+watch(isVisible, (newValue) => {
+  emit('update:modelValue', newValue);
+});
+
+const closeDialog = () => {
+  isVisible.value = false;
+  // Reset form to original values when canceling
+  formData.value = { ...props.trip };
+};
+
+const confirmTrip = () => {
+  emit('confirm', { ...formData.value });
+  isVisible.value = false;
+};
+
+// Computed property for title
+const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
+
+</script>
+
+<style scoped lang="scss">
+.trip-dialog {
+  border-radius: 20px 20px 0 0;
+  min-height: 500px;
+  
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 10px;
+    border-bottom: 1px solid var(--border-light);
+    
+    .text-subtitle1 {
+      font-weight: 600;
+      color: var(--brand-dark);
+    }
+  }
+  
+  .dialog-content {
+    padding: 20px;
+    
+    .input-group {
+      margin-bottom: 20px;
+      
+      .input-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--brand-dark);
+        font-size: 14px;
+      }
+      
+      .custom-input {
+        width: 100%;
+      }
+    }
+    
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+  }
+  
+  .dialog-actions {
+    padding: 10px 20px 20px;
+    justify-content: space-between;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid var(--border-light);
+    z-index: 10;
+    
+    .q-btn {
+      min-width: 100px;
+      font-weight: 600;
+    }
+  }
+}
+</style>
