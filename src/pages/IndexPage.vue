@@ -5,7 +5,8 @@
         <!-- Search Section -->
         <SearchBar
           v-model="searchQuery"
-          @toggle-filters="showFilters = !showFilters"
+          @update:filters="updateFilters"
+          class="q-mb-md"
         />
 
         <!-- Navigation Tabs -->
@@ -13,9 +14,25 @@
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
+          <!-- Results Counter -->
+          <div class="results-counter">
+            <span class="counter-text">
+              {{ activeTab === TAB_SHOPS ? filteredShops.length : filteredArtists.length }} 
+              {{ activeTab === TAB_SHOPS ? 'shops' : 'artists' }} found
+            </span>
+            <span v-if="searchQuery || hasActiveFilters" class="filter-info">
+              (filtered results)
+            </span>
+          </div>
+
           <!-- Shops Tab Content -->
           <div v-if="activeTab === TAB_SHOPS" class="tab-content">
-            <div class="content-grid">
+            <div v-if="filteredShops.length === 0" class="no-results">
+              <q-icon name="search_off" size="60px" color="grey-5" />
+              <h3 class="no-results-title">No shops found</h3>
+              <p class="no-results-description">Try adjusting your search or filters</p>
+            </div>
+            <div v-else class="content-grid">
               <ShopCard
                 v-for="shop in filteredShops"
                 :key="shop.id"
@@ -28,7 +45,12 @@
 
           <!-- Artists Tab Content -->
           <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
-            <div class="content-grid">
+            <div v-if="filteredArtists.length === 0" class="no-results">
+              <q-icon name="search_off" size="60px" color="grey-5" />
+              <h3 class="no-results-title">No artists found</h3>
+              <p class="no-results-description">Try adjusting your search or filters</p>
+            </div>
+            <div v-else class="content-grid">
               <ArtistCard
                 v-for="artist in filteredArtists"
                 :key="artist.id"
@@ -68,7 +90,21 @@ type Artist = {
 // Tab management
 const activeTab = ref(TAB_SHOPS);
 const searchQuery = ref('');
-const showFilters = ref(false);
+
+// Filters
+interface SearchFilters {
+  location: string | null;
+  category: string | null;
+  rating: string | null;
+  priceRange: string | null;
+}
+
+const activeFilters = ref<SearchFilters>({
+  location: null,
+  category: null,
+  rating: null,
+  priceRange: null
+});
 
 // Mock data for shops
 const shops = ref([
@@ -136,23 +172,68 @@ const artists = ref([
 
 // Computed properties for filtered results
 const filteredShops = computed(() => {
-  if (!searchQuery.value) return shops.value;
-  const query = searchQuery.value.toLowerCase();
-  return shops.value.filter(shop => 
-    shop.name.toLowerCase().includes(query) ||
-    shop.location.toLowerCase().includes(query) ||
-    shop.description.toLowerCase().includes(query)
-  );
+  let filtered = shops.value;
+  
+  // Apply search query
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(shop => 
+      shop.name.toLowerCase().includes(query) ||
+      shop.location.toLowerCase().includes(query) ||
+      shop.description.toLowerCase().includes(query)
+    );
+  }
+  
+  // Apply location filter
+  if (activeFilters.value.location) {
+    filtered = filtered.filter(shop => 
+      shop.location === activeFilters.value.location
+    );
+  }
+  
+  // Apply category filter (if shops have categories)
+  if (activeFilters.value.category) {
+    // For now, we'll filter by description containing the category
+    filtered = filtered.filter(shop => 
+      shop.description.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
+    );
+  }
+  
+  return filtered;
 });
 
 const filteredArtists = computed(() => {
-  if (!searchQuery.value) return artists.value;
-  const query = searchQuery.value.toLowerCase();
-  return artists.value.filter(artist => 
-    artist.name.toLowerCase().includes(query) ||
-    artist.specialty.toLowerCase().includes(query) ||
-    artist.bio.toLowerCase().includes(query)
-  );
+  let filtered = artists.value;
+  
+  // Apply search query
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(artist => 
+      artist.name.toLowerCase().includes(query) ||
+      artist.specialty.toLowerCase().includes(query) ||
+      artist.bio.toLowerCase().includes(query)
+    );
+  }
+  
+  // Apply location filter (if artists have locations)
+  if (activeFilters.value.location) {
+    // For now, we'll skip location filter for artists as they don't have location field
+    // In the future, you can add location field to artists
+  }
+  
+  // Apply category filter
+  if (activeFilters.value.category) {
+    filtered = filtered.filter(artist => 
+      artist.specialty.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
+    );
+  }
+  
+  return filtered;
+});
+
+// Check if any filters are active
+const hasActiveFilters = computed(() => {
+  return Object.values(activeFilters.value).some(filter => filter !== null);
 });
 
 // Methods
@@ -170,9 +251,38 @@ const toggleFavorite = (id: number) => {
   console.log('Toggle favorite for ID:', id);
   // Toggle favorite status
 };
+
+const updateFilters = (filters: SearchFilters) => {
+  activeFilters.value = filters;
+  console.log('Filters updated:', filters);
+  // Apply filters to search results
+};
 </script>
 
 <style scoped lang="scss">
+.results-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px 16px;
+}
+
+.counter-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--brand-dark);
+}
+
+.filter-info {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
 .tab-content {
   min-height: 400px;
 }
@@ -181,6 +291,28 @@ const toggleFavorite = (id: number) => {
   display: grid;
   gap: 16px;
   grid-template-columns: 1fr;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  border: 1px solid var(--shadow-light);
+}
+
+.no-results-title {
+  margin: 20px 0 10px 0;
+  color: var(--brand-dark);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.no-results-description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 // Responsive design
