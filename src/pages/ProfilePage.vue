@@ -11,226 +11,38 @@
         <div class="tabs-section q-my-lg">
           <div class="tab-container">
             <q-btn
-              class="tab-btn active"
+              class="tab-btn"
+              :class="{ active: activeTab === TAB_ABOUT }"
               unelevated
               rounded
-              color="dark"
-              text-color="white"
+              :outline="activeTab !== TAB_ABOUT"
+              :color="activeTab === TAB_ABOUT ? 'dark' : 'grey-7'"
+              :text-color="activeTab === TAB_ABOUT ? 'white' : 'dark'"
               label="About shop"
+              @click="setActiveTab(TAB_ABOUT)"
             />
             <q-btn
               class="tab-btn"
+              :class="{ active: activeTab === TAB_ARTISTS }"
               unelevated
               rounded
-              outline
-              color="grey-7"
+              :outline="activeTab !== TAB_ARTISTS"
+              :color="activeTab === TAB_ARTISTS ? 'dark' : 'grey-7'"
+              :text-color="activeTab === TAB_ARTISTS ? 'white' : 'dark'"
               label="Shop Artists"
+              @click="setActiveTab(TAB_ARTISTS)"
             />
           </div>
         </div>
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
-          <!-- Basic Information -->
-          <q-expansion-item
-            icon="info"
-            label="Basic Information"
-            header-class="expansion-header"
-            class="info-expansion"
-          >
-            <div class="info-section">
-              <div class="input-group">
-                <label class="input-label">Title</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter shop title"
-                  class="custom-input"
-                  v-model="shopData.title"
-                />
-              </div>
-              <div class="input-group">
-                <label class="input-label">Description</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  type="textarea"
-                  placeholder="Enter shop description"
-                  class="custom-input"
-                  v-model="shopData.description"
-                />
-              </div>
-            </div>
-          </q-expansion-item>
-
-          <!-- Contacts -->
-          <q-expansion-item
-            icon="location_on"
-            label="Contacts"
-            header-class="expansion-header"
-            class="info-expansion"
-          >
-            <div class="info-section">
-              <div class="input-group">
-                <label class="input-label">Location</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter shop location"
-                  class="custom-input"
-                  v-model="shopData.location"
-                />
-              </div>
-              <div class="input-group">
-                <label class="input-label">Phone</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter phone number"
-                  class="custom-input"
-                  v-model="shopData.phone"
-                />
-              </div>
-              <div class="input-group">
-                <label class="input-label">Email</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter email address"
-                  class="custom-input"
-                  v-model="shopData.email"
-                />
-              </div>
-            </div>
-          </q-expansion-item>
-
-          <!-- Working Hours -->
-          <q-expansion-item
-            icon="schedule"
-            label="Working Hours"
-            header-class="expansion-header"
-            class="info-expansion"
-          >
-            <div class="info-section">
-              <div class="hours-container">
-                <div class="hours-group">
-                  <label class="input-label">Start</label>
-                  <q-input
-                    v-model="workingHours.start"
-                    outlined
-                    dense
-                    rounded
-                    readonly
-                    class="custom-input time-input"
-                    @click="startTimeDialog = true"
-                  >
-                    <template v-slot:append>
-                      <q-icon name="schedule" class="cursor-pointer" @click="startTimeDialog = true" />
-                    </template>
-                  </q-input>
-                  <TimePickerDialog
-                    v-model="startTimeDialog"
-                    :time="workingHours.start"
-                    title="Выберите время начала"
-                    @confirm="onStartTimeConfirm"
-                  />
-                </div>
-                <div class="hours-group">
-                  <label class="input-label">End</label>
-                  <q-input
-                    v-model="workingHours.end"
-                    outlined
-                    dense
-                    rounded
-                    readonly
-                    class="custom-input time-input"
-                    @click="endTimeDialog = true"
-                  >
-                    <template v-slot:append>
-                      <q-icon name="schedule" class="cursor-pointer" @click="endTimeDialog = true" />
-                    </template>
-                  </q-input>
-                  <TimePickerDialog
-                    v-model="endTimeDialog"
-                    :time="workingHours.end"
-                    title="Выберите время окончания"
-                    @confirm="onEndTimeConfirm"
-                  />
-                </div>
-              </div>
-            </div>
-          </q-expansion-item>
-
-          <!-- Additional Info -->
-          <q-expansion-item
-            icon="add_circle"
-            label="Additional Info"
-            header-class="expansion-header"
-            class="info-expansion"
-          >
-            <div class="info-section">
-              <div class="input-group">
-                <label class="input-label">Date Opened</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter opening date"
-                  class="custom-input"
-                  v-model="shopData.dateOpened"
-                />
-              </div>
-            </div>
-          </q-expansion-item>
-
-          <!-- Links -->
-          <q-expansion-item
-            icon="link"
-            label="Links"
-            header-class="expansion-header"
-            class="info-expansion"
-          >
-            <div class="info-section">
-              <div class="input-group">
-                <label class="input-label">Instagram</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter Instagram link"
-                  class="custom-input"
-                  v-model="shopData.instagram"
-                />
-              </div>
-              <div class="input-group">
-                <label class="input-label">Facebook</label>
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  placeholder="Enter Facebook link"
-                  class="custom-input"
-                  v-model="shopData.facebook"
-                />
-              </div>
-            </div>
-          </q-expansion-item>
-
-          <!-- Save Button -->
-          <div class="save-section">
-            <q-btn
-              color="dark"
-              class="save-btn full-width"
-              @click="saveChanges"
-              rounded
-              unelevated
-              label="Save changes"
-            />
+          <!-- Tab Content -->
+          <div v-if="activeTab === TAB_ABOUT" class="tab-content">
+            <AboutShopTab />
+          </div>
+          <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
+            <ShopArtistsTab />
           </div>
         </div>
       </div>
@@ -240,41 +52,39 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ImageUploader from 'components/ImageUploader.vue';
-import TimePickerDialog from 'components/Dialogs/TimePickerDialog.vue';
+import ImageUploader from 'src/components/ImageUploader.vue';
+import AboutShopTab from 'src/components/ProfilePage/Shops/AboutShopTab.vue';
+import ShopArtistsTab from 'src/components/ProfilePage/Shops/ShopArtistsTab.vue';
 
-// Form data
-const shopData = ref({
-  title: '',
-  description: '',
-  location: '',
-  phone: '',
-  email: '',
-  dateOpened: '',
-  instagram: '',
-  facebook: '',
-});
+const TAB_ABOUT = 'about';
+const TAB_ARTISTS = 'artists';
 
-const workingHours = ref({
-  start: '08:00',
-  end: '23:30'
-});
+// Tab management
+const activeTab = ref(TAB_ABOUT);
 
-const startTimeDialog = ref(false);
-const endTimeDialog = ref(false);
-
-const onStartTimeConfirm = (time: string) => {
-  workingHours.value.start = time;
+const setActiveTab = (tab: string) => {
+  activeTab.value = tab;
 };
 
-const onEndTimeConfirm = (time: string) => {
-  workingHours.value.end = time;
-};
+// Methods to access child component data if needed in the future
+// const getShopData = () => {
+//   if (activeTab.value === 'about' && aboutShopTabRef.value) {
+//     return {
+//       shopData: aboutShopTabRef.value.shopData,
+//       workingHours: aboutShopTabRef.value.workingHours
+//     };
+//   }
+//   return null;
+// };
 
-const saveChanges = () => {
-  // TODO: Implement save functionality
-  console.log('Saving changes...', shopData.value, workingHours.value);
-};
+// const getArtistsData = () => {
+//   if (activeTab.value === 'artists' && shopArtistsTabRef.value) {
+//     return {
+//       artists: shopArtistsTabRef.value.artists
+//     };
+//   }
+//   return null;
+// };
 </script>
 
 <style scoped lang="scss">
@@ -315,6 +125,14 @@ const saveChanges = () => {
   font-weight: 600;
   font-size: 16px;
   transition: all 0.3s ease;
+  
+  &.active {
+    transform: scale(1.05);
+  }
+}
+
+.tab-content {
+  min-height: 400px;
 }
 
 .expansion-header {

@@ -2,7 +2,6 @@
   <q-dialog
     v-model="isVisible"
     position="bottom"
-    seamless
   >
     <q-card class="time-dialog">
       <q-card-section class="dialog-header">
