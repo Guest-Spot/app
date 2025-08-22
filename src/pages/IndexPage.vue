@@ -77,6 +77,7 @@ type Shop = {
   location: string;
   description: string;
   image?: string;
+  addedAt?: number;
 };
 
 type Artist = {
@@ -85,6 +86,7 @@ type Artist = {
   specialty: string;
   bio: string;
   avatar?: string;
+  addedAt?: number;
 };
 
 // Tab management
@@ -249,7 +251,7 @@ const selectArtist = (artist: Artist) => {
 
 const toggleFavorite = (id: number) => {
   console.log('Toggle favorite for ID:', id);
-  // Toggle favorite status
+  // Toggle favorite status is now handled by the card components
 };
 
 const updateFilters = (filters: SearchFilters) => {

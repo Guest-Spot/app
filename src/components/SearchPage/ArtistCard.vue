@@ -28,7 +28,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useFavorites } from '../../modules/useFavorites';
 
 interface Artist {
   id: number;
@@ -36,6 +37,7 @@ interface Artist {
   specialty: string;
   bio: string;
   avatar?: string;
+  addedAt?: number; // Optional for backward compatibility
 }
 
 interface Props {
@@ -50,10 +52,12 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const isFavorite = ref(false);
+const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
+
+const isFavorite = computed(() => isArtistFavorite(props.artist.id));
 
 const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
+  toggleArtistFavorite(props.artist);
   emit('favorite', props.artist.id);
 };
 </script>
