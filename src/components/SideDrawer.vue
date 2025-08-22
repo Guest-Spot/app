@@ -12,7 +12,7 @@
         <q-separator />
         <q-item clickable @click="handleLogout">
           <q-item-section avatar>
-            <q-icon name="logout" color="negative" />
+            <q-icon name="logout" />
           </q-item-section>
           <q-item-section>
             <q-item-label>Logout</q-item-label>

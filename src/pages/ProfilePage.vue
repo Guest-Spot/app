@@ -14,7 +14,7 @@
               class="tab-btn active"
               unelevated
               rounded
-              color="primary"
+              color="dark"
               text-color="white"
               label="About shop"
             />
@@ -44,6 +44,7 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter shop title"
                   class="custom-input"
                   v-model="shopData.title"
@@ -51,11 +52,12 @@
               </div>
               <div class="input-group">
                 <label class="input-label">Description</label>
-                <q-textarea
+                <q-input
                   outlined
                   dense
+                  rounded
+                  type="textarea"
                   placeholder="Enter shop description"
-                  rows="3"
                   class="custom-input"
                   v-model="shopData.description"
                 />
@@ -76,6 +78,7 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter shop location"
                   class="custom-input"
                   v-model="shopData.location"
@@ -86,6 +89,7 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter phone number"
                   class="custom-input"
                   v-model="shopData.phone"
@@ -96,6 +100,7 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter email address"
                   class="custom-input"
                   v-model="shopData.email"
@@ -119,6 +124,7 @@
                     v-model="workingHours.start"
                     format24h
                     class="custom-input"
+                    color="dark"
                   />
                 </div>
                 <div class="hours-group">
@@ -127,6 +133,7 @@
                     v-model="workingHours.end"
                     format24h
                     class="custom-input"
+                    color="dark"
                   />
                 </div>
               </div>
@@ -146,6 +153,7 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter opening date"
                   class="custom-input"
                   v-model="shopData.dateOpened"
@@ -167,6 +175,7 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter Instagram link"
                   class="custom-input"
                   v-model="shopData.instagram"
@@ -177,44 +186,10 @@
                 <q-input
                   outlined
                   dense
+                  rounded
                   placeholder="Enter Facebook link"
                   class="custom-input"
                   v-model="shopData.facebook"
-                />
-              </div>
-              <div class="links-row">
-                <div v-for="(link, index) in shopData.customLinks" :key="index" class="link-input-group">
-                  <q-input
-                    outlined
-                    dense
-                    placeholder="Label"
-                    class="custom-input"
-                    v-model="link.label"
-                  />
-                  <q-input
-                    outlined
-                    dense
-                    placeholder="Link"
-                    class="custom-input"
-                    v-model="link.link"
-                  />
-                  <q-btn
-                    v-if="shopData.customLinks.length > 1"
-                    round
-                    color="negative"
-                    icon="remove"
-                    size="md"
-                    class="remove-link-btn"
-                    @click="removeCustomLink(index)"
-                  />
-                </div>
-                <q-btn
-                  round
-                  color="primary"
-                  icon="add"
-                  size="md"
-                  class="add-link-btn"
-                  @click="addCustomLink"
                 />
               </div>
             </div>
@@ -223,7 +198,7 @@
           <!-- Save Button -->
           <div class="save-section">
             <q-btn
-              color="primary"
+              color="dark"
               class="save-btn full-width"
               @click="saveChanges"
               rounded
@@ -251,25 +226,12 @@ const shopData = ref({
   dateOpened: '',
   instagram: '',
   facebook: '',
-  customLinks: [
-    { label: '', link: '' }
-  ]
 });
 
 const workingHours = ref({
   start: '08:00',
   end: '23:30'
 });
-
-const addCustomLink = () => {
-  shopData.value.customLinks.push({ label: '', link: '' });
-};
-
-const removeCustomLink = (index: number) => {
-  if (shopData.value.customLinks.length > 1) {
-    shopData.value.customLinks.splice(index, 1);
-  }
-};
 
 const saveChanges = () => {
   // TODO: Implement save functionality
@@ -329,6 +291,10 @@ const saveChanges = () => {
 
 .input-group {
   margin-bottom: 20px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .input-label {
@@ -367,10 +333,6 @@ const saveChanges = () => {
   margin-bottom: 8px;
 }
 
-.add-link-btn {
-  margin-bottom: 8px;
-}
-
 .save-section {
   margin-top: 20px;
   text-align: center;
@@ -382,7 +344,6 @@ const saveChanges = () => {
   font-weight: 700;
   font-size: 18px;
   letter-spacing: 0.6px;
-  height: 56px;
   text-transform: none;
   transition: all 0.3s ease;
   max-width: 300px;

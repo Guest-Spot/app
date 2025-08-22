@@ -22,7 +22,7 @@
             :src="imageSrc"
             fit="contain"
             spinner-size="lg"
-            spinner-color="primary"
+            spinner-color="dark"
             class="full-width full-height preview-image"
             :class="{ 'zoomed': isZoomed }"
             @click="toggleZoom"
