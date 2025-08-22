@@ -39,7 +39,7 @@
               <label class="input-label">Enter your password</label>
               <q-input
                 v-model="form.password"
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 placeholder="**************"
                 outlined
                 rounded
@@ -50,6 +50,16 @@
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" color="grey-7" />
+                </template>
+                <template v-slot:append>
+                  <q-btn
+                    round
+                    flat
+                    dense
+                    :icon="showPassword ? 'visibility_off' : 'visibility'"
+                    @click="showPassword = !showPassword"
+                    color="grey-7"
+                  />
                 </template>
               </q-input>
             </div>
@@ -82,43 +92,74 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { useUserStore } from 'src/stores/user-store';
 
 const router = useRouter();
 const $q = useQuasar();
+const userStore = useUserStore();
 
 const loading = ref(false);
+const showPassword = ref(false);
 const form = ref({
   login: '',
   password: ''
 });
 
+// Get test credentials for artist
+const testCredentials = userStore.getTestCredentials('artist');
+
 const handleLogin = async () => {
   loading.value = true;
   
   try {
-    // TODO: Implement actual login logic here
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    $q.notify({
-      type: 'positive',
-      message: 'Login successful! Redirecting to portfolio...',
-      position: 'top'
-    });
+    // Authenticate test user
+    const isAuthenticated = userStore.authenticateTestUser(form.value.login, form.value.password, 'artist');
     
-    // TODO: Redirect to artist portfolio/dashboard
-    setTimeout(() => {
-      void router.push('/');
-    }, 1500);
+    if (isAuthenticated) {
+      $q.notify({
+        type: 'primary',
+        message: 'Login successful!',
+        position: 'top',
+        timeout: 1500,
+        color: 'primary',
+        progress: true,
+        actions: [
+          {
+            icon: 'close',
+            color: 'white',
+          }
+        ]
+      });
+      
+      // Redirect to artist profile
+      setTimeout(() => {
+        void router.push('/profile');
+      }, 500);
+    } else {
+      throw new Error('Invalid credentials');
+    }
     
   } catch (error) {
     console.error('Login error:', error);
     $q.notify({
       type: 'negative',
       message: 'Login failed. Please check your credentials.',
-      position: 'top'
+      position: 'top',
+      timeout: 1500,
+      color: 'negative',
+      progress: true,
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        }
+      ]
     });
   } finally {
     loading.value = false;
@@ -128,6 +169,12 @@ const handleLogin = async () => {
 const goBack = () => {
   void router.push('/auth');
 };
+
+// Pre-fill form with test credentials on mount
+onMounted(() => {
+  form.value.login = testCredentials.login;
+  form.value.password = testCredentials.password;
+});
 </script>
 
 <style scoped>

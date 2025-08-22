@@ -102,3 +102,20 @@ body, html {
 .q-btn {
   text-transform: none;
 }
+
+.q-notifications__list--bottom {
+  margin-bottom: 80px;
+}
+
+.q-notification {
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.q-notification__badge--top-left, .q-notification__badge--bottom-left {
+  left: 0;
+}
+
+.q-notification__badge--top-left, .q-notification__badge--top-right {
+  top: 14px;
+}
