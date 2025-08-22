@@ -3,7 +3,7 @@
     <q-card class="full-width full-height image-preview-dialog">
       <!-- Header -->
       <q-card-section class="row items-center dialog-header">
-        <div class="text-h6 text-dark">{{ 'Image Preview' }}</div>
+        <div class="text-h6 text-white">{{ 'Image Preview' }}</div>
         <q-space />
         <q-btn 
           icon="close" 
@@ -60,6 +60,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+
+defineOptions({
+  name: 'ImagePreviewDialog',
+});
 
 interface Props {
   modelValue: boolean

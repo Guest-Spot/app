@@ -94,8 +94,8 @@
 
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
-import useImage from 'src/modules/useImage'
-import ImagePreviewDialog from 'src/components/ImagePreviewDialog.vue'
+import useImage from '../modules/useImage'
+import ImagePreviewDialog from './ImagePreviewDialog.vue'
 import { useQuasar, type ValidationRule } from 'quasar'
 import {
   ref,
@@ -115,7 +115,7 @@ const emit = defineEmits(['on-change', 'clear'])
 
 const props = defineProps({
   image: {
-    type: File,
+    type: [File, null] as PropType<File | null>,
     default: null,
   },
   size: {

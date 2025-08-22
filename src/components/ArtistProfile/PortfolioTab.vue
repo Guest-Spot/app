@@ -78,17 +78,35 @@
         unelevated
       />
     </div>
+
+    <!-- Portfolio Dialog -->
+    <PortfolioDialog
+      v-model="showDialog"
+      :work="currentWork"
+      :is-editing="isEditing"
+      @confirm="handleWorkConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
 
 interface PortfolioWork {
   id: number;
   title: string;
   description: string;
   imageUrl: string;
+  tags: string[];
+}
+
+interface PortfolioForm {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  imageFile: File | null;
   tags: string[];
 }
 
@@ -117,14 +135,70 @@ const portfolioItems = ref<PortfolioWork[]>([
   }
 ]);
 
+// Dialog state
+const showDialog = ref(false);
+const isEditing = ref(false);
+const currentWork = ref<PortfolioForm>({
+  id: 0,
+  title: '',
+  description: '',
+  imageUrl: '',
+  imageFile: null,
+  tags: []
+});
+
 const addNewWork = () => {
-  console.log('Add new work clicked');
-  // TODO: Implement add new work functionality
+  isEditing.value = false;
+  currentWork.value = {
+    id: Date.now(), // Generate temporary ID
+    title: '',
+    description: '',
+    imageUrl: '',
+    imageFile: null,
+    tags: []
+  };
+  showDialog.value = true;
 };
 
 const editWork = (index: number) => {
-  console.log('Edit work clicked', index);
-  // TODO: Implement edit work functionality
+  isEditing.value = true;
+  const work = portfolioItems.value[index];
+  if (work) {
+    currentWork.value = {
+      id: work.id,
+      title: work.title,
+      description: work.description,
+      imageUrl: work.imageUrl,
+      imageFile: null,
+      tags: [...work.tags]
+    };
+    showDialog.value = true;
+  }
+};
+
+const handleWorkConfirm = (work: PortfolioForm) => {
+  if (isEditing.value) {
+    // Update existing work
+    const index = portfolioItems.value.findIndex(item => item.id === work.id);
+    if (index !== -1) {
+      portfolioItems.value[index] = {
+        id: work.id,
+        title: work.title,
+        description: work.description,
+        imageUrl: work.imageUrl,
+        tags: work.tags
+      };
+    }
+  } else {
+    // Add new work
+    portfolioItems.value.push({
+      id: work.id,
+      title: work.title,
+      description: work.description,
+      imageUrl: work.imageUrl,
+      tags: work.tags
+    });
+  }
 };
 
 // const deleteWork = (index: number) => {
