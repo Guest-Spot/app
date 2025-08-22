@@ -52,6 +52,7 @@
                       :options="locationOptions"
                       outlined
                       dense
+                      rounded
                       placeholder="Select location"
                       class="filter-select"
                       clearable
@@ -67,6 +68,7 @@
                       :options="categoryOptions"
                       outlined
                       dense
+                      rounded
                       placeholder="Select category"
                       class="filter-select"
                       clearable
@@ -82,6 +84,7 @@
                       :options="ratingOptions"
                       outlined
                       dense
+                      rounded
                       placeholder="Select rating"
                       class="filter-select"
                       clearable
@@ -97,6 +100,7 @@
                       :options="priceRangeOptions"
                       outlined
                       dense
+                      rounded
                       placeholder="Select price range"
                       class="filter-select"
                       clearable
@@ -108,7 +112,8 @@
                 <div class="filters-actions flex items-center q-px-md q-pb-md">
                   <q-btn
                     color="grey-6"
-                    label="Clear"
+                    label="Clear All"
+                    flat
                     @click="clearFilters"
                     rounded
                     class="clear-btn"
