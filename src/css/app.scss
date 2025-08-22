@@ -119,3 +119,11 @@ body, html {
 .q-notification__badge--top-left, .q-notification__badge--top-right {
   top: 14px;
 }
+
+.q-drawer {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}

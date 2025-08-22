@@ -95,7 +95,8 @@ defineOptions({
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--background-light);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .drawer-header {
@@ -148,11 +149,5 @@ defineOptions({
 
 .q-item {
   border-radius: var(--border-radius-sm, 8px);
-  margin: 4px 8px;
-}
-
-.q-item:hover {
-  background: rgba(255, 255, 255, 0.6);
-  transition: background-color 0.2s ease;
 }
 </style>
