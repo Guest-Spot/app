@@ -4,12 +4,7 @@
       <div class="container">
         <div class="content full-width q-pa-md">
           <!-- Banner Image Section -->
-          <div class="banner-section">
-            <div class="banner-placeholder">
-              <q-icon name="image" size="48px" color="grey-5" />
-              <p class="text-grey-6 q-mt-sm">Banner image</p>
-            </div>
-          </div>
+          <ImageUploader />
 
         </div>
         <!-- Navigation Tabs -->
@@ -244,6 +239,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import ImageUploader from 'src/components/ImageUploader.vue';
 
 // Form data
 const shopData = ref({
