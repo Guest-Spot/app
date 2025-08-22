@@ -18,8 +18,6 @@ import SideDrawer from '../components/SideDrawer.vue';
 import TheFooter from '../components/TheFooter.vue';
 import TheHeader from '../components/TheHeader.vue';
 
-
-
 const leftDrawerOpen = ref(false);
 
 function toggleLeftDrawer() {

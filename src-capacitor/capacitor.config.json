@@ -47,7 +47,6 @@
     }
   },
   "ios": {
-    "contentInset": "automatic",
     "limitsNavigationsToAppBoundDomains": true,
     "scheme": "guestspot",
     "webContentsDebuggingEnabled": false
