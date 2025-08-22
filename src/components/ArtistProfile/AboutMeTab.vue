@@ -3,13 +3,46 @@
     <!-- BIO Section -->
     <q-expansion-item
       icon="person"
-      label="BIO"
+      label="Basic Information"
       header-class="expansion-header"
       class="info-expansion"
     >
       <div class="info-section">
         <div class="input-group">
-          <label class="input-label">Biography</label>
+          <label class="input-label">Username</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter username"
+            class="custom-input"
+            v-model="artistData.username"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Fullname</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter fullname"
+            class="custom-input"
+            v-model="artistData.fullname"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Status</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter status"
+            class="custom-input"
+            v-model="artistData.status"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Bio</label>
           <q-input
             outlined
             dense
@@ -109,6 +142,9 @@ import { ref } from 'vue';
 
 // Form data
 const artistData = ref({
+  username: 'artist_john',
+  fullname: 'John Doe',
+  status: 'Available for bookings',
   bio: 'Passionate artist with 5+ years of experience in live performances and studio recordings.',
   phone: '+1 (555) 123-4567',
   email: 'john.doe@example.com',

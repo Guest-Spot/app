@@ -4,22 +4,14 @@
       <div class="container">
         <div class="content full-width q-pa-md">
           <!-- Profile Header Section -->
-          <div class="profile-header q-mb-lg">
-            <div class="profile-info-container">
+          <div class="profile-header">
+            <div class="profile-info-container flex column">
               <div class="profile-picture">
                 <q-avatar size="120px" class="profile-avatar">
                   <q-icon name="person" size="80px" color="grey-6" />
                 </q-avatar>
-                <q-btn
-                  round
-                  color="primary"
-                  icon="edit"
-                  size="sm"
-                  class="edit-avatar-btn"
-                  @click="editAvatar"
-                />
               </div>
-              <div class="user-details">
+              <div class="user-details full-width">
                 <div class="detail-row">
                   <span class="detail-label">Username:</span>
                   <span class="detail-value">{{ artistData.username }}</span>
@@ -32,13 +24,6 @@
                   <span class="detail-label">Status:</span>
                   <span class="detail-value">{{ artistData.status }}</span>
                 </div>
-                <q-btn
-                  color="primary"
-                  label="Edit"
-                  size="sm"
-                  class="edit-profile-btn"
-                  @click="editProfile"
-                />
               </div>
             </div>
           </div>
@@ -124,16 +109,6 @@ const artistData = ref({
   fullname: 'John Doe',
   status: 'Available for bookings'
 });
-
-const editAvatar = () => {
-  // TODO: Implement avatar editing
-  console.log('Edit avatar clicked');
-};
-
-const editProfile = () => {
-  // TODO: Implement profile editing
-  console.log('Edit profile clicked');
-};
 </script>
 
 <style scoped lang="scss">
@@ -159,12 +134,8 @@ const editProfile = () => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.profile-picture {
-  position: relative;
-}
-
 .profile-avatar {
-  border: 3px solid var(--brand-dark);
+  border: 1px solid var(--border-light);
 }
 
 .edit-avatar-btn {
@@ -184,15 +155,19 @@ const editProfile = () => {
   align-items: center;
   margin-bottom: 15px;
   gap: 10px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .detail-label {
   font-weight: 600;
   color: var(--brand-dark);
-  min-width: 100px;
 }
 
 .detail-value {
+  width: 100%;
   color: var(--brand-dark);
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
