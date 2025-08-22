@@ -1,14 +1,14 @@
 <template>
   <div class="portfolio-tab flex column q-gap-md">
     <!-- Portfolio Header -->
-    <div class="portfolio-header q-mb-lg">
-      <h3 class="section-title">My Portfolio</h3>
+    <div class="portfolio-header">
+      <h3 class="text-subtitle1 text-bold q-my-none">My Portfolio ({{ portfolioItems.length }})</h3>
       <q-btn
-        color="primary"
+        color="dark"
         icon="add"
-        label="Add New Work"
+        size="sm"
         @click="addNewWork"
-        rounded
+        round
         unelevated
       />
     </div>
@@ -31,18 +31,18 @@
             <div class="work-overlay">
               <q-btn
                 round
-                color="primary"
+                color="dark"
                 icon="edit"
                 size="sm"
                 @click="editWork(index)"
               />
-              <q-btn
+              <!-- <q-btn
                 round
                 color="negative"
                 icon="delete"
                 size="sm"
                 @click="deleteWork(index)"
-              />
+              /> -->
             </div>
           </q-img>
         </div>
@@ -54,7 +54,7 @@
               v-for="tag in work.tags"
               :key="tag"
               :label="tag"
-              color="primary"
+              color="dark"
               text-color="white"
               size="sm"
               class="work-tag"
@@ -127,11 +127,11 @@ const editWork = (index: number) => {
   // TODO: Implement edit work functionality
 };
 
-const deleteWork = (index: number) => {
-  console.log('Delete work clicked', index);
-  // TODO: Implement delete work functionality
-  portfolioItems.value.splice(index, 1);
-};
+// const deleteWork = (index: number) => {
+//   console.log('Delete work clicked', index);
+//   // TODO: Implement delete work functionality
+//   portfolioItems.value.splice(index, 1);
+// };
 
 // Expose data for parent component
 defineExpose({
@@ -144,10 +144,11 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
-  border: 1px solid var(--shadow-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px 4px 4px 16px;
 }
 
 .section-title {
@@ -161,7 +162,6 @@ defineExpose({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-  padding: 20px;
 }
 
 .portfolio-item {
@@ -192,13 +192,12 @@ defineExpose({
   top: 10px;
   right: 10px;
   display: flex;
-  gap: 10px;
-  opacity: 0;
+  gap: 4px;
   transition: opacity 0.3s ease;
-}
-
-.portfolio-item:hover .work-overlay {
-  opacity: 1;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 4px;
 }
 
 .work-details {
@@ -222,7 +221,6 @@ defineExpose({
 .work-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
 }
 
 .work-tag {
