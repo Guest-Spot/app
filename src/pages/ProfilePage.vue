@@ -120,20 +120,46 @@
               <div class="hours-container">
                 <div class="hours-group">
                   <label class="input-label">Start</label>
-                  <q-time
+                  <q-input
                     v-model="workingHours.start"
-                    format24h
-                    class="custom-input"
-                    color="dark"
+                    outlined
+                    dense
+                    rounded
+                    readonly
+                    class="custom-input time-input"
+                    @click="startTimeDialog = true"
+                  >
+                    <template v-slot:append>
+                      <q-icon name="schedule" class="cursor-pointer" @click="startTimeDialog = true" />
+                    </template>
+                  </q-input>
+                  <TimePickerDialog
+                    v-model="startTimeDialog"
+                    :time="workingHours.start"
+                    title="Выберите время начала"
+                    @confirm="onStartTimeConfirm"
                   />
                 </div>
                 <div class="hours-group">
                   <label class="input-label">End</label>
-                  <q-time
+                  <q-input
                     v-model="workingHours.end"
-                    format24h
-                    class="custom-input"
-                    color="dark"
+                    outlined
+                    dense
+                    rounded
+                    readonly
+                    class="custom-input time-input"
+                    @click="endTimeDialog = true"
+                  >
+                    <template v-slot:append>
+                      <q-icon name="schedule" class="cursor-pointer" @click="endTimeDialog = true" />
+                    </template>
+                  </q-input>
+                  <TimePickerDialog
+                    v-model="endTimeDialog"
+                    :time="workingHours.end"
+                    title="Выберите время окончания"
+                    @confirm="onEndTimeConfirm"
                   />
                 </div>
               </div>
@@ -214,7 +240,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ImageUploader from 'src/components/ImageUploader.vue';
+import ImageUploader from 'components/ImageUploader.vue';
+import TimePickerDialog from 'components/Dialogs/TimePickerDialog.vue';
 
 // Form data
 const shopData = ref({
@@ -232,6 +259,17 @@ const workingHours = ref({
   start: '08:00',
   end: '23:30'
 });
+
+const startTimeDialog = ref(false);
+const endTimeDialog = ref(false);
+
+const onStartTimeConfirm = (time: string) => {
+  workingHours.value.start = time;
+};
+
+const onEndTimeConfirm = (time: string) => {
+  workingHours.value.end = time;
+};
 
 const saveChanges = () => {
   // TODO: Implement save functionality
@@ -314,6 +352,15 @@ const saveChanges = () => {
 .hours-group {
   flex: 1;
   min-width: 200px;
+  position: relative;
+}
+
+.time-input {
+  cursor: pointer;
+  
+  .q-field__control {
+    cursor: pointer;
+  }
 }
 
 .links-row {
