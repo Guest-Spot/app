@@ -1,14 +1,14 @@
 <template>
   <div class="trips-tab flex column q-gap-md">
     <!-- Trips Header -->
-    <div class="trips-header q-mb-lg">
-      <h3 class="section-title">My Trips & Performances</h3>
+    <div class="trips-header">
+      <h3 class="text-subtitle1 text-bold q-my-none">My Trips & Performances ({{ trips.length }})</h3>
       <q-btn
-        color="primary"
+        color="dark"
         icon="add"
-        label="Add New Trip"
+        size="sm"
         @click="addNewTrip"
-        rounded
+        round
         unelevated
       />
     </div>
@@ -28,18 +28,18 @@
           <div class="trip-actions">
             <q-btn
               round
-              color="primary"
+              color="dark"
               icon="edit"
               size="sm"
               @click="editTrip(index)"
             />
-            <q-btn
+            <!-- <q-btn
               round
               color="negative"
               icon="delete"
               size="sm"
               @click="deleteTrip(index)"
-            />
+            /> -->
           </div>
         </div>
         
@@ -195,11 +195,11 @@ const editTrip = (index: number) => {
   // TODO: Implement edit trip functionality
 };
 
-const deleteTrip = (index: number) => {
-  console.log('Delete trip clicked', index);
-  // TODO: Implement delete trip functionality
-  trips.value.splice(index, 1);
-};
+// const deleteTrip = (index: number) => {
+//   console.log('Delete trip clicked', index);
+//   // TODO: Implement delete trip functionality
+//   trips.value.splice(index, 1);
+// };
 
 // Expose data for parent component
 defineExpose({
@@ -212,10 +212,11 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
-  border: 1px solid var(--shadow-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px 4px 4px 16px;
 }
 
 .section-title {
@@ -228,12 +229,12 @@ defineExpose({
 .trips-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
+  gap: 16px;
 }
 
 .trip-item {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   border: 1px solid var(--shadow-light);
   overflow: hidden;
@@ -250,7 +251,8 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.4);
+  // backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--shadow-light);
 }
 

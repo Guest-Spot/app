@@ -25,8 +25,8 @@
             :src="work.imageUrl"
             :ratio="1"
             class="work-img"
-            spinner-color="primary"
-            spinner-size="82px"
+            spinner-color="dark"
+            spinner-size="32px"
           >
             <div class="work-overlay">
               <q-btn
@@ -161,11 +161,12 @@ defineExpose({
 .portfolio-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  gap: 16px;
 }
 
 .portfolio-item {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   border: 1px solid var(--shadow-light);
   overflow: hidden;
