@@ -124,7 +124,7 @@ const artistData = ref({
   fullname: 'John Doe',
   status: 'Available for bookings',
   bio: 'Passionate artist with 5+ years of experience in live performances and studio recordings.',
-  avatar: 'https://via.placeholder.com/120x120',
+  avatar: null,
   phone: '+1 (555) 123-4567',
   email: 'john.doe@example.com',
   instagram: 'https://instagram.com/johndoe_artist',
