@@ -1,10 +1,5 @@
 <template>
   <div class="public-portfolio-tab flex column q-gap-md">
-    <!-- Portfolio Header -->
-    <div class="portfolio-header">
-      <h3 class="text-subtitle1 text-bold q-my-none">Portfolio ({{ portfolioItems.length }})</h3>
-    </div>
-
     <!-- Portfolio Items -->
     <div class="portfolio-grid" v-if="portfolioItems.length > 0">
       <div
@@ -67,17 +62,6 @@ defineProps<Props>();
 <style scoped lang="scss">
 .public-portfolio-tab {
   width: 100%;
-}
-
-.portfolio-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 4px 4px 4px 16px;
 }
 
 .portfolio-grid {

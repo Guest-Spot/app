@@ -2,41 +2,34 @@
   <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
       <div class="container">
-        <div class="content full-width q-pa-md">
-          <!-- Profile Header Section -->
-          <div class="profile-header">
-            <div class="profile-info-container flex column">
-              <div class="profile-picture">
-                <q-avatar size="120px" class="profile-avatar">
-                  <q-img
-                    v-if="artistData.avatar"
-                    :src="artistData.avatar"
-                    :ratio="1"
-                    spinner-color="dark"
-                    spinner-size="32px"
-                  />
-                  <q-icon v-else name="person" size="80px" color="grey-6" />
-                </q-avatar>
-              </div>
-              <div class="user-details full-width">
-                <div class="detail-row">
-                  <span class="detail-label">Username:</span>
-                  <span class="detail-value">{{ artistData.username }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Fullname:</span>
-                  <span class="detail-value">{{ artistData.fullname }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Status:</span>
-                  <span class="detail-value">{{ artistData.status }}</span>
-                </div>
-                <div class="detail-row" v-if="artistData.bio">
-                  <span class="detail-label">Bio:</span>
-                  <span class="detail-value">{{ artistData.bio }}</span>
-                </div>
-              </div>
+
+        <!-- Profile Header Section -->
+        <div class="content profile-header q-mb-lg q-pa-md">
+          <div class="profile-info-container flex column items-center q-gap-md full-width">
+            <q-avatar size="100px" class="profile-avatar" color="white">
+              <q-img
+                v-if="artistData.avatar"
+                :src="artistData.avatar"
+                :ratio="1"
+                spinner-color="dark"
+                spinner-size="32px"
+              />
+              <q-icon v-else name="person" size="60px" color="grey-6" />
+            </q-avatar>
+            <div class="flex column items-center">
+              <span class="full-name text-h6">{{ artistData.fullname }}</span>
+              <span class="status text-body2">{{ artistData.status }}</span>
             </div>
+  
+            <q-btn
+              color="primary"
+              text-color="white"
+              unelevated
+              rounded
+            >
+              <span class="text-body2">Booking request</span>
+              <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
+            </q-btn>
           </div>
         </div>
 
@@ -84,7 +77,7 @@ const TAB_TRIPS = 'trips';
 
 const TABS: ITab[] = [
   {
-    label: 'About me',
+    label: 'About artist',
     tab: TAB_ABOUT
   },
   {
@@ -177,9 +170,6 @@ onMounted(() => {
 }
 
 .profile-info-container {
-  display: flex;
-  align-items: center;
-  gap: 30px;
   padding: 20px;
   border: 1px solid var(--shadow-light);
   border-radius: 20px;
