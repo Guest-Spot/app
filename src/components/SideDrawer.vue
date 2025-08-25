@@ -2,7 +2,10 @@
   <q-drawer v-model="drawerOpen" show-if-above bordered>
     <div class="drawer-content">
       <q-list>
-        <q-item-label header class="drawer-header"> Navigation </q-item-label>
+        <q-item-label header class="drawer-header flex justify-between">
+          <span>Navigation</span>
+          <q-btn round dense icon="close" color="dark" size="sm" @click="drawerOpen = false" />
+        </q-item-label>
 
         <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
       </q-list>
