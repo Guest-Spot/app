@@ -1,6 +1,18 @@
 <template>
   <q-header elevated class="custom-header">
     <q-toolbar class="header-toolbar">
+      <!-- Back Button - only show when hasBack is true in route meta -->
+      <q-btn
+        v-if="showBackButton"
+        icon="arrow_back"
+        flat
+        round
+        dense
+        @click="handleBack"
+        class="back-btn"
+        aria-label="Go back"
+      />
+      
       <q-toolbar-title class="header-title"> {{ pageTitle }} </q-toolbar-title>
       
       <!-- Logout Button - only show on profile pages -->
@@ -45,6 +57,14 @@ const pageTitle = computed(() => {
   return route.meta?.title || 'GuestSpot';
 });
 
+const showBackButton = computed(() => {
+  return route.meta?.hasBack;
+});
+
+const handleBack = () => {
+  router.back();
+};
+
 const handleLogout = () => {
   // Logout user from store (this will clear localStorage)
   userStore.logout();
@@ -79,5 +99,15 @@ const handleLogout = () => {
 .logout-btn {
   font-weight: 600;
   transition: all 0.3s ease;
+}
+
+.back-btn {
+  color: var(--text-dark, #333);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+  }
 }
 </style>

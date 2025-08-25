@@ -68,7 +68,7 @@ const routes: RouteRecordRaw[] = [
       { 
         path: '', 
         component: () => import('pages/PublicArtistProfile.vue'),
-        meta: { title: 'Artist Profile' }
+        meta: { title: 'Artist Profile', hasBack: true }
       },
     ],
   },
@@ -79,7 +79,7 @@ const routes: RouteRecordRaw[] = [
       { 
         path: '', 
         component: () => import('pages/PublicShopProfile.vue'),
-        meta: { title: 'Shop Profile' }
+        meta: { title: 'Shop Profile', hasBack: true }
       },
     ],
   },
