@@ -208,6 +208,7 @@ onMounted(() => {
 
 .profile-avatar {
   border: 1px solid var(--border-light);
+  overflow: hidden;
 }
 
 .user-details {
