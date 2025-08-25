@@ -222,6 +222,7 @@ onMounted(() => {
 .detail-label {
   font-weight: 600;
   color: var(--brand-dark);
+  min-width: 80px;
 }
 
 .detail-value {

@@ -5,9 +5,9 @@
       <q-btn
         v-if="showBackButton"
         icon="arrow_back"
-        flat
         round
         dense
+        text-color="grey-6"
         @click="handleBack"
         class="back-btn"
         aria-label="Go back"
@@ -92,6 +92,7 @@ const handleLogout = () => {
 .header-title {
   color: var(--text-dark, #333);
   font-weight: 600;
+  line-height: normal;
 }
 
 .logout-btn {
