@@ -1,94 +1,92 @@
 <template>
   <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
-    <div class="q-my-auto full-width">
-      <div class="container">
-        <!-- Header Section -->
-        <div class="bookmarks-header q-mb-lg hidden">
-          <div class="header-content">
-            <div class="header-left">
-              <h6 class="page-title">Bookmarks</h6>
-              <p class="page-subtitle">Your saved shops and artists</p>
-            </div>
+    <div class="container">
+      <!-- Header Section -->
+      <div class="bookmarks-header q-mb-lg hidden">
+        <div class="header-content">
+          <div class="header-left">
+            <h6 class="page-title">Bookmarks</h6>
+            <p class="page-subtitle">Your saved shops and artists</p>
           </div>
-          
-          <!-- Stats -->
-          <div class="stats-container">
-            <div class="stat-item">
-              <span class="stat-number">{{ favoriteShops.length }}</span>
-              <span class="stat-label">Shops</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number">{{ favoriteArtists.length }}</span>
-              <span class="stat-label">Artists</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number">{{ totalFavorites }}</span>
-              <span class="stat-label">Total</span>
-            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-container">
+          <div class="stat-item">
+            <span class="stat-number">{{ favoriteShops.length }}</span>
+            <span class="stat-label">Shops</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">{{ favoriteArtists.length }}</span>
+            <span class="stat-label">Artists</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">{{ totalFavorites }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <SearchTabs v-model="activeTab" />
+
+      <!-- Main Content Area -->
+      <div class="main-content flex column q-gap-md">
+        <!-- Results Counter -->
+        <div class="results-counter">
+          <span class="counter-text">
+            {{ activeTab === TAB_SHOPS ? favoriteShops.length : favoriteArtists.length }} 
+            {{ activeTab === TAB_SHOPS ? 'shops' : 'artists' }} saved
+          </span>
+        </div>
+
+        <!-- Shops Tab Content -->
+        <div v-if="activeTab === TAB_SHOPS" class="tab-content">
+          <div v-if="favoriteShops.length === 0" class="no-results">
+            <q-icon name="bookmark_border" size="60px" color="grey-5" />
+            <h3 class="no-results-title">No shops bookmarked yet</h3>
+            <p class="no-results-description">Start exploring and add your favorite shops to bookmarks</p>
+            <q-btn
+              color="dark"
+              label="Explore Shops"
+              icon="explore"
+              rounded
+              @click="$router.push('/')"
+            />
+          </div>
+          <div v-else class="content-grid">
+            <ShopCard
+              v-for="shop in favoriteShops"
+              :key="shop.id"
+              :shop="shop"
+              @click="selectShop"
+              @favorite="toggleFavorite"
+            />
           </div>
         </div>
 
-        <!-- Navigation Tabs -->
-        <SearchTabs v-model="activeTab" />
-
-        <!-- Main Content Area -->
-        <div class="main-content flex column q-gap-md">
-          <!-- Results Counter -->
-          <div class="results-counter">
-            <span class="counter-text">
-              {{ activeTab === TAB_SHOPS ? favoriteShops.length : favoriteArtists.length }} 
-              {{ activeTab === TAB_SHOPS ? 'shops' : 'artists' }} saved
-            </span>
+        <!-- Artists Tab Content -->
+        <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
+          <div v-if="favoriteArtists.length === 0" class="no-results">
+            <q-icon name="bookmark_border" size="60px" color="grey-5" />
+            <h3 class="no-results-title">No artists bookmarked yet</h3>
+            <p class="no-results-description">Start exploring and add your favorite artists to bookmarks</p>
+            <q-btn
+              color="dark"
+              label="Explore Artists"
+              icon="explore"
+              rounded
+              @click="$router.push('/')"
+            />
           </div>
-
-          <!-- Shops Tab Content -->
-          <div v-if="activeTab === TAB_SHOPS" class="tab-content">
-            <div v-if="favoriteShops.length === 0" class="no-results">
-              <q-icon name="bookmark_border" size="60px" color="grey-5" />
-              <h3 class="no-results-title">No shops bookmarked yet</h3>
-              <p class="no-results-description">Start exploring and add your favorite shops to bookmarks</p>
-              <q-btn
-                color="dark"
-                label="Explore Shops"
-                icon="explore"
-                rounded
-                @click="$router.push('/')"
-              />
-            </div>
-            <div v-else class="content-grid">
-              <ShopCard
-                v-for="shop in favoriteShops"
-                :key="shop.id"
-                :shop="shop"
-                @click="selectShop"
-                @favorite="toggleFavorite"
-              />
-            </div>
-          </div>
-
-          <!-- Artists Tab Content -->
-          <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
-            <div v-if="favoriteArtists.length === 0" class="no-results">
-              <q-icon name="bookmark_border" size="60px" color="grey-5" />
-              <h3 class="no-results-title">No artists bookmarked yet</h3>
-              <p class="no-results-description">Start exploring and add your favorite artists to bookmarks</p>
-              <q-btn
-                color="dark"
-                label="Explore Artists"
-                icon="explore"
-                rounded
-                @click="$router.push('/')"
-              />
-            </div>
-            <div v-else class="content-grid">
-              <ArtistCard
-                v-for="artist in favoriteArtists"
-                :key="artist.id"
-                :artist="artist"
-                @click="selectArtist"
-                @favorite="toggleFavorite"
-              />
-            </div>
+          <div v-else class="content-grid">
+            <ArtistCard
+              v-for="artist in favoriteArtists"
+              :key="artist.id"
+              :artist="artist"
+              @click="selectArtist"
+              @favorite="toggleFavorite"
+            />
           </div>
         </div>
       </div>

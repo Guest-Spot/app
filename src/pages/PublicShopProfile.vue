@@ -236,7 +236,6 @@ onMounted(() => {
   width: 100%;
   height: 150px;
   overflow: hidden;
-  border: 1px solid var(--shadow-light);
 
   :deep(.q-img) {
     width: 100%;
