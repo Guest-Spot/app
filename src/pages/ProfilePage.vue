@@ -52,9 +52,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ImageUploader from 'src/components/ImageUploader.vue';
-import AboutShopTab from 'src/components/ProfilePage/Shops/AboutShopTab.vue';
-import ShopArtistsTab from 'src/components/ProfilePage/Shops/ShopArtistsTab.vue';
+import { ImageUploader } from 'src/components';
+import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';

@@ -1,34 +1,61 @@
 <template>
   <q-header elevated class="custom-header">
     <q-toolbar class="header-toolbar">
-      <q-btn 
-        flat 
-        dense 
-        round 
-        icon="menu" 
-        aria-label="Menu" 
-        @click="toggleLeftDrawer"
-        class="menu-btn"
-      />
-
       <q-toolbar-title class="header-title"> GuestSpot </q-toolbar-title>
+      
+      <!-- Logout Button - only show on profile pages -->
+      <q-btn
+        v-if="isProfilePage"
+        color="negative"
+        icon="logout"
+        label="Logout"
+        size="sm"
+        rounded
+        outline
+        @click="handleLogout"
+        class="logout-btn"
+      />
     </q-toolbar>
   </q-header>
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue';
-
-// Inject the toggle function from parent component
-const toggleLeftDrawer = inject<() => void>('toggleLeftDrawer', () => {});
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useUserStore } from 'src/stores/user-store';
 
 // Export component for TypeScript
 defineOptions({
   name: 'TheHeader'
 });
+
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
+
+// Check if current page is a profile page
+const isProfilePage = computed(() => {
+  const profileRoutes = ['/profile', '/artist-profile'];
+  return profileRoutes.some(profileRoute => profileRoute === route.path);
+});
+
+const handleLogout = () => {
+  // Logout user from store (this will clear localStorage)
+  userStore.logout();
+  
+  // Redirect to appropriate login page based on user type
+  if (userStore.type === 'shop') {
+    void router.push('/login/shop');
+  } else if (userStore.type === 'artist') {
+    void router.push('/login/artist');
+  } else {
+    // Default to auth page
+    void router.push('/auth');
+  }
+};
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .custom-header {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
@@ -38,18 +65,13 @@ defineOptions({
   overflow: hidden;
 }
 
-.menu-btn {
-  color: var(--text-dark, #333);
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
-.menu-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
 .header-title {
   color: var(--text-dark, #333);
   font-weight: 600;
+}
+
+.logout-btn {
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 </style>

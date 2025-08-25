@@ -2,6 +2,7 @@
   <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
       <div class="container">
+
         <div class="content full-width q-pa-md">
           <!-- Profile Header Section -->
           <div class="profile-header">
@@ -88,9 +89,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import AboutMeTab from 'src/components/ArtistProfile/AboutMeTab.vue';
-import PortfolioTab from 'src/components/ArtistProfile/PortfolioTab.vue';
-import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
+import { AboutMeTab, PortfolioTab, TripsTab } from 'src/components/ArtistProfile';
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
