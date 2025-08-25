@@ -7,33 +7,42 @@
           <div class="profile-header">
             <div class="profile-info-container flex column">
               <div class="profile-picture">
-                <q-avatar size="120px" class="profile-avatar">
-                  <q-img
-                    v-if="shopData.image"
-                    :src="shopData.image"
-                    :ratio="1"
-                    spinner-color="dark"
-                    spinner-size="32px"
-                  />
-                  <q-icon v-else name="store" size="80px" color="grey-6" />
-                </q-avatar>
+                <q-img
+                  v-if="shopData.image"
+                  :src="shopData.image"
+                  :ratio="1"
+                  spinner-color="dark"
+                  spinner-size="32px"
+                />
+                <q-icon v-else name="store" size="80px" color="grey-6" />
               </div>
-              <div class="user-details full-width">
-                <div class="detail-row">
-                  <span class="detail-label">Name:</span>
-                  <span class="detail-value">{{ shopData.name }}</span>
+              <div class="user-details flex column items-center q-gap-md full-width">
+                <div class="flex column items-center">
+                  <span class="full-name text-h6">{{ shopData.title }}</span>
+                  <span class="status text-body2 text-center">{{ shopData.description }}</span>
                 </div>
-                <div class="detail-row">
-                  <span class="detail-label">Location:</span>
-                  <span class="detail-value">{{ shopData.location }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Status:</span>
-                  <span class="detail-value">{{ shopData.status }}</span>
-                </div>
-                <div class="detail-row" v-if="shopData.description">
-                  <span class="detail-label">Description:</span>
-                  <span class="detail-value">{{ shopData.description }}</span>
+                <div class="flex row items-center q-gap-sm full-width no-wrap">
+                  <q-btn
+                    color="primary"
+                    text-color="white"
+                    class="full-width"
+                    unelevated
+                    rounded
+                  >
+                    <span class="text-body2">Booking request</span>
+                    <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
+                  </q-btn>
+                  <q-btn
+                    round
+                    flat
+                    dense
+                    :color="isFavorite ? 'red' : 'grey-6'"
+                    @click="toggleFavorite"
+                    class="favorite-btn"
+                  >
+                    <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
+                    <q-icon v-else name="favorite_border" size="18px" color="red" />
+                  </q-btn>
                 </div>
               </div>
             </div>
@@ -71,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IArtist } from 'src/interfaces/artist';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -79,8 +88,10 @@ import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArt
 import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
+import { useFavorites } from 'src/modules/useFavorites';
 
 const route = useRoute();
+const { isShopFavorite, toggleShopFavorite } = useFavorites();
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -88,7 +99,7 @@ const TAB_PORTFOLIO = 'portfolio';
 
 const TABS: ITab[] = [
   {
-    label: 'About',
+    label: 'About shop',
     tab: TAB_ABOUT
   },
   {
@@ -111,11 +122,10 @@ const setActiveTab = (tab: ITab) => {
 // Mock shop data - в реальном приложении будет загружаться по ID
 const shopData = ref({
   id: 1,
-  name: 'Ink Paradise',
   location: 'Downtown, NY',
   status: 'Open for business',
   description: 'Professional tattoo studio with 15+ years of experience in creating unique and beautiful tattoos.',
-  image: null,
+  image: 'https://picsum.photos/300/300?random=1',
   title: 'Ink Paradise Tattoo Studio',
   phone: '+1 (555) 123-4567',
   email: 'info@inkparadise.com',
@@ -180,6 +190,20 @@ const portfolioItems = ref([
   }
 ]);
 
+// Computed properties for favorites
+const isFavorite = computed(() => isShopFavorite(shopData.value.id));
+
+// Methods
+const toggleFavorite = () => {
+  toggleShopFavorite({
+    id: shopData.value.id,
+    name: shopData.value.title,
+    location: shopData.value.location,
+    description: shopData.value.description,
+    image: shopData.value.image
+  });
+};
+
 onMounted(() => {
   const shopId = route.params.id;
   console.log('Loading shop profile for ID:', shopId);
@@ -202,25 +226,29 @@ onMounted(() => {
 .profile-info-container {
   display: flex;
   align-items: center;
-  gap: 30px;
-  padding: 20px;
+  overflow: hidden;
   border: 1px solid var(--shadow-light);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.8);
 }
 
-.profile-avatar {
-  border: 1px solid var(--border-light);
+.profile-picture {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border: 1px solid var(--shadow-light);
 }
 
 .user-details {
   flex: 1;
   text-align: left;
+  padding: 20px;
 }
 
 .detail-row {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: start;
   margin-bottom: 15px;
   gap: 10px;
 
@@ -241,5 +269,13 @@ onMounted(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
+}
+
+.favorite-btn {
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--shadow-light);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
 }
 </style>

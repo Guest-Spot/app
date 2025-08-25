@@ -21,15 +21,29 @@
               <span class="status text-body2">{{ artistData.status }}</span>
             </div>
   
-            <q-btn
-              color="primary"
-              text-color="white"
-              unelevated
-              rounded
-            >
-              <span class="text-body2">Booking request</span>
-              <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
-            </q-btn>
+            <div class="flex row items-center q-gap-sm full-width no-wrap">
+              <q-btn
+                color="primary"
+                text-color="white"
+                class="full-width"
+                unelevated
+                rounded
+              >
+                <span class="text-body2">Booking request</span>
+                <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
+              </q-btn>
+              <q-btn
+                round
+                flat
+                dense
+                :color="isFavorite ? 'red' : 'grey-6'"
+                @click="toggleFavorite"
+                class="favorite-btn"
+              >
+                <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
+                <q-icon v-else name="favorite_border" size="18px" color="red" />
+              </q-btn>
+            </div>
           </div>
         </div>
 
@@ -61,15 +75,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import PublicAboutMeTab from 'src/components/ArtistProfile/PublicAboutMeTab.vue';
 import PublicPortfolioTab from 'src/components/ArtistProfile/PublicPortfolioTab.vue';
 import PublicTripsTab from 'src/components/ArtistProfile/PublicTripsTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
+import { useFavorites } from 'src/modules/useFavorites';
 
 const route = useRoute();
+const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -104,7 +120,7 @@ const artistData = ref({
   fullname: 'John Doe',
   status: 'Available for bookings',
   bio: 'Passionate artist with 5+ years of experience in live performances and studio recordings.',
-  avatar: null,
+  avatar: 'https://picsum.photos/300/300?random=1',
   phone: '+1 (555) 123-4567',
   email: 'john.doe@example.com',
   instagram: 'https://instagram.com/johndoe_artist',
@@ -148,6 +164,20 @@ const trips = ref([
     status: 'Planning'
   }
 ]);
+
+// Computed properties for favorites
+const isFavorite = computed(() => isArtistFavorite(artistData.value.id));
+
+// Methods
+const toggleFavorite = () => {
+  toggleArtistFavorite({
+    id: artistData.value.id,
+    name: artistData.value.fullname,
+    specialty: artistData.value.status,
+    bio: artistData.value.bio,
+    avatar: artistData.value.avatar
+  });
+};
 
 onMounted(() => {
   const artistId = route.params.id;
@@ -208,5 +238,13 @@ onMounted(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
+}
+
+.favorite-btn {
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--shadow-light);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
 }
 </style>
