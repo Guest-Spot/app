@@ -1,6 +1,6 @@
 <template>
   <q-header elevated class="custom-header">
-    <q-toolbar class="header-toolbar">
+    <q-toolbar class="header-toolbar q-px-md">
       <!-- Back Button - only show when hasBack is true in route meta -->
       <q-btn
         v-if="showBackButton"

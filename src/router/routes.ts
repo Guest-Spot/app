@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
       { 
         path: '', 
         component: () => import('pages/IndexPage.vue'),
-        meta: { title: 'GuestSpot' }
+        meta: { title: 'Search Page' }
       },
       { 
         path: 'bookmarks', 
