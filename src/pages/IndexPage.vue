@@ -244,12 +244,10 @@ const hasActiveFilters = computed(() => {
 
 // Methods
 const selectShop = (shop: Shop) => {
-  console.log('Selected shop:', shop);
   void router.push(`/shop/${shop.id}`);
 };
 
 const selectArtist = (artist: Artist) => {
-  console.log('Selected artist:', artist);
   void router.push(`/artist/${artist.id}`);
 };
 
