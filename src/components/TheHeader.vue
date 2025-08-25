@@ -18,7 +18,7 @@
       <!-- Logout Button - only show on profile pages -->
       <q-btn
         v-if="isProfilePage"
-        color="negative"
+        text-color="negative"
         icon="logout"
         size="sm"
         round
