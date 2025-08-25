@@ -31,54 +31,23 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="tabs-section q-my-lg">
-          <div class="tab-container">
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_ABOUT }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_ABOUT"
-              :color="activeTab === TAB_ABOUT ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_ABOUT ? 'white' : 'dark'"
-              label="About me"
-              @click="setActiveTab(TAB_ABOUT)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_PORTFOLIO }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_PORTFOLIO"
-              :color="activeTab === TAB_PORTFOLIO ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_PORTFOLIO ? 'white' : 'dark'"
-              label="Portfolio"
-              @click="setActiveTab(TAB_PORTFOLIO)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_TRIPS }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_TRIPS"
-              :color="activeTab === TAB_TRIPS ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_TRIPS ? 'white' : 'dark'"
-              label="Trips"
-              @click="setActiveTab(TAB_TRIPS)"
-            />
-          </div>
-        </div>
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          @setActiveTab="setActiveTab"
+          class="q-my-lg"
+        />
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
           <!-- Tab Content -->
-          <div v-if="activeTab === TAB_ABOUT" class="tab-content">
+          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
             <AboutMeTab />
           </div>
-          <div v-else-if="activeTab === TAB_PORTFOLIO" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
             <PortfolioTab />
           </div>
-          <div v-else-if="activeTab === TAB_TRIPS" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
             <TripsTab />
           </div>
         </div>
@@ -88,18 +57,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { AboutMeTab, PortfolioTab, TripsTab } from 'src/components/ArtistProfile';
+import TabsComp from 'src/components/TabsComp.vue';
+import { type ITab } from 'src/interfaces/tabs';
+import { useRouter } from 'vue-router';
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';
 
-// Tab management
-const activeTab = ref(TAB_ABOUT);
+const router = useRouter();
 
-const setActiveTab = (tab: string) => {
+const TABS: ITab[] = [
+  {
+    label: 'About me',
+    tab: TAB_ABOUT
+  },
+  {
+    label: 'Portfolio',
+    tab: TAB_PORTFOLIO
+  },
+  {
+    label: 'Trips',
+    tab: TAB_TRIPS
+  }
+];
+
+// Tab management
+const activeTab = ref<ITab>(TABS[0]!);
+
+const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
+  void router.replace({ query: { tab: tab.tab } });
 };
 
 // Mock artist data
@@ -107,6 +97,18 @@ const artistData = ref({
   username: 'artist_john',
   fullname: 'John Doe',
   status: 'Available for bookings'
+});
+
+const getActiveTab = () => {
+  const tab = router.currentRoute.value.query.tab;
+  if (tab) {
+    return TABS.find(t => t.tab === tab) || TABS[0]!;
+  }
+  return TABS[0]!;
+};
+
+onMounted(() => {
+  activeTab.value = getActiveTab();
 });
 </script>
 
