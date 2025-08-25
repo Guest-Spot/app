@@ -44,6 +44,13 @@ const routes: RouteRecordRaw[] = [
       { path: '', component: () => import('pages/PublicArtistProfile.vue') },
     ],
   },
+  {
+    path: '/shop/:id',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/PublicShopProfile.vue') },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

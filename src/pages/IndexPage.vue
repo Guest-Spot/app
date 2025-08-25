@@ -68,6 +68,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 
 // Types from components
@@ -88,6 +89,9 @@ type Artist = {
   avatar?: string;
   addedAt?: number;
 };
+
+// Router
+const router = useRouter();
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
@@ -241,12 +245,12 @@ const hasActiveFilters = computed(() => {
 // Methods
 const selectShop = (shop: Shop) => {
   console.log('Selected shop:', shop);
-  // Navigate to shop profile or show details
+  void router.push(`/shop/${shop.id}`);
 };
 
 const selectArtist = (artist: Artist) => {
   console.log('Selected artist:', artist);
-  // Navigate to artist profile or show details
+  void router.push(`/artist/${artist.id}`);
 };
 
 const toggleFavorite = (id: number) => {

@@ -3,7 +3,7 @@
     <div class="q-my-auto full-width">
       <div class="container">
         <!-- Header Section -->
-        <div class="bookmarks-header q-mb-lg">
+        <div class="bookmarks-header q-mb-lg hidden">
           <div class="header-content">
             <div class="header-left">
               <h6 class="page-title">Bookmarks</h6>
@@ -100,6 +100,7 @@
 import { ref } from 'vue';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import { useFavorites, type FavoriteShop, type FavoriteArtist } from '../modules/useFavorites';
+import { useRouter } from 'vue-router';
 
 // Types for compatibility
 type Shop = {
@@ -130,15 +131,15 @@ const {
   totalFavorites,
 } = useFavorites();
 
+const router = useRouter();
+
 // Methods
 const selectShop = (shop: FavoriteShop | Shop) => {
-  console.log('Selected shop:', shop);
-  // Navigate to shop profile or show details
+  void router.push(`/shop/${shop.id}`);
 };
 
 const selectArtist = (artist: FavoriteArtist | Artist) => {
-  console.log('Selected artist:', artist);
-  // Navigate to artist profile or show details
+  void router.push(`/artist/${artist.id}`);
 };
 
 const toggleFavorite = (id: number) => {

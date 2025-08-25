@@ -6,3 +6,8 @@ export { default as TripsTab } from './TripsTab.vue';
 export { default as PublicAboutMeTab } from './PublicAboutMeTab.vue';
 export { default as PublicPortfolioTab } from './PublicPortfolioTab.vue';
 export { default as PublicTripsTab } from './PublicTripsTab.vue';
+
+// Public shop components
+export { default as PublicAboutShopTab } from './PublicAboutShopTab.vue';
+export { default as PublicShopArtistsTab } from './PublicShopArtistsTab.vue';
+export { default as PublicShopPortfolioTab } from './PublicShopPortfolioTab.vue';
