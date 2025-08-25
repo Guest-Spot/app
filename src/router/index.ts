@@ -33,5 +33,18 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  Router.beforeEach((to, from, next) => {
+    const QApp = document.querySelector('#q-app');
+    if (QApp) {
+      setTimeout(() => {
+        QApp.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }, 100);
+    }
+    next();
+  });
+
   return Router;
 });

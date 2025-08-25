@@ -18,6 +18,30 @@ body, html {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
+body.q-ios-padding .q-dialog__inner {
+  padding-bottom: 0 !important;
+}
+
+#q-app {
+  height: 100vh;
+  overflow: auto;
+}
+
+*::-webkit-scrollbar-track
+{
+  display: none;
+}
+
+*::-webkit-scrollbar
+{
+  display: none;
+}
+
+*::-webkit-scrollbar-thumb
+{
+	display: none;
+}
+
 .container {
   width: 100%;
   max-width: 500px;
