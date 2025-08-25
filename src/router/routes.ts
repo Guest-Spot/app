@@ -37,6 +37,13 @@ const routes: RouteRecordRaw[] = [
       { path: 'privacy', component: () => import('pages/PrivacyPage.vue') },
     ],
   },
+  {
+    path: '/artist/:id',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/PublicArtistProfile.vue') },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

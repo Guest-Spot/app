@@ -1,5 +1,5 @@
 <template>
-  <div class="artist-card" @click="$emit('click', artist)">
+  <div class="artist-card" @click="navigateToProfile">
     <div class="artist-avatar">
       <q-img
         :src="artist.avatar || 'https://via.placeholder.com/80x80'"
@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useFavorites } from '../../modules/useFavorites';
 
 interface Artist {
@@ -51,6 +52,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const router = useRouter();
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 
@@ -59,6 +61,11 @@ const isFavorite = computed(() => isArtistFavorite(props.artist.id));
 const toggleFavorite = () => {
   toggleArtistFavorite(props.artist);
   emit('favorite', props.artist.id);
+};
+
+const navigateToProfile = () => {
+  void router.push(`/artist/${props.artist.id}`);
+  emit('click', props.artist);
 };
 </script>
 
