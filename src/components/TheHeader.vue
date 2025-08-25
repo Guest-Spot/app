@@ -20,10 +20,8 @@
         v-if="isProfilePage"
         color="negative"
         icon="logout"
-        label="Logout"
         size="sm"
-        rounded
-        outline
+        round
         @click="handleLogout"
         class="logout-btn"
       />

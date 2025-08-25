@@ -31,22 +31,14 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFavorites } from '../../modules/useFavorites';
-
-interface Artist {
-  id: number;
-  name: string;
-  specialty: string;
-  bio: string;
-  avatar?: string;
-  addedAt?: number; // Optional for backward compatibility
-}
+import type { IArtist } from '../../interfaces/artist';
 
 interface Props {
-  artist: Artist;
+  artist: IArtist;
 }
 
 interface Emits {
-  (e: 'click', artist: Artist): void;
+  (e: 'click', artist: IArtist): void;
   (e: 'favorite', artistId: number): void;
 }
 

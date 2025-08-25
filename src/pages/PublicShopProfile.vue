@@ -103,6 +103,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import type { IArtist } from 'src/interfaces/artist';
 import { PublicAboutShopTab, PublicShopArtistsTab, PublicShopPortfolioTab } from 'src/components/ArtistProfile';
 
 const route = useRoute();
@@ -141,28 +142,25 @@ const workingHours = ref({
 });
 
 // Mock artists data
-const artists = ref([
+const artists = ref<IArtist[]>([
   {
-    id: '1',
+    id: 1,
     name: 'John Doe',
     specialty: 'Traditional Tattoo',
-    experience: 8,
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
     avatar: 'https://picsum.photos/80/80?random=1'
   },
   {
-    id: '2',
+    id: 2,
     name: 'Jane Smith',
     specialty: 'Watercolor Tattoo',
-    experience: 5,
     bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
     avatar: 'https://picsum.photos/80/80?random=2'
   },
   {
-    id: '3',
+    id: 3,
     name: 'Mike Johnson',
     specialty: 'Black & Grey Realism',
-    experience: 12,
     bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
     avatar: 'https://picsum.photos/80/80?random=3'
   }
@@ -196,7 +194,6 @@ const portfolioItems = ref([
 onMounted(() => {
   const shopId = route.params.id;
   console.log('Loading shop profile for ID:', shopId);
-  // Здесь будет загрузка данных шопа по ID
 });
 </script>
 

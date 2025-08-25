@@ -80,38 +80,32 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import ArtistDialog from 'src/components/Dialogs/ArtistDialog.vue';
+import type { IArtist } from 'src/interfaces/artist';
 
-interface Artist {
-  id: string;
-  name: string;
-  specialty: string;
-  experience: number;
-  bio: string;
-  avatar?: string;
-}
+
 
 // Artists data
-const artists = ref<Artist[]>([
+const artists = ref<IArtist[]>([
   {
-    id: '1',
+    id: 1,
     name: 'John Doe',
     specialty: 'Traditional Tattoo',
-    experience: 5,
-    bio: 'Experienced tattoo artist specializing in traditional American style tattoos.'
+    bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
+    experience: 8
   },
   {
-    id: '2',
+    id: 2,
     name: 'Jane Smith',
     specialty: 'Watercolor Tattoo',
-    experience: 3,
-    bio: 'Creative artist known for beautiful watercolor style tattoos.'
+    bio: 'Creative artist known for beautiful watercolor style tattoos.',
+    experience: 5
   }
 ]);
 
 // Dialog state
 const showAddArtistDialog = ref(false);
 const isEditing = ref(false);
-const editingArtistId = ref<string | null>(null);
+const editingArtistId = ref<number | null>(null);
 
 // Form data
 const artistForm = reactive({
@@ -122,17 +116,17 @@ const artistForm = reactive({
 });
 
 // Methods
-const editArtist = (artist: Artist) => {
+const editArtist = (artist: IArtist) => {
   isEditing.value = true;
   editingArtistId.value = artist.id;
   artistForm.name = artist.name;
   artistForm.specialty = artist.specialty;
-  artistForm.experience = artist.experience;
+  artistForm.experience = artist.experience || 0;
   artistForm.bio = artist.bio;
   showAddArtistDialog.value = true;
 };
 
-const deleteArtist = (artistId: string) => {
+const deleteArtist = (artistId: number) => {
   artists.value = artists.value.filter(artist => artist.id !== artistId);
 };
 
@@ -152,11 +146,11 @@ const saveArtist = (artistData: { name: string; specialty: string; experience: n
     }
   } else {
     // Add new artist
-    const newArtist: Artist = {
-      id: Date.now().toString(),
+    const newArtist: IArtist = {
+      id: Date.now(),
       name: artistData.name,
       specialty: artistData.specialty,
-      experience: artistData.experience,
+      experience: artistData.experience || 0,
       bio: artistData.bio
     };
     artists.value.push(newArtist);

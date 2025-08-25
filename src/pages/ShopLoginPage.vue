@@ -126,7 +126,7 @@ const handleLogin = async () => {
         message: 'Login successful!',
         position: 'top',
         timeout: 1500,
-        color: 'primary',
+        color: 'dark',
         progress: true,
         actions: [
           {

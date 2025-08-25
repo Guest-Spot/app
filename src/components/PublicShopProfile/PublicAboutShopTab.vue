@@ -1,23 +1,5 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
-    <!-- Basic Information -->
-    <div class="info-card">
-      <div class="card-header">
-        <q-icon name="info" size="24px" color="dark" />
-        <h3 class="card-title">Basic Information</h3>
-      </div>
-      <div class="card-content">
-        <div class="info-row">
-          <span class="info-label">Title:</span>
-          <span class="info-value">{{ shopData.title || 'Not specified' }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Description:</span>
-          <span class="info-value">{{ shopData.description || 'Not specified' }}</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Contacts -->
     <div class="info-card">
       <div class="card-header">
@@ -165,7 +147,7 @@ defineProps<Props>();
 .info-label {
   font-weight: 600;
   color: var(--brand-dark);
-  min-width: 120px;
+  min-width: 90px;
   flex-shrink: 0;
 }
 

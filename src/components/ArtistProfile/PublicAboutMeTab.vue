@@ -143,7 +143,7 @@ defineProps<Props>();
 .info-label {
   font-weight: 600;
   color: var(--brand-dark);
-  min-width: 100px;
+  min-width: 90px;
   flex-shrink: 0;
   font-size: 14px;
 }
