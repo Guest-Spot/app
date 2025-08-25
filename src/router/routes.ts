@@ -4,6 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/auth',
     component: () => import('layouts/AuthLayout.vue'),
+    meta: { title: 'Authentication' },
     children: [
       { path: '', component: () => import('pages/AuthPage.vue') },
     ],
@@ -11,6 +12,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login/shop',
     component: () => import('layouts/AuthLayout.vue'),
+    meta: { title: 'Shop Login' },
     children: [
       { path: '', component: () => import('pages/ShopLoginPage.vue') },
     ],
@@ -18,6 +20,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login/artist',
     component: () => import('layouts/AuthLayout.vue'),
+    meta: { title: 'Artist Login' },
     children: [
       { path: '', component: () => import('pages/ArtistLoginPage.vue') },
     ],
@@ -26,29 +29,58 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
-      { path: 'bookmarks', component: () => import('pages/BookmarksPage.vue') },
+      { 
+        path: '', 
+        component: () => import('pages/IndexPage.vue'),
+        meta: { title: 'GuestSpot' }
+      },
+      { 
+        path: 'bookmarks', 
+        component: () => import('pages/BookmarksPage.vue'),
+        meta: { title: 'Bookmarks' }
+      },
       { 
         path: 'profile', 
         component: () => import('src/pages/ProfileRouter.vue'),
+        meta: { title: 'Profile' }
       },
-      { path: 'faq', component: () => import('pages/FAQPage.vue') },
-      { path: 'tos', component: () => import('pages/TOSPage.vue') },
-      { path: 'privacy', component: () => import('pages/PrivacyPage.vue') },
+      { 
+        path: 'faq', 
+        component: () => import('pages/FAQPage.vue'),
+        meta: { title: 'FAQ' }
+      },
+      { 
+        path: 'tos', 
+        component: () => import('pages/TOSPage.vue'),
+        meta: { title: 'Terms of Service' }
+      },
+      { 
+        path: 'privacy', 
+        component: () => import('pages/PrivacyPage.vue'),
+        meta: { title: 'Privacy Policy' }
+      },
     ],
   },
   {
     path: '/artist/:id',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/PublicArtistProfile.vue') },
+      { 
+        path: '', 
+        component: () => import('pages/PublicArtistProfile.vue'),
+        meta: { title: 'Artist Profile' }
+      },
     ],
   },
   {
     path: '/shop/:id',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/PublicShopProfile.vue') },
+      { 
+        path: '', 
+        component: () => import('pages/PublicShopProfile.vue'),
+        meta: { title: 'Shop Profile' }
+      },
     ],
   },
 
@@ -58,7 +90,11 @@ const routes: RouteRecordRaw[] = [
     path: '/:catchAll(.*)*',
     component: () => import('layouts/AuthLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/ErrorNotFound.vue') },
+      { 
+        path: '', 
+        component: () => import('pages/ErrorNotFound.vue'),
+        meta: { title: 'Page Not Found' }
+      },
     ],
   },
 ];

@@ -1,7 +1,7 @@
 <template>
   <q-header elevated class="custom-header">
     <q-toolbar class="header-toolbar">
-      <q-toolbar-title class="header-title"> GuestSpot </q-toolbar-title>
+      <q-toolbar-title class="header-title"> {{ pageTitle }} </q-toolbar-title>
       
       <!-- Logout Button - only show on profile pages -->
       <q-btn
@@ -37,6 +37,12 @@ const userStore = useUserStore();
 const isProfilePage = computed(() => {
   const profileRoutes = ['/profile', '/artist-profile'];
   return profileRoutes.some(profileRoute => profileRoute === route.path);
+});
+
+// Get page title based on current route
+const pageTitle = computed(() => {
+  // Get title from route meta, fallback to 'GuestSpot' if not found
+  return route.meta?.title || 'GuestSpot';
 });
 
 const handleLogout = () => {
