@@ -12,7 +12,16 @@
     <div class="artist-content">
       <div class="artist-name">{{ artist.name }}</div>
       <div class="artist-specialty">{{ artist.specialty }}</div>
-      <div class="artist-bio">{{ artist.bio }}</div>
+      <div class="artist-info">
+        <div class="artist-experience">
+          <q-icon name="work" size="14px" color="primary" />
+          <span>{{ artist.experience ? `${artist.experience}+ years` : '2+ years' }}</span>
+        </div>
+        <div class="artist-status">
+          <q-icon name="circle" size="8px" :color="artist.status === 'available' ? 'positive' : 'warning'" />
+          <span>{{ artist.status === 'available' ? 'Available' : 'Busy' }}</span>
+        </div>
+      </div>
     </div>
     <div class="artist-actions">
       <q-btn
@@ -111,14 +120,20 @@ const navigateToProfile = () => {
   line-height: 1.2;
 }
 
-.artist-bio {
-  font-size: 14px;
+.artist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.artist-experience,
+.artist-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-weight: 500;
 }
 
 .artist-actions {

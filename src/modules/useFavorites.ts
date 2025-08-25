@@ -1,29 +1,13 @@
 import { ref, computed, watch, readonly } from 'vue';
-
-export interface FavoriteShop {
-  id: number;
-  name: string;
-  location: string;
-  description: string;
-  image?: string;
-  addedAt: number;
-}
-
-export interface FavoriteArtist {
-  id: number;
-  name: string;
-  specialty: string;
-  bio: string;
-  avatar?: string;
-  addedAt: number;
-}
+import type { IShop } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
 
 const STORAGE_KEY_SHOPS = 'guestspot_favorite_shops';
 const STORAGE_KEY_ARTISTS = 'guestspot_favorite_artists';
 
 // Reactive state
-const favoriteShops = ref<FavoriteShop[]>([]);
-const favoriteArtists = ref<FavoriteArtist[]>([]);
+const favoriteShops = ref<IShop[]>([]);
+const favoriteArtists = ref<IArtist[]>([]);
 
 // Load favorites from localStorage on initialization
 const loadFavorites = () => {
@@ -61,8 +45,8 @@ watch(favoriteArtists, saveFavorites, { deep: true });
 const totalFavorites = computed(() => favoriteShops.value.length + favoriteArtists.value.length);
 
 // Methods
-const addShopToFavorites = (shop: Omit<FavoriteShop, 'addedAt'>) => {
-  const favoriteShop: FavoriteShop = {
+const addShopToFavorites = (shop: Omit<IShop, 'addedAt'>) => {
+  const favoriteShop: IShop = {
     ...shop,
     addedAt: Date.now()
   };
@@ -79,8 +63,8 @@ const removeShopFromFavorites = (shopId: number) => {
   }
 };
 
-const addArtistToFavorites = (artist: Omit<FavoriteArtist, 'addedAt'>) => {
-  const favoriteArtist: FavoriteArtist = {
+const addArtistToFavorites = (artist: Omit<IArtist, 'addedAt'>) => {
+  const favoriteArtist: IArtist = {
     ...artist,
     addedAt: Date.now()
   };
@@ -105,7 +89,7 @@ const isArtistFavorite = (artistId: number) => {
   return favoriteArtists.value.some(a => a.id === artistId);
 };
 
-const toggleShopFavorite = (shop: Omit<FavoriteShop, 'addedAt'>) => {
+const toggleShopFavorite = (shop: Omit<IShop, 'addedAt'>) => {
   if (isShopFavorite(shop.id)) {
     removeShopFromFavorites(shop.id);
   } else {
@@ -113,7 +97,7 @@ const toggleShopFavorite = (shop: Omit<FavoriteShop, 'addedAt'>) => {
   }
 };
 
-const toggleArtistFavorite = (artist: Omit<FavoriteArtist, 'addedAt'>) => {
+const toggleArtistFavorite = (artist: Omit<IArtist, 'addedAt'>) => {
   if (isArtistFavorite(artist.id)) {
     removeArtistFromFavorites(artist.id);
   } else {

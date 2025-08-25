@@ -4,6 +4,7 @@ export interface IArtist {
   specialty: string;
   bio: string;
   avatar?: string;
-  addedAt?: number; // Optional for backward compatibility
+  addedAt?: number;
   experience?: number;
+  status?: 'available' | 'busy';
 }

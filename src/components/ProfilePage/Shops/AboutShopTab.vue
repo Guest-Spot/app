@@ -211,7 +211,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import TimePickerDialog from 'src/components/Dialogs/TimePickerDialog.vue';
+import { TimePickerDialog } from '../../Dialogs';
 import { ImageUploader } from 'src/components';
 
 // Form data
@@ -244,7 +244,12 @@ const onEndTimeConfirm = (time: string) => {
 
 const saveChanges = () => {
   // TODO: Implement save functionality
-  console.log('Saving changes...', shopData.value, workingHours.value);
+  const shopDataToSave = {
+    ...shopData.value,
+    workingHoursStart: workingHours.value.start,
+    workingHoursEnd: workingHours.value.end
+  };
+  console.log('Saving changes...', shopDataToSave);
 };
 
 // Expose data for parent component

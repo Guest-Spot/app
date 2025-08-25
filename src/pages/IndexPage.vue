@@ -70,25 +70,8 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
-
-// Types from components
-type Shop = {
-  id: number;
-  name: string;
-  location: string;
-  description: string;
-  image?: string;
-  addedAt?: number;
-};
-
-type Artist = {
-  id: number;
-  name: string;
-  specialty: string;
-  bio: string;
-  avatar?: string;
-  addedAt?: number;
-};
+import type { IShop } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
 
 // Router
 const router = useRouter();
@@ -113,34 +96,70 @@ const activeFilters = ref<SearchFilters>({
 });
 
 // Mock data for shops
-const shops = ref([
+const shops = ref<IShop[]>([
   {
     id: 1,
-    name: 'Ink Paradise',
+    username: 'ink_paradise',
+    title: 'Ink Paradise',
     location: 'Downtown, NY',
     description: 'Professional tattoo studio with 15+ years of experience',
-    image: 'https://picsum.photos/300/300?random=1'
+    avatar: 'https://picsum.photos/300/300?random=1',
+    phone: '+1 (555) 123-4567',
+    email: 'info@inkparadise.com',
+    dateOpened: '2008-01-15',
+    workingHoursStart: '09:00',
+    workingHoursEnd: '21:00',
+    pricing: '$$$',
+    instagram: '@inkparadise',
+    facebook: 'Ink Paradise Studio'
   },
   {
     id: 2,
-    name: 'Artistic Ink',
+    username: 'artistic_ink',
+    title: 'Artistic Ink',
     location: 'Brooklyn, NY',
     description: 'Custom designs and traditional tattoo styles',
-    image: 'https://picsum.photos/300/300?random=2'
+    avatar: 'https://picsum.photos/300/300?random=2',
+    phone: '+1 (555) 234-5678',
+    email: 'hello@artisticink.com',
+    dateOpened: '2012-03-20',
+    workingHoursStart: '10:00',
+    workingHoursEnd: '20:00',
+    pricing: '$$',
+    instagram: '@artisticink',
+    facebook: 'Artistic Ink Brooklyn'
   },
   {
     id: 3,
-    name: 'Modern Tattoo Co.',
+    username: 'modern_tattoo',
+    title: 'Modern Tattoo Co.',
     location: 'Manhattan, NY',
     description: 'Contemporary tattoo art and piercing services',
-    image: 'https://picsum.photos/300/300?random=3'
+    avatar: 'https://picsum.photos/300/300?random=3',
+    phone: '+1 (555) 345-6789',
+    email: 'contact@moderntattoo.com',
+    dateOpened: '2015-07-10',
+    workingHoursStart: '11:00',
+    workingHoursEnd: '22:00',
+    pricing: '$$$',
+    instagram: '@moderntattooco',
+    facebook: 'Modern Tattoo Company'
   },
   {
     id: 4,
-    name: 'Classic Ink Studio',
+    username: 'classic_ink',
+    title: 'Classic Ink Studio',
     location: 'Queens, NY',
     description: 'Traditional and neo-traditional tattoo designs',
-    image: 'https://picsum.photos/300/300?random=4'
+    avatar: 'https://picsum.photos/300/300?random=4',
+    phone: '+1 (555) 456-7890',
+    email: 'studio@classicink.com',
+    dateOpened: '2010-11-05',
+    workingHoursStart: '09:00',
+    workingHoursEnd: '19:00',
+    pricing: '$$',
+    instagram: '@classicinkstudio',
+    facebook: 'Classic Ink Studio Queens'
   }
 ]);
 
@@ -184,7 +203,7 @@ const filteredShops = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(shop => 
-      shop.name.toLowerCase().includes(query) ||
+      shop.title.toLowerCase().includes(query) ||
       shop.location.toLowerCase().includes(query) ||
       shop.description.toLowerCase().includes(query)
     );
@@ -243,11 +262,11 @@ const hasActiveFilters = computed(() => {
 });
 
 // Methods
-const selectShop = (shop: Shop) => {
+const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.id}`);
 };
 
-const selectArtist = (artist: Artist) => {
+const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.id}`);
 };
 

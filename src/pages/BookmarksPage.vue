@@ -97,27 +97,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
-import { useFavorites, type FavoriteShop, type FavoriteArtist } from '../modules/useFavorites';
+import { useFavorites } from '../modules/useFavorites';
 import { useRouter } from 'vue-router';
-
-// Types for compatibility
-type Shop = {
-  id: number;
-  name: string;
-  location: string;
-  description: string;
-  image?: string;
-  addedAt?: number;
-};
-
-type Artist = {
-  id: number;
-  name: string;
-  specialty: string;
-  bio: string;
-  avatar?: string;
-  addedAt?: number;
-};
+import type { IShop } from '../interfaces/shop';
+import type { IArtist } from '../interfaces/artist';
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
@@ -132,11 +115,11 @@ const {
 const router = useRouter();
 
 // Methods
-const selectShop = (shop: FavoriteShop | Shop) => {
+const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.id}`);
 };
 
-const selectArtist = (artist: FavoriteArtist | Artist) => {
+const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.id}`);
 };
 

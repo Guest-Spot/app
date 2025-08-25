@@ -8,8 +8,8 @@
             <div class="profile-info-container flex column">
               <div class="profile-picture">
                 <q-img
-                  v-if="shopData.image"
-                  :src="shopData.image"
+                  v-if="shopData.avatar"
+                  :src="shopData.avatar"
                   :ratio="1"
                   spinner-color="dark"
                   spinner-size="32px"
@@ -122,14 +122,17 @@ const setActiveTab = (tab: ITab) => {
 // Mock shop data - в реальном приложении будет загружаться по ID
 const shopData = ref({
   id: 1,
+  username: 'ink_paradise',
   location: 'Downtown, NY',
   status: 'Open for business',
   description: 'Professional tattoo studio with 15+ years of experience in creating unique and beautiful tattoos.',
-  image: 'https://picsum.photos/300/300?random=1',
+  avatar: 'https://picsum.photos/300/300?random=1',
   title: 'Ink Paradise Tattoo Studio',
   phone: '+1 (555) 123-4567',
   email: 'info@inkparadise.com',
   dateOpened: '2009-03-15',
+  workingHoursStart: '10:00',
+  workingHoursEnd: '22:00',
   instagram: 'https://instagram.com/inkparadise_ny',
   facebook: 'https://facebook.com/inkparadise.ny',
 });
@@ -195,13 +198,7 @@ const isFavorite = computed(() => isShopFavorite(shopData.value.id));
 
 // Methods
 const toggleFavorite = () => {
-  toggleShopFavorite({
-    id: shopData.value.id,
-    name: shopData.value.title,
-    location: shopData.value.location,
-    description: shopData.value.description,
-    image: shopData.value.image
-  });
+  toggleShopFavorite(shopData.value);
 };
 
 onMounted(() => {
