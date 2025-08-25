@@ -8,40 +8,21 @@
 
         </div>
         <!-- Navigation Tabs -->
-        <div class="tabs-section q-my-lg">
-          <div class="tab-container">
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_ABOUT }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_ABOUT"
-              :color="activeTab === TAB_ABOUT ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_ABOUT ? 'white' : 'dark'"
-              label="About shop"
-              @click="setActiveTab(TAB_ABOUT)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_ARTISTS }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_ARTISTS"
-              :color="activeTab === TAB_ARTISTS ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_ARTISTS ? 'white' : 'dark'"
-              label="Shop Artists"
-              @click="setActiveTab(TAB_ARTISTS)"
-            />
-          </div>
-        </div>
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          use-query
+          @setActiveTab="setActiveTab"
+          class="q-my-lg"
+        />
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
           <!-- Tab Content -->
-          <div v-if="activeTab === TAB_ABOUT" class="tab-content">
+          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
             <AboutShopTab />
           </div>
-          <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
             <ShopArtistsTab />
           </div>
         </div>
@@ -54,36 +35,29 @@
 import { ref } from 'vue';
 import { ImageUploader } from 'src/components';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
+import TabsComp from 'src/components/TabsComp.vue';
+import { type ITab } from 'src/interfaces/tabs';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 
-// Tab management
-const activeTab = ref(TAB_ABOUT);
+const TABS: ITab[] = [
+  {
+    label: 'About shop',
+    tab: TAB_ABOUT
+  },
+  {
+    label: 'Shop Artists',
+    tab: TAB_ARTISTS
+  }
+];
 
-const setActiveTab = (tab: string) => {
+// Tab management
+const activeTab = ref<ITab>(TABS[0]!);
+
+const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
-
-// Methods to access child component data if needed in the future
-// const getShopData = () => {
-//   if (activeTab.value === 'about' && aboutShopTabRef.value) {
-//     return {
-//       shopData: aboutShopTabRef.value.shopData,
-//       workingHours: aboutShopTabRef.value.workingHours
-//     };
-//   }
-//   return null;
-// };
-
-// const getArtistsData = () => {
-//   if (activeTab.value === 'artists' && shopArtistsTabRef.value) {
-//     return {
-//       artists: shopArtistsTabRef.value.artists
-//     };
-//   }
-//   return null;
-// };
 </script>
 
 <style scoped lang="scss">
@@ -108,26 +82,6 @@ const setActiveTab = (tab: string) => {
   align-items: center;
   justify-content: center;
   min-height: 200px;
-}
-
-.tabs-section {
-  display: flex;
-  justify-content: center;
-}
-
-.tab-container {
-  display: flex;
-  gap: 10px;
-}
-
-.tab-btn {
-  font-weight: 600;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  
-  &.active {
-    transform: scale(1.05);
-  }
 }
 
 .tab-content {

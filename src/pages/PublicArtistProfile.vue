@@ -41,54 +41,24 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="tabs-section q-my-lg">
-          <div class="tab-container">
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_ABOUT }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_ABOUT"
-              :color="activeTab === TAB_ABOUT ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_ABOUT ? 'white' : 'dark'"
-              label="About me"
-              @click="setActiveTab(TAB_ABOUT)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_PORTFOLIO }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_PORTFOLIO"
-              :color="activeTab === TAB_PORTFOLIO ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_PORTFOLIO ? 'white' : 'dark'"
-              label="Portfolio"
-              @click="setActiveTab(TAB_PORTFOLIO)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_TRIPS }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_TRIPS"
-              :color="activeTab === TAB_TRIPS ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_TRIPS ? 'white' : 'dark'"
-              label="Trips"
-              @click="setActiveTab(TAB_TRIPS)"
-            />
-          </div>
-        </div>
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          use-query
+          @setActiveTab="setActiveTab"
+          class="q-my-lg"
+        />
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
           <!-- Tab Content -->
-          <div v-if="activeTab === TAB_ABOUT" class="tab-content">
+          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
             <PublicAboutMeTab :artist-data="artistData" />
           </div>
-          <div v-else-if="activeTab === TAB_PORTFOLIO" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
             <PublicPortfolioTab :portfolio-items="portfolioItems" />
           </div>
-          <div v-else-if="activeTab === TAB_TRIPS" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
             <PublicTripsTab :trips="trips" />
           </div>
         </div>
@@ -103,6 +73,8 @@ import { useRoute } from 'vue-router';
 import PublicAboutMeTab from 'src/components/ArtistProfile/PublicAboutMeTab.vue';
 import PublicPortfolioTab from 'src/components/ArtistProfile/PublicPortfolioTab.vue';
 import PublicTripsTab from 'src/components/ArtistProfile/PublicTripsTab.vue';
+import TabsComp from 'src/components/TabsComp.vue';
+import { type ITab } from 'src/interfaces/tabs';
 
 const route = useRoute();
 
@@ -110,10 +82,25 @@ const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';
 
-// Tab management
-const activeTab = ref(TAB_ABOUT);
+const TABS: ITab[] = [
+  {
+    label: 'About me',
+    tab: TAB_ABOUT
+  },
+  {
+    label: 'Portfolio',
+    tab: TAB_PORTFOLIO
+  },
+  {
+    label: 'Trips',
+    tab: TAB_TRIPS
+  }
+];
 
-const setActiveTab = (tab: string) => {
+// Tab management
+const activeTab = ref<ITab>(TABS[0]!);
+
+const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
 
@@ -231,25 +218,5 @@ onMounted(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
-}
-
-.tabs-section {
-  display: flex;
-  justify-content: center;
-}
-
-.tab-container {
-  display: flex;
-  gap: 10px;
-}
-
-.tab-btn {
-  font-weight: 600;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  
-  &.active {
-    transform: scale(1.05);
-  }
 }
 </style>

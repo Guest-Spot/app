@@ -34,6 +34,7 @@
         <TabsComp
           :tabs="TABS"
           :activeTab="activeTab"
+          use-query
           @setActiveTab="setActiveTab"
           class="q-my-lg"
         />
@@ -57,17 +58,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { AboutMeTab, PortfolioTab, TripsTab } from 'src/components/ArtistProfile';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
-import { useRouter } from 'vue-router';
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';
-
-const router = useRouter();
 
 const TABS: ITab[] = [
   {
@@ -89,7 +87,6 @@ const activeTab = ref<ITab>(TABS[0]!);
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
-  void router.replace({ query: { tab: tab.tab } });
 };
 
 // Mock artist data
@@ -97,18 +94,6 @@ const artistData = ref({
   username: 'artist_john',
   fullname: 'John Doe',
   status: 'Available for bookings'
-});
-
-const getActiveTab = () => {
-  const tab = router.currentRoute.value.query.tab;
-  if (tab) {
-    return TABS.find(t => t.tab === tab) || TABS[0]!;
-  }
-  return TABS[0]!;
-};
-
-onMounted(() => {
-  activeTab.value = getActiveTab();
 });
 </script>
 
@@ -177,25 +162,5 @@ onMounted(() => {
 
 .edit-profile-btn {
   margin-top: 10px;
-}
-
-.tabs-section {
-  display: flex;
-  justify-content: center;
-}
-
-.tab-container {
-  display: flex;
-  gap: 10px;
-}
-
-.tab-btn {
-  font-weight: 600;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  
-  &.active {
-    transform: scale(1.05);
-  }
 }
 </style>

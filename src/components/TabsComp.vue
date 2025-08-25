@@ -4,30 +4,53 @@
       v-for="t in tabs"
       :key="`tab-${t.tab}-${t.label}`"
       class="tab-btn"
-      :class="{ active: activeTab.tab === t.tab }"
+      :class="{ active: currentActiveTab.tab === t.tab }"
       unelevated
       rounded
-      :outline="activeTab.tab !== t.tab"
-      :color="activeTab.tab === t.tab ? 'dark' : 'grey-7'"
-      :text-color="activeTab.tab === t.tab ? 'white' : 'dark'"
+      :outline="currentActiveTab.tab !== t.tab"
+      :color="currentActiveTab.tab === t.tab ? 'dark' : 'grey-7'"
+      :text-color="currentActiveTab.tab === t.tab ? 'white' : 'dark'"
       :label="t.label"
-      @click="emit('setActiveTab', t)"
+      @click="handleTabClick(t)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
   tabs: ITab[];
   activeTab: ITab;
+  useQuery?: boolean;
 }>();
 
-const activeTab = computed(() => props.activeTab);
+const router = useRouter();
+
+const currentActiveTab = computed(() => props.activeTab);
 
 const emit = defineEmits<{
   (e: 'setActiveTab', tab: ITab): void;
 }>();
+
+const handleTabClick = (tab: ITab) => {
+  if (props.useQuery ?? false) {
+    void router.replace({ query: { tab: tab.tab } });
+  }
+  emit('setActiveTab', tab);
+};
+
+const getActiveTab = () => {
+  const tab = router.currentRoute.value.query.tab;
+  if (tab) {
+    return props.tabs.find(t => t.tab === tab) || props.tabs[0]!;
+  }
+  return props.tabs[0]!;
+};
+
+onMounted(() => {
+  emit('setActiveTab', getActiveTab());
+});
 </script>

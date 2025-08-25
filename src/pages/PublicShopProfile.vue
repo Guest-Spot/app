@@ -41,57 +41,27 @@
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="tabs-section q-my-lg">
-          <div class="tab-container">
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_ABOUT }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_ABOUT"
-              :color="activeTab === TAB_ABOUT ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_ABOUT ? 'white' : 'dark'"
-              label="About"
-              @click="setActiveTab(TAB_ABOUT)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_ARTISTS }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_ARTISTS"
-              :color="activeTab === TAB_ARTISTS ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_ARTISTS ? 'white' : 'dark'"
-              label="Artists"
-              @click="setActiveTab(TAB_ARTISTS)"
-            />
-            <q-btn
-              class="tab-btn"
-              :class="{ active: activeTab === TAB_PORTFOLIO }"
-              unelevated
-              rounded
-              :outline="activeTab !== TAB_PORTFOLIO"
-              :color="activeTab === TAB_PORTFOLIO ? 'dark' : 'grey-7'"
-              :text-color="activeTab === TAB_PORTFOLIO ? 'white' : 'dark'"
-              label="Portfolio"
-              @click="setActiveTab(TAB_PORTFOLIO)"
-            />
-          </div>
-        </div>
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          use-query
+          @setActiveTab="setActiveTab"
+          class="q-my-lg"
+        />
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
           <!-- Tab Content -->
-          <div v-if="activeTab === TAB_ABOUT" class="tab-content">
+          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
             <PublicAboutShopTab 
               :shop-data="shopData" 
               :working-hours="workingHours" 
             />
           </div>
-          <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
             <PublicShopArtistsTab :artists="artists" />
           </div>
-          <div v-else-if="activeTab === TAB_PORTFOLIO" class="tab-content">
+          <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
             <PublicShopPortfolioTab :portfolio-items="portfolioItems" />
           </div>
         </div>
@@ -104,7 +74,11 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IArtist } from 'src/interfaces/artist';
-import { PublicAboutShopTab, PublicShopArtistsTab, PublicShopPortfolioTab } from 'src/components/ArtistProfile';
+import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
+import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
+import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
+import TabsComp from 'src/components/TabsComp.vue';
+import { type ITab } from 'src/interfaces/tabs';
 
 const route = useRoute();
 
@@ -112,10 +86,25 @@ const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
 
-// Tab management
-const activeTab = ref(TAB_ABOUT);
+const TABS: ITab[] = [
+  {
+    label: 'About',
+    tab: TAB_ABOUT
+  },
+  {
+    label: 'Artists',
+    tab: TAB_ARTISTS
+  },
+  {
+    label: 'Portfolio',
+    tab: TAB_PORTFOLIO
+  }
+];
 
-const setActiveTab = (tab: string) => {
+// Tab management
+const activeTab = ref<ITab>(TABS[0]!);
+
+const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
 
@@ -252,25 +241,5 @@ onMounted(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
-}
-
-.tabs-section {
-  display: flex;
-  justify-content: center;
-}
-
-.tab-container {
-  display: flex;
-  gap: 10px;
-}
-
-.tab-btn {
-  font-weight: 600;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  
-  &.active {
-    transform: scale(1.05);
-  }
 }
 </style>
