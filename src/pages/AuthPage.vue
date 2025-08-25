@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-py-md flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
-      <div class="flex no-wrap items-center justify-center q-mb-xl">
+      <div class="flex no-wrap items-center justify-center q-mb-lg">
         <q-img src="~/assets/logo-dark.png" class="logo" width="150px" height="150px" />
       </div>
       <div class="container">

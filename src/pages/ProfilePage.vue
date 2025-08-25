@@ -1,30 +1,23 @@
 <template>
   <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
-    <div class="q-my-auto full-width">
-      <div class="container">
-        <div class="content full-width q-pa-md">
-          <!-- Banner Image Section -->
-          <ImageUploader />
+    <div class="container">
+      <!-- Navigation Tabs -->
+      <TabsComp
+      :tabs="TABS"
+      :activeTab="activeTab"
+      use-query
+      @setActiveTab="setActiveTab"
+      class="q-mb-lg"
+      />
 
+      <!-- Main Content Area -->
+      <div class="main-content flex column q-gap-md">
+        <!-- Tab Content -->
+        <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
+          <AboutShopTab />
         </div>
-        <!-- Navigation Tabs -->
-        <TabsComp
-          :tabs="TABS"
-          :activeTab="activeTab"
-          use-query
-          @setActiveTab="setActiveTab"
-          class="q-my-lg"
-        />
-
-        <!-- Main Content Area -->
-        <div class="main-content flex column q-gap-md">
-          <!-- Tab Content -->
-          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-            <AboutShopTab />
-          </div>
-          <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-            <ShopArtistsTab />
-          </div>
+        <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
+          <ShopArtistsTab />
         </div>
       </div>
     </div>
@@ -33,7 +26,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ImageUploader } from 'src/components';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
@@ -61,14 +53,6 @@ const setActiveTab = (tab: ITab) => {
 </script>
 
 <style scoped lang="scss">
-.content {
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 10px 30px var(--shadow-light);
-}
-
 .banner-section {
   text-align: center;
 }

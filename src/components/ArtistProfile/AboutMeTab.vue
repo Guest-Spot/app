@@ -1,5 +1,9 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
+    <div class="image-content q-pa-md">
+      <ImageUploader />
+    </div>
+
     <!-- BIO Section -->
     <q-expansion-item
       icon="person"
@@ -139,6 +143,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { ImageUploader } from 'src/components';
 
 // Form data
 const artistData = ref({
@@ -184,8 +189,12 @@ defineExpose({
   font-size: 14px;
 }
 
-.edit-btn {
-  margin-top: 10px;
+.image-content {
+  width: 100%;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 30px;
+  box-shadow: 0 10px 30px var(--shadow-light);
 }
 
 .links-row {

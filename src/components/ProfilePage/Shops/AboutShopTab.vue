@@ -1,5 +1,10 @@
 <template>
   <div class="about-shop-tab flex column q-gap-md">
+    <!-- Banner Image Section -->
+    <div class="image-content q-pa-md">
+      <ImageUploader />
+    </div>
+
     <!-- Basic Information -->
     <q-expansion-item
       icon="info"
@@ -207,6 +212,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TimePickerDialog from 'src/components/Dialogs/TimePickerDialog.vue';
+import { ImageUploader } from 'src/components';
 
 // Form data
 const shopData = ref({
@@ -249,6 +255,14 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
+.image-content {
+  width: 100%;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 30px;
+  box-shadow: 0 10px 30px var(--shadow-light);
+}
+
 .info-section {
   padding: 16px;
 }
