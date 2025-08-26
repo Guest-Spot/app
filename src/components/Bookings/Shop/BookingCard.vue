@@ -12,9 +12,9 @@
         </q-avatar>
         <div class="flex column">
           <div class="user-name">{{ artist?.name || 'User' }}</div>
-          <div v-if="location" class="location-info">
-            <q-icon name="location_on" size="16px" color="grey-6" />
-            <span>{{ location }}</span>
+          <div v-if="artist?.experience" class="experience-info flex items-center q-gap-xs">
+            <q-icon name="date_range" size="16px" color="grey-6" />
+            <span>{{ artist?.experience }} years of experience</span>
           </div>
         </div>
       </div>
@@ -24,8 +24,24 @@
     </div>
     
     <div class="card-content">
+      <div class="flex items-center q-gap-xs q-mb-sm">
+        <template v-if="isSent">
+          <q-icon name="send" size="16px" color="blue-6" />
+          <span class="text-blue-6 text-weight-medium">Request to Artist</span>
+        </template>
+        <template v-else>
+          <q-icon name="inbox" size="16px" color="green-6" />
+          <span class="text-green-6 text-weight-medium">Request from Artist</span>
+        </template>
+      </div>
+
       <h4 class="booking-title">{{ title }}</h4>
       <p class="booking-description">{{ description }}</p>
+
+      <div v-if="location" class="location-info q-mb-xs">
+        <q-icon name="location_on" size="16px" color="grey-6" />
+        <span>{{ location }}</span>
+      </div>
       <div class="date-info q-mb-xs">
         <q-icon name="event" size="16px" color="grey-6" />
         <span>{{ formatDate(date) }}</span>
@@ -44,14 +60,14 @@
           color="negative"
           outline
           rounded
-          size="sm"
+          class="full-width"
           @click="$emit('reject', id)"
         />
         <q-btn
           label="Accept"
           color="dark"
           rounded
-          size="sm"
+          class="full-width"
           @click="$emit('accept', id)"
         />
       </div>
@@ -63,7 +79,7 @@
         color="negative"
         outline
         rounded
-        size="sm"
+        class="full-width"
         @click="$emit('cancel', id)"
       />
       
@@ -111,9 +127,9 @@ const {
   endTime,
   date,
   status,
+  location,
   type,
   artist,
-  location,
 } = props.booking;
 
 // Determine if this is a sent or received booking for the current user
