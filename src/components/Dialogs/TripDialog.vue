@@ -93,18 +93,31 @@
       </q-card-section>
 
       <q-card-actions class="dialog-actions">
-        <q-btn
-          label="Cancel"
-          rounded
-          color="grey-6"
-          @click="closeDialog"
-        />
-        <q-btn
-          :label="isEditing ? 'Update' : 'Add'"
-          rounded
-          color="dark"
-          @click="confirmTrip"
-        />
+        <div class="left-actions">
+          <q-btn
+            v-if="isEditing"
+            round
+            color="negative"
+            @click="deleteTrip"
+            icon="delete"
+          />
+          <q-btn
+            label="Cancel"
+            rounded
+            color="grey-6"
+            @click="closeDialog"
+            class="q-btn-min-width"
+          />
+        </div>
+        <div class="right-actions">
+          <q-btn
+            :label="isEditing ? 'Update' : 'Add'"
+            rounded
+            color="dark"
+            @click="confirmTrip"
+            class="q-btn-min-width"
+          />
+        </div>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -112,6 +125,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { useQuasar } from 'quasar';
 
 interface TripForm {
   id: number;
@@ -133,10 +147,12 @@ interface Props {
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
   (e: 'confirm', trip: TripForm): void;
+  (e: 'delete', tripId: number): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const $q = useQuasar();
 
 const isVisible = ref(props.modelValue);
 const formData = ref<TripForm>({ ...props.trip });
@@ -165,6 +181,26 @@ const closeDialog = () => {
 const confirmTrip = () => {
   emit('confirm', { ...formData.value });
   isVisible.value = false;
+};
+
+const deleteTrip = () => {
+  $q.dialog({
+    title: 'Confirm Deletion',
+    message: 'Are you sure you want to delete this trip?',
+    cancel: {
+      color: 'grey-6',
+      rounded: true,
+      title: 'Cancel'
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Delete'
+    }
+  }).onOk(() => {
+    emit('delete', formData.value.id);
+    isVisible.value = false;
+  });
 };
 
 // Computed property for title
@@ -219,16 +255,31 @@ const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
   
   .dialog-actions {
     padding: 10px 20px 20px;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
     position: sticky;
     bottom: 0;
     background: white;
     border-top: 1px solid var(--border-light);
     z-index: 10;
     
+    .left-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .right-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
     .q-btn {
-      min-width: 100px;
       font-weight: 600;
+    }
+
+    .q-btn-min-width {
+      min-width: 100px;
     }
   }
 }

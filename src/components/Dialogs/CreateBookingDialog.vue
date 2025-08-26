@@ -17,7 +17,7 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
-        <q-form ref="formRef" class="flex column q-gap-sm">
+        <q-form ref="formRef">
           <div class="input-group">
             <label class="input-label">Title</label>
             <q-input
