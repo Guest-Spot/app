@@ -140,7 +140,7 @@ const isSubmitting = ref(false);
 const formRef = ref<QForm | null>(null);
 
 // Initialize booking data
-const bookingData = ref({
+const bookingData = ref<Partial<IBooking>>({
   title: '',
   description: '',
   date: '',
@@ -148,7 +148,8 @@ const bookingData = ref({
   endTime: '',
   shopId: props.shopId || 0,
   artistId: props.artistId || 0,
-  status: 'pending'
+  status: 'pending',
+  type: props.type
 });
 
 // Watch for external changes to modelValue

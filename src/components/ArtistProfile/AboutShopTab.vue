@@ -211,7 +211,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { TimePickerDialog } from '../../Dialogs';
+import { TimePickerDialog } from '../Dialogs';
 import { ImageUploader } from 'src/components';
 
 // Form data

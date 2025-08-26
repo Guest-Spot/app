@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-comp flex q-gap-sm justify-center full-width">
+  <div class="tabs-comp flex q-gap-sm justify-start full-width no-wrap">
     <q-btn
       v-for="t in tabs"
       :key="`tab-${t.tab}-${t.label}`"
@@ -54,3 +54,12 @@ onMounted(() => {
   emit('setActiveTab', getActiveTab());
 });
 </script>
+
+<style lang="scss" scoped>
+.tabs-comp {
+  overflow-x: auto;
+  .tab-btn {
+    flex: 1 0 auto;
+  }
+}
+</style>
