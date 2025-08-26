@@ -10,7 +10,7 @@
             spinner-size="16px"
           />
         </q-avatar>
-        <div>
+        <div class="flex column">
           <div class="user-name">{{ name || 'User' }}</div>
           <div v-if="location" class="location-info">
             <q-icon name="location_on" size="16px" color="grey-6" />

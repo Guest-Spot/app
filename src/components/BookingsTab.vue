@@ -121,6 +121,7 @@ const rejectBooking = (bookingId: number) => {
     
     $q.notify({
       type: 'info',
+      color: 'negative',
       message: 'Booking rejected',
       position: 'top'
     });
@@ -149,6 +150,7 @@ const cancelBooking = (bookingId: number) => {
       
       $q.notify({
         type: 'info',
+        color: 'negative',
         message: 'Booking cancelled',
         position: 'top'
       });
