@@ -104,7 +104,6 @@ const continueAsGuest = () => {
   font-weight: 700;
   font-size: 18px;
   letter-spacing: 0.6px;
-  height: 56px;
   text-transform: none;
   transition: all 0.3s ease;
 }

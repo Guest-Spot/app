@@ -67,7 +67,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
-import { BookingSentCard, BookingReceivedCard } from './index';
+import BookingSentCard from 'src/components/Bookings/Artist/BookingSentCard.vue';
+import BookingReceivedCard from 'src/components/Bookings/Artist/BookingReceivedCard.vue';
 
 const $q = useQuasar();
 
@@ -196,10 +197,11 @@ onMounted(() => {
       createdAt: '2024-01-20T10:00:00Z',
       updatedAt: '2024-01-20T10:00:00Z',
       type: 'shop-to-artist',
-      shopName: 'Tattoo Studio',
-      artistName: 'Your Name',
-      shopAvatar: 'https://picsum.photos/300/300?random=1',
-      artistAvatar: 'https://picsum.photos/300/300?random=2',
+      shop: {
+        id: 1,
+        title: 'Tattoo Studio',
+        avatar: 'https://picsum.photos/300/300?random=1',
+      },
     },
     {
       id: 2,
@@ -215,10 +217,31 @@ onMounted(() => {
       createdAt: '2024-01-18T14:00:00Z',
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
-      shopName: 'Art Gallery',
-      artistName: 'Your Name',
-      shopAvatar: 'https://picsum.photos/300/300?random=3',
-      artistAvatar: 'https://picsum.photos/300/300?random=4',
+      shop: {
+        id: 3,
+        title: 'Art Gallery',
+        avatar: 'https://picsum.photos/300/300?random=3',
+      },
+    },
+    {
+      id: 3,
+      title: 'Master Class',
+      description: 'Need a master class in tattooing',
+      shopId: 2,
+      artistId: 2,
+      location: '123 Main St, Anytown, USA',
+      startTime: '09:00',
+      endTime: '17:00',
+      date: '2024-02-20',
+      status: 'pending',
+      createdAt: '2024-01-18T14:00:00Z',
+      updatedAt: '2024-01-19T09:00:00Z',
+      type: 'artist-to-shop',
+      shop: {
+        id: 3,
+        title: 'Art Gallery',
+        avatar: 'https://picsum.photos/300/300?random=3',
+      },
     },
     {
       id: 3,
@@ -234,10 +257,11 @@ onMounted(() => {
       createdAt: '2024-01-18T14:00:00Z',
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
-      shopName: 'Tattoo Studio',
-      artistName: 'Your Name',
-      shopAvatar: 'https://picsum.photos/300/300?random=5',
-      artistAvatar: 'https://picsum.photos/300/300?random=6',
+      shop: {
+        id: 5,
+        title: 'Tattoo Studio',
+        avatar: 'https://picsum.photos/300/300?random=5',
+      },
     },
   ];
 });

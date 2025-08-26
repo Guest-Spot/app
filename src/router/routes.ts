@@ -45,6 +45,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Trips & Bookings' }
       },
       { 
+        path: 'bookings', 
+        component: () => import('pages/BookingsPage.vue'),
+        meta: { title: 'Bookings' }
+      },
+      { 
         path: 'profile', 
         component: () => import('src/pages/ProfileRouter.vue'),
         meta: { title: 'My Profile' }

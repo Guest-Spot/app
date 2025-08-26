@@ -4,21 +4,21 @@
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm">
           <q-img
-            :src="avatar || '/src/assets/default-avatar.png'"
+            :src="artist?.avatar"
             fit="cover"
             spinner-color="dark"
             spinner-size="16px"
           />
         </q-avatar>
         <div class="flex column">
-          <div class="user-name">{{ name || 'User' }}</div>
+          <div class="user-name">{{ artist?.name || 'User' }}</div>
           <div v-if="location" class="location-info">
             <q-icon name="location_on" size="16px" color="grey-6" />
             <span>{{ location }}</span>
           </div>
         </div>
       </div>
-      <div class="status-badge" :class="status">
+      <div class="status-badge absolute-top-right q-mr-md q-mt-md" :class="status">
         {{ getStatusLabel(status) }}
       </div>
     </div>
@@ -70,11 +70,12 @@
       <!-- View details for other statuses -->
       <q-btn
         v-else
-        label="View Shop"
+        label="View Artist"
         color="dark"
         outline
         rounded
-        size="sm"
+        :to="`/artist/${artist?.id}`"
+        class="full-width"
       />
     </div>
   </div>
@@ -111,26 +112,9 @@ const {
   date,
   status,
   type,
-  shopName,
-  shopAvatar,
+  artist,
   location,
 } = props.booking;
-
-const name = computed(() => {
-  if (type === 'artist-to-shop') {
-    return shopName;
-  } else {
-    return shopName;
-  }
-});
-
-const avatar = computed(() => {
-  if (type === 'artist-to-shop') {
-    return shopAvatar;
-  } else {
-    return shopAvatar;
-  }
-});
 
 // Determine if this is a sent or received booking for the current user
 const isReceived = computed(() => type === 'shop-to-artist');
@@ -159,25 +143,13 @@ const getStatusLabel = (status: IBooking['status']) => {
 
 <style scoped lang="scss">
 .booking-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0.9) 100%);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 20px;
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
-  
-  &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-  
-  &.sent {
-    border-left: 4px solid var(--brand-dark);
-  }
-  
-  &.received {
-    border-left: 4px solid var(--brand-dark);
-  }
+  overflow: hidden;
+  padding: 20px;
   
   .card-header {
     display: flex;

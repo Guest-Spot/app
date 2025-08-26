@@ -21,10 +21,10 @@
         <q-btn 
           flat 
           round 
-          icon="event" 
-          aria-label="Trips & Bookings"
-          :class="{ 'bg-dark text-white': $route.path === '/trips-bookings' }"
-          @click="$router.push('/trips-bookings')"
+          :icon="userStore.isShop ? 'event_note' : 'event'" 
+          :aria-label="userStore.isShop ? 'Bookings' : 'Trips & Bookings'"
+          :class="{ 'bg-dark text-white': $route.path === '/trips-bookings' || $route.path === '/bookings' }"
+          @click="$router.push(userStore.isShop ? '/bookings' : '/trips-bookings')"
         />
         <q-btn 
           flat 
@@ -40,10 +40,14 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from 'src/stores/user-store';
+
 // Footer component with navigation icons
 defineOptions({
   name: 'TheFooter'
 });
+
+const userStore = useUserStore();
 </script>
 
 <style scoped>

@@ -1,3 +1,9 @@
+import type { IArtist } from './artist';
+import type { IShop } from './shop';
+
+type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
+type BookingType = 'shop-to-artist' | 'artist-to-shop';
+
 export interface IBooking {
   id: number;
   title: string;
@@ -8,15 +14,12 @@ export interface IBooking {
   endTime: string;
   date: string;
   location?: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
+  status: BookingStatus;
   createdAt: string;
   updatedAt: string;
-  // Additional fields for better UX
-  shopName?: string;
-  artistName?: string;
-  shopAvatar?: string;
-  artistAvatar?: string;
-  type: 'shop-to-artist' | 'artist-to-shop';
+  shop?: Partial<IShop>;
+  artist?: Partial<IArtist>;
+  type: BookingType;
 }
 
 export interface IBookingFilters {

@@ -17,7 +17,7 @@
           <TripsTab />
         </div>
         <div v-else-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
-          <BookingsTab :artist-id="artistId" :shop-id="shopId" />
+          <BookingsList :artist-id="artistId" :shop-id="shopId" />
         </div>
       </div>
     </div>
@@ -26,7 +26,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { TripsTab, BookingsTab } from 'src/components/ArtistProfile';
+import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
+import BookingsList from 'src/components/Bookings/Artist/BookingsList.vue';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 

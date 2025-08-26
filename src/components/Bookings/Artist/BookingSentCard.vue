@@ -1,16 +1,16 @@
 <template>
-  <div class="booking-received-card">
+  <div class="booking-sent-card">
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
           class="full-width"
-          :src="shopAvatar || '/src/assets/default-avatar.png'"
+          :src="shop?.avatar"
           fit="cover"
           spinner-color="dark"
           spinner-size="16px"
         />
         <div class="absolute-bottom-left q-ml-md q-mb-md bg-white text-dark shop-name q-px-sm">
-          {{ shopName || 'Shop' }}
+          {{ shop?.title || 'Shop' }}
         </div>
       </div>
       <div class="status-badge absolute-top-right q-mr-md q-mt-md" :class="status">
@@ -19,9 +19,9 @@
     </div>
     
     <div class="card-content q-px-md">
-      <div class="invitation-type q-mb-sm">
-        <q-icon name="inbox" size="16px" color="green-6" />
-        <span class="text-green-6 text-weight-medium">Request from Shop</span>
+      <div class="request-type q-mb-sm">
+        <q-icon name="send" size="16px" color="blue-6" />
+        <span class="text-blue-6 text-weight-medium">Request to Shop</span>
       </div>
       
       <h4 class="booking-title">{{ title }}</h4>
@@ -44,24 +44,16 @@
     </div>
     
     <div class="card-actions q-px-md q-pb-md">
-      <!-- Accept/Reject buttons for pending invitations -->
-      <div v-if="status === 'pending'" class="action-buttons">
-        <q-btn
-          label="Reject"
-          color="negative"
-          outline
-          rounded
-          @click="$emit('reject', id)"
-          class="action-btn"
-        />
-        <q-btn
-          label="Accept"
-          color="dark"
-          rounded
-          @click="$emit('accept', id)"
-          class="action-btn"
-        />
-      </div>
+      <!-- Cancel button for pending requests -->
+      <q-btn
+        v-if="status === 'pending'"
+        label="Cancel Request"
+        color="negative"
+        outline
+        rounded
+        @click="$emit('cancel', id)"
+        class="full-width"
+      />
       
       <!-- View shop for other statuses -->
       <q-btn
@@ -70,7 +62,7 @@
         color="dark"
         outline
         rounded
-        :to="`/shop/${shopId}`"
+        :to="`/shop/${shop?.id}`"
         class="full-width"
       />
     </div>
@@ -82,7 +74,7 @@ import { defineComponent } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
 
 defineComponent({
-  name: 'BookingReceivedCard'
+  name: 'BookingSentCard'
 });
 
 interface Props {
@@ -90,8 +82,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'accept', id: number): void;
-  (e: 'reject', id: number): void;
+  (e: 'cancel', id: number): void;
 }
 
 const props = defineProps<Props>();
@@ -106,9 +97,7 @@ const {
   endTime,
   date,
   status,
-  shopName,
-  shopId,
-  shopAvatar,
+  shop,
   location,
 } = props.booking;
 
@@ -134,7 +123,7 @@ const getStatusLabel = (status: IBooking['status']) => {
 </script>
 
 <style scoped lang="scss">
-.booking-received-card {
+.booking-sent-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0.9) 100%);
   backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -143,9 +132,9 @@ const getStatusLabel = (status: IBooking['status']) => {
   overflow: hidden;
   
   &:hover {
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15);
     transform: translateY(-3px);
-    border-color: #4caf50;
+    border-color: #2196f3;
   }
   
   .card-header {
@@ -160,7 +149,7 @@ const getStatusLabel = (status: IBooking['status']) => {
       
       .shop-name {
         font-weight: 600;
-        color: #2e7d32;
+        color: #1976d2;
         font-size: 16px;
         border-radius: 20px;
         font-size: 14px;
@@ -199,7 +188,7 @@ const getStatusLabel = (status: IBooking['status']) => {
       }
       
       &.completed {
-        background: #4caf50;
+        background: #2196f3;
         color: white;
       }
     }
@@ -208,7 +197,7 @@ const getStatusLabel = (status: IBooking['status']) => {
   .card-content {
     margin-bottom: 20px;
     
-    .invitation-type {
+    .request-type {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -218,7 +207,7 @@ const getStatusLabel = (status: IBooking['status']) => {
     .booking-title {
       font-size: 18px;
       font-weight: 600;
-      color: #2e7d32;
+      color: #1976d2;
       margin: 0;
     }
     
@@ -239,16 +228,6 @@ const getStatusLabel = (status: IBooking['status']) => {
   }
   
   .card-actions {
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-    }
-    
-    .action-btn {
-      flex: 1;
-      font-weight: 600;
-    }
-    
     .q-btn {
       font-weight: 600;
     }
