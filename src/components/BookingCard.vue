@@ -12,7 +12,10 @@
         </q-avatar>
         <div>
           <div class="user-name">{{ name || 'User' }}</div>
-          <div class="booking-date">{{ formatDate(date) }}</div>
+          <div v-if="location" class="location-info">
+            <q-icon name="location_on" size="16px" color="grey-6" />
+            <span>{{ location }}</span>
+          </div>
         </div>
       </div>
       <div class="status-badge" :class="status">
@@ -23,6 +26,10 @@
     <div class="card-content">
       <h4 class="booking-title">{{ title }}</h4>
       <p class="booking-description">{{ description }}</p>
+      <div class="date-info q-mb-xs">
+        <q-icon name="event" size="16px" color="grey-6" />
+        <span>{{ formatDate(date) }}</span>
+      </div>
       <div class="time-info">
         <q-icon name="schedule" size="16px" color="grey-6" />
         <span>{{ startTime }} - {{ endTime }}</span>
@@ -63,7 +70,7 @@
       <!-- View details for other statuses -->
       <q-btn
         v-else
-        label="View Details"
+        label="View Shop"
         color="dark"
         outline
         rounded
@@ -106,6 +113,7 @@ const {
   type,
   shopName,
   shopAvatar,
+  location,
 } = props.booking;
 
 const name = computed(() => {
@@ -234,13 +242,21 @@ const getStatusLabel = (status: IBooking['status']) => {
       font-size: 18px;
       font-weight: 600;
       color: var(--brand-dark);
-      margin: 0 0 8px 0;
+      margin: 0;
     }
     
     .booking-description {
       color: var(--text-secondary);
       margin: 0 0 16px 0;
       line-height: 1.5;
+    }
+
+    .date-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
     }
     
     .time-info {
@@ -249,6 +265,15 @@ const getStatusLabel = (status: IBooking['status']) => {
       gap: 8px;
       color: var(--text-secondary);
       font-size: 14px;
+    }
+    
+    .location-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 8px;
     }
   }
   

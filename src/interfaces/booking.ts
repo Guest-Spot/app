@@ -7,6 +7,7 @@ export interface IBooking {
   startTime: string;
   endTime: string;
   date: string;
+  location?: string;
   status: 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
   createdAt: string;
   updatedAt: string;
