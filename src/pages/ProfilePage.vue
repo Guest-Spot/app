@@ -19,9 +19,6 @@
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
           <ShopArtistsTab />
         </div>
-        <div v-else-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
-          <BookingsTab :shop-id="shopId" />
-        </div>
       </div>
     </div>
   </q-page>
@@ -29,13 +26,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { AboutShopTab, ShopArtistsTab, BookingsTab } from 'src/components/ProfilePage';
-import TabsComp from 'src/components/TabsComp.vue';
+import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
+import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
-const TAB_BOOKINGS = 'bookings';
 
 const TABS: ITab[] = [
   {
@@ -45,18 +41,13 @@ const TABS: ITab[] = [
   {
     label: 'Shop Artists',
     tab: TAB_ARTISTS
-  },
-  {
-    label: 'Bookings',
-    tab: TAB_BOOKINGS
   }
 ];
 
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
 
-// Mock shop ID - in real app this would come from user store
-const shopId = ref(1);
+
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;

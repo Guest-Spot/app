@@ -21,6 +21,14 @@
         <q-btn 
           flat 
           round 
+          icon="event" 
+          aria-label="Trips & Bookings"
+          :class="{ 'bg-dark text-white': $route.path === '/trips-bookings' }"
+          @click="$router.push('/trips-bookings')"
+        />
+        <q-btn 
+          flat 
+          round 
           icon="person" 
           aria-label="Profile"
           :class="{ 'bg-dark text-white': $route.path === '/profile' }"

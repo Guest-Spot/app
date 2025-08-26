@@ -21,6 +21,10 @@ import { computed, onMounted } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useRouter } from 'vue-router';
 
+defineOptions({
+  name: 'TabsComp'
+});
+
 const props = defineProps<{
   tabs: ITab[];
   activeTab: ITab;
