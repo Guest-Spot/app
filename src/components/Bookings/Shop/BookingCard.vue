@@ -268,7 +268,7 @@ const getStatusLabel = (status: IBooking['status']) => {
   .card-actions {
     .action-buttons {
       display: flex;
-      gap: 12px;
+      gap: 16px;
     }
     
     .q-btn {

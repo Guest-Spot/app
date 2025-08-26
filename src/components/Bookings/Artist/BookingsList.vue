@@ -32,7 +32,7 @@
         </div>
         
         <div v-else class="bookings-grid">
-          <BookingSentCard
+          <BookingCard
             v-for="booking in sentBookings"
             :key="booking.id"
             :booking="booking"
@@ -50,7 +50,7 @@
         </div>
         
         <div v-else class="bookings-grid">
-          <BookingReceivedCard
+          <BookingCard
             v-for="booking in receivedBookings"
             :key="booking.id"
             :booking="booking"
@@ -67,8 +67,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
-import BookingSentCard from 'src/components/Bookings/Artist/BookingSentCard.vue';
-import BookingReceivedCard from 'src/components/Bookings/Artist/BookingReceivedCard.vue';
+import BookingCard from 'src/components/Bookings/Artist/BookingCard.vue';
 
 const $q = useQuasar();
 

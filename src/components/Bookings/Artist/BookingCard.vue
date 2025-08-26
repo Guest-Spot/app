@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-sent-card">
+  <div class="booking-sent-card" :class="{ sent: isSent, received: isReceived }">
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
@@ -19,9 +19,15 @@
     </div>
     
     <div class="card-content q-px-md">
-      <div class="request-type q-mb-sm">
-        <q-icon name="send" size="16px" color="blue-6" />
-        <span class="text-blue-6 text-weight-medium">Request to Shop</span>
+      <div class="flex items-center q-gap-xs q-mb-sm">
+        <template v-if="isSent">
+          <q-icon name="send" size="16px" color="blue-6" />
+          <span class="text-blue-6 text-weight-medium">Request to Shop</span>
+        </template>
+        <template v-else>
+          <q-icon name="inbox" size="16px" color="green-6" />
+          <span class="text-green-6 text-weight-medium">Request from Shop</span>
+        </template>
       </div>
       
       <h4 class="booking-title">{{ title }}</h4>
@@ -44,9 +50,28 @@
     </div>
     
     <div class="card-actions q-px-md q-pb-md">
+      <!-- Accept/Reject buttons for pending invitations -->
+      <div v-if="isReceived && status === 'pending'" class="action-buttons">
+        <q-btn
+          label="Reject"
+          color="negative"
+          outline
+          rounded
+          @click="$emit('reject', id)"
+          class="full-width"
+        />
+        <q-btn
+          label="Accept"
+          color="dark"
+          rounded
+          @click="$emit('accept', id)"
+          class="full-width"
+        />
+      </div>
+
       <!-- Cancel button for pending requests -->
       <q-btn
-        v-if="status === 'pending'"
+        v-else-if="isSent && status === 'pending'"
         label="Cancel Request"
         color="negative"
         outline
@@ -70,18 +95,16 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from 'vue';
+import { computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
-
-defineComponent({
-  name: 'BookingSentCard'
-});
 
 interface Props {
   booking: IBooking;
 }
 
 interface Emits {
+  (e: 'accept', id: number): void;
+  (e: 'reject', id: number): void;
   (e: 'cancel', id: number): void;
 }
 
@@ -99,7 +122,11 @@ const {
   status,
   shop,
   location,
+  type,
 } = props.booking;
+
+const isReceived = computed(() => type === 'shop-to-artist');
+const isSent = computed(() => type === 'artist-to-shop');
 
 // Methods
 const formatDate = (dateString: string) => {
@@ -130,12 +157,6 @@ const getStatusLabel = (status: IBooking['status']) => {
   border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
   overflow: hidden;
-  
-  &:hover {
-    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15);
-    transform: translateY(-3px);
-    border-color: #2196f3;
-  }
   
   .card-header {
     display: flex;
@@ -207,7 +228,6 @@ const getStatusLabel = (status: IBooking['status']) => {
     .booking-title {
       font-size: 18px;
       font-weight: 600;
-      color: #1976d2;
       margin: 0;
     }
     
@@ -228,6 +248,11 @@ const getStatusLabel = (status: IBooking['status']) => {
   }
   
   .card-actions {
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+    }
+
     .q-btn {
       font-weight: 600;
     }
