@@ -133,7 +133,13 @@ const copyLink = async () => {
       type: 'positive',
       message: 'Link copied to clipboard!',
       position: 'top',
-      timeout: 2000
+      timeout: 2000,
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        }
+      ]
     });
     
     setTimeout(() => {

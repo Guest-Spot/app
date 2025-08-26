@@ -195,7 +195,13 @@ const onSubmit = () => {
       $q.notify({
         type: 'negative',
         message: 'Please fill in all required fields',
-        position: 'top'
+        position: 'top',
+        actions: [
+          {
+            icon: 'close',
+            color: 'white',
+          }
+        ]
       });
       return;
     }
@@ -205,7 +211,13 @@ const onSubmit = () => {
       $q.notify({
         type: 'negative',
         message: 'End time must be after start time',
-        position: 'top'
+        position: 'top',
+        actions: [
+          {
+            icon: 'close',
+            color: 'white',
+          }
+        ]
       });
       return;
     }
@@ -222,7 +234,13 @@ const onSubmit = () => {
       type: 'positive',
       color: 'dark',
       message: 'Booking request sent successfully!',
-      position: 'top'
+      position: 'top',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        }
+      ]
     });
 
     closeDialog();
@@ -230,7 +248,13 @@ const onSubmit = () => {
     $q.notify({
       type: 'negative',
       message: 'Failed to send booking request',
-      position: 'top'
+      position: 'top',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        }
+      ]
     });
     console.log('Error:', error);
   } finally {

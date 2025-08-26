@@ -27,11 +27,12 @@
       <div v-if="activeFilter === 'sent'" class="bookings-section">
         <div v-if="!sentBookings.length" class="empty-state">
           <q-icon name="send" size="48px" color="grey-6" />
-          <p class="empty-text">No sent requests yet</p>
+          <p class="empty-text">No sent requests to shops yet</p>
+          <p class="empty-subtext">When you send requests to shops, they will appear here</p>
         </div>
         
         <div v-else class="bookings-grid">
-          <BookingShopCard
+          <BookingSentCard
             v-for="booking in sentBookings"
             :key="booking.id"
             :booking="booking"
@@ -44,11 +45,12 @@
       <div v-if="activeFilter === 'received'" class="bookings-section">
         <div v-if="!receivedBookings.length" class="empty-state">
           <q-icon name="inbox" size="48px" color="grey-6" />
-          <p class="empty-text">No received requests yet</p>
+          <p class="empty-text">No invitations from shops yet</p>
+          <p class="empty-subtext">When shops send you invitations, they will appear here</p>
         </div>
         
         <div v-else class="bookings-grid">
-          <BookingShopCard
+          <BookingReceivedCard
             v-for="booking in receivedBookings"
             :key="booking.id"
             :booking="booking"
@@ -65,7 +67,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
-import { BookingShopCard } from './index';
+import { BookingSentCard, BookingReceivedCard } from './index';
 
 const $q = useQuasar();
 
@@ -108,7 +110,13 @@ const acceptBooking = (bookingId: number) => {
       type: 'positive',
       color: 'dark',
       message: 'Booking accepted!',
-      position: 'top'
+      position: 'top',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        }
+      ]
     });
   }
 };
@@ -123,7 +131,13 @@ const rejectBooking = (bookingId: number) => {
       type: 'info',
       color: 'negative',
       message: 'Booking rejected',
-      position: 'top'
+      position: 'top',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        }
+      ]
     });
   }
 };
@@ -152,13 +166,17 @@ const cancelBooking = (bookingId: number) => {
         type: 'info',
         color: 'negative',
         message: 'Booking cancelled',
-        position: 'top'
+        position: 'top',
+        actions: [
+          {
+            icon: 'close',
+            color: 'white',
+          }
+        ]
       });
     }
   });
 };
-
-
 
 // Load mock data on mount
 onMounted(() => {
@@ -236,6 +254,14 @@ onMounted(() => {
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 4px 4px 4px 16px;
+    
+    .filter-tab {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
   }
 
   .bookings-section {
@@ -245,8 +271,17 @@ onMounted(() => {
       color: var(--text-secondary);
       
       .empty-text {
-        margin: 16px 0;
+        margin: 16px 0 8px 0;
         font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      
+      .empty-subtext {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+        opacity: 0.8;
       }
     }
     
