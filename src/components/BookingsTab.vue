@@ -24,14 +24,14 @@
     <!-- Bookings List -->
     <div class="bookings-list">
       <!-- Sent Bookings -->
-      <div v-if="activeFilter === 'all' || activeFilter === 'sent'" class="bookings-section">
+      <div v-if="activeFilter === 'sent'" class="bookings-section">
         <div v-if="!sentBookings.length" class="empty-state">
           <q-icon name="send" size="48px" color="grey-6" />
           <p class="empty-text">No sent requests yet</p>
         </div>
         
         <div v-else class="bookings-grid">
-          <BookingCard
+          <BookingShopCard
             v-for="booking in sentBookings"
             :key="booking.id"
             :booking="booking"
@@ -41,14 +41,14 @@
       </div>
 
       <!-- Received Bookings -->
-      <div v-if="activeFilter === 'all' || activeFilter === 'received'" class="bookings-section">
+      <div v-if="activeFilter === 'received'" class="bookings-section">
         <div v-if="!receivedBookings.length" class="empty-state">
           <q-icon name="inbox" size="48px" color="grey-6" />
           <p class="empty-text">No received requests yet</p>
         </div>
         
         <div v-else class="bookings-grid">
-          <BookingCard
+          <BookingShopCard
             v-for="booking in receivedBookings"
             :key="booking.id"
             :booking="booking"
@@ -65,7 +65,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
-import { BookingCard } from './index';
+import { BookingShopCard } from './index';
 
 const $q = useQuasar();
 
@@ -167,7 +167,7 @@ onMounted(() => {
     {
       id: 1,
       title: 'Tattoo Session Request',
-      description: 'Looking for a skilled artist for a custom tattoo design',
+      description: 'I would like to visit your shop and ...',
       shopId: 1,
       artistId: 2,
       location: '123 Main St, Anytown, USA',
