@@ -28,6 +28,7 @@
                 class="full-width"
                 unelevated
                 rounded
+                @click="openBookingDialog"
               >
                 <span class="text-body2">Booking request</span>
                 <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
@@ -71,20 +72,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Booking Dialog -->
+    <CreateBookingDialog
+      v-model="showBookingDialog"
+      :shop-id="0"
+      :artist-id="artistData.id"
+      type="artist-to-shop"
+      @submit="handleBookingSubmit"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed } from 'vue';
 import PublicAboutMeTab from 'src/components/ArtistProfile/PublicAboutMeTab.vue';
 import PublicPortfolioTab from 'src/components/ArtistProfile/PublicPortfolioTab.vue';
 import PublicTripsTab from 'src/components/ArtistProfile/PublicTripsTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
+import type { IBooking } from 'src/interfaces/booking';
 import { useFavorites } from 'src/modules/useFavorites';
+import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 
-const route = useRoute();
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 
 const TAB_ABOUT = 'about';
@@ -179,11 +189,17 @@ const toggleFavorite = () => {
   });
 };
 
-onMounted(() => {
-  const artistId = route.params.id;
-  console.log('Loading artist profile for ID:', artistId);
-  // Здесь будет загрузка данных артиста по ID
-});
+// Dialog state
+const showBookingDialog = ref(false);
+
+const openBookingDialog = () => {
+  showBookingDialog.value = true;
+};
+
+const handleBookingSubmit = (data: Partial<IBooking>) => {
+  console.log('Booking submitted:', data);
+  showBookingDialog.value = false;
+};
 </script>
 
 <style scoped lang="scss">

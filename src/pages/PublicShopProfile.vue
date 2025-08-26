@@ -28,6 +28,7 @@
                     class="full-width"
                     unelevated
                     rounded
+                    @click="openBookingDialog"
                   >
                     <span class="text-body2">Booking request</span>
                     <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
@@ -76,21 +77,30 @@
         </div>
       </div>
     </div>
+
+    <!-- Create Booking Dialog -->
+    <CreateBookingDialog
+      v-model="showBookingDialog"
+      :shop-id="shopData.id"
+      :artist-id="0"
+      type="shop-to-artist"
+      @submit="handleBookingSubmit"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed } from 'vue';
 import type { IArtist } from 'src/interfaces/artist';
+import type { IBooking } from 'src/interfaces/booking';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
 import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useFavorites } from 'src/modules/useFavorites';
+import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 
-const route = useRoute();
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 
 const TAB_ABOUT = 'about';
@@ -201,10 +211,17 @@ const toggleFavorite = () => {
   toggleShopFavorite(shopData.value);
 };
 
-onMounted(() => {
-  const shopId = route.params.id;
-  console.log('Loading shop profile for ID:', shopId);
-});
+// Booking dialog state
+const showBookingDialog = ref(false);
+
+const openBookingDialog = () => {
+  showBookingDialog.value = true;
+};
+
+const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
+  console.log('Booking submitted:', bookingData);
+  showBookingDialog.value = false;
+};
 </script>
 
 <style scoped lang="scss">
