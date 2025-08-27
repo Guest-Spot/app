@@ -7,7 +7,7 @@
           round 
           icon="bookmark" 
           aria-label="Bookmarks"
-          :class="{ 'bg-dark text-white': $route.path === '/bookmarks' }"
+          :class="{ 'bg-dark': $route.path === '/bookmarks' }"
           @click="$router.push('/bookmarks')"
         />
         <q-btn 
@@ -15,7 +15,7 @@
           round 
           icon="search" 
           aria-label="Search"
-          :class="{ 'bg-dark text-white': $route.path === '/' }"
+          :class="{ 'bg-dark': $route.path === '/' }"
           @click="$router.push('/')"
         />
         <q-btn 
@@ -23,7 +23,7 @@
           round 
           :icon="userStore.isShop ? 'event_note' : 'event'" 
           :aria-label="userStore.isShop ? 'Bookings' : 'Trips & Bookings'"
-          :class="{ 'bg-dark text-white': $route.path === '/trips-bookings' || $route.path === '/bookings' }"
+          :class="{ 'bg-dark': $route.path === '/trips-bookings' || $route.path === '/bookings' }"
           @click="$router.push(userStore.isShop ? '/bookings' : '/trips-bookings')"
         />
         <q-btn 
@@ -61,7 +61,7 @@ const userStore = useUserStore();
   margin-left: 16px;
   margin-right: 16px;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 24px;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -79,7 +79,7 @@ const userStore = useUserStore();
 
 .custom-footer .q-btn.bg-dark {
   background: var(--brand-dark, #333);
-  color: white;
+  color: var(--q-primary);
 }
 
 .custom-footer .q-icon {

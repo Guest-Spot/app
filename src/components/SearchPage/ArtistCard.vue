@@ -76,7 +76,7 @@ const navigateToProfile = () => {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   box-shadow: 0 4px 20px var(--shadow-light);

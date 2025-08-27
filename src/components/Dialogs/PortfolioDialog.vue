@@ -93,13 +93,13 @@
 
       <q-card-actions class="dialog-actions">
         <q-btn
-          label="Отмена"
+          label="Cancel"
           rounded
           color="grey-6"
           @click="closeDialog"
         />
         <q-btn
-          :label="isEditing ? 'Обновить' : 'Добавить'"
+          :label="isEditing ? 'Save' : 'Add'"
           rounded
           color="dark"
           @click="confirmWork"

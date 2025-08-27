@@ -21,12 +21,12 @@
     <div class="card-content q-px-md">
       <div class="flex items-center q-gap-xs q-mb-sm">
         <template v-if="isSent">
-          <q-icon name="send" size="16px" color="blue-6" />
-          <span class="text-blue-6 text-weight-medium">Request to Shop</span>
+          <q-icon name="send" size="16px" color="primary" />
+          <span class="text-primary text-weight-medium">Request to Shop</span>
         </template>
         <template v-else>
-          <q-icon name="inbox" size="16px" color="green-6" />
-          <span class="text-green-6 text-weight-medium">Request from Shop</span>
+          <q-icon name="inbox" size="16px" color="primary" />
+          <span class="text-primary text-weight-medium">Request from Shop</span>
         </template>
       </div>
       
@@ -170,7 +170,7 @@ const getStatusLabel = (status: IBooking['status']) => {
       
       .shop-name {
         font-weight: 600;
-        color: #1976d2;
+        color: var(--q-primary);
         font-size: 16px;
         border-radius: 20px;
         font-size: 14px;

@@ -26,12 +26,12 @@
     <div class="card-content">
       <div class="flex items-center q-gap-xs q-mb-sm">
         <template v-if="isSent">
-          <q-icon name="send" size="16px" color="blue-6" />
-          <span class="text-blue-6 text-weight-medium">Request to Artist</span>
+          <q-icon name="send" size="16px" color="primary" />
+          <span class="text-primary text-weight-medium">Request to Artist</span>
         </template>
         <template v-else>
-          <q-icon name="inbox" size="16px" color="green-6" />
-          <span class="text-green-6 text-weight-medium">Request from Artist</span>
+          <q-icon name="inbox" size="16px" color="primary" />
+          <span class="text-primary text-weight-medium">Request from Artist</span>
         </template>
       </div>
 
