@@ -81,17 +81,18 @@ const handleLogout = () => {
 
 <style scoped lang="scss">
 .custom-header {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(var(--bg-block-rgb), 0.6);
   backdrop-filter: blur(10px);
-  border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
+  border-bottom-left-radius: var(--border-radius-xl);
+  border-bottom-right-radius: var(--border-radius-xl);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .header-title {
-  color: var(--text-dark, #333);
+  color: var(--text-white);
   font-weight: 600;
+  font-size: 18px;
   line-height: normal;
 }
 

@@ -2,14 +2,15 @@
   <div class="bookings-tab flex column q-gap-md">
     <!-- Header -->
     <div class="bookings-header">
-      <h3 class="text-subtitle1 text-bold q-my-none">My Bookings</h3>
+      <h3 class="text-subtitle1 text-bold q-my-none text-white">My Bookings</h3>
       <div class="flex q-gap-xs">
         <q-btn
           v-for="filter in filterTabs"
           :key="filter.value"
           :outline="activeFilter !== filter.value"
-          :color="activeFilter === filter.value ? 'dark' : 'grey-6'"
-          :text-color="activeFilter === filter.value ? 'white' : 'dark'"
+          color="grey-9"
+          :flat="activeFilter !== filter.value"
+          text-color="white"
           rounded
           size="sm"
           @click="setActiveFilter(filter.value)"
@@ -276,9 +277,9 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--bg-block);
     backdrop-filter: blur(10px);
-    border-radius: 20px;
+    border-radius: var(--border-radius-lg);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 4px 4px 4px 16px;
     

@@ -2,37 +2,15 @@
   <q-footer class="custom-footer">
     <q-toolbar class="footer-toolbar">
       <q-toolbar-title class="row justify-around q-py-sm">
-        <q-btn 
+        <q-btn
+          v-for="link in LINKS"
+          :key="link.path"
           flat 
           round 
-          icon="bookmark" 
-          aria-label="Bookmarks"
-          :class="{ 'bg-dark': $route.path === '/bookmarks' }"
-          @click="$router.push('/bookmarks')"
-        />
-        <q-btn 
-          flat 
-          round 
-          icon="search" 
-          aria-label="Search"
-          :class="{ 'bg-dark': $route.path === '/' }"
-          @click="$router.push('/')"
-        />
-        <q-btn 
-          flat 
-          round 
-          :icon="userStore.isShop ? 'event_note' : 'event'" 
-          :aria-label="userStore.isShop ? 'Bookings' : 'Trips & Bookings'"
-          :class="{ 'bg-dark': $route.path === '/trips-bookings' || $route.path === '/bookings' }"
-          @click="$router.push(userStore.isShop ? '/bookings' : '/trips-bookings')"
-        />
-        <q-btn 
-          flat 
-          round 
-          icon="person" 
-          aria-label="Profile"
-          :class="{ 'bg-dark text-white': $route.path === '/profile' }"
-          @click="$router.push('/profile')"
+          :icon="link.icon" 
+          :aria-label="link.label"
+          :class="{ 'text-primary bg-dark': link.isActive }"
+          @click="$router.push(link.path)"
         />
       </q-toolbar-title>
     </q-toolbar>
@@ -41,16 +19,47 @@
 
 <script setup lang="ts">
 import { useUserStore } from 'src/stores/user-store';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 // Footer component with navigation icons
 defineOptions({
   name: 'TheFooter'
 });
 
+const route = useRoute();
+
+const LINKS = computed(() => [
+  {
+    icon: 'bookmark',
+    label: 'Bookmarks',
+    path: '/bookmarks',
+    isActive: route.path === '/bookmarks'
+  },
+  {
+    icon: 'search',
+    label: 'Search',
+    path: '/',
+    isActive: route.path === '/'
+  },
+  {
+    icon: userStore.isShop ? 'event_note' : 'event',
+    label: 'Bookings',
+    path: '/bookings',
+    isActive: route.path === '/bookings' || route.path === '/trips-bookings'
+  },
+  {
+    icon: 'person',
+    label: 'Profile',
+    path: '/profile',
+    isActive: route.path === '/profile'
+  }
+])
+
 const userStore = useUserStore();
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .footer-toolbar {
   padding: 0 !important;
   min-height: auto !important;
@@ -61,28 +70,9 @@ const userStore = useUserStore();
   margin-left: 16px;
   margin-right: 16px;
   backdrop-filter: blur(10px);
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 24px;
+  background: rgba(var(--bg-block-rgb), 0.6);
+  border-radius: var(--border-radius-lg);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-}
-
-.custom-footer .q-btn {
-  color: var(--text-dark, #333);
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
-.custom-footer .q-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-footer .q-btn.bg-dark {
-  background: var(--brand-dark, #333);
-  color: var(--q-primary);
-}
-
-.custom-footer .q-icon {
-  color: var(--text-dark, #333);
 }
 </style>

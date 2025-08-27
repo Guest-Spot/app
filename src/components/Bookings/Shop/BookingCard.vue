@@ -11,10 +11,10 @@
           />
         </q-avatar>
         <div class="flex column">
-          <div class="user-name">{{ artist?.name || 'User' }}</div>
+          <div class="user-name text-white">{{ artist?.name || 'User' }}</div>
           <div v-if="artist?.experience" class="experience-info flex items-center q-gap-xs">
             <q-icon name="date_range" size="16px" color="grey-6" />
-            <span>{{ artist?.experience }} years of experience</span>
+            <span class="text-white">{{ artist?.experience }} years of experience</span>
           </div>
         </div>
       </div>
@@ -35,7 +35,7 @@
         </template>
       </div>
 
-      <h4 class="booking-title">{{ title }}</h4>
+      <h4 class="booking-title text-white">{{ title }}</h4>
       <p class="booking-description">{{ description }}</p>
 
       <div v-if="location" class="location-info q-mb-xs">
@@ -65,7 +65,7 @@
         />
         <q-btn
           label="Accept"
-          color="dark"
+          color="white"
           rounded
           class="full-width"
           @click="$emit('accept', id)"
@@ -87,7 +87,7 @@
       <q-btn
         v-else
         label="View Artist"
-        color="dark"
+        color="white"
         outline
         rounded
         :to="`/artist/${artist?.id}`"
@@ -159,10 +159,9 @@ const getStatusLabel = (status: IBooking['status']) => {
 
 <style scoped lang="scss">
 .booking-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0.9) 100%);
+  background: var(--bg-block);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
   overflow: hidden;
   padding: 20px;
@@ -179,12 +178,12 @@ const getStatusLabel = (status: IBooking['status']) => {
       
       .user-name {
         font-weight: 600;
-        color: var(--brand-dark);
+        color: white;
         font-size: 16px;
       }
       
       .booking-date {
-        color: var(--text-secondary);
+        color: white;
         font-size: 14px;
         margin-top: 2px;
       }
@@ -229,7 +228,7 @@ const getStatusLabel = (status: IBooking['status']) => {
     .booking-title {
       font-size: 18px;
       font-weight: 600;
-      color: var(--brand-dark);
+      color: white;
       margin: 0;
     }
     

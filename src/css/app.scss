@@ -5,6 +5,7 @@
 
 // CSS variables for general colors (imported from quasar.variables.scss)
 :root {
+  --q-primary-rgb: #{$primary-rgb};
   --brand-dark: #{$brand-dark};
   --divider-light: #{$divider-light};
   --shadow-light: #{$shadow-light};
@@ -12,6 +13,13 @@
   --text-secondary: #{$text-secondary};
   --border-light: #{$border-light};
   --text-dark: #{$text-dark};
+  --bg-block: #151515;
+  --bg-block-rgb: 38, 33, 26;
+  --border-radius-xs: 4px;
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+  --border-radius-xl: 32px;
 }
 
 body, html {
