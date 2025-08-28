@@ -10,6 +10,13 @@
 // Auth layout without header and footer
 </script>
 
-<style scoped>
-/* Auth layout specific styles */
+<style scoped lang="scss">
+.auth-page {
+  min-height: 100vh;
+  padding-bottom: 32px;
+}
+
+.q-ios-padding .auth-page {
+  padding-top: 70px;
+}
 </style>
