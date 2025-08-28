@@ -159,28 +159,28 @@ const artists = ref([
     id: 1,
     name: 'Sarah Chen',
     bio: 'Specializing in Irezumi and modern Japanese styles',
-    avatar: 'https://picsum.photos/80/80?random=1',
+    avatar: 'artists/artist1.jpeg',
     location: 'New York, NY'
   },
   {
     id: 2,
     name: 'Mike Rodriguez',
     bio: 'Portrait and realistic tattoo artist with 8 years experience',
-    avatar: 'https://picsum.photos/80/80?random=2',
+    avatar: 'artists/artist2.jpg',
     location: 'Los Angeles, CA'
   },
   {
     id: 3,
     name: 'Emma Thompson',
     bio: 'Creative artist specializing in unique watercolor designs',
-    avatar: 'https://picsum.photos/80/80?random=3',
+    avatar: 'artists/artist3.jpg',
     location: 'Chicago, IL'
   },
   {
     id: 4,
     name: 'Alex Johnson',
     bio: 'Clean lines and precise geometric tattoo designs',
-    avatar: 'https://picsum.photos/80/80?random=4',
+    avatar: 'artists/artist4.jpg',
     location: 'San Francisco, CA'
   }
 ]);

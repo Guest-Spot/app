@@ -14,6 +14,7 @@ export const useThemeStore = defineStore('theme', {
       this.isDark = isDark;
     },
     setAccentColor(accentColor: string) {
+      console.log('setting accentColor to', accentColor);
       this.accentColor = accentColor;
     },
   },

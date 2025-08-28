@@ -20,6 +20,7 @@ const useTheme = () => {
     const root = document.documentElement;
     root.style.setProperty('--q-primary', color);
     LocalStorage.set(ACCENT_COLOR_KEY, color);
+    themeStore.setAccentColor(color);
   };
 
   const setDarkTheme = (dark: boolean) => {
