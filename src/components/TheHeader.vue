@@ -4,7 +4,7 @@
       <!-- Back Button - only show when hasBack is true in route meta -->
       <q-btn
         v-if="showBackButton"
-        icon="arrow_back"
+        icon="chevron_left"
         round
         dense
         text-color="grey-6"
@@ -81,7 +81,7 @@ const handleLogout = () => {
 
 <style scoped lang="scss">
 .custom-header {
-  background: rgba(var(--bg-block-rgb), 0.6);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
@@ -90,7 +90,7 @@ const handleLogout = () => {
 }
 
 .header-title {
-  color: var(--text-white);
+  color: var(--text-dark);
   font-weight: 600;
   font-size: 18px;
   line-height: normal;
@@ -102,12 +102,17 @@ const handleLogout = () => {
 }
 
 .back-btn {
-  color: var(--text-dark, #333);
+  color: var(--text-dark);
   transition: all 0.3s ease;
+}
+
+.body--dark {
+  .custom-header {
+    background: rgba(var(--bg-block-rgb), 0.6);
+  }
   
-  &:hover {
-    background: rgba(0, 0, 0, 0.1);
-    transform: scale(1.1);
+  .header-title {
+    color: var(--text-white);
   }
 }
 </style>

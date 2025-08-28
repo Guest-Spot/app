@@ -5,7 +5,6 @@
 
 // CSS variables for general colors (imported from quasar.variables.scss)
 :root {
-  --q-primary-rgb: #{$primary-rgb};
   --brand-dark: #{$brand-dark};
   --divider-light: #{$divider-light};
   --shadow-light: #{$shadow-light};
@@ -19,6 +18,7 @@
   --border-radius-md: 16px;
   --border-radius-lg: 24px;
   --border-radius-xl: 32px;
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 body.q-ios-padding .q-dialog__inner {
@@ -88,7 +88,11 @@ body.q-ios-padding .q-dialog__inner {
   border-radius: 24px;
 }
 
-.bg-block {}
+.bg-block {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--box-shadow);
+}
 
 .q-btn {
   text-transform: none;
@@ -125,4 +129,10 @@ body.q-ios-padding .q-dialog__inner {
   border-radius: 16px !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid var(--shadow-light);
+}
+
+.body--dark {
+  .bg-block {
+    background: rgba(var(--bg-block-rgb), 0.6);
+  }
 }

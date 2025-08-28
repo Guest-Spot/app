@@ -7,11 +7,13 @@
           :key="link.path"
           flat 
           round 
-          :icon="link.icon" 
+          color="grey-6"
           :aria-label="link.label"
-          :class="{ 'text-primary bg-dark': link.isActive }"
+          :class="{ 'text-primary': link.isActive }"
           @click="$router.push(link.path)"
-        />
+        >
+          <q-icon :name="link.icon" :class="{ 'text-primary': link.isActive }" />
+        </q-btn>
       </q-toolbar-title>
     </q-toolbar>
   </q-footer>
@@ -67,8 +69,14 @@ const userStore = useUserStore();
 
 .custom-footer {
   backdrop-filter: blur(10px);
-  background: rgba(var(--bg-block-rgb), 0.6);
+  background: rgba(255, 255, 255, 0.6);
+  border-top-left-radius: var(--border-radius-xl);
+  border-top-right-radius: var(--border-radius-xl);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+}
+
+.body--dark .custom-footer {
+  background: rgba(var(--bg-block-rgb), 0.6);
 }
 </style>
