@@ -2,10 +2,10 @@
   <div class="shop-artists-tab">
     <!-- Artists List -->
     <div class="artists-section">
-      <div class="section-header q-mb-md">
+      <div class="section-header q-mb-md bg-block border-radius-md">
         <h3 class="text-subtitle1 text-bold q-my-none">Shop Artists ({{ artists.length }})</h3>
         <q-btn
-          color="dark"
+          color="primary"
           icon="person_add"
           @click="showAddArtistDialog = true"
           round
@@ -15,7 +15,7 @@
       </div>
 
       <!-- Artists Grid -->
-      <div class="artists-grid" v-if="artists.length > 0">
+      <div class="artists-grid" v-if="!artists.length">
         <ArtistCard
           v-for="artist in artists"
           :key="artist.id"
@@ -26,12 +26,12 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="empty-state">
+      <div v-else class="empty-state bg-block border-radius-lg">
         <q-icon name="people" size="60px" color="grey-6" />
         <h3 class="empty-title">No Artists Yet</h3>
-        <p class="empty-description">Invite your first artist to showcase their work</p>
+        <p class="empty-description text-grey-6">Invite your first artist to showcase their work</p>
         <q-btn
-          color="dark"
+          class="bg-block"
           icon="person_add"
           label="Invite First Artist"
           @click="showAddArtistDialog = true"
@@ -100,10 +100,6 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 4px 4px 4px 16px;
 }
 
@@ -111,7 +107,6 @@ defineExpose({
   margin: 0;
   font-size: 24px;
   font-weight: 600;
-  color: var(--brand-dark);
 }
 
 .artists-grid {
@@ -131,12 +126,10 @@ defineExpose({
   margin: 16px 0 8px 0;
   font-size: 20px;
   font-weight: 600;
-  color: var(--brand-dark);
 }
 
 .empty-description {
   margin: 0 0 24px 0;
-  color: #666;
 }
 
 

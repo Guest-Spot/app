@@ -8,10 +8,11 @@
         <div class="text-subtitle1 text-bold">{{ title }}</div>
         <q-btn
           icon="close"
-          color="dark"
           round
           dense
           size="sm"
+          class="bg-block"
+          text-color="primary"
           @click="closeDialog"
         />
       </q-card-section>
@@ -31,14 +32,13 @@
             <q-btn
               round
               dense
-              color="dark"
+              class="bg-block"
               @click="copyLink"
-              class="copy-button"
             >
               <q-icon name="content_copy" size="18px" />
             </q-btn>
           </div>
-          <p class="link-description">
+          <p class="link-description text-grey-6">
             Send this link to the artist you want to invite to your shop
           </p>
         </div>
@@ -162,11 +162,10 @@ const title = computed(() => 'Invite Artist to Shop');
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     
     .text-subtitle1 {
       font-weight: 600;
-      color: var(--brand-dark);
     }
   }
   
@@ -180,7 +179,6 @@ const title = computed(() => 'Invite Artist to Shop');
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
-        color: var(--brand-dark);
         font-size: 14px;
       }
       
@@ -206,19 +204,26 @@ const title = computed(() => 'Invite Artist to Shop');
       }
     }
   }
-  
+
   .dialog-actions {
     padding: 10px 20px 20px;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
     position: sticky;
     bottom: 0;
-    background: white;
-    border-top: 1px solid var(--border-light);
-    z-index: 10;
     
     .q-btn {
       min-width: 100px;
       font-weight: 600;
+    }
+  }
+}
+
+.body--dark {
+  .artist-invite-dialog {
+    .dialog-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
   }
 }
