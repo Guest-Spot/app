@@ -25,12 +25,12 @@
             v-for="color in accentColors"
             :key="color.name"
             class="color-option"
-            :class="{ active: selectedAccentColor === color.value }"
+            :class="{ active: accentColor === color.value }"
             :style="{ backgroundColor: color.value }"
-            @click="selectAccentColor(color.value)"
+            @click="setAccentColor(color.value)"
           >
             <q-icon
-              v-if="selectedAccentColor === color.value"
+              v-if="accentColor === color.value"
               name="check"
               color="white"
               size="sm"
@@ -43,12 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { ref, onMounted } from 'vue';
 import type { ITab } from 'src/interfaces/tabs';
 import TabsComp from 'src/components/TabsComp.vue';
-
-const $q = useQuasar();
+import * as COLORS from 'src/config/colors';
+import useTheme from 'src/modules/useTheme';
 
 // Theme state
 const LIGHT_TAB = 'light';
@@ -65,94 +64,35 @@ const themeTabs: ITab[] = [
   }
 ]
 
-const isDark = ref(false);
 const activeThemeTab = ref<ITab>(themeTabs[0]!)
-
-// Accent color state
-const RED_COLOR = '#FF3D00'
-const BLUE_COLOR = '#1976D2';
-const GREEN_COLOR = '#4CAF50';
-const PURPLE_COLOR = '#9C27B0'
-const ORANGE_COLOR = '#FF9800'
-const TEAL_COLOR = '#009688'
-const PINK_COLOR = '#E91E63'
-const INDIGO_COLOR = '#3F51B5'
-
-const selectedAccentColor = ref(RED_COLOR);
 
 // Predefined accent colors
 const accentColors = [
-  { name: 'Red', value: RED_COLOR },
-  { name: 'Blue', value: BLUE_COLOR },
-  { name: 'Green', value: GREEN_COLOR },
-  { name: 'Purple', value: PURPLE_COLOR },
-  { name: 'Orange', value: ORANGE_COLOR },
-  { name: 'Teal', value: TEAL_COLOR },
-  { name: 'Pink', value: PINK_COLOR },
-  { name: 'Indigo', value: INDIGO_COLOR },
+  { name: 'Red', value: COLORS.RED_COLOR },
+  { name: 'Blue', value: COLORS.BLUE_COLOR },
+  { name: 'Green', value: COLORS.GREEN_COLOR },
+  { name: 'Purple', value: COLORS.PURPLE_COLOR },
+  { name: 'Orange', value: COLORS.ORANGE_COLOR },
+  { name: 'Teal', value: COLORS.TEAL_COLOR },
+  { name: 'Pink', value: COLORS.PINK_COLOR },
+  { name: 'Indigo', value: COLORS.INDIGO_COLOR },
 ];
 
-// LocalStorage keys
-const THEME_KEY = 'guestspot-theme';
-const ACCENT_COLOR_KEY = 'guestspot-accent-color';
+const { setAccentColor, setDarkTheme, accentColor, isDark } = useTheme();
 
-// Save theme settings to localStorage
-const saveThemeSettings = () => {
-  localStorage.setItem(THEME_KEY, isDark.value ? DARK_TAB : LIGHT_TAB);
-  localStorage.setItem(ACCENT_COLOR_KEY, selectedAccentColor.value);
-};
-
-// Watch for changes to save to localStorage
-watch([isDark, selectedAccentColor], () => {
-  saveThemeSettings();
-});
-
-// Toggle between light and dark theme
 const setActiveTab = (t: ITab) => {
   activeThemeTab.value = t;
   if (t.tab === LIGHT_TAB) {
-    $q.dark.set(false);
-    isDark.value = false;
+    setDarkTheme(false);
   } else {
-    $q.dark.set(true);
-    isDark.value = true;
-  }
-  // Theme change will be saved via watcher
-};
-
-// Select predefined accent color
-const selectAccentColor = (color: string) => {
-  const root = document.documentElement;
-  root.style.setProperty('--q-primary', color);
-  selectedAccentColor.value = color;
-};
-
-// Load theme settings from localStorage
-const loadThemeSettings = () => {
-  // Load theme preference
-  const savedTheme = localStorage.getItem(THEME_KEY);
-  if (savedTheme) {
-    isDark.value = savedTheme === DARK_TAB;
-    $q.dark.set(isDark.value);
-    activeThemeTab.value = themeTabs[isDark.value ? 1 : 0]!;
-  }
-
-  // Load accent color
-  const savedAccentColor = localStorage.getItem(ACCENT_COLOR_KEY);
-  if (savedAccentColor) {
-    selectAccentColor(savedAccentColor);
+    setDarkTheme(true);
   }
 };
 
-// Expose data for parent component
-defineExpose({
-  isDark,
-  selectedAccentColor
-});
-
-// Initialize theme from localStorage or Quasar defaults
 onMounted(() => {
-  loadThemeSettings();
+  if (isDark.value) {
+    activeThemeTab.value = themeTabs.find(t => t.tab === DARK_TAB)!;
+  }
 });
 </script>
 

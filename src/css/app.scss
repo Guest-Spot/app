@@ -19,6 +19,26 @@
   --border-radius-lg: 24px;
   --border-radius-xl: 32px;
   --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+  // Accend Colors
+  --red-accent: #FF3D00;
+  --blue-accent: #1976D2;
+  --green-accent: #4CAF50;
+  --orange-accent: #FF9800;
+  --purple-accent: #9C27B0;
+  --teal-accent: #009688;
+  --pink-accent: #E91E63;
+  --indigo-accent: #3F51B5;
+
+  // Accent RGB Colors
+  --red-accent-rgb: 255, 61, 0;
+  --blue-accent-rgb: 25, 118, 210;
+  --green-accent-rgb: 76, 175, 80;
+  --orange-accent-rgb: 255, 152, 0;
+  --purple-accent-rgb: 156, 39, 176;
+  --teal-accent-rgb: 0, 150, 136;
+  --pink-accent-rgb: 233, 30, 99;
+  --indigo-accent-rgb: 63, 81, 181;
 }
 
 body.q-ios-padding .q-dialog__inner {
@@ -133,6 +153,6 @@ body.q-ios-padding .q-dialog__inner {
 
 .body--dark {
   .bg-block {
-    background: rgba(var(--bg-block-rgb), 0.6);
+    background: rgba(44, 44, 44, 0.6);
   }
 }

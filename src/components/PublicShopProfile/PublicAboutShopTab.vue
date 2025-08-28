@@ -1,9 +1,9 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
     <!-- Contacts -->
-    <div class="info-card">
-      <div class="card-header">
-        <q-icon name="location_on" size="24px" color="dark" />
+    <div class="info-card bg-block border-radius-lg">
+      <div class="card-header q-px-md bg-block">
+        <q-icon name="location_on" size="24px" />
         <h3 class="card-title">Contacts</h3>
       </div>
       <div class="card-content">
@@ -23,9 +23,9 @@
     </div>
 
     <!-- Working Hours -->
-    <div class="info-card">
-      <div class="card-header">
-        <q-icon name="schedule" size="24px" color="dark" />
+    <div class="info-card bg-block border-radius-lg">
+      <div class="card-header q-px-md bg-block">
+        <q-icon name="schedule" size="24px" />
         <h3 class="card-title">Working Hours</h3>
       </div>
       <div class="card-content">
@@ -41,9 +41,9 @@
     </div>
 
     <!-- Additional Info -->
-    <div class="info-card">
-      <div class="card-header">
-        <q-icon name="add_circle" size="24px" color="dark" />
+    <div class="info-card bg-block border-radius-lg">
+      <div class="card-header q-px-md bg-block">
+        <q-icon name="add_circle" size="24px" />
         <h3 class="card-title">Additional Info</h3>
       </div>
       <div class="card-content">
@@ -55,9 +55,9 @@
     </div>
 
     <!-- Links -->
-    <div class="info-card" v-if="shopData.instagram || shopData.facebook">
-      <div class="card-header">
-        <q-icon name="link" size="24px" color="dark" />
+    <div class="info-card bg-block border-radius-lg" v-if="shopData.instagram || shopData.facebook">
+      <div class="card-header q-px-md bg-block">
+        <q-icon name="link" size="24px" />
         <h3 class="card-title">Links</h3>
       </div>
       <div class="card-content">
@@ -101,32 +101,20 @@ defineProps<Props>();
 
 <style scoped lang="scss">
 .info-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
   overflow: hidden;
   transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
 }
 
 .card-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 20px;
-  background: rgba(255, 255, 255, 0.9);
 }
 
 .card-title {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--brand-dark);
 }
 
 .card-content {
@@ -146,13 +134,11 @@ defineProps<Props>();
 
 .info-label {
   font-weight: 600;
-  color: var(--brand-dark);
   min-width: 90px;
   flex-shrink: 0;
 }
 
 .info-value {
-  color: var(--brand-dark);
   flex: 1;
   line-height: 1.5;
 }
@@ -161,9 +147,5 @@ defineProps<Props>();
   color: var(--primary);
   text-decoration: none;
   word-break: break-all;
-  
-  &:hover {
-    text-decoration: underline;
-  }
 }
 </style>

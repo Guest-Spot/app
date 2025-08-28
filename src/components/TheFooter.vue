@@ -1,5 +1,5 @@
 <template>
-  <q-footer class="custom-footer">
+  <q-footer class="custom-footer bg-block">
     <q-toolbar class="footer-toolbar">
       <q-toolbar-title class="row justify-around q-py-sm">
         <q-btn
@@ -9,7 +9,7 @@
           round 
           color="grey-6"
           :aria-label="link.label"
-          :class="{ 'text-primary': link.isActive }"
+          :class="{ 'text-primary bg-block': link.isActive }"
           @click="$router.push(link.path)"
         >
           <q-icon :name="link.icon" :class="{ 'text-primary': link.isActive }" />
@@ -68,15 +68,8 @@ const userStore = useUserStore();
 }
 
 .custom-footer {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.6);
   border-top-left-radius: var(--border-radius-xl);
   border-top-right-radius: var(--border-radius-xl);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-}
-
-.body--dark .custom-footer {
-  background: rgba(var(--bg-block-rgb), 0.6);
 }
 </style>
