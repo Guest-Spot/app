@@ -1,9 +1,10 @@
 <template>
   <div
-    class="image-uploader border-radius-md"
+    class="image-uploader border-radius-lg bg-block"
     :class="{
       'image-uploader--sm': size === 'sm',
       'image-uploader--circle': circle,
+      'q-pa-sm': !imageSrc,
     }"
   >
     <template v-if="imageSrc">
@@ -33,7 +34,7 @@
           @update:model-value="onChangeImage"
         >
           <span class="flex column items-center justify-center full-width full-height">
-            <q-icon name="image" size="48px" color="grey-5" />
+            <q-icon name="image" size="48px" color="grey-6" />
             <p class="text-grey-6 q-mt-sm">Upload image</p>
           </span>
         </q-file>
@@ -53,28 +54,25 @@
       <q-btn
         v-if="isMobile"
         round
-        push
+        color="primary"
+        size="sm"
         icon="camera_alt"
-        class="absolute-bottom-right image-uploader_camera-button"
+        class="absolute-bottom-right q-mr-lg q-mb-lg"
         @click.stop="openCamera"
       />
     </template>
 
     <div
       v-if="imageSrc"
-      class="flex column absolute-bottom-right q-mr-sm q-mb-sm"
+      class="flex column absolute-bottom-right q-mr-md q-mb-md"
     >
       <q-btn
         round
-        push
-        color="deep-orange"
+        size="sm"
+        color="negative"
+        icon="delete_forever"
         @click="clear"
-      >
-        <q-icon
-          name="delete_forever"
-          color="white"
-        />
-      </q-btn>
+      />
     </div>
 
     <!-- Dialog -->
@@ -225,12 +223,6 @@ watch(image, async (newValue) => {
     position: relative;
     overflow: hidden;
 
-    &_camera-button {
-      bottom: 16px;
-      right: 16px;
-      z-index: 10;
-    }
-
     .q-file {
       width: 100%;
       height: 100%;
@@ -245,7 +237,7 @@ watch(image, async (newValue) => {
 
         &::before,
         &::after {
-          border: 2px dashed var(--border-light);
+          border: 2px dashed rgba(255, 255, 255, 0.1);
           border-radius: 20px;
         }
 
@@ -315,10 +307,6 @@ watch(image, async (newValue) => {
         opacity: 0;
         transition: opacity 0.3s ease;
         pointer-events: none;
-      }
-
-      &:hover .zoom-indicator {
-        opacity: 1;
       }
     }
   }

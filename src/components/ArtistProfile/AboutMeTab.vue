@@ -1,15 +1,13 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <div class="image-content q-pa-md">
-      <ImageUploader />
-    </div>
+    <ImageUploader />
 
     <!-- BIO Section -->
     <q-expansion-item
       icon="person"
       label="Basic Information"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -66,7 +64,7 @@
       icon="contact_phone"
       label="Contacts"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -99,7 +97,7 @@
       icon="link"
       label="Links"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -127,10 +125,13 @@
       </div>
     </q-expansion-item>
 
+    <!-- Theme Settings -->
+    <ThemeSettings />
+
     <!-- Save Button -->
     <div class="save-section">
       <q-btn
-        color="dark"
+        color="grey-9"
         class="save-btn full-width"
         @click="saveChanges"
         rounded
@@ -143,7 +144,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ImageUploader } from 'src/components';
+import { ImageUploader, ThemeSettings } from 'src/components';
 
 // Form data
 const artistData = ref({
@@ -184,17 +185,8 @@ defineExpose({
 .input-label {
   display: block;
   font-weight: 500;
-  color: var(--brand-dark);
   margin-bottom: 8px;
   font-size: 14px;
-}
-
-.image-content {
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 10px 30px var(--shadow-light);
 }
 
 .links-row {

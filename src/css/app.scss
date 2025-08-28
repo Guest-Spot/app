@@ -13,17 +13,12 @@
   --text-secondary: #{$text-secondary};
   --border-light: #{$border-light};
   --text-dark: #{$text-dark};
-  --bg-block: #151515;
   --bg-block-rgb: 38, 33, 26;
   --border-radius-xs: 4px;
   --border-radius-sm: 8px;
   --border-radius-md: 16px;
   --border-radius-lg: 24px;
   --border-radius-xl: 32px;
-}
-
-body, html {
-  background: #000;
 }
 
 body.q-ios-padding .q-dialog__inner {
@@ -93,37 +88,7 @@ body.q-ios-padding .q-dialog__inner {
   border-radius: 24px;
 }
 
-.custom-input :deep(.q-field__control) {
-  border: 1px solid #D1D1D1;
-  border-radius: 10px;
-  background: #FDFDFD;
-}
-
-.custom-input :deep(.q-field__control:hover) {
-  border-color: #B0B0B0;
-}
-
-.custom-input :deep(.q-field__control--focused) {
-  border-color: #151515;
-  box-shadow: 0 0 0 2px rgba(21, 21, 21, 0.1);
-}
-
-.custom-input :deep(.q-field__native) {
-  color: #696969;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.custom-input :deep(.q-field__native::placeholder) {
-  color: #696969;
-  opacity: 0.8;
-}
-
-.info-expansion {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-}
+.bg-block {}
 
 .q-btn {
   text-transform: none;

@@ -7,9 +7,8 @@
       :class="{ active: currentActiveTab.tab === t.tab }"
       unelevated
       rounded
-      :outline="currentActiveTab.tab !== t.tab"
-      :color="currentActiveTab.tab === t.tab ? 'dark' : 'grey-7'"
-      :text-color="currentActiveTab.tab === t.tab ? 'white' : 'dark'"
+      :color="currentActiveTab.tab === t.tab ? 'primary' : 'grey-9'"
+      text-color="white"
       :label="t.label"
       @click="handleTabClick(t)"
     />
@@ -29,6 +28,7 @@ const props = defineProps<{
   tabs: ITab[];
   activeTab: ITab;
   useQuery?: boolean;
+  sendInitialTab?: boolean;
 }>();
 
 const router = useRouter();
@@ -55,7 +55,9 @@ const getActiveTab = () => {
 };
 
 onMounted(() => {
-  emit('setActiveTab', getActiveTab());
+  if (props.sendInitialTab ?? false) {
+    emit('setActiveTab', getActiveTab());
+  }
 });
 </script>
 

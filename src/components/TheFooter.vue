@@ -66,12 +66,8 @@ const userStore = useUserStore();
 }
 
 .custom-footer {
-  margin-bottom: 16px;
-  margin-left: 16px;
-  margin-right: 16px;
   backdrop-filter: blur(10px);
   background: rgba(var(--bg-block-rgb), 0.6);
-  border-radius: var(--border-radius-lg);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
