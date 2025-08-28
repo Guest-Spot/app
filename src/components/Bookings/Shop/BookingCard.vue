@@ -58,14 +58,13 @@
         <q-btn
           label="Reject"
           color="negative"
-          outline
           rounded
           class="full-width"
           @click="$emit('reject', id)"
         />
         <q-btn
           label="Accept"
-          color="white"
+          color="primary"
           rounded
           class="full-width"
           @click="$emit('accept', id)"
@@ -77,7 +76,6 @@
         v-else-if="isSent && status === 'pending'"
         label="Cancel"
         color="negative"
-        outline
         rounded
         class="full-width"
         @click="$emit('cancel', id)"
@@ -87,8 +85,7 @@
       <q-btn
         v-else
         label="View Artist"
-        color="white"
-        outline
+        color="grey-9"
         rounded
         :to="`/artist/${artist?.id}`"
         class="full-width"
