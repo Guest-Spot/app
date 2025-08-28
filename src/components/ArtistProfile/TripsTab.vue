@@ -147,8 +147,8 @@ const trips = ref<Trip[]>([
     endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
     photos: [
-      'https://picsum.photos/200/200?random=10',
-      'https://picsum.photos/200/200?random=11'
+      'examples/example1.jpg',
+      'examples/example2.jpeg'
     ]
   },
   {
@@ -170,7 +170,8 @@ const trips = ref<Trip[]>([
     endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
     photos: [
-      'https://picsum.photos/200/200?random=12'
+      'examples/example1.jpg',
+      'examples/example2.jpeg'
     ]
   }
 ]);
@@ -222,12 +223,6 @@ const handleTripConfirm = (trip: TripForm) => {
     trips.value.push({ ...trip });
   }
 };
-
-// const deleteTrip = (index: number) => {
-//   console.log('Delete trip clicked', index);
-//   // TODO: Implement delete trip functionality
-//   trips.value.splice(index, 1);
-// };
 
 // Expose data for parent component
 defineExpose({

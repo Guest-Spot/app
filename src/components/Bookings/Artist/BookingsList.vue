@@ -199,7 +199,7 @@ onMounted(() => {
       shop: {
         id: 1,
         title: 'Tattoo Studio',
-        avatar: 'https://picsum.photos/300/300?random=1',
+        avatar: 'shops/shop1.jpg',
       },
     },
     {
@@ -219,7 +219,7 @@ onMounted(() => {
       shop: {
         id: 3,
         title: 'Art Gallery',
-        avatar: 'https://picsum.photos/300/300?random=3',
+        avatar: 'shops/shop2.jpg',
       },
     },
     {
@@ -239,7 +239,7 @@ onMounted(() => {
       shop: {
         id: 3,
         title: 'Art Gallery',
-        avatar: 'https://picsum.photos/300/300?random=3',
+        avatar: 'shops/shop3.webp',
       },
     },
     {
@@ -259,7 +259,7 @@ onMounted(() => {
       shop: {
         id: 5,
         title: 'Tattoo Studio',
-        avatar: 'https://picsum.photos/300/300?random=5',
+        avatar: 'shops/shop4.jpg',
       },
     },
   ];

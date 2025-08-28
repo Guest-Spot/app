@@ -196,7 +196,7 @@ onMounted(() => {
       artist: {
         id: 2,
         name: 'John Doe',
-        avatar: 'https://picsum.photos/300/300?random=2',
+        avatar: 'artists/artist1.jpeg',
         experience: 10,
       },
     },
@@ -217,7 +217,7 @@ onMounted(() => {
       artist: {
         id: 4,
         name: 'John Doe',
-        avatar: 'https://picsum.photos/300/300?random=4',
+        avatar: 'artists/artist2.jpg',
         experience: 3,
       },
     },
@@ -238,7 +238,7 @@ onMounted(() => {
       artist: {
         id: 4,
         name: 'John Doe',
-        avatar: 'https://picsum.photos/300/300?random=4',
+        avatar: 'artists/artist3.jpg',
         experience: 3,
       },
     },
@@ -259,7 +259,7 @@ onMounted(() => {
       artist: {
         id: 6,
         name: 'John Doe',
-        avatar: 'https://picsum.photos/300/300?random=6',
+        avatar: 'artists/artist4.jpg',
         experience: 5,
       },
     },

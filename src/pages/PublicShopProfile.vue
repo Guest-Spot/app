@@ -177,19 +177,19 @@ const artists = ref<IArtist[]>([
     id: 1,
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
-    avatar: 'https://picsum.photos/80/80?random=1'
+    avatar: 'artists/artist1.jpeg'
   },
   {
     id: 2,
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
-    avatar: 'https://picsum.photos/80/80?random=2'
+    avatar: 'artists/artist2.jpg'
   },
   {
     id: 3,
     name: 'Mike Johnson',
     bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
-    avatar: 'https://picsum.photos/80/80?random=3'
+    avatar: 'artists/artist3.jpg'
   }
 ]);
 
@@ -199,21 +199,21 @@ const portfolioItems = ref([
     id: 1,
     title: 'Traditional Sleeve Design',
     description: 'Full arm traditional American style tattoo with vibrant colors and classic motifs',
-    imageUrl: 'https://picsum.photos/300/300?random=4',
+    imageUrl: 'examples/example1.jpg',
     tags: ['Traditional', 'Sleeve', 'Color']
   },
   {
     id: 2,
     title: 'Watercolor Floral Piece',
     description: 'Delicate watercolor style flower tattoo with soft edges and flowing colors',
-    imageUrl: 'https://picsum.photos/300/300?random=5',
+    imageUrl: 'examples/example2.jpeg',
     tags: ['Watercolor', 'Floral', 'Soft']
   },
   {
     id: 3,
     title: 'Realistic Portrait',
     description: 'Detailed black and grey portrait tattoo showcasing realistic shading techniques',
-    imageUrl: 'https://picsum.photos/300/300?random=6',
+    imageUrl: 'examples/example3.jpg',
     tags: ['Realistic', 'Portrait', 'Black & Grey']
   }
 ]);
