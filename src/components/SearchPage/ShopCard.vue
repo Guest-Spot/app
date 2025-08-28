@@ -1,5 +1,5 @@
 <template>
-  <div class="shop-card" @click="$emit('click', shop)">
+  <div class="shop-card bg-block border-radius-md" @click="$emit('click', shop)">
     <div class="shop-image">
       <q-img
         :src="shop.avatar || 'https://via.placeholder.com/300x200'"
@@ -87,10 +87,6 @@ const toggleFavorite = () => {
 
 <style scoped lang="scss">
 .shop-card {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
   overflow: hidden;
   cursor: pointer;
 }
@@ -111,7 +107,6 @@ const toggleFavorite = () => {
 
 .shop-title {
   margin: 0;
-  color: var(--brand-dark);
   font-size: 18px;
   font-weight: 600;
 }

@@ -18,7 +18,7 @@
       <div
         v-for="(work, index) in portfolioItems"
         :key="index"
-        class="portfolio-item bg-block border-radius-lg"
+        class="portfolio-item bg-block border-radius-md"
       >
         <div class="work-image">
           <q-img

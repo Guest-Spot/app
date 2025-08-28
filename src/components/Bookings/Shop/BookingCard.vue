@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-card bg-block q-pa-md border-radius-lg" :class="{ sent: isSent, received: isReceived }">
+  <div class="booking-card bg-block q-pa-md border-radius-md" :class="{ sent: isSent, received: isReceived }">
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm">

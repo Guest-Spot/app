@@ -6,28 +6,18 @@
         <SearchBar
           v-model="searchQuery"
           @update:filters="updateFilters"
-          class="q-mb-md"
         />
 
         <!-- Navigation Tabs -->
-        <SearchTabs v-model="activeTab" />
+         <div class="q-my-lg">
+          <SearchTabs v-model="activeTab" />
+        </div>
 
         <!-- Main Content Area -->
         <div class="main-content flex column q-gap-md">
-          <!-- Results Counter -->
-          <div class="results-counter">
-            <span class="counter-text">
-              {{ activeTab === TAB_SHOPS ? filteredShops.length : filteredArtists.length }} 
-              {{ activeTab === TAB_SHOPS ? 'shops' : 'artists' }} found
-            </span>
-            <span v-if="searchQuery || hasActiveFilters" class="filter-info">
-              (filtered results)
-            </span>
-          </div>
-
           <!-- Shops Tab Content -->
           <div v-if="activeTab === TAB_SHOPS" class="tab-content">
-            <div v-if="filteredShops.length === 0" class="no-results">
+            <div v-if="filteredShops.length === 0" class="no-results bg-block border-radius-md">
               <q-icon name="search_off" size="60px" color="grey-5" />
               <h3 class="no-results-title">No shops found</h3>
               <p class="no-results-description">Try adjusting your search or filters</p>
@@ -256,11 +246,6 @@ const filteredArtists = computed(() => {
   return filtered;
 });
 
-// Check if any filters are active
-const hasActiveFilters = computed(() => {
-  return Object.values(activeFilters.value).some(filter => filter !== null);
-});
-
 // Methods
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.id}`);
@@ -283,29 +268,6 @@ const updateFilters = (filters: SearchFilters) => {
 </script>
 
 <style scoped lang="scss">
-.results-counter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 4px 16px;
-}
-
-.counter-text {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--brand-dark);
-}
-
-.filter-info {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
 .tab-content {
   min-height: 400px;
 }
@@ -319,9 +281,6 @@ const updateFilters = (filters: SearchFilters) => {
 .no-results {
   text-align: center;
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
 }
 
 .no-results-title {

@@ -7,8 +7,7 @@
         rounded
         dense
         placeholder="Search for shops or artists"
-        class="search-input"
-        bg-color="white"
+        class="bg-block"
         clearable
         @update:model-value="onUpdateModelValue"
       >
@@ -27,7 +26,7 @@
               v-model="showMenu"
               anchor="bottom right"
               self="top right"
-              class="filters-menu"
+              class="bg-block"
               :offset="[0, -10]"
             >
               <div class="filters-content">
@@ -54,22 +53,6 @@
                       dense
                       rounded
                       placeholder="Select location"
-                      class="filter-select"
-                      clearable
-                      @update:model-value="applyFilters"
-                    />
-                  </div>
-
-                  <!-- Category Filter -->
-                  <div class="filter-group">
-                    <label class="filter-label">Category</label>
-                    <q-select
-                      v-model="filters.category"
-                      :options="categoryOptions"
-                      outlined
-                      dense
-                      rounded
-                      placeholder="Select category"
                       class="filter-select"
                       clearable
                       @update:model-value="applyFilters"
@@ -171,19 +154,6 @@ const locationOptions = [
   'Staten Island, NY'
 ];
 
-const categoryOptions = [
-  'Traditional Tattoo',
-  'Japanese Traditional',
-  'Black & Grey',
-  'Color Tattoo',
-  'Realistic',
-  'Geometric',
-  'Watercolor',
-  'Tribal',
-  'Neo-traditional',
-  'Minimalist'
-];
-
 const ratingOptions = [
   '5 stars',
   '4+ stars',
@@ -240,8 +210,6 @@ const clearFilters = () => {
 }
 
 .filters-content {
-  background: white;
-  border-radius: 16px;
   min-width: 300px;
   max-width: 400px;
   overflow: hidden;
@@ -252,14 +220,12 @@ const clearFilters = () => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px 16px;
-  border-bottom: 1px solid var(--divider-light);
 }
 
 .filters-title {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--brand-dark);
 }
 
 .filter-group {
@@ -271,17 +237,10 @@ const clearFilters = () => {
 .filter-label {
   font-size: 14px;
   font-weight: 600;
-  color: var(--brand-dark);
 }
 
 .clear-btn {
   font-weight: 500;
-  text-transform: none;
-  flex: 1;
-}
-
-.apply-btn {
-  font-weight: 600;
   text-transform: none;
   flex: 1;
 }

@@ -109,7 +109,7 @@ body.q-ios-padding .q-dialog__inner {
 }
 
 .bg-block {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   box-shadow: var(--box-shadow);
 }
@@ -153,6 +153,6 @@ body.q-ios-padding .q-dialog__inner {
 
 .body--dark {
   .bg-block {
-    background: rgba(44, 44, 44, 0.6);
+    background: rgba(44, 44, 44, 0.8);
   }
 }
