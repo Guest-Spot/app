@@ -8,7 +8,8 @@
         <div class="text-subtitle1 text-bold">{{ title }}</div>
         <q-btn
           icon="close"
-          color="dark"
+          class="bg-block"
+          text-color="primary"
           round
           dense
           size="sm"
@@ -80,28 +81,26 @@
               v-for="(tag, index) in formData.tags"
               :key="index"
               :label="tag"
-              color="dark"
-              text-color="white"
               size="sm"
               removable
               @remove="removeTag(index)"
-              class="work-tag"
+              class="work-tag bg-block"
             />
           </div>
         </div>
       </q-card-section>
 
-      <q-card-actions class="dialog-actions">
+      <q-card-actions class="dialog-actions bg-block">
         <q-btn
           label="Cancel"
           rounded
-          color="grey-6"
+          class="bg-block"
           @click="closeDialog"
         />
         <q-btn
           :label="isEditing ? 'Save' : 'Add'"
           rounded
-          color="dark"
+          color="primary"
           @click="confirmWork"
         />
       </q-card-actions>
@@ -208,11 +207,10 @@ const title = computed(() => props.isEditing ? 'Edit Portfolio Work' : 'Add New 
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     
     .text-subtitle1 {
       font-weight: 600;
-      color: var(--brand-dark);
     }
   }
   
@@ -226,7 +224,6 @@ const title = computed(() => props.isEditing ? 'Edit Portfolio Work' : 'Add New 
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
-        color: var(--brand-dark);
         font-size: 14px;
       }
       
@@ -252,13 +249,19 @@ const title = computed(() => props.isEditing ? 'Edit Portfolio Work' : 'Add New 
     justify-content: space-between;
     position: sticky;
     bottom: 0;
-    background: white;
-    border-top: 1px solid var(--border-light);
     z-index: 10;
     
     .q-btn {
       min-width: 100px;
       font-weight: 600;
+    }
+  }
+}
+
+.body--dark {
+  .portfolio-dialog {
+    .dialog-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
   }
 }
