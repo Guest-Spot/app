@@ -3,6 +3,8 @@ import * as COLORS from 'src/config/colors';
 import { LocalStorage, Dark } from 'quasar';
 import { useThemeStore } from 'src/stores/theme';
 
+const DARK_BY_DEFAULT = true;
+
 const THEME_KEY = 'guestspot-theme';
 const ACCENT_COLOR_KEY = 'guestspot-accent-color';
 const DARK_THEME = 'dark';
@@ -34,9 +36,11 @@ const useTheme = () => {
     }
 
     const savedTheme = LocalStorage.getItem(THEME_KEY);
-    if (typeof savedTheme === 'string') {
-      Dark.set(savedTheme === DARK_THEME);
-      themeStore.setIsDark(savedTheme === DARK_THEME);
+    if (typeof savedTheme === 'string' || Dark.isActive) {
+      Dark.set(savedTheme === DARK_THEME || Dark.isActive);
+      themeStore.setIsDark(savedTheme === DARK_THEME || Dark.isActive);
+    } else {
+      setDarkTheme(DARK_BY_DEFAULT);
     }
   }
 

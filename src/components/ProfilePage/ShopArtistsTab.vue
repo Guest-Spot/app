@@ -60,7 +60,6 @@ const artists = ref<IArtist[]>([
   {
     id: 1,
     name: 'John Doe',
-    specialty: 'Traditional Tattoo',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
     avatar: 'https://picsum.photos/300/300?random=1',
     experience: 8
@@ -68,7 +67,6 @@ const artists = ref<IArtist[]>([
   {
     id: 2,
     name: 'Jane Smith',
-    specialty: 'Watercolor Tattoo',
     bio: 'Creative artist known for beautiful watercolor style tattoos.',
     avatar: 'https://picsum.photos/300/300?random=2',
     experience: 5

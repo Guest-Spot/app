@@ -11,10 +11,10 @@
           />
         </q-avatar>
         <div class="flex column">
-          <div class="user-name text-white">{{ artist?.name || 'User' }}</div>
+          <div class="user-name">{{ artist?.name || 'User' }}</div>
           <div v-if="artist?.experience" class="experience-info flex items-center q-gap-xs">
             <q-icon name="date_range" size="16px" color="grey-6" />
-            <span class="text-white">{{ artist?.experience }} years of experience</span>
+            <span>{{ artist?.experience }} years of experience</span>
           </div>
         </div>
       </div>
@@ -35,8 +35,8 @@
         </template>
       </div>
 
-      <h4 class="booking-title text-white">{{ title }}</h4>
-      <p class="booking-description">{{ description }}</p>
+      <h4 class="booking-title">{{ title }}</h4>
+      <p class="booking-description text-grey-6">{{ description }}</p>
 
       <div v-if="location" class="location-info q-mb-xs">
         <q-icon name="location_on" size="16px" color="grey-6" />
@@ -173,12 +173,10 @@ const getStatusLabel = (status: IBooking['status']) => {
       
       .user-name {
         font-weight: 600;
-        color: white;
         font-size: 16px;
       }
       
       .booking-date {
-        color: white;
         font-size: 14px;
         margin-top: 2px;
       }
@@ -223,12 +221,10 @@ const getStatusLabel = (status: IBooking['status']) => {
     .booking-title {
       font-size: 18px;
       font-weight: 600;
-      color: white;
       margin: 0;
     }
     
     .booking-description {
-      color: var(--text-secondary);
       margin: 0 0 16px 0;
       line-height: 1.5;
     }

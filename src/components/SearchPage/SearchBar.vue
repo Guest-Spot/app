@@ -7,7 +7,7 @@
         rounded
         dense
         placeholder="Search for shops or artists"
-        class="bg-block"
+        class="bg-block border-radius-lg"
         clearable
         @update:model-value="onUpdateModelValue"
       >

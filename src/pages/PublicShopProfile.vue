@@ -46,7 +46,7 @@
             <div class="user-details flex column items-center q-gap-lg full-width q-py-lg">
               <div class="flex column items-center">
                 <span class="full-name text-h6">{{ shopData.title }}</span>
-                <span class="status text-body2 text-center">{{ shopData.description }}</span>
+                <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
               </div>
               <div class="flex justify-center q-gap-sm full-width no-wrap">
                 <q-btn
@@ -154,8 +154,8 @@ const shopData = ref({
   location: 'Downtown, NY',
   status: 'Open for business',
   description: 'Professional tattoo studio with 15+ years of experience in creating unique and beautiful tattoos.',
-  avatar: 'https://picsum.photos/300/300?random=1',
-  title: 'Ink Paradise Tattoo Studio',
+  avatar: 'shops/shop1.jpg',
+  title: 'Ink Paradise',
   phone: '+1 (555) 123-4567',
   email: 'info@inkparadise.com',
   dateOpened: '2009-03-15',
@@ -176,21 +176,18 @@ const artists = ref<IArtist[]>([
   {
     id: 1,
     name: 'John Doe',
-    specialty: 'Traditional Tattoo',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
     avatar: 'https://picsum.photos/80/80?random=1'
   },
   {
     id: 2,
     name: 'Jane Smith',
-    specialty: 'Watercolor Tattoo',
     bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
     avatar: 'https://picsum.photos/80/80?random=2'
   },
   {
     id: 3,
     name: 'Mike Johnson',
-    specialty: 'Black & Grey Realism',
     bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
     avatar: 'https://picsum.photos/80/80?random=3'
   }

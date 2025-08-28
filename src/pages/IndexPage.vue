@@ -93,7 +93,7 @@ const shops = ref<IShop[]>([
     title: 'Ink Paradise',
     location: 'Downtown, NY',
     description: 'Professional tattoo studio with 15+ years of experience',
-    avatar: 'https://picsum.photos/300/300?random=1',
+    avatar: 'shops/shop1.jpg',
     phone: '+1 (555) 123-4567',
     email: 'info@inkparadise.com',
     dateOpened: '2008-01-15',
@@ -109,7 +109,7 @@ const shops = ref<IShop[]>([
     title: 'Artistic Ink',
     location: 'Brooklyn, NY',
     description: 'Custom designs and traditional tattoo styles',
-    avatar: 'https://picsum.photos/300/300?random=2',
+    avatar: 'shops/shop2.jpg',
     phone: '+1 (555) 234-5678',
     email: 'hello@artisticink.com',
     dateOpened: '2012-03-20',
@@ -125,7 +125,7 @@ const shops = ref<IShop[]>([
     title: 'Modern Tattoo Co.',
     location: 'Manhattan, NY',
     description: 'Contemporary tattoo art and piercing services',
-    avatar: 'https://picsum.photos/300/300?random=3',
+    avatar: 'shops/shop3.webp',
     phone: '+1 (555) 345-6789',
     email: 'contact@moderntattoo.com',
     dateOpened: '2015-07-10',
@@ -141,7 +141,7 @@ const shops = ref<IShop[]>([
     title: 'Classic Ink Studio',
     location: 'Queens, NY',
     description: 'Traditional and neo-traditional tattoo designs',
-    avatar: 'https://picsum.photos/300/300?random=4',
+    avatar: 'shops/shop4.jpg',
     phone: '+1 (555) 456-7890',
     email: 'studio@classicink.com',
     dateOpened: '2010-11-05',
@@ -158,30 +158,30 @@ const artists = ref([
   {
     id: 1,
     name: 'Sarah Chen',
-    specialty: 'Japanese Traditional',
     bio: 'Specializing in Irezumi and modern Japanese styles',
-    avatar: 'https://picsum.photos/80/80?random=1'
+    avatar: 'https://picsum.photos/80/80?random=1',
+    location: 'New York, NY'
   },
   {
     id: 2,
     name: 'Mike Rodriguez',
-    specialty: 'Black & Grey Realism',
     bio: 'Portrait and realistic tattoo artist with 8 years experience',
-    avatar: 'https://picsum.photos/80/80?random=2'
+    avatar: 'https://picsum.photos/80/80?random=2',
+    location: 'Los Angeles, CA'
   },
   {
     id: 3,
     name: 'Emma Thompson',
-    specialty: 'Watercolor & Abstract',
     bio: 'Creative artist specializing in unique watercolor designs',
-    avatar: 'https://picsum.photos/80/80?random=3'
+    avatar: 'https://picsum.photos/80/80?random=3',
+    location: 'Chicago, IL'
   },
   {
     id: 4,
     name: 'Alex Johnson',
-    specialty: 'Geometric & Minimalist',
     bio: 'Clean lines and precise geometric tattoo designs',
-    avatar: 'https://picsum.photos/80/80?random=4'
+    avatar: 'https://picsum.photos/80/80?random=4',
+    location: 'San Francisco, CA'
   }
 ]);
 
@@ -225,7 +225,6 @@ const filteredArtists = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(artist => 
       artist.name.toLowerCase().includes(query) ||
-      artist.specialty.toLowerCase().includes(query) ||
       artist.bio.toLowerCase().includes(query)
     );
   }
@@ -239,7 +238,7 @@ const filteredArtists = computed(() => {
   // Apply category filter
   if (activeFilters.value.category) {
     filtered = filtered.filter(artist => 
-      artist.specialty.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
+      artist.location.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
     );
   }
   

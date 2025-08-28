@@ -183,7 +183,7 @@ const toggleFavorite = () => {
   toggleArtistFavorite({
     id: artistData.value.id,
     name: artistData.value.fullname,
-    specialty: artistData.value.status,
+    status: artistData.value.status,
     bio: artistData.value.bio,
     avatar: artistData.value.avatar
   });

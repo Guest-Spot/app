@@ -1,7 +1,7 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
     <!-- Contacts -->
-    <div class="info-card bg-block border-radius-lg">
+    <div class="info-card bg-block border-radius-md">
       <div class="card-header q-px-md bg-block">
         <q-icon name="location_on" size="24px" />
         <h3 class="card-title">Contacts</h3>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Working Hours -->
-    <div class="info-card bg-block border-radius-lg">
+    <div class="info-card bg-block border-radius-md">
       <div class="card-header q-px-md bg-block">
         <q-icon name="schedule" size="24px" />
         <h3 class="card-title">Working Hours</h3>
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Additional Info -->
-    <div class="info-card bg-block border-radius-lg">
+    <div class="info-card bg-block border-radius-md">
       <div class="card-header q-px-md bg-block">
         <q-icon name="add_circle" size="24px" />
         <h3 class="card-title">Additional Info</h3>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Links -->
-    <div class="info-card bg-block border-radius-lg" v-if="shopData.instagram || shopData.facebook">
+    <div class="info-card bg-block border-radius-md" v-if="shopData.instagram || shopData.facebook">
       <div class="card-header q-px-md bg-block">
         <q-icon name="link" size="24px" />
         <h3 class="card-title">Links</h3>

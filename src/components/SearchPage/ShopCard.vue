@@ -22,12 +22,12 @@
         />
       </div>
       <div class="shop-info">
-        <div class="shop-location">
-          <q-icon name="location_on" size="16px" color="primary" />
+        <div class="shop-location text-grey-6">
+          <q-icon name="location_on" size="16px" />
           <span>{{ shop.location }}</span>
         </div>
-        <div class="shop-hours">
-          <q-icon name="schedule" size="16px" color="primary" />
+        <div class="shop-hours text-grey-6">
+          <q-icon name="schedule" size="16px" />
           <span>{{ workingHoursText }}</span>
         </div>
       </div>
@@ -123,7 +123,6 @@ const toggleFavorite = () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
 }

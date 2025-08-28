@@ -13,7 +13,7 @@
           :tabs="themeTabs"
           :activeTab="activeThemeTab"
           @set-active-tab="setActiveTab"
-          class="q-mb-lg full-width"
+          class="full-width"
         />
       </div>
 
