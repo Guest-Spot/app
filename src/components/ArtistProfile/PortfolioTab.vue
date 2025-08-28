@@ -109,21 +109,21 @@ const portfolioItems = ref<PortfolioWork[]>([
     id: 1,
     title: 'Live Performance at Club XYZ',
     description: 'Amazing night performing my latest hits to a sold-out crowd.',
-    imageUrl: 'https://picsum.photos/300/300?random=1',
+    imageUrl: 'examples/example1.jpg',
     tags: ['Live', 'Performance', 'Club']
   },
   {
     id: 2,
     title: 'Studio Recording Session',
     description: 'Recording my new single with professional sound engineers.',
-    imageUrl: 'https://picsum.photos/300/300?random=2',
+    imageUrl: 'examples/example2.jpeg',
     tags: ['Studio', 'Recording', 'Single']
   },
   {
     id: 3,
     title: 'Music Festival Appearance',
     description: 'Performing at the biggest music festival in the city.',
-    imageUrl: 'https://picsum.photos/300/300?random=3',
+    imageUrl: 'examples/example3.jpg',
     tags: ['Festival', 'Live', 'Music']
   }
 ]);
