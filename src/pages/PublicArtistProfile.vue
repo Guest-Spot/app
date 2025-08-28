@@ -156,14 +156,14 @@ const portfolioItems = ref([
     id: 1,
     title: 'Live Performance at Central Park',
     description: 'Amazing live performance with full orchestra',
-    imageUrl: 'https://picsum.photos/300/300?random=1',
+    imageUrl: 'examples/example1.jpg',
     tags: ['Live', 'Orchestra', 'Performance']
   },
   {
     id: 2,
     title: 'Studio Recording Session',
     description: 'Professional studio recording for new album',
-    imageUrl: 'https://picsum.photos/300/300?random=2',
+    imageUrl: 'examples/example2.jpeg',
     tags: ['Studio', 'Recording', 'Album']
   }
 ]);

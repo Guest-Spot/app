@@ -1,24 +1,24 @@
 <template>
   <div class="public-trips-tab flex column q-gap-md">
     <!-- Trips List -->
-    <div class="trips-list" v-if="trips.length > 0">
+    <div class="trips-list" v-if="trips.length">
       <div
         v-for="(trip, index) in trips"
         :key="index"
-        class="trip-item"
+        class="trip-item bg-block border-radius-md q-pa-lg"
       >
+        <q-chip
+          :label="trip.status"
+          :color="getStatusColor(trip.status)"
+          text-color="white"
+          size="sm"
+          class="trip-status absolute-top-right q-ma-md"
+        />
         <div class="trip-header">
           <h4 class="trip-title">{{ trip.title }}</h4>
-          <q-chip
-            :label="trip.status"
-            :color="getStatusColor(trip.status)"
-            text-color="white"
-            size="sm"
-            class="trip-status"
-          />
         </div>
         <div class="trip-content">
-          <p class="trip-description">{{ trip.description }}</p>
+          <p class="trip-description text-grey-6">{{ trip.description }}</p>
           <div class="trip-dates">
             <div class="date-item">
               <q-icon name="event" size="16px" color="grey-6" />
@@ -36,10 +36,10 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state">
-      <q-icon name="flight" size="80px" color="grey-5" />
+    <div v-else class="empty-state bg-block border-radius-lg">
+      <q-icon name="flight" size="60px" color="grey-6" />
       <h3 class="empty-title">No trips planned yet</h3>
-      <p class="empty-description">This artist hasn't announced any upcoming trips or tours</p>
+      <p class="empty-description text-grey-6">This artist hasn't announced any upcoming trips or tours</p>
     </div>
   </div>
 </template>
@@ -96,27 +96,16 @@ const formatDate = (dateString: string): string => {
   gap: 20px;
 }
 
-.trip-item {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 20px var(--shadow-light);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
 .trip-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
 .trip-title {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: var(--brand-dark);
   line-height: 1.2;
 }
 
@@ -133,7 +122,6 @@ const formatDate = (dateString: string): string => {
 
 .trip-description {
   margin: 0;
-  color: var(--text-secondary);
   line-height: 1.5;
   font-size: 16px;
 }
@@ -152,34 +140,28 @@ const formatDate = (dateString: string): string => {
 
 .date-label {
   font-weight: 600;
-  color: var(--brand-dark);
   font-size: 14px;
   min-width: 50px;
 }
 
 .date-value {
-  color: var(--text-secondary);
+  color: var(--grey-6);
   font-size: 14px;
 }
 
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
 }
 
 .empty-title {
   margin: 20px 0 12px 0;
   font-size: 20px;
   font-weight: 700;
-  color: var(--brand-dark);
 }
 
 .empty-description {
   margin: 0;
-  color: var(--text-secondary);
   font-size: 16px;
 }
 </style>
