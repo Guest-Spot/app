@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-sent-card" :class="{ sent: isSent, received: isReceived }">
+  <div class="booking-card bg-block" :class="{ sent: isSent, received: isReceived }">
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
@@ -150,7 +150,7 @@ const getStatusLabel = (status: IBooking['status']) => {
 </script>
 
 <style scoped lang="scss">
-.booking-sent-card {
+.booking-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0.9) 100%);
   backdrop-filter: blur(10px);
   border-radius: 16px;

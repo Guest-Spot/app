@@ -1,17 +1,22 @@
 <template>
-  <div class="tabs-comp flex q-gap-sm justify-start full-width no-wrap">
+  <div class="tabs-comp flex q-gap-sm justify-start no-wrap">
     <q-btn
       v-for="t in tabs"
       :key="`tab-${t.tab}-${t.label}`"
       class="tab-btn"
-      :class="{ active: currentActiveTab.tab === t.tab }"
       unelevated
       rounded
-      :color="currentActiveTab.tab === t.tab ? 'primary' : 'grey-9'"
-      text-color="white"
-      :label="t.label"
+      :class="{
+        'bg-grey-4': currentActiveTab.tab !== t.tab && !$q.dark.isActive,
+        'bg-grey-9': currentActiveTab.tab !== t.tab && $q.dark.isActive,
+        'bg-primary text-white': currentActiveTab.tab === t.tab
+      }"
       @click="handleTabClick(t)"
-    />
+      v-bind="$attrs"
+    >
+      <span>{{ t.label }}</span>
+      <span v-if="t.count" class="text-bold q-ml-xs">({{ t.count }})</span>
+    </q-btn>
   </div>
 </template>
 
@@ -65,9 +70,8 @@ onMounted(() => {
 .tabs-comp {
   overflow-x: auto;
 
-  .tab-btn {
-    min-width: 100px;
-    flex: 1 0 auto;
-  }
+  // .tab-btn {
+  //   flex: 1 0 auto;
+  // }
 }
 </style>

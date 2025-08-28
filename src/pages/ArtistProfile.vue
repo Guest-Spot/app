@@ -6,7 +6,7 @@
       :activeTab="activeTab"
       use-query
       @setActiveTab="setActiveTab"
-      class="q-mb-sm q-px-lg"
+      class="q-mb-sm q-px-lg full-width"
     />
 
     <div class="container">

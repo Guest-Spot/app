@@ -1,10 +1,9 @@
 <template>
   <div
-    class="image-uploader border-radius-lg bg-block"
+    class="image-uploader border-radius-lg q-pa-sm bg-block"
     :class="{
       'image-uploader--sm': size === 'sm',
       'image-uploader--circle': circle,
-      'q-pa-sm': !imageSrc,
     }"
   >
     <template v-if="imageSrc">
@@ -69,7 +68,8 @@
       <q-btn
         round
         size="sm"
-        color="negative"
+        class="bg-block"
+        text-color="negative"
         icon="delete_forever"
         @click="clear"
       />
@@ -215,99 +215,108 @@ watch(image, async (newValue) => {
 </script>
 
 <style lang="scss">
-  .image-uploader {
+.image-uploader {
+  width: 100%;
+  height: 210px;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  .q-file {
     width: 100%;
-    height: 210px;
-    overflow: hidden;
-    text-align: center;
+    height: 100%;
     position: relative;
-    overflow: hidden;
 
-    .q-file {
-      width: 100%;
+    .q-field__control {
       height: 100%;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      justify-content: center;
       position: relative;
 
-      .q-field__control {
-        height: 100%;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        justify-content: center;
-        position: relative;
-
-        &::before,
-        &::after {
-          border: 2px dashed rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-        }
-
-        .q-field__append {
-          position: absolute;
-          top: 0;
-          right: 16px;
-        }
+      &::before,
+      &::after {
+        border: 2px dashed rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
       }
 
-      span {
-        font-size: 16px;
-        font-weight: bold;
-        opacity: 0.5;
-        display: flex;
-        align-items: center;
-        pointer-events: none;
-        user-select: none;
-        color: var(--text-black);
+      .q-field__append {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        top: 0;
+        right: 16px;
       }
     }
 
-
-
-    &--sm {
-      width: 30px;
-      min-width: 30px;
-      height: 30px;
-      min-height: 30px;
-      border-radius: var(--border-radius-xs);
-
-      span {
-        font-size: 16px;
-        line-height: normal;
-      }
+    span {
+      font-size: 16px;
+      font-weight: bold;
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      user-select: none;
+      color: var(--text-black);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
+  }
 
-    &--zoom {
-      cursor: pointer;
+  &--sm {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    min-height: 30px;
+    border-radius: var(--border-radius-xs);
+
+    span {
+      font-size: 16px;
+      line-height: normal;
     }
+  }
 
-    &--circle {
-      border-radius: 100%;
+  &--zoom {
+    cursor: pointer;
+  }
+
+  &--circle {
+    border-radius: 100%;
+  }
+
+  .image-preview-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .zoom-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
     }
+  }
+}
 
-    .image-preview-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-
-      .zoom-indicator {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
+.body--dark {
+  .image-uploader {
+    .q-field__control {
+      &::before,
+      &::after {
+        border: 2px dashed rgba(255, 255, 255, 0.1);
       }
     }
   }
+}
 </style>

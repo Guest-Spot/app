@@ -7,7 +7,7 @@
         :activeTab="activeTab"
         use-query
         @setActiveTab="setActiveTab"
-        class="q-mb-lg"
+        class="q-mb-lg full-width"
       />
 
       <!-- Main Content Area -->

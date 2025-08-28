@@ -1,31 +1,21 @@
 <template>
   <div class="bookings-tab flex column q-gap-md">
     <!-- Header -->
-    <div class="bookings-header">
-      <h3 class="text-subtitle1 text-bold q-my-none text-white">My Bookings</h3>
-      <div class="flex q-gap-xs">
-        <q-btn
-          v-for="filter in filterTabs"
-          :key="filter.value"
-          :outline="activeFilter !== filter.value"
-          color="grey-9"
-          :flat="activeFilter !== filter.value"
-          text-color="white"
-          rounded
-          size="sm"
-          @click="setActiveFilter(filter.value)"
-          class="filter-tab"
-        >
-          <span>{{ filter.label }}</span>
-          <span class="text-bold q-ml-xs">({{ filter.value === 'sent' ? sentBookings.length : receivedBookings.length }})</span>
-        </q-btn>
-      </div>
+    <div class="bookings-header bg-block border-radius-lg">
+      <h3 class="text-subtitle1 text-bold q-my-none">My Bookings</h3>
+      <TabsComp
+        size="sm"
+        unelevated
+        :tabs="filterTabs"
+        :activeTab="activeFilterTab"
+        @set-active-tab="setActiveTab"
+      />
     </div>
 
     <!-- Bookings List -->
     <div class="bookings-list">
       <!-- Sent Bookings -->
-      <div v-if="activeFilter === 'sent'" class="bookings-section">
+      <div v-if="activeFilterTab.tab === SENT_TAB" class="bookings-section">
         <div v-if="!sentBookings.length" class="empty-state">
           <q-icon name="send" size="48px" color="grey-6" />
           <p class="empty-text">No sent requests to shops yet</p>
@@ -43,7 +33,7 @@
       </div>
 
       <!-- Received Bookings -->
-      <div v-if="activeFilter === 'received'" class="bookings-section">
+      <div v-if="activeFilterTab.tab === RECEIVED_TAB" class="bookings-section">
         <div v-if="!receivedBookings.length" class="empty-state">
           <q-icon name="inbox" size="48px" color="grey-6" />
           <p class="empty-text">No invitations from shops yet</p>
@@ -69,6 +59,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
 import BookingCard from 'src/components/Bookings/Shop/BookingCard.vue';
+import TabsComp from 'src/components/TabsComp.vue';
+import type { ITab } from 'src/interfaces/tabs';
 
 const $q = useQuasar();
 
@@ -76,12 +68,8 @@ const $q = useQuasar();
 const bookings = ref<IBooking[]>([]);
 
 // Filter tabs
-const filterTabs = [
-  { label: 'Sent', value: 'sent' },
-  { label: 'Received', value: 'received' }
-];
-
-const activeFilter = ref('sent');
+const SENT_TAB = 'sent';
+const RECEIVED_TAB = 'received';
 
 // Computed properties
 const sentBookings = computed(() => {
@@ -96,9 +84,17 @@ const receivedBookings = computed(() => {
   );
 });
 
+const filterTabs = computed<ITab[]>(() => [
+  { label: 'Sent', tab: SENT_TAB, count: sentBookings.value.length },
+  { label: 'Received', tab: RECEIVED_TAB, count: receivedBookings.value.length }
+]);
+
+const activeFilterTab = ref<ITab>(filterTabs.value[0]!);
+
+
 // Methods
-const setActiveFilter = (filter: string) => {
-  activeFilter.value = filter;
+const setActiveTab = (t: ITab) => {
+  activeFilterTab.value = t;
 };
 
 const acceptBooking = (bookingId: number) => {
@@ -277,19 +273,7 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg-block);
-    backdrop-filter: blur(10px);
-    border-radius: var(--border-radius-lg);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 4px 4px 4px 16px;
-    
-    .filter-tab {
-      transition: all 0.3s ease;
-      
-      &:hover {
-        transform: translateY(-1px);
-      }
-    }
   }
 
   .bookings-section {

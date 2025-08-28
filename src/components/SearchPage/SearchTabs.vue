@@ -4,7 +4,7 @@
     :activeTab="activeTab"
     use-query
     @setActiveTab="handleTabChange"
-    class="q-mb-lg"
+    class="q-mb-lg full-width"
   />
 </template>
 

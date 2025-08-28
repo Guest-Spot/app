@@ -1,5 +1,5 @@
 <template>
-  <q-header elevated class="custom-header">
+  <q-header elevated class="custom-header bg-block">
     <q-toolbar class="header-toolbar q-px-md">
       <!-- Back Button - only show when hasBack is true in route meta -->
       <q-btn
@@ -23,7 +23,7 @@
         size="sm"
         round
         @click="handleLogout"
-        class="logout-btn"
+        class="bg-block logout-btn"
       />
     </q-toolbar>
   </q-header>
@@ -81,11 +81,8 @@ const handleLogout = () => {
 
 <style scoped lang="scss">
 .custom-header {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
   border-bottom-left-radius: var(--border-radius-xl);
   border-bottom-right-radius: var(--border-radius-xl);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -107,10 +104,6 @@ const handleLogout = () => {
 }
 
 .body--dark {
-  .custom-header {
-    background: rgba(var(--bg-block-rgb), 0.6);
-  }
-  
   .header-title {
     color: var(--text-white);
   }

@@ -54,7 +54,7 @@
           :activeTab="activeTab"
           use-query
           @setActiveTab="setActiveTab"
-          class="q-my-lg"
+          class="q-my-lg full-width"
         />
 
         <!-- Main Content Area -->

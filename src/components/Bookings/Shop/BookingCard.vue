@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-card" :class="{ sent: isSent, received: isReceived }">
+  <div class="booking-card bg-block q-pa-md border-radius-lg" :class="{ sent: isSent, received: isReceived }">
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm">
@@ -59,7 +59,8 @@
           label="Reject"
           color="negative"
           rounded
-          class="full-width"
+          flat
+          class="bg-block full-width"
           @click="$emit('reject', id)"
         />
         <q-btn
@@ -77,7 +78,8 @@
         label="Cancel"
         color="negative"
         rounded
-        class="full-width"
+        flat
+        class="bg-block full-width"
         @click="$emit('cancel', id)"
       />
       
@@ -85,10 +87,10 @@
       <q-btn
         v-else
         label="View Artist"
-        color="grey-9"
         rounded
         :to="`/artist/${artist?.id}`"
-        class="full-width"
+        flat
+        class="bg-block full-width"
       />
     </div>
   </div>
@@ -156,12 +158,8 @@ const getStatusLabel = (status: IBooking['status']) => {
 
 <style scoped lang="scss">
 .booking-card {
-  background: var(--bg-block);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
   transition: all 0.3s ease;
   overflow: hidden;
-  padding: 20px;
   
   .card-header {
     display: flex;
