@@ -258,7 +258,7 @@ const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
   }
 
   .dialog-actions {
-    padding: 10px 20px 20px;
+    padding: 16px 20px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;

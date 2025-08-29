@@ -92,34 +92,34 @@ const confirmTime = () => {
 .time-dialog {
   border-radius: 20px 20px 0 0;
   min-height: 400px;
-  
+
   .dialog-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
     border-bottom: 1px solid var(--border-light);
-    
+
     .text-h6 {
       font-weight: 600;
       color: var(--brand-dark);
     }
   }
-  
+
   .dialog-content {
     padding: 20px;
     display: flex;
     justify-content: center;
-    
+
     .q-time {
       max-width: 300px;
     }
   }
-  
+
   .dialog-actions {
-    padding: 10px 20px 20px;
+    padding: 16px 20px 32px;
     justify-content: space-between;
-    
+
     .q-btn {
       min-width: 100px;
       font-weight: 600;

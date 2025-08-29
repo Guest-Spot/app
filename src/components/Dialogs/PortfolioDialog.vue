@@ -246,7 +246,7 @@ const title = computed(() => props.isEditing ? 'Edit Portfolio Work' : 'Add New 
   }
 
   .dialog-actions {
-    padding: 10px 20px 20px;
+    padding: 16px 20px 32px;
     justify-content: space-between;
     position: sticky;
     bottom: 0;
