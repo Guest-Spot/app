@@ -2,63 +2,63 @@
   <div class="public-about-shop-tab flex column q-gap-md">
     <!-- Contacts -->
     <div class="info-card bg-block border-radius-md">
-      <div class="card-header q-px-md bg-block">
-        <q-icon name="location_on" size="24px" />
-        <h3 class="card-title">Contacts</h3>
+      <div class="card-header q-px-md q-py-sm bg-block">
+        <q-icon name="location_on" size="18px" />
+        <h3 class="card-title text-subtitle1">Contacts</h3>
       </div>
       <div class="card-content">
         <div class="info-row">
           <span class="info-label">Location:</span>
-          <span class="info-value">{{ shopData.location || 'Not specified' }}</span>
+          <span class="text-grey-6">{{ shopData.location || 'Not specified' }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Phone:</span>
-          <span class="info-value">{{ shopData.phone || 'Not specified' }}</span>
+          <span class="text-grey-6">{{ shopData.phone || 'Not specified' }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Email:</span>
-          <span class="info-value">{{ shopData.email || 'Not specified' }}</span>
+          <span class="text-grey-6">{{ shopData.email || 'Not specified' }}</span>
         </div>
       </div>
     </div>
 
     <!-- Working Hours -->
     <div class="info-card bg-block border-radius-md">
-      <div class="card-header q-px-md bg-block">
-        <q-icon name="schedule" size="24px" />
-        <h3 class="card-title">Working Hours</h3>
+      <div class="card-header q-px-md q-py-sm bg-block">
+        <q-icon name="schedule" size="18px" />
+        <h3 class="card-title text-subtitle1">Working Hours</h3>
       </div>
       <div class="card-content">
         <div class="info-row">
           <span class="info-label">Start:</span>
-          <span class="info-value">{{ workingHours.start || 'Not specified' }}</span>
+          <span class="text-grey-6">{{ workingHours.start || 'Not specified' }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">End:</span>
-          <span class="info-value">{{ workingHours.end || 'Not specified' }}</span>
+          <span class="text-grey-6">{{ workingHours.end || 'Not specified' }}</span>
         </div>
       </div>
     </div>
 
     <!-- Additional Info -->
     <div class="info-card bg-block border-radius-md">
-      <div class="card-header q-px-md bg-block">
-        <q-icon name="add_circle" size="24px" />
-        <h3 class="card-title">Additional Info</h3>
+      <div class="card-header q-px-md q-py-sm bg-block">
+        <q-icon name="add_circle" size="18px" />
+        <h3 class="card-title text-subtitle1">Additional Info</h3>
       </div>
       <div class="card-content">
         <div class="info-row">
           <span class="info-label">Date Opened:</span>
-          <span class="info-value">{{ shopData.dateOpened || 'Not specified' }}</span>
+          <span class="text-grey-6">{{ shopData.dateOpened || 'Not specified' }}</span>
         </div>
       </div>
     </div>
 
     <!-- Links -->
     <div class="info-card bg-block border-radius-md" v-if="shopData.instagram || shopData.facebook">
-      <div class="card-header q-px-md bg-block">
-        <q-icon name="link" size="24px" />
-        <h3 class="card-title">Links</h3>
+      <div class="card-header q-px-md q-py-sm bg-block">
+        <q-icon name="link" size="18px" />
+        <h3 class="card-title text-subtitle1">Links</h3>
       </div>
       <div class="card-content">
         <div class="info-row" v-if="shopData.instagram">
@@ -113,7 +113,6 @@ defineProps<Props>();
 
 .card-title {
   margin: 0;
-  font-size: 18px;
   font-weight: 600;
 }
 
@@ -134,13 +133,8 @@ defineProps<Props>();
 
 .info-label {
   font-weight: 600;
-  min-width: 90px;
+  min-width: 70px;
   flex-shrink: 0;
-}
-
-.info-value {
-  flex: 1;
-  line-height: 1.5;
 }
 
 .info-link {

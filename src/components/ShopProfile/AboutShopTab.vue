@@ -199,12 +199,15 @@
     <!-- Save Button -->
     <div class="save-section">
       <q-btn
-        class="save-btn full-width bg-block"
+        class="full-width bg-block"
         @click="saveChanges"
         rounded
+        size="lg"
         unelevated
-        label="Save changes"
-      />
+      >
+        <q-icon name="save" size="18px" />
+        <span class="q-ml-sm text-subtitle1">Save changes</span>
+      </q-btn>
     </div>
   </div>
 </template>
@@ -293,7 +296,7 @@ defineExpose({
 
 .time-input {
   cursor: pointer;
-  
+
   .q-field__control {
     cursor: pointer;
   }
@@ -302,14 +305,5 @@ defineExpose({
 .save-section {
   margin-top: 20px;
   text-align: center;
-}
-
-.save-btn {
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 0.6px;
-  text-transform: none;
-  transition: all 0.3s ease;
-  max-width: 300px;
 }
 </style>

@@ -28,9 +28,10 @@
           <div class="trip-actions">
             <q-btn
               round
-              color="bg-block"
+              class="bg-block"
               icon="edit"
               size="sm"
+              unelevated
               @click="editTrip(index)"
             />
           </div>

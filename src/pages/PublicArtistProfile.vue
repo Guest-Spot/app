@@ -1,6 +1,6 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
-    <div class="container">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+    <div class="container relative-position">
       <!-- Profile Header Section -->
       <div class="profile-header q-my-lg">
         <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md">
@@ -17,7 +17,7 @@
           </q-avatar>
           <div class="flex column items-center">
             <span class="full-name text-h6">{{ artistData.fullname }}</span>
-            <span class="status text-body2">{{ artistData.status }}</span>
+            <span class="status text-body2 text-grey-6">{{ artistData.status }}</span>
           </div>
 
           <!-- Booking Button -->

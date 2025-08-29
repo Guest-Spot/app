@@ -1,97 +1,95 @@
 <template>
-  <q-page class="q-pb-xl flex column items-start q-gap-md">
-    <div class="q-my-auto full-width">
-      <!-- Profile Header Section -->
-      <div class="profile-header q-mb-md">
-        <div class="profile-info-container flex column">
+  <q-page class="page q-pb-xl flex column items-start q-gap-md">
+    <!-- Profile Header Section -->
+    <div class="profile-header q-mb-md relative-position">
+      <div class="profile-info-container flex column">
 
-          <!-- Avatar -->
-          <div class="profile-picture">
-            <q-img
-              v-if="shopData.avatar"
-              :src="shopData.avatar"
-              :ratio="1"
-              spinner-color="dark"
-              spinner-size="32px"
-            />
-            <q-icon v-else name="store" size="80px" color="grey-6" />
-          </div>
+        <!-- Avatar -->
+        <div class="profile-picture">
+          <q-img
+            v-if="shopData.avatar"
+            :src="shopData.avatar"
+            :ratio="1"
+            spinner-color="dark"
+            spinner-size="32px"
+          />
+          <q-icon v-else name="store" size="80px" color="grey-6" />
+        </div>
 
-          <!-- Back Button -->
-          <q-btn
-            round
-            flat
-            dense
-            icon="chevron_left"
-            @click="$router.back()"
-            class="bg-block absolute-top-left q-ma-md"
-          >
-          </q-btn>
+        <!-- Back Button -->
+        <q-btn
+          round
+          flat
+          dense
+          icon="chevron_left"
+          @click="$router.back()"
+          class="bg-block absolute-top-left q-ma-md"
+        >
+        </q-btn>
 
-          <!-- Favorite Button -->
-          <q-btn
-            round
-            flat
-            dense
-            :color="isFavorite ? 'red' : 'grey-6'"
-            @click="toggleFavorite"
-            class="favorite-btn bg-block absolute-top-right q-ma-md"
-          >
-            <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
-            <q-icon v-else name="favorite_border" size="18px" color="red" />
-          </q-btn>
+        <!-- Favorite Button -->
+        <q-btn
+          round
+          flat
+          dense
+          :color="isFavorite ? 'red' : 'grey-6'"
+          @click="toggleFavorite"
+          class="favorite-btn bg-block absolute-top-right q-ma-md"
+        >
+          <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
+          <q-icon v-else name="favorite_border" size="18px" color="red" />
+        </q-btn>
 
-          <!-- User Details -->
-          <div class="container">
-            <div class="user-details flex column items-center q-gap-lg full-width q-py-lg">
-              <div class="flex column items-center">
-                <span class="full-name text-h6">{{ shopData.title }}</span>
-                <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
-              </div>
-              <div class="flex justify-center q-gap-sm full-width no-wrap">
-                <q-btn
-                  class="bg-block"
-                  text-color="primary"
-                  unelevated
-                  rounded
-                  @click="openBookingDialog"
-                >
-                  <span class="text-body2">Booking request</span>
-                  <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
-                </q-btn>
-              </div>
+        <!-- User Details -->
+        <div class="container">
+          <div class="user-details flex column items-center q-gap-lg full-width q-py-lg">
+            <div class="flex column items-center">
+              <span class="full-name text-h6">{{ shopData.title }}</span>
+              <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
+            </div>
+            <div class="flex justify-center q-gap-sm full-width no-wrap">
+              <q-btn
+                class="bg-block"
+                text-color="primary"
+                unelevated
+                rounded
+                @click="openBookingDialog"
+              >
+                <span class="text-body2">Booking request</span>
+                <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+              </q-btn>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="container">
-        <!-- Navigation Tabs -->
-         <div class="full-width flex justify-center">
-           <TabsComp
-             :tabs="TABS"
-             :activeTab="activeTab"
-             use-query
-             @setActiveTab="setActiveTab"
-             size="sm"
-           />
-         </div>
+    <div class="container">
+      <!-- Navigation Tabs -->
+       <div class="full-width flex justify-center">
+         <TabsComp
+           :tabs="TABS"
+           :activeTab="activeTab"
+           use-query
+           @setActiveTab="setActiveTab"
+           size="sm"
+         />
+       </div>
 
-        <!-- Main Content Area -->
-        <div class="main-content flex column q-gap-md q-mt-lg">
-          <!-- Tab Content -->
-          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-            <PublicAboutShopTab 
-              :shop-data="shopData" 
-              :working-hours="workingHours" 
-            />
-          </div>
-          <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-            <PublicShopArtistsTab :artists="artists" />
-          </div>
-          <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-            <PublicShopPortfolioTab :portfolio-items="portfolioItems" />
-          </div>
+      <!-- Main Content Area -->
+      <div class="main-content flex column q-gap-md q-mt-lg">
+        <!-- Tab Content -->
+        <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
+          <PublicAboutShopTab
+            :shop-data="shopData"
+            :working-hours="workingHours"
+          />
+        </div>
+        <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
+          <PublicShopArtistsTab :artists="artists" />
+        </div>
+        <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
+          <PublicShopPortfolioTab :portfolio-items="portfolioItems" />
         </div>
       </div>
     </div>

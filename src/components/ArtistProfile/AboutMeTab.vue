@@ -131,13 +131,15 @@
     <!-- Save Button -->
     <div class="save-section">
       <q-btn
-        color="grey-9"
-        class="save-btn full-width"
+        class="full-width bg-block"
         @click="saveChanges"
         rounded
+        size="lg"
         unelevated
-        label="Save changes"
-      />
+      >
+        <q-icon name="save" size="18px" />
+        <span class="q-ml-sm text-subtitle1">Save changes</span>
+      </q-btn>
     </div>
   </div>
 </template>
@@ -213,16 +215,5 @@ defineExpose({
 .save-section {
   margin-top: 20px;
   text-align: center;
-}
-
-.save-btn {
-  background: var(--brand-dark);
-  color: white;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 0.6px;
-  text-transform: none;
-  transition: all 0.3s ease;
-  max-width: 300px;
 }
 </style>

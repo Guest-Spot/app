@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
       <!-- Navigation Tabs -->
       <SearchTabs v-model="activeTab" />

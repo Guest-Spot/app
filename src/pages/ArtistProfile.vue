@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-lg">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
     <div class="container">
       <ProfileHeader />
     </div>

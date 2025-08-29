@@ -61,11 +61,6 @@ const LINKS = computed(() => [
 </script>
 
 <style scoped lang="scss">
-.footer-toolbar {
-  padding: 0 !important;
-  min-height: auto !important;
-}
-
 .custom-footer {
   border-top-left-radius: var(--border-radius-xl);
   border-top-right-radius: var(--border-radius-xl);
