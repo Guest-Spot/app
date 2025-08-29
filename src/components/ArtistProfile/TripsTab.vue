@@ -33,13 +33,6 @@
               size="sm"
               @click="editTrip(index)"
             />
-            <!-- <q-btn
-              round
-              color="negative"
-              icon="delete"
-              size="sm"
-              @click="deleteTrip(index)"
-            /> -->
           </div>
         </div>
 
@@ -47,19 +40,19 @@
           <div class="trip-info">
             <div class="info-row">
               <span class="info-label">Date:</span>
-              <span class="info-value">{{ trip.date }}</span>
+              <span class="info-value text-grey-6">{{ trip.date }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Venue:</span>
-              <span class="info-value">{{ trip.venue }}</span>
+              <span class="info-value text-grey-6">{{ trip.venue }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Start time:</span>
-              <span class="info-value">{{ trip.startTime }}</span>
+              <span class="info-value text-grey-6">{{ trip.startTime }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">End time:</span>
-              <span class="info-value">{{ trip.endTime }}</span>
+              <span class="info-value text-grey-6">{{ trip.endTime }}</span>
             </div>
           </div>
 

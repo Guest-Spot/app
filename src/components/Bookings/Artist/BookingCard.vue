@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-card bg-block" :class="{ sent: isSent, received: isReceived }">
+  <div class="booking-card bg-block border-radius-md" :class="{ sent: isSent, received: isReceived }">
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
@@ -17,7 +17,7 @@
         {{ getStatusLabel(status) }}
       </div>
     </div>
-    
+
     <div class="card-content q-px-md">
       <div class="flex items-center q-gap-xs q-mb-sm">
         <template v-if="isSent">
@@ -29,40 +29,40 @@
           <span class="text-primary text-weight-medium">Request from Shop</span>
         </template>
       </div>
-      
+
       <h4 class="booking-title">{{ title }}</h4>
-      <p class="booking-description">{{ description }}</p>
-      
-      <div v-if="location" class="location-info q-mb-xs">
-        <q-icon name="location_on" size="16px" color="grey-6" />
+      <p class="booking-description text-grey-6">{{ description }}</p>
+
+      <div v-if="location" class="location-info q-mb-xs text-grey-6">
+        <q-icon name="location_on" size="16px" />
         <span>{{ location }}</span>
       </div>
-      
-      <div class="date-info q-mb-xs">
-        <q-icon name="event" size="16px" color="grey-6" />
+
+      <div class="date-info q-mb-xs text-grey-6">
+        <q-icon name="event" size="16px" />
         <span>{{ formatDate(date) }}</span>
       </div>
-      
-      <div class="time-info">
-        <q-icon name="schedule" size="16px" color="grey-6" />
+
+      <div class="time-info text-grey-6">
+        <q-icon name="schedule" size="16px" />
         <span>{{ startTime }} - {{ endTime }}</span>
       </div>
     </div>
-    
+
     <div class="card-actions q-px-md q-pb-md">
       <!-- Accept/Reject buttons for pending invitations -->
       <div v-if="isReceived && status === 'pending'" class="action-buttons">
         <q-btn
           label="Reject"
           color="negative"
-          outline
           rounded
+          flat
           @click="$emit('reject', id)"
-          class="full-width"
+          class="bg-block full-width"
         />
         <q-btn
           label="Accept"
-          color="dark"
+          color="primary"
           rounded
           @click="$emit('accept', id)"
           class="full-width"
@@ -74,21 +74,20 @@
         v-else-if="isSent && status === 'pending'"
         label="Cancel Request"
         color="negative"
-        outline
+        flat
         rounded
         @click="$emit('cancel', id)"
-        class="full-width"
+        class="bg-block full-width"
       />
-      
+
       <!-- View shop for other statuses -->
       <q-btn
         v-else
         label="View Shop"
-        color="dark"
-        outline
         rounded
         :to="`/shop/${shop?.id}`"
-        class="full-width"
+        flat
+        class="bg-block full-width"
       />
     </div>
   </div>
@@ -151,88 +150,82 @@ const getStatusLabel = (status: IBooking['status']) => {
 
 <style scoped lang="scss">
 .booking-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0.9) 100%);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
   overflow: hidden;
-  
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
-    
+
     .shop-info {
       display: flex;
       align-items: center;
-      
+
       .shop-name {
         font-weight: 600;
         color: var(--q-primary);
         font-size: 16px;
         border-radius: 20px;
         font-size: 14px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
       .q-img {
         height: 100px;
       }
     }
-    
+
     .status-badge {
       padding: 4px 8px;
       border-radius: 20px;
       font-size: 10px;
       font-weight: 600;
-      
+
       &.pending {
         background: #ff9800;
         color: white;
       }
-      
+
       &.accepted {
         background: #4caf50;
         color: white;
       }
-      
+
       &.rejected {
         background: #f44336;
         color: white;
       }
-      
+
       &.cancelled {
         background: #9e9e9e;
         color: white;
       }
-      
+
       &.completed {
         background: #2196f3;
         color: white;
       }
     }
   }
-  
+
   .card-content {
     margin-bottom: 20px;
-    
+
     .request-type {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 14px;
     }
-    
+
     .booking-title {
       font-size: 18px;
       font-weight: 600;
       margin: 0;
     }
-    
+
     .booking-description {
-      color: #424242;
       margin: 0 0 16px 0;
       line-height: 1.5;
     }
@@ -241,12 +234,11 @@ const getStatusLabel = (status: IBooking['status']) => {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #616161;
       font-size: 14px;
       margin-bottom: 8px;
     }
   }
-  
+
   .card-actions {
     .action-buttons {
       display: flex;
