@@ -69,9 +69,5 @@ onMounted(() => {
 <style lang="scss" scoped>
 .tabs-comp {
   overflow-x: auto;
-
-  // .tab-btn {
-  //   flex: 1 0 auto;
-  // }
 }
 </style>

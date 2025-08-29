@@ -5,7 +5,7 @@
       <SearchTabs v-model="activeTab" />
 
       <!-- Main Content Area -->
-      <div class="main-content flex column q-gap-md q-mt-lg">
+      <div class="flex column q-gap-md q-mt-lg flex">
         <!-- Shops Tab Content -->
         <div v-if="activeTab === TAB_SHOPS" class="tab-content">
           <div v-if="favoriteShops.length" class="flex column q-gap-md">
@@ -17,19 +17,16 @@
               @favorite="toggleFavorite"
             />
           </div>
-          <div v-else class="no-results bg-block border-radius-md">
-            <q-icon name="bookmark_border" size="60px" color="grey-6" />
-            <h3 class="no-results-title">No shops bookmarked yet</h3>
-            <p class="no-results-description text-grey-6">Start exploring and add your favorite shops to bookmarks</p>
-            <q-btn
-              label="Explore Shops"
-              icon="explore"
-              class="bg-block"
-              rounded
-              unelevated
-              @click="$router.push('/')"
-            />
-          </div>
+          <NoResult
+            v-else
+            icon="bookmark_border"
+            title="No shops bookmarked yet"
+            description="Start exploring and add your favorite shops to bookmarks"
+            link="/?tab=shops"
+            linkLabel="Explore Shops"
+            linkIcon="explore"
+            class="q-my-auto"
+          />
         </div>
 
         <!-- Artists Tab Content -->
@@ -43,19 +40,15 @@
               @favorite="toggleFavorite"
             />
           </div>
-          <div v-else class="no-results bg-block border-radius-md">
-            <q-icon name="bookmark_border" size="60px" color="grey-6" />
-            <h3 class="no-results-title">No artists bookmarked yet</h3>
-            <p class="no-results-description text-grey-6">Start exploring and add your favorite artists to bookmarks</p>
-            <q-btn
-              label="Explore Artists"
-              icon="explore"
-              class="bg-block"
-              rounded
-              unelevated
-              @click="$router.push('/')"
-            />
-          </div>
+          <NoResult
+            v-else
+            icon="bookmark_border"
+            title="No artists bookmarked yet"
+            description="Start exploring and add your favorite artists to bookmarks"
+            link="/?tab=artists"
+            linkLabel="Explore Artists"
+            linkIcon="explore"
+          />
         </div>
       </div>
     </div>
@@ -69,6 +62,7 @@ import { useFavorites } from '../modules/useFavorites';
 import { useRouter } from 'vue-router';
 import type { IShop } from '../interfaces/shop';
 import type { IArtist } from '../interfaces/artist';
+import NoResult from 'src/components/NoResult.vue';
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
@@ -128,30 +122,5 @@ const toggleFavorite = (id: number) => {
   font-size: 16px;
   font-weight: 600;
   color: var(--brand-dark);
-}
-
-.tab-content {
-  min-height: 400px;
-}
-
-.no-results {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.no-results-title {
-  margin: 20px 0 10px 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.no-results-description {
-  margin: 0 0 20px 0;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-.clear-dialog {
-  min-width: 400px;
 }
 </style>

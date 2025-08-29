@@ -7,6 +7,7 @@
         <TabsComp
           size="sm"
           unelevated
+          send-initial-tab
           :tabs="filterTabs"
           :activeTab="activeFilter"
           @set-active-tab="setActiveFilter"

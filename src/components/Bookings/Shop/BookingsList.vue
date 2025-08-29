@@ -6,6 +6,7 @@
       <TabsComp
         size="sm"
         unelevated
+        send-initial-tab
         :tabs="filterTabs"
         :activeTab="activeFilterTab"
         @set-active-tab="setActiveTab"
@@ -21,7 +22,7 @@
           <p class="empty-text">No sent requests to shops yet</p>
           <p class="empty-subtext">When you send requests to shops, they will appear here</p>
         </div>
-        
+
         <div v-else class="bookings-grid">
           <BookingCard
             v-for="booking in sentBookings"
@@ -39,7 +40,7 @@
           <p class="empty-text">No invitations from shops yet</p>
           <p class="empty-subtext">When shops send you invitations, they will appear here</p>
         </div>
-        
+
         <div v-else class="bookings-grid">
           <BookingCard
             v-for="booking in receivedBookings"
@@ -73,13 +74,13 @@ const RECEIVED_TAB = 'received';
 
 // Computed properties
 const sentBookings = computed(() => {
-  return bookings.value.filter(booking => 
+  return bookings.value.filter(booking =>
     booking.type === 'artist-to-shop'
   );
 });
 
 const receivedBookings = computed(() => {
-  return bookings.value.filter(booking => 
+  return bookings.value.filter(booking =>
     booking.type === 'shop-to-artist'
   );
 });
@@ -102,7 +103,7 @@ const acceptBooking = (bookingId: number) => {
   if (booking) {
     booking.status = 'accepted';
     booking.updatedAt = new Date().toISOString();
-    
+
     $q.notify({
       type: 'positive',
       color: 'dark',
@@ -123,7 +124,7 @@ const rejectBooking = (bookingId: number) => {
   if (booking) {
     booking.status = 'rejected';
     booking.updatedAt = new Date().toISOString();
-    
+
     $q.notify({
       type: 'info',
       color: 'negative',
@@ -158,7 +159,7 @@ const cancelBooking = (bookingId: number) => {
     if (booking) {
       booking.status = 'cancelled';
       booking.updatedAt = new Date().toISOString();
-      
+
       $q.notify({
         type: 'info',
         color: 'negative',
@@ -281,14 +282,14 @@ onMounted(() => {
       text-align: center;
       padding: 40px 20px;
       color: var(--text-secondary);
-      
+
       .empty-text {
         margin: 16px 0 8px 0;
         font-size: 16px;
         font-weight: 600;
         color: var(--text-primary);
       }
-      
+
       .empty-subtext {
         margin: 0;
         font-size: 14px;
@@ -296,7 +297,7 @@ onMounted(() => {
         opacity: 0.8;
       }
     }
-    
+
     .bookings-grid {
       display: grid;
       gap: 16px;

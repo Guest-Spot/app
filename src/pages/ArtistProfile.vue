@@ -9,6 +9,7 @@
         :tabs="TABS"
         :activeTab="activeTab"
         use-query
+        send-initial-tab
         @setActiveTab="setActiveTab"
         class="q-px-lg full-width"
       />

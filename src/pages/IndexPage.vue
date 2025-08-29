@@ -25,11 +25,12 @@
               @favorite="toggleFavorite"
             />
           </div>
-          <div v-else class="no-results bg-block border-radius-md">
-            <q-icon name="search_off" size="60px" color="grey-5" />
-            <h3 class="no-results-title">No shops found</h3>
-            <p class="no-results-description text-grey-6">Try adjusting your search or filters</p>
-          </div>
+          <NoResult
+            v-else
+            icon="search_off"
+            title="No shops found"
+            description="Try adjusting your search or filters"
+          />
         </div>
 
         <!-- Artists Tab Content -->
@@ -43,11 +44,12 @@
             @favorite="toggleFavorite"
             />
           </div>
-          <div v-else class="no-results bg-block border-radius-md">
-            <q-icon name="search_off" size="60px" color="grey-5" />
-            <h3 class="no-results-title">No artists found</h3>
-            <p class="no-results-description text-grey-6">Try adjusting your search or filters</p>
-          </div>
+          <NoResult
+            v-else
+            icon="search_off"
+            title="No artists found"
+            description="Try adjusting your search or filters"
+          />
         </div>
       </div>
     </div>
@@ -60,6 +62,7 @@ import { useRouter } from 'vue-router';
 import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
+import NoResult from 'src/components/NoResult.vue';
 
 // Router
 const router = useRouter();
@@ -263,26 +266,3 @@ const updateFilters = (filters: SearchFilters) => {
   // Apply filters to search results
 };
 </script>
-
-<style scoped lang="scss">
-.tab-content {
-  min-height: 400px;
-}
-
-.no-results {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.no-results-title {
-  margin: 20px 0 10px 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.no-results-description {
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.5;
-}
-</style>
