@@ -12,7 +12,7 @@ const LIGHT_THEME = 'light';
 
 const useTheme = () => {
   const themeStore = useThemeStore();
-  
+
   const accentColor = computed<string>(() => themeStore.getAccentColor || COLORS.DEFAULT_ACCENT_COLOR);
   const isDark = computed<boolean>(() => themeStore.getIsDark);
 
@@ -30,18 +30,18 @@ const useTheme = () => {
   };
 
   const init = () => {
-    const savedAccentColor = LocalStorage.getItem(ACCENT_COLOR_KEY);
-    if (typeof savedAccentColor === 'string') {
-      setAccentColor(savedAccentColor);
-      themeStore.setAccentColor(savedAccentColor);
-    }
-
     const savedTheme = LocalStorage.getItem(THEME_KEY);
     if (typeof savedTheme === 'string' || Dark.isActive) {
       Dark.set(savedTheme === DARK_THEME || Dark.isActive);
       themeStore.setIsDark(savedTheme === DARK_THEME || Dark.isActive);
     } else {
       setDarkTheme(DARK_BY_DEFAULT);
+    }
+
+    const savedAccentColor = LocalStorage.getItem(ACCENT_COLOR_KEY);
+    if (typeof savedAccentColor === 'string') {
+      setAccentColor(savedAccentColor);
+      themeStore.setAccentColor(savedAccentColor);
     }
   }
 
