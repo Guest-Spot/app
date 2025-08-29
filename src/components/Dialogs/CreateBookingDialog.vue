@@ -67,12 +67,33 @@
                 outlined
                 dense
                 rounded
-                type="time"
                 placeholder="Start time"
                 class="custom-input"
+                mask="time"
+                fill-mask
+                readonly
                 required
                 :rules="[val => !!val || 'Start time is required']"
-              />
+                @click.stop="startTimeProxy?.show()"
+              >
+                <template #append>
+                  <q-icon name="schedule" class="cursor-pointer" @click.stop="startTimeProxy?.show()" />
+                </template>
+                <q-popup-proxy
+                  ref="startTimeProxy"
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-time
+                    v-model="bookingData.startTime"
+                    format24h
+                    unelevated
+                    class="bg-block"
+                    @update:model-value="() => startTimeProxy?.hide()"
+                  />
+                </q-popup-proxy>
+              </q-input>
             </div>
             <div class="input-group">
               <label class="input-label">End Time</label>
@@ -81,12 +102,33 @@
                 outlined
                 dense
                 rounded
-                type="time"
                 placeholder="End time"
                 class="custom-input"
+                mask="time"
+                fill-mask
+                readonly
                 required
                 :rules="[val => !!val || 'End time is required']"
-              />
+                @click.stop="endTimeProxy?.show()"
+              >
+                <template #append>
+                  <q-icon name="schedule" class="cursor-pointer" @click.stop="endTimeProxy?.show()" />
+                </template>
+                <q-popup-proxy
+                  ref="endTimeProxy"
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-time
+                    v-model="bookingData.endTime"
+                    format24h
+                    unelevated
+                    class="bg-block"
+                    @update:model-value="() => endTimeProxy?.hide()"
+                  />
+                </q-popup-proxy>
+              </q-input>
             </div>
           </div>
         </q-form>
@@ -140,6 +182,8 @@ const $q = useQuasar();
 const isVisible = ref(props.modelValue);
 const isSubmitting = ref(false);
 const formRef = ref<QForm | null>(null);
+const startTimeProxy = ref();
+const endTimeProxy = ref();
 
 // Initialize booking data
 const bookingData = ref<Partial<IBooking>>({
@@ -286,8 +330,6 @@ const onSubmit = () => {
     padding: 20px;
 
     .input-group {
-      margin-bottom: 20px;
-
       .input-label {
         display: block;
         margin-bottom: 8px;

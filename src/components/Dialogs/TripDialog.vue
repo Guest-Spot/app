@@ -60,10 +60,31 @@
               outlined
               dense
               rounded
-              type="time"
               placeholder="Start time"
               class="custom-input"
-            />
+              mask="time"
+              fill-mask
+              readonly
+              @click.stop="startTimeProxy?.show()"
+            >
+              <template #append>
+                <q-icon name="schedule" class="cursor-pointer" @click.stop="startTimeProxy?.show()" />
+              </template>
+              <q-popup-proxy
+                ref="startTimeProxy"
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-time
+                  v-model="formData.startTime"
+                  format24h
+                  unelevated
+                  class="bg-block"
+                  @update:model-value="() => startTimeProxy?.hide()"
+                />
+              </q-popup-proxy>
+            </q-input>
           </div>
           <div class="input-group">
             <label class="input-label">End Time</label>
@@ -72,10 +93,31 @@
               outlined
               dense
               rounded
-              type="time"
               placeholder="End time"
               class="custom-input"
-            />
+              mask="time"
+              fill-mask
+              readonly
+              @click.stop="endTimeProxy?.show()"
+            >
+              <template #append>
+                <q-icon name="schedule" class="cursor-pointer" @click.stop="endTimeProxy?.show()" />
+              </template>
+              <q-popup-proxy
+                ref="endTimeProxy"
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-time
+                  v-model="formData.endTime"
+                  format24h
+                  unelevated
+                  class="bg-block"
+                  @update:model-value="() => endTimeProxy?.hide()"
+                />
+              </q-popup-proxy>
+            </q-input>
           </div>
         </div>
         <div class="input-group">
@@ -159,6 +201,8 @@ const $q = useQuasar();
 
 const isVisible = ref(props.modelValue);
 const formData = ref<TripForm>({ ...props.trip });
+const startTimeProxy = ref();
+const endTimeProxy = ref();
 
 // Watch for external changes to modelValue
 watch(() => props.modelValue, (newValue) => {
@@ -253,7 +297,6 @@ const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      margin-bottom: 20px;
     }
   }
 
