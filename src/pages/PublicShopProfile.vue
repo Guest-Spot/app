@@ -50,14 +50,14 @@
               </div>
               <div class="flex justify-center q-gap-sm full-width no-wrap">
                 <q-btn
-                  color="primary"
-                  text-color="white"
+                  class="bg-block"
+                  text-color="primary"
                   unelevated
                   rounded
                   @click="openBookingDialog"
                 >
                   <span class="text-body2">Booking request</span>
-                  <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
+                  <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
                 </q-btn>
               </div>
             </div>

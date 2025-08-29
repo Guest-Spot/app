@@ -8,7 +8,7 @@
       icon="info"
       label="Basic Information"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -42,7 +42,7 @@
       icon="location_on"
       label="Contacts"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -86,7 +86,7 @@
       icon="schedule"
       label="Working Hours"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="hours-container">
@@ -143,7 +143,7 @@
       icon="add_circle"
       label="Additional Info"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -165,7 +165,7 @@
       icon="link"
       label="Links"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -199,8 +199,7 @@
     <!-- Save Button -->
     <div class="save-section">
       <q-btn
-        color="dark"
-        class="save-btn full-width"
+        class="save-btn full-width bg-block"
         @click="saveChanges"
         rounded
         unelevated
@@ -276,7 +275,6 @@ defineExpose({
 .input-label {
   display: block;
   font-weight: 500;
-  color: var(--brand-dark);
   margin-bottom: 8px;
   font-size: 14px;
 }
@@ -307,8 +305,6 @@ defineExpose({
 }
 
 .save-btn {
-  background: var(--brand-dark);
-  color: white;
   font-weight: 700;
   font-size: 18px;
   letter-spacing: 0.6px;

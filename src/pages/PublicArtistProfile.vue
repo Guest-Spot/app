@@ -24,14 +24,14 @@
   
             <!-- Booking Button -->
             <q-btn
-              color="primary"
-              text-color="white"
               unelevated
               rounded
+              class="bg-block"
+              text-color="primary"
               @click="openBookingDialog"
             >
               <span class="text-body2">Booking request</span>
-              <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
+              <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
             </q-btn>
 
             <!-- Back Button -->

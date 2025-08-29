@@ -15,7 +15,7 @@
       </div>
 
       <!-- Artists Grid -->
-      <div class="artists-grid" v-if="!artists.length">
+      <div class="artists-grid" v-if="artists.length">
         <ArtistCard
           v-for="artist in artists"
           :key="artist.id"
@@ -62,6 +62,7 @@ const artists = ref<IArtist[]>([
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
     avatar: 'artists/artist1.jpeg',
+    location: 'San Francisco, CA',
     experience: 8
   },
   {
@@ -69,6 +70,7 @@ const artists = ref<IArtist[]>([
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos.',
     avatar: 'artists/artist2.jpg',
+    location: 'New York, NY',
     experience: 5
   }
 ]);
