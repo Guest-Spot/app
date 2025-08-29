@@ -11,7 +11,7 @@
         use-query
         send-initial-tab
         @setActiveTab="setActiveTab"
-        class="q-px-lg full-width"
+        class="full-width"
       />
     </div>
 

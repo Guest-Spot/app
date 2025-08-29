@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
-      <div class="flex no-wrap items-center justify-center q-mb-lg">
+      <div class="flex no-wrap items-center justify-center q-mb-xl">
         <q-img v-if="isDark" src="~/assets/logo.png" class="logo" width="150px" height="150px" />
         <q-img v-else src="~/assets/logo-dark.png" class="logo" width="150px" height="150px" />
       </div>
@@ -41,13 +41,13 @@
               </q-btn>
             </div>
 
-            <div class="flex no-wrap items-center justify-center q-gap-md">
+            <div class="flex no-wrap items-center justify-center q-gap-md hidden">
               <div class="q-mx-sm or-line" />
               <span class="text-subtitle1 text-grey-7">or</span>
               <div class="q-mx-sm or-line" />
             </div>
 
-            <div class="button-group">
+            <div class="button-group hidden">
               <q-btn
                 outline
                 color="grey-6"
