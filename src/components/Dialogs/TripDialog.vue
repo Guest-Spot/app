@@ -30,18 +30,6 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Date</label>
-          <q-input
-            v-model="formData.date"
-            outlined
-            dense
-            rounded
-            type="date"
-            placeholder="Select date"
-            class="custom-input"
-          />
-        </div>
-        <div class="input-group">
           <label class="input-label">Venue</label>
           <q-input
             v-model="formData.venue"
@@ -51,6 +39,38 @@
             placeholder="Enter venue name"
             class="custom-input"
           />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Date</label>
+          <q-input
+            v-model="formData.date"
+            outlined
+            dense
+            rounded
+            placeholder="Select date"
+            class="custom-input"
+            mask="####-##-##"
+            fill-mask
+            readonly
+            @click.stop="dateProxy?.show()"
+          >
+            <template #append>
+              <q-icon name="event" class="cursor-pointer" @click.stop="dateProxy?.show()" />
+            </template>
+            <q-popup-proxy
+              ref="dateProxy"
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date
+                v-model="formData.date"
+                mask="YYYY-MM-DD"
+                class="bg-block"
+                @update:model-value="() => dateProxy?.hide()"
+              />
+            </q-popup-proxy>
+          </q-input>
         </div>
         <div class="input-row">
           <div class="input-group">
@@ -203,6 +223,7 @@ const isVisible = ref(props.modelValue);
 const formData = ref<TripForm>({ ...props.trip });
 const startTimeProxy = ref();
 const endTimeProxy = ref();
+const dateProxy = ref();
 
 // Watch for external changes to modelValue
 watch(() => props.modelValue, (newValue) => {

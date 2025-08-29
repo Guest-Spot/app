@@ -8,7 +8,16 @@
     <div class="card-content">
       <div class="info-row" v-for="item in data" :key="`${item.label}-${item.value}`">
         <span class="info-label">{{ item.label }}:</span>
-        <span class="info-value text-grey-6">{{ item.value }}</span>
+        <a v-if="item.type === InfoItemType.Phone" target="_blank" :href="`tel:${item.value}`">
+          <span class="info-value text-grey-6">{{ item.value }}</span>
+        </a>
+        <a v-else-if="item.type === InfoItemType.Email" target="_blank" :href="`mailto:${item.value}`">
+          <span class="info-value text-grey-6">{{ item.value }}</span>
+        </a>
+        <a v-else-if="item.type === InfoItemType.Link" target="_blank" :href="item.value">
+          <span class="info-value text-grey-6">{{ item.value }}</span>
+        </a>
+        <span v-else class="info-value text-grey-6">{{ item.value }}</span>
         <q-btn
           v-if="item.type === InfoItemType.Link"
           icon="content_copy"

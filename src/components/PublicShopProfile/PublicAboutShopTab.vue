@@ -43,10 +43,12 @@ const contacts = computed(() => ([
   {
     label: 'Phone',
     value: props.shopData.phone,
+    type: InfoItemType.Phone,
   },
   {
     label: 'Email',
     value: props.shopData.email,
+    type: InfoItemType.Email,
   },
 ]));
 

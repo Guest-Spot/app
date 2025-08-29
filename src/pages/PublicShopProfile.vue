@@ -42,7 +42,7 @@
 
         <!-- User Details -->
         <div class="container">
-          <div class="user-details flex column items-center q-gap-lg full-width q-py-lg">
+          <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
             <div class="flex column items-center">
               <span class="full-name text-h6">{{ shopData.title }}</span>
               <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>

@@ -51,10 +51,12 @@ const contacts = computed(() => ([
   {
     label: 'Phone',
     value: props.artistData.phone,
+    type: InfoItemType.Phone,
   },
   {
     label: 'Email',
     value: props.artistData.email,
+    type: InfoItemType.Email,
   },
 ]));
 

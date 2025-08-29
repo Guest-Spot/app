@@ -49,6 +49,10 @@ body.q-ios-padding .q-dialog__inner {
   padding-top: 70px;
 }
 
+a {
+  text-decoration: none;
+}
+
 #q-app {
   height: 100vh;
   overflow: auto;
@@ -149,6 +153,7 @@ body.q-ios-padding .q-dialog__inner {
 
 .q-menu,
 .q-time,
+.q-date,
 .q-select__dialog,
 .q-dialog-plugin {
   border-radius: 16px !important;

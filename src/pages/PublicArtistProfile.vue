@@ -2,8 +2,8 @@
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container relative-position">
       <!-- Profile Header Section -->
-      <div class="profile-header q-my-lg">
-        <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md">
+      <div class="profile-header q-mb-md">
+        <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md q-mt-xl">
           <!-- Avatar -->
           <q-avatar size="150px" class="profile-avatar bg-block">
             <q-img

@@ -53,11 +53,31 @@
               outlined
               dense
               rounded
-              type="date"
               placeholder="Select date"
               class="custom-input"
+              mask="####-##-##"
+              fill-mask
+              readonly
               :rules="[val => !!val || 'Date is required']"
-            />
+              @click.stop="dateProxy?.show()"
+            >
+              <template #append>
+                <q-icon name="event" class="cursor-pointer" @click.stop="dateProxy?.show()" />
+              </template>
+              <q-popup-proxy
+                ref="dateProxy"
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date
+                  v-model="bookingData.date"
+                  mask="YYYY-MM-DD"
+                  class="bg-block"
+                  @update:model-value="() => dateProxy?.hide()"
+                />
+              </q-popup-proxy>
+            </q-input>
           </div>
           <div class="input-row">
             <div class="input-group">
@@ -184,6 +204,7 @@ const isSubmitting = ref(false);
 const formRef = ref<QForm | null>(null);
 const startTimeProxy = ref();
 const endTimeProxy = ref();
+const dateProxy = ref();
 
 // Initialize booking data
 const bookingData = ref<Partial<IBooking>>({
@@ -312,7 +333,6 @@ const onSubmit = () => {
 <style scoped lang="scss">
 .create-booking-dialog {
   border-radius: 20px 20px 0 0;
-  min-height: 600px;
 
   .dialog-header {
     display: flex;
@@ -351,7 +371,9 @@ const onSubmit = () => {
 
   .dialog-actions {
     padding: 16px 20px 32px;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
     position: sticky;
     bottom: 0;
     z-index: 10;

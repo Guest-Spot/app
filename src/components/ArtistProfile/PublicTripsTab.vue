@@ -14,21 +14,21 @@
           size="sm"
           class="trip-status absolute-top-right q-ma-md"
         />
-        <div class="trip-header">
+        <div class="trip-header flex column q-gap-sm q-mb-md">
           <h4 class="trip-title">{{ trip.title }}</h4>
+          <p class="trip-description text-grey-6">{{ trip.description }}</p>
         </div>
         <div class="trip-content">
-          <p class="trip-description text-grey-6">{{ trip.description }}</p>
           <div class="trip-dates">
             <div class="date-item">
               <q-icon name="event" size="16px" color="grey-6" />
               <span class="date-label">Start:</span>
-              <span class="date-value">{{ formatDate(trip.startDate) }}</span>
+              <span class="date-value text-grey-6">{{ formatDate(trip.startDate) }}</span>
             </div>
             <div class="date-item">
               <q-icon name="event" size="16px" color="grey-6" />
               <span class="date-label">End:</span>
-              <span class="date-value">{{ formatDate(trip.endDate) }}</span>
+              <span class="date-value text-grey-6">{{ formatDate(trip.endDate) }}</span>
             </div>
           </div>
         </div>
@@ -94,12 +94,6 @@ const formatDate = (dateString: string): string => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.trip-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .trip-title {

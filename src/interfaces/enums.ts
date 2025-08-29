@@ -1,5 +1,6 @@
 export enum InfoItemType {
   Text = 'text',
   Link = 'link',
-  Phone = 'phone'
+  Phone = 'phone',
+  Email = 'email',
 }
