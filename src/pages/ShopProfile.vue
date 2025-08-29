@@ -1,18 +1,10 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-lg">
     <div class="container">
-      <div class="flex justify-between items-center q-gap-md q-mb-lg">
-        <div class="text-subtitle1 text-bold">My Profile</div>
-        <q-btn
-          text-color="negative"
-          icon="logout"
-          size="sm"
-          round
-          @click="handleLogout"
-          class="bg-block"
-        />
-      </div>
+      <ProfileHeader />
+    </div>
 
+    <div class="container">
       <!-- Navigation Tabs -->
       <TabsComp
         :tabs="TABS"
@@ -21,9 +13,12 @@
         @setActiveTab="setActiveTab"
         class="full-width"
       />
+    </div>
+
+    <div class="container">
 
       <!-- Main Content Area -->
-      <div class="main-content flex column q-gap-md q-mt-lg">
+      <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
           <AboutShopTab />
@@ -41,8 +36,7 @@ import { ref } from 'vue';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
-import { useUserStore } from 'src/stores/user-store';
-import { useRouter } from 'vue-router';
+import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -58,26 +52,8 @@ const TABS: ITab[] = [
   }
 ];
 
-const userStore = useUserStore();
-const router = useRouter();
-
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
-
-const handleLogout = () => {
-  // Logout user from store (this will clear localStorage)
-  userStore.logout();
-
-  // Redirect to appropriate login page based on user type
-  if (userStore.type === 'shop') {
-    void router.push('/login/shop');
-  } else if (userStore.type === 'artist') {
-    void router.push('/login/artist');
-  } else {
-    // Default to auth page
-    void router.push('/auth');
-  }
-};
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
