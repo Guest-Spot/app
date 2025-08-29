@@ -3,6 +3,8 @@
     <div class="container flex no-wrap items-center justify-start q-gap-md">
       <q-btn
         round
+        unelevated
+        text-color="grey-6"
         @click="goBack"
         class="bg-block"
       >

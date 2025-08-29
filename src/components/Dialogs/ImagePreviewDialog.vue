@@ -2,13 +2,15 @@
   <q-dialog v-model="dialogModel" maximized>
     <q-card class="full-width full-height image-preview-dialog">
       <!-- Header -->
-      <q-card-section class="row items-center dialog-header">
-        <div class="text-h6 text-white">{{ 'Image Preview' }}</div>
+      <q-card-section class="row items-center dialog-header bg-block">
+        <div class="text-h6">{{ 'Image Preview' }}</div>
         <q-space />
         <q-btn
           icon="close"
           round
           dense
+          size="sm"
+          text-color="primary"
           class="bg-block"
           unelevated
           v-close-popup
@@ -36,7 +38,7 @@
       </q-card-section>
 
       <!-- Footer Actions -->
-      <q-card-section class="dialog-footer q-mt-auto">
+      <q-card-section class="dialog-footer q-mt-auto bg-block">
         <div class="row justify-center q-gap-sm">
           <q-btn
             :icon="isZoomed ? 'zoom_out' : 'zoom_in'"
@@ -113,12 +115,7 @@ watch(dialogModel, (newValue) => {
 
 <style lang="scss" scoped>
 .image-preview-dialog {
-  background: transparent;
-  backdrop-filter: blur(10px);
-
   .dialog-header {
-    background: transparent;
-    backdrop-filter: blur(10px);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -144,8 +141,6 @@ watch(dialogModel, (newValue) => {
   }
 
   .dialog-footer {
-    background: transparent;
-    backdrop-filter: blur(10px);
     position: sticky;
     bottom: 0;
     z-index: 10;

@@ -53,10 +53,11 @@
       <q-btn
         v-if="isMobile"
         round
-        color="primary"
         size="sm"
         icon="camera_alt"
-        class="absolute-bottom-right q-mr-lg q-mb-lg"
+        text-color="primary"
+        unelevated
+        class="absolute-bottom-right q-mr-lg q-mb-lg bg-block"
         @click.stop="openCamera"
       />
     </template>
@@ -68,8 +69,9 @@
       <q-btn
         round
         size="sm"
+        unelevated
         class="bg-block"
-        text-color="negative"
+        text-color="primary"
         icon="delete_forever"
         @click="clear"
       />

@@ -6,6 +6,7 @@
       icon="logout"
       size="sm"
       round
+      unelevated
       @click="handleLogout"
       class="bg-block"
     />

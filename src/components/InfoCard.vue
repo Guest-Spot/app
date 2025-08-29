@@ -23,6 +23,7 @@
           icon="content_copy"
           size="sm"
           round
+          unelevated
           class="bg-block q-ml-auto"
           text-color="primary"
           @click="copyLink(item.value)"
