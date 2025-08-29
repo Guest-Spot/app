@@ -1,17 +1,29 @@
 <template>
   <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
+      <div class="flex justify-between items-center q-gap-md q-mb-lg">
+        <div class="text-subtitle1 text-bold">My Profile</div>
+        <q-btn
+          text-color="negative"
+          icon="logout"
+          size="sm"
+          round
+          @click="handleLogout"
+          class="bg-block"
+        />
+      </div>
+
       <!-- Navigation Tabs -->
       <TabsComp
         :tabs="TABS"
         :activeTab="activeTab"
         use-query
         @setActiveTab="setActiveTab"
-        class="q-mb-lg full-width"
+        class="full-width"
       />
 
       <!-- Main Content Area -->
-      <div class="main-content flex column q-gap-md">
+      <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
           <AboutShopTab />
@@ -29,6 +41,8 @@ import { ref } from 'vue';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
+import { useUserStore } from 'src/stores/user-store';
+import { useRouter } from 'vue-router';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -44,10 +58,26 @@ const TABS: ITab[] = [
   }
 ];
 
+const userStore = useUserStore();
+const router = useRouter();
+
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
 
-
+const handleLogout = () => {
+  // Logout user from store (this will clear localStorage)
+  userStore.logout();
+  
+  // Redirect to appropriate login page based on user type
+  if (userStore.type === 'shop') {
+    void router.push('/login/shop');
+  } else if (userStore.type === 'artist') {
+    void router.push('/login/artist');
+  } else {
+    // Default to auth page
+    void router.push('/auth');
+  }
+};
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
