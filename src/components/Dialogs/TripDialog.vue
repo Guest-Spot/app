@@ -214,6 +214,8 @@ const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
 <style scoped lang="scss">
 .trip-dialog {
   border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 500px;
   min-height: 600px;
 
   .dialog-header {

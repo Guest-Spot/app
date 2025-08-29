@@ -4,14 +4,15 @@
       <ProfileHeader />
     </div>
 
-    <!-- Navigation Tabs -->
-    <TabsComp
-      :tabs="TABS"
-      :activeTab="activeTab"
-      use-query
-      @setActiveTab="setActiveTab"
-      class="q-px-lg full-width"
-    />
+    <div class="container">
+      <TabsComp
+        :tabs="TABS"
+        :activeTab="activeTab"
+        use-query
+        @setActiveTab="setActiveTab"
+        class="q-px-lg full-width"
+      />
+    </div>
 
     <div class="container">
       <!-- Main Content Area -->

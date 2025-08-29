@@ -1,87 +1,84 @@
 <template>
   <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
-    <div class="q-my-auto full-width">
-      <div class="container">
-
-        <!-- Profile Header Section -->
-        <div class="profile-header q-mb-lg">
-          <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md">
-            <!-- Avatar -->
-            <q-avatar size="150px" class="profile-avatar bg-block">
-              <q-img
-                v-if="artistData.avatar"
-                :src="artistData.avatar"
-                :ratio="1"
-                spinner-color="dark"
-                spinner-size="32px"
-              />
-              <q-icon v-else name="person" size="60px" color="grey-6" />
-            </q-avatar>
-            <div class="flex column items-center">
-              <span class="full-name text-h6">{{ artistData.fullname }}</span>
-              <span class="status text-body2">{{ artistData.status }}</span>
-            </div>
-  
-            <!-- Booking Button -->
-            <q-btn
-              unelevated
-              rounded
-              class="bg-block"
-              text-color="primary"
-              @click="openBookingDialog"
-            >
-              <span class="text-body2">Booking request</span>
-              <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
-            </q-btn>
-
-            <!-- Back Button -->
-            <q-btn
-              round
-              flat
-              dense
-              icon="chevron_left"
-              @click="$router.back()"
-              class="bg-block absolute-top-left q-ma-md"
+    <div class="container">
+      <!-- Profile Header Section -->
+      <div class="profile-header q-my-lg">
+        <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md">
+          <!-- Avatar -->
+          <q-avatar size="150px" class="profile-avatar bg-block">
+            <q-img
+              v-if="artistData.avatar"
+              :src="artistData.avatar"
+              :ratio="1"
+              spinner-color="dark"
+              spinner-size="32px"
             />
-
-            <!-- Favorite Button -->
-            <q-btn
-              round
-              flat
-              dense
-              :color="isFavorite ? 'red' : 'grey-6'"
-              @click="toggleFavorite"
-              class="favorite-btn bg-block absolute-top-right q-ma-md"
-            >
-              <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
-              <q-icon v-else name="favorite_border" size="18px" color="red" />
-            </q-btn>
+            <q-icon v-else name="person" size="60px" color="grey-6" />
+          </q-avatar>
+          <div class="flex column items-center">
+            <span class="full-name text-h6">{{ artistData.fullname }}</span>
+            <span class="status text-body2">{{ artistData.status }}</span>
           </div>
-        </div>
 
-        <!-- Navigation Tabs -->
-        <div class="full-width flex justify-center q-mb-lg">
-          <TabsComp
-            :tabs="TABS"
-            :activeTab="activeTab"
-            use-query
-            @setActiveTab="setActiveTab"
-            size="sm"
+          <!-- Booking Button -->
+          <q-btn
+            unelevated
+            rounded
+            class="bg-block"
+            text-color="primary"
+            @click="openBookingDialog"
+          >
+            <span class="text-body2">Booking request</span>
+            <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+          </q-btn>
+
+          <!-- Back Button -->
+          <q-btn
+            round
+            flat
+            dense
+            icon="chevron_left"
+            @click="$router.back()"
+            class="bg-block absolute-top-left q-ma-md"
           />
-        </div>
 
-        <!-- Main Content Area -->
-        <div class="main-content flex column q-gap-md">
-          <!-- Tab Content -->
-          <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-            <PublicAboutMeTab :artist-data="artistData" />
-          </div>
-          <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-            <PublicPortfolioTab :portfolio-items="portfolioItems" />
-          </div>
-          <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
-            <PublicTripsTab :trips="trips" />
-          </div>
+          <!-- Favorite Button -->
+          <q-btn
+            round
+            flat
+            dense
+            :color="isFavorite ? 'red' : 'grey-6'"
+            @click="toggleFavorite"
+            class="favorite-btn bg-block absolute-top-right q-ma-md"
+          >
+            <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
+            <q-icon v-else name="favorite_border" size="18px" color="red" />
+          </q-btn>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="full-width flex justify-center q-mb-lg">
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          use-query
+          @setActiveTab="setActiveTab"
+          size="sm"
+        />
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="main-content flex column q-gap-md">
+        <!-- Tab Content -->
+        <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
+          <PublicAboutMeTab :artist-data="artistData" />
+        </div>
+        <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
+          <PublicPortfolioTab :portfolio-items="portfolioItems" />
+        </div>
+        <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
+          <PublicTripsTab :trips="trips" />
         </div>
       </div>
     </div>

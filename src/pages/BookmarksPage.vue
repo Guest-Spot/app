@@ -8,7 +8,16 @@
       <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Shops Tab Content -->
         <div v-if="activeTab === TAB_SHOPS" class="tab-content">
-          <div v-if="favoriteShops.length === 0" class="no-results bg-block border-radius-md">
+          <div v-if="favoriteShops.length" class="flex column q-gap-md">
+            <ShopCard
+              v-for="shop in favoriteShops"
+              :key="shop.id"
+              :shop="shop"
+              @click="selectShop"
+              @favorite="toggleFavorite"
+            />
+          </div>
+          <div v-else class="no-results bg-block border-radius-md">
             <q-icon name="bookmark_border" size="60px" color="grey-6" />
             <h3 class="no-results-title">No shops bookmarked yet</h3>
             <p class="no-results-description text-grey-6">Start exploring and add your favorite shops to bookmarks</p>
@@ -21,20 +30,20 @@
               @click="$router.push('/')"
             />
           </div>
-          <div v-else class="content-grid">
-            <ShopCard
-              v-for="shop in favoriteShops"
-              :key="shop.id"
-              :shop="shop"
-              @click="selectShop"
-              @favorite="toggleFavorite"
-            />
-          </div>
         </div>
 
         <!-- Artists Tab Content -->
         <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
-          <div v-if="favoriteArtists.length === 0" class="no-results bg-block border-radius-md">
+          <div v-if="favoriteArtists.length" class="flex column q-gap-md">
+            <ArtistCard
+              v-for="artist in favoriteArtists"
+              :key="artist.id"
+              :artist="artist"
+              @click="selectArtist"
+              @favorite="toggleFavorite"
+            />
+          </div>
+          <div v-else class="no-results bg-block border-radius-md">
             <q-icon name="bookmark_border" size="60px" color="grey-6" />
             <h3 class="no-results-title">No artists bookmarked yet</h3>
             <p class="no-results-description text-grey-6">Start exploring and add your favorite artists to bookmarks</p>
@@ -45,15 +54,6 @@
               rounded
               unelevated
               @click="$router.push('/')"
-            />
-          </div>
-          <div v-else class="content-grid">
-            <ArtistCard
-              v-for="artist in favoriteArtists"
-              :key="artist.id"
-              :artist="artist"
-              @click="selectArtist"
-              @favorite="toggleFavorite"
             />
           </div>
         </div>
@@ -132,12 +132,6 @@ const toggleFavorite = (id: number) => {
 
 .tab-content {
   min-height: 400px;
-}
-
-.content-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: 1fr;
 }
 
 .no-results {

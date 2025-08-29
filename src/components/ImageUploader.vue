@@ -7,7 +7,7 @@
     }"
   >
     <template v-if="imageSrc">
-      <div class="image-preview-wrapper">
+      <div class="image-preview-wrapper border-radius-md">
         <q-img
           :src="imageSrc"
           @click="zoomImage"
@@ -38,7 +38,7 @@
           </span>
         </q-file>
       </div>
-      
+
       <!-- Hidden camera input -->
       <input
         ref="cameraInput"
@@ -48,7 +48,7 @@
         @change="onCameraSelected"
         style="display: none;"
       />
-  
+
       <!-- Open camera button (mobile only) -->
       <q-btn
         v-if="isMobile"
@@ -93,7 +93,7 @@
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
 import useImage from '../modules/useImage'
-import ImagePreviewDialog from './ImagePreviewDialog.vue'
+import ImagePreviewDialog from 'src/components/Dialogs/ImagePreviewDialog.vue'
 import { useQuasar, type ValidationRule } from 'quasar'
 import {
   ref,
@@ -289,6 +289,7 @@ watch(image, async (newValue) => {
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 
     .zoom-indicator {
       position: absolute;

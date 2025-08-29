@@ -1,6 +1,6 @@
 <template>
   <div class="search-section">
-    <div class="search-container">
+    <div class="search-container full-width">
       <q-input
         :model-value="modelValue"
         outlined
@@ -22,7 +22,7 @@
             :icon="hasActiveFilters ? 'filter_alt' : 'tune'"
             :color="hasActiveFilters ? 'primary' : 'grey-6'"
           >
-            <q-menu 
+            <q-menu
               v-model="showMenu"
               anchor="bottom right"
               self="top right"
@@ -147,7 +147,7 @@ const filters = ref<Filters>({
 // Filter options
 const locationOptions = [
   'Downtown, NY',
-  'Brooklyn, NY', 
+  'Brooklyn, NY',
   'Manhattan, NY',
   'Queens, NY',
   'Bronx, NY',
@@ -202,11 +202,6 @@ const clearFilters = () => {
 .search-section {
   display: flex;
   justify-content: center;
-}
-
-.search-container {
-  width: 100%;
-  max-width: 400px;
 }
 
 .filters-content {

@@ -5,12 +5,13 @@
       <q-card-section class="row items-center dialog-header">
         <div class="text-h6 text-white">{{ 'Image Preview' }}</div>
         <q-space />
-        <q-btn 
-          icon="close" 
-          round 
+        <q-btn
+          icon="close"
+          round
           dense
-          color="dark"
-          v-close-popup 
+          class="bg-block"
+          unelevated
+          v-close-popup
         />
       </q-card-section>
 
@@ -40,14 +41,16 @@
           <q-btn
             :icon="isZoomed ? 'zoom_out' : 'zoom_in'"
             :label="isZoomed ? 'Zoom Out' : 'Zoom In'"
-            color="dark"
+            class="bg-block"
+            unelevated
             rounded
             @click="toggleZoom"
           />
           <q-btn
             icon="download"
             label="Download"
-            color="dark"
+            class="bg-block"
+            unelevated
             rounded
             @click="downloadImage"
             v-if="imageSrc"
@@ -91,7 +94,7 @@ function toggleZoom() {
 
 function downloadImage() {
   if (!props.imageSrc) return
-  
+
   const link = document.createElement('a')
   link.href = props.imageSrc
   link.download = `image-${Date.now()}.png`
@@ -112,7 +115,7 @@ watch(dialogModel, (newValue) => {
 .image-preview-dialog {
   background: transparent;
   backdrop-filter: blur(10px);
-  
+
   .dialog-header {
     background: transparent;
     backdrop-filter: blur(10px);
@@ -120,26 +123,26 @@ watch(dialogModel, (newValue) => {
     top: 0;
     z-index: 10;
   }
-  
+
   .image-container {
     padding: 0;
     overflow: hidden;
-    
+
     .preview-image {
       cursor: pointer;
       transition: transform 0.3s ease;
-      
+
       &.zoomed {
         transform: scale(1.5);
         cursor: grab;
-        
+
         &:active {
           cursor: grabbing;
         }
       }
     }
   }
-  
+
   .dialog-footer {
     background: transparent;
     backdrop-filter: blur(10px);
