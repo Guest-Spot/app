@@ -96,6 +96,7 @@
         <q-btn
           label="Cancel"
           rounded
+          unelevated
           class="bg-block"
           @click="closeDialog"
         />
@@ -189,9 +190,9 @@ const onSubmit = () => {
   try {
     isSubmitting.value = true;
     void formRef.value?.validate?.();
-    
+
     // Validate required fields
-    if (!bookingData.value.title || !bookingData.value.description || 
+    if (!bookingData.value.title || !bookingData.value.description ||
         !bookingData.value.date || !bookingData.value.startTime || !bookingData.value.endTime) {
       $q.notify({
         type: 'negative',
@@ -206,7 +207,7 @@ const onSubmit = () => {
       });
       return;
     }
-    
+
     // Validate time range
     if (bookingData.value.startTime >= bookingData.value.endTime) {
       $q.notify({
@@ -268,51 +269,51 @@ const onSubmit = () => {
 .create-booking-dialog {
   border-radius: 20px 20px 0 0;
   min-height: 600px;
-  
+
   .dialog-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    
+
     .text-subtitle1 {
       font-weight: 600;
     }
   }
-  
+
   .dialog-content {
     padding: 20px;
-    
+
     .input-group {
       margin-bottom: 20px;
-      
+
       .input-label {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
         font-size: 14px;
       }
-      
+
       .custom-input {
         width: 100%;
       }
     }
-    
+
     .input-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
   }
-  
+
   .dialog-actions {
     padding: 10px 20px 20px;
     justify-content: space-between;
     position: sticky;
     bottom: 0;
     z-index: 10;
-    
+
     .q-btn {
       min-width: 100px;
       font-weight: 600;

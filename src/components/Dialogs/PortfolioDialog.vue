@@ -29,7 +29,7 @@
             class="custom-input"
           />
         </div>
-        
+
         <div class="input-group">
           <label class="input-label">Description</label>
           <q-input
@@ -94,6 +94,7 @@
         <q-btn
           label="Cancel"
           rounded
+          unelevated
           class="bg-block"
           @click="closeDialog"
         />
@@ -201,56 +202,56 @@ const title = computed(() => props.isEditing ? 'Edit Portfolio Work' : 'Add New 
 .portfolio-dialog {
   border-radius: 20px 20px 0 0;
   min-height: 600px;
-  
+
   .dialog-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    
+
     .text-subtitle1 {
       font-weight: 600;
     }
   }
-  
+
   .dialog-content {
     padding: 20px;
-    
+
     .input-group {
       margin-bottom: 20px;
-      
+
       .input-label {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
         font-size: 14px;
       }
-      
+
       .custom-input {
         width: 100%;
       }
     }
-    
+
     .tags-container {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 12px;
-      
+
       .work-tag {
         font-size: 12px;
       }
     }
   }
-  
+
   .dialog-actions {
     padding: 10px 20px 20px;
     justify-content: space-between;
     position: sticky;
     bottom: 0;
     z-index: 10;
-    
+
     .q-btn {
       min-width: 100px;
       font-weight: 600;

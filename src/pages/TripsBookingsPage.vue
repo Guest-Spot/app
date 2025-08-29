@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-lg">
     <div class="container">
       <!-- Navigation Tabs -->
       <TabsComp
@@ -7,9 +7,11 @@
         :activeTab="activeTab"
         use-query
         @setActiveTab="setActiveTab"
-        class="q-mb-lg full-width"
+        class="full-width"
       />
+    </div>
 
+    <div class="container">
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->

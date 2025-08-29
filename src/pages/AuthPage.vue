@@ -50,7 +50,7 @@
             <div class="button-group">
               <q-btn
                 outline
-                color="grey-7"
+                color="grey-6"
                 class="guest-btn full-width"
                 @click="continueAsGuest"
                 rounded

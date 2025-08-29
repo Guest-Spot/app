@@ -1,10 +1,10 @@
 <template>
   <div class="trips-tab flex column q-gap-md">
     <!-- Trips Header -->
-    <div class="trips-header">
-      <h3 class="text-subtitle1 text-bold q-my-none">My Trips & Performances ({{ trips.length }})</h3>
+    <div class="trips-header bg-block border-radius-lg">
+      <h3 class="text-subtitle1 text-bold q-my-none">My Portfolio ({{ trips.length }})</h3>
       <q-btn
-        color="dark"
+        color="primary"
         icon="add"
         size="sm"
         @click="addNewTrip"
@@ -14,13 +14,13 @@
     </div>
 
     <!-- Trips List -->
-    <div class="trips-list">
+    <div v-if="trips.length" class="trips-list">
       <div
         v-for="(trip, index) in trips"
         :key="index"
-        class="trip-item"
+        class="trip-item bg-block border-radius-md"
       >
-        <div class="trip-header">
+        <div class="trip-header bg-block q-pa-md">
           <div class="trip-location">
             <q-icon name="location_on" color="primary" size="20px" />
             <span class="location-text">{{ trip.location }}</span>
@@ -28,7 +28,7 @@
           <div class="trip-actions">
             <q-btn
               round
-              color="dark"
+              color="bg-block"
               icon="edit"
               size="sm"
               @click="editTrip(index)"
@@ -42,7 +42,7 @@
             /> -->
           </div>
         </div>
-        
+
         <div class="trip-content">
           <div class="trip-info">
             <div class="info-row">
@@ -62,11 +62,11 @@
               <span class="info-value">{{ trip.endTime }}</span>
             </div>
           </div>
-          
+
           <div class="trip-description">
             <p>{{ trip.description }}</p>
           </div>
-          
+
           <div class="trip-photos hidden" v-if="trip.photos && trip.photos.length > 0">
             <h5 class="photos-title">Photos from this trip:</h5>
             <div class="photos-grid">
@@ -86,12 +86,12 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="trips.length === 0" class="empty-state">
-      <q-icon name="flight_takeoff" size="80px" color="grey-5" />
+    <div v-else class="empty-state bg-block border-radius-lg">
+      <q-icon name="flight_takeoff" size="60px" color="grey-6" />
       <h3 class="empty-title">No trips recorded yet</h3>
       <p class="empty-description">Start documenting your performances and travels</p>
       <q-btn
-        color="primary"
+        class="bg-block"
         icon="add"
         label="Add Your First Trip"
         @click="addNewTrip"
@@ -235,10 +235,6 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 4px 4px 4px 16px;
 }
 
@@ -256,27 +252,14 @@ defineExpose({
 }
 
 .trip-item {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px var(--shadow-light);
-  }
 }
 
 .trip-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  // backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--shadow-light);
 }
 
 .trip-location {
@@ -287,7 +270,6 @@ defineExpose({
 
 .location-text {
   font-weight: 600;
-  color: var(--brand-dark);
   font-size: 18px;
 }
 
@@ -315,30 +297,22 @@ defineExpose({
 
 .info-label {
   font-weight: 600;
-  color: var(--brand-dark);
   min-width: 60px;
-}
-
-.info-value {
-  color: var(--brand-dark);
 }
 
 .trip-description {
   p {
     margin: 0;
-    color: var(--brand-dark);
     line-height: 1.6;
   }
 }
 
 .trip-photos {
-  border-top: 1px solid var(--shadow-light);
   padding-top: 20px;
 }
 
 .photos-title {
   margin: 0 0 15px 0;
-  color: var(--brand-dark);
   font-size: 16px;
   font-weight: 600;
 }
@@ -353,30 +327,21 @@ defineExpose({
   border-radius: 10px;
   cursor: pointer;
   transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.05);
-  }
 }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
 }
 
 .empty-title {
   margin: 20px 0 10px 0;
-  color: var(--brand-dark);
   font-size: 24px;
   font-weight: 600;
 }
 
 .empty-description {
   margin: 0 0 30px 0;
-  color: var(--brand-dark);
   font-size: 16px;
   line-height: 1.5;
 }

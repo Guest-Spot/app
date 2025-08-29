@@ -5,8 +5,8 @@
         <q-btn
           v-for="link in LINKS"
           :key="link.path"
-          flat 
-          round 
+          flat
+          round
           color="grey-6"
           :aria-label="link.label"
           :class="{ 'text-primary bg-block': link.isActive }"
@@ -30,6 +30,7 @@ defineOptions({
 });
 
 const route = useRoute();
+const userStore = useUserStore();
 
 const LINKS = computed(() => [
   {
@@ -47,7 +48,7 @@ const LINKS = computed(() => [
   {
     icon: userStore.isShop ? 'event_note' : 'event',
     label: 'Bookings',
-    path: '/bookings',
+    path: userStore.isShop ? '/bookings' : '/trips-bookings',
     isActive: route.path === '/bookings' || route.path === '/trips-bookings'
   },
   {
@@ -57,8 +58,6 @@ const LINKS = computed(() => [
     isActive: route.path === '/profile'
   }
 ])
-
-const userStore = useUserStore();
 </script>
 
 <style scoped lang="scss">
