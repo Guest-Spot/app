@@ -1,7 +1,7 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
-    <InfoCard title="Contacts" icon="location_on" :data="contacts" />
     <InfoCard title="Working Hours" icon="schedule" :data="workingHours" />
+    <InfoCard title="Contacts" icon="location_on" :data="contacts" />
     <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
   </div>
