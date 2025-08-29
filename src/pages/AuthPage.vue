@@ -2,14 +2,15 @@
   <q-page class="q-py-md flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
       <div class="flex no-wrap items-center justify-center q-mb-lg">
-        <q-img src="~/assets/logo-dark.png" class="logo" width="150px" height="150px" />
+        <q-img v-if="isDark" src="~/assets/logo.png" class="logo" width="150px" height="150px" />
+        <q-img v-else src="~/assets/logo-dark.png" class="logo" width="150px" height="150px" />
       </div>
       <div class="container">
-        <div class="content text-center full-width">
-          <div class="container flex column items-center justify-start q-gap-md">
+        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
+          <div class="container flex column items-center justify-start q-gap-sm q-mb-md">
             <h2 class="text-h5 q-my-none">Welcome to <span class="text-primary">GuestSpot</span></h2>
             <div class="welcome-section">
-              <p class="text-subtitle1 text-grey-7 q-mb-lg">
+              <p class="text-grey-6">
                 Your ultimate destination for tattoo artistry and shop discovery
               </p>
             </div>
@@ -18,8 +19,7 @@
           <div class="flex column q-gap-md">
             <div class="button-group">
               <q-btn
-                color="dark"
-                class="auth-btn full-width"
+                class="auth-btn bg-block full-width"
                 @click="navigateToLogin('shop')"
                 rounded
                 unelevated
@@ -31,8 +31,7 @@
 
             <div class="button-group">
               <q-btn
-                color="dark"
-                class="auth-btn full-width"
+                class="auth-btn bg-block full-width"
                 @click="navigateToLogin('artist')"
                 rounded
                 unelevated
@@ -43,9 +42,9 @@
             </div>
 
             <div class="flex no-wrap items-center justify-center q-gap-md">
-              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid var(--divider-light);" />
+              <div class="q-mx-sm or-line" />
               <span class="text-subtitle1 text-grey-7">or</span>
-              <div class="q-mx-sm" style="width: 40%; border-bottom: 1px solid var(--divider-light);" />
+              <div class="q-mx-sm or-line" />
             </div>
 
             <div class="button-group">
@@ -68,7 +67,10 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from 'vue';
 import { useRouter } from 'vue-router';
+
+const isDark = inject<boolean>('isDark');
 
 const router = useRouter();
 
@@ -81,16 +83,7 @@ const continueAsGuest = () => {
 };
 </script>
 
-<style scoped>
-.content {
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 10px 30px var(--shadow-light);
-  padding: 20px;
-}
-
+<style scoped lang="scss">
 .button-group {
   display: flex;
   justify-content: center;
@@ -99,8 +92,6 @@ const continueAsGuest = () => {
 }
 
 .auth-btn {
-  background: var(--brand-dark);
-  color: white;
   font-weight: 700;
   font-size: 18px;
   letter-spacing: 0.6px;
@@ -115,8 +106,14 @@ const continueAsGuest = () => {
   transition: all 0.3s ease;
 }
 
-.info-section {
-  border-top: 1px solid var(--shadow-light);
-  padding-top: 1.5rem;
+.or-line {
+  width: 40%;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.body--dark {
+  .or-line {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }
 </style>

@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
+import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import { useUserStore } from 'src/stores/user-store';
@@ -67,7 +67,7 @@ const activeTab = ref<ITab>(TABS[0]!);
 const handleLogout = () => {
   // Logout user from store (this will clear localStorage)
   userStore.logout();
-  
+
   // Redirect to appropriate login page based on user type
   if (userStore.type === 'shop') {
     void router.push('/login/shop');
@@ -144,7 +144,7 @@ const setActiveTab = (tab: ITab) => {
 
 .time-input {
   cursor: pointer;
-  
+
   .q-field__control {
     cursor: pointer;
   }
