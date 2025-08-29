@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GuestSpot</string>
+    <string name="title_activity_main">GuestSpot</string>
+    <string name="package_name">org.guestspot.app</string>
+    <string name="custom_url_scheme">org.guestspot.app</string>
+</resources>
