@@ -34,12 +34,6 @@ const userStore = useUserStore();
 
 const LINKS = computed(() => [
   {
-    icon: 'bookmark',
-    label: 'Bookmarks',
-    path: '/bookmarks',
-    isActive: route.path === '/bookmarks'
-  },
-  {
     icon: 'search',
     label: 'Search',
     path: '/',
@@ -50,6 +44,12 @@ const LINKS = computed(() => [
     label: 'Bookings',
     path: userStore.isShop ? '/bookings' : '/trips-bookings',
     isActive: route.path === '/bookings' || route.path === '/trips-bookings'
+  },
+  {
+    icon: 'bookmark',
+    label: 'Bookmarks',
+    path: '/bookmarks',
+    isActive: route.path === '/bookmarks'
   },
   {
     icon: 'person',
