@@ -303,7 +303,7 @@ For detailed configuration, see [quasar.config.ts](quasar.config.ts), [Mobile Co
 ## Generate icons
 
 ```bash
-icicongenie generate -m capacitor \
+npx @quasar/icongenie generate -m capacitor \
   -i ./public/logo-white.png \
   --png-color 000 \
   --splashscreen-color 000 \
