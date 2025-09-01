@@ -25,8 +25,10 @@
     "mobile:emulate:ios": "quasar dev -m cordova -T ios --emulator",
     "mobile:clean": "quasar clean",
     "mobile:prepare": "quasar prepare",
-    "capacitor:add": "quasar mode add capacitor",
-    "capacitor:remove": "quasar mode remove capacitor",
+    "capacitor:add:ios": "quasar mode add capacitor -T ios",
+    "capacitor:add:android": "quasar mode add capacitor -T android",
+    "capacitor:remove:ios": "quasar mode remove capacitor -T ios",
+    "capacitor:remove:android": "quasar mode remove capacitor -T android",
     "capacitor:dev": "quasar dev -m capacitor",
     "capacitor:build": "quasar build -m capacitor",
     "capacitor:build:ios": "quasar build -m capacitor -T ios",
@@ -39,6 +41,9 @@
     "capacitor:open:ios": "quasar dev -m capacitor -T ios --open"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
     "browser-image-compression": "^2.0.2",
