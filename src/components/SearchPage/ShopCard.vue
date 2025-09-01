@@ -66,6 +66,7 @@ const workingHoursText = computed(() => {
 const toggleFavorite = () => {
   const shopData = {
     id: props.shop.id,
+    uuid: props.shop.uuid,
     username: props.shop.username,
     title: props.shop.title,
     location: props.shop.location,

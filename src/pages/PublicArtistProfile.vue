@@ -137,6 +137,7 @@ const setActiveTab = (tab: ITab) => {
 // Mock artist data - в реальном приложении будет загружаться по ID
 const artistData = ref({
   id: 1,
+  uuid: '1',
   username: 'artist_john',
   fullname: 'John Doe',
   status: 'Available for bookings',
@@ -178,6 +179,7 @@ const trips = ref([
   },
   {
     id: 2,
+    uuid: '2',
     title: 'Asia Festival',
     description: 'Music festival in Tokyo and Seoul',
     startDate: '2024-09-15',
@@ -193,6 +195,7 @@ const isFavorite = computed(() => isArtistFavorite(artistData.value.id));
 const toggleFavorite = () => {
   toggleArtistFavorite({
     id: artistData.value.id,
+    uuid: artistData.value.uuid,
     name: artistData.value.fullname,
     status: artistData.value.status,
     bio: artistData.value.bio,

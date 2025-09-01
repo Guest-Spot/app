@@ -183,6 +183,7 @@ onMounted(() => {
   bookings.value = [
     {
       id: 1,
+      uuid: '1',
       title: 'Tattoo Session Request',
       description: 'I would like to visit your shop and ...',
       shopId: 1,
@@ -203,6 +204,7 @@ onMounted(() => {
     },
     {
       id: 2,
+      uuid: '2',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
       shopId: 3,
@@ -223,6 +225,7 @@ onMounted(() => {
     },
     {
       id: 3,
+      uuid: '3',
       title: 'Master Class',
       description: 'Need a master class in tattooing',
       shopId: 2,
@@ -243,6 +246,7 @@ onMounted(() => {
     },
     {
       id: 4,
+      uuid: '4',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
       shopId: 3,

@@ -44,11 +44,11 @@
         <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
           <div v-if="filteredArtists.length" class="flex column q-gap-md">
             <ArtistCard
-            v-for="artist in filteredArtists"
-            :key="artist.id"
-            :artist="artist"
-            @click="selectArtist"
-            @favorite="toggleFavorite"
+              v-for="artist in filteredArtists"
+              :key="artist.id"
+              :artist="artist"
+              @click="selectArtist"
+              @favorite="toggleFavorite"
             />
           </div>
           <NoResult
@@ -101,6 +101,7 @@ const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
 const artists = ref([
   {
     id: 1,
+    uuid: '1',
     name: 'Sarah Chen',
     bio: 'Specializing in Irezumi and modern Japanese styles',
     avatar: 'artists/artist1.jpeg',
@@ -108,6 +109,7 @@ const artists = ref([
   },
   {
     id: 2,
+    uuid: '2',
     name: 'Mike Rodriguez',
     bio: 'Portrait and realistic tattoo artist with 8 years experience',
     avatar: 'artists/artist2.jpg',
@@ -115,6 +117,7 @@ const artists = ref([
   },
   {
     id: 3,
+    uuid: '3',
     name: 'Emma Thompson',
     bio: 'Creative artist specializing in unique watercolor designs',
     avatar: 'artists/artist3.jpg',
@@ -122,6 +125,7 @@ const artists = ref([
   },
   {
     id: 4,
+    uuid: '4',
     name: 'Alex Johnson',
     bio: 'Clean lines and precise geometric tattoo designs',
     avatar: 'artists/artist4.jpg',

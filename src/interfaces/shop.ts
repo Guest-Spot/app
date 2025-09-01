@@ -1,5 +1,6 @@
 export interface IShop {
   id: number;
+  uuid: string;
   username: string;
   title: string;
   location: string;

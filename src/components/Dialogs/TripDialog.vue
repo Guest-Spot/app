@@ -30,17 +30,6 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Venue</label>
-          <q-input
-            v-model="formData.venue"
-            outlined
-            dense
-            rounded
-            placeholder="Enter venue name"
-            class="custom-input"
-          />
-        </div>
-        <div class="input-group">
           <label class="input-label">Date</label>
           <q-input
             v-model="formData.date"
@@ -196,11 +185,9 @@ interface TripForm {
   id: number;
   location: string;
   date: string;
-  venue: string;
   startTime: string;
   endTime: string;
   description: string;
-  photos: string[];
 }
 
 interface Props {
