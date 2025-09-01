@@ -16,7 +16,14 @@
       <div class="main-content flex column q-gap-md">
         <!-- Shops Tab Content -->
         <div v-if="activeTab === TAB_SHOPS" class="tab-content">
-          <div v-if="filteredShops.length" class="flex column q-gap-md">
+          <LoadingState
+            v-if="isLoadingShops"
+            :is-loading="isLoadingShops"
+            title="Loading shops..."
+            description="Please wait while we fetch the latest shops"
+            spinner-name="dots"
+          />
+          <div v-else-if="filteredShops.length" class="flex column q-gap-md">
             <ShopCard
               v-for="shop in filteredShops"
               :key="shop.id"
@@ -62,7 +69,8 @@ import { useRouter } from 'vue-router';
 import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
-import NoResult from '../components/NoResult.vue';
+import NoResult from 'src/components/NoResult.vue';
+import LoadingState from 'src/components/LoadingState.vue';
 import useShops from 'src/modules/useShops';
 
 // Router
@@ -87,7 +95,7 @@ const activeFilters = ref<SearchFilters>({
   priceRange: null
 });
 
-const { shops, fetchShops } = useShops();
+const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
 
 // Mock data for artists
 const artists = ref([

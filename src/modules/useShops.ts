@@ -14,7 +14,7 @@ const useShops = () => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
-        .from('shops')
+        .from('shops_public')
         .select('*');
 
       if (error) {
@@ -34,7 +34,7 @@ const useShops = () => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
-        .from('shops')
+        .from('shops_public')
         .select('*')
         .eq('uuid', uuid)
         .single();
