@@ -57,12 +57,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
-import NoResult from 'src/components/NoResult.vue';
+import NoResult from '../components/NoResult.vue';
+import useShops from 'src/modules/useShops';
 
 // Router
 const router = useRouter();
@@ -86,73 +87,7 @@ const activeFilters = ref<SearchFilters>({
   priceRange: null
 });
 
-// Mock data for shops
-const shops = ref<IShop[]>([
-  {
-    id: 1,
-    username: 'ink_paradise',
-    title: 'Ink Paradise',
-    location: 'Downtown, NY',
-    description: 'Professional tattoo studio with 15+ years of experience',
-    avatar: 'shops/shop1.jpg',
-    phone: '+1 (555) 123-4567',
-    email: 'info@inkparadise.com',
-    dateOpened: '2008-01-15',
-    workingHoursStart: '09:00',
-    workingHoursEnd: '21:00',
-    pricing: '$$$',
-    instagram: '@inkparadise',
-    facebook: 'Ink Paradise Studio'
-  },
-  {
-    id: 2,
-    username: 'artistic_ink',
-    title: 'Artistic Ink',
-    location: 'Brooklyn, NY',
-    description: 'Custom designs and traditional tattoo styles',
-    avatar: 'shops/shop2.jpg',
-    phone: '+1 (555) 234-5678',
-    email: 'hello@artisticink.com',
-    dateOpened: '2012-03-20',
-    workingHoursStart: '10:00',
-    workingHoursEnd: '20:00',
-    pricing: '$$',
-    instagram: '@artisticink',
-    facebook: 'Artistic Ink Brooklyn'
-  },
-  {
-    id: 3,
-    username: 'modern_tattoo',
-    title: 'Modern Tattoo Co.',
-    location: 'Manhattan, NY',
-    description: 'Contemporary tattoo art and piercing services',
-    avatar: 'shops/shop3.webp',
-    phone: '+1 (555) 345-6789',
-    email: 'contact@moderntattoo.com',
-    dateOpened: '2015-07-10',
-    workingHoursStart: '11:00',
-    workingHoursEnd: '22:00',
-    pricing: '$$$',
-    instagram: '@moderntattooco',
-    facebook: 'Modern Tattoo Company'
-  },
-  {
-    id: 4,
-    username: 'classic_ink',
-    title: 'Classic Ink Studio',
-    location: 'Queens, NY',
-    description: 'Traditional and neo-traditional tattoo designs',
-    avatar: 'shops/shop4.jpg',
-    phone: '+1 (555) 456-7890',
-    email: 'studio@classicink.com',
-    dateOpened: '2010-11-05',
-    workingHoursStart: '09:00',
-    workingHoursEnd: '19:00',
-    pricing: '$$',
-    instagram: '@classicinkstudio',
-    facebook: 'Classic Ink Studio Queens'
-  }
-]);
+const { shops, fetchShops } = useShops();
 
 // Mock data for artists
 const artists = ref([
@@ -265,4 +200,8 @@ const updateFilters = (filters: SearchFilters) => {
   console.log('Filters updated:', filters);
   // Apply filters to search results
 };
+
+onBeforeMount(() => {
+  void fetchShops();
+});
 </script>
