@@ -3,6 +3,8 @@
 
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+import { configDotenv } from 'dotenv';
+configDotenv();
 
 export default defineConfig((ctx) => {
   return {
@@ -12,7 +14,7 @@ export default defineConfig((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['theme', 'i18n', 'axios'],
+    boot: ['theme', 'i18n', 'axios', 'supabase'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],
@@ -53,7 +55,10 @@ export default defineConfig((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        API_URL: process.env.API_URL,
+        API_KEY: process.env.API_KEY,
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
