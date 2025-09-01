@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-card" :class="{ sent: isSent, received: isReceived }">
+  <div class="booking-card bg-block q-pa-md border-radius-md" :class="{ sent: isSent, received: isReceived }">
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm">
@@ -12,8 +12,8 @@
         </q-avatar>
         <div class="flex column">
           <div class="user-name">{{ artist?.name || 'User' }}</div>
-          <div v-if="artist?.experience" class="experience-info flex items-center q-gap-xs">
-            <q-icon name="date_range" size="16px" color="grey-6" />
+          <div v-if="artist?.experience" class="experience-info flex items-center q-gap-xs text-grey-6">
+            <q-icon name="date_range" size="16px" />
             <span>{{ artist?.experience }} years of experience</span>
           </div>
         </div>
@@ -22,76 +22,75 @@
         {{ getStatusLabel(status) }}
       </div>
     </div>
-    
+
     <div class="card-content">
       <div class="flex items-center q-gap-xs q-mb-sm">
         <template v-if="isSent">
-          <q-icon name="send" size="16px" color="blue-6" />
-          <span class="text-blue-6 text-weight-medium">Request to Artist</span>
+          <q-icon name="send" size="16px" color="primary" />
+          <span class="text-primary text-weight-medium">Request to Artist</span>
         </template>
         <template v-else>
-          <q-icon name="inbox" size="16px" color="green-6" />
-          <span class="text-green-6 text-weight-medium">Request from Artist</span>
+          <q-icon name="inbox" size="16px" color="primary" />
+          <span class="text-primary text-weight-medium">Request from Artist</span>
         </template>
       </div>
 
       <h4 class="booking-title">{{ title }}</h4>
-      <p class="booking-description">{{ description }}</p>
+      <p class="booking-description text-grey-6">{{ description }}</p>
 
-      <div v-if="location" class="location-info q-mb-xs">
-        <q-icon name="location_on" size="16px" color="grey-6" />
+      <div v-if="location" class="location-info q-mb-xs text-grey-6">
+        <q-icon name="location_on" size="16px" />
         <span>{{ location }}</span>
       </div>
-      <div class="date-info q-mb-xs">
-        <q-icon name="event" size="16px" color="grey-6" />
+      <div class="date-info q-mb-xs text-grey-6">
+        <q-icon name="event" size="16px" />
         <span>{{ formatDate(date) }}</span>
       </div>
-      <div class="time-info">
-        <q-icon name="schedule" size="16px" color="grey-6" />
+      <div class="time-info text-grey-6">
+        <q-icon name="schedule" size="16px" />
         <span>{{ startTime }} - {{ endTime }}</span>
       </div>
     </div>
-    
+
     <div class="card-actions">
       <!-- Actions for received bookings -->
       <div v-if="isReceived && status === 'pending'" class="action-buttons">
         <q-btn
           label="Reject"
           color="negative"
-          outline
           rounded
-          class="full-width"
+          flat
+          class="bg-block full-width"
           @click="$emit('reject', id)"
         />
         <q-btn
           label="Accept"
-          color="dark"
+          color="primary"
           rounded
           class="full-width"
           @click="$emit('accept', id)"
         />
       </div>
-      
+
       <!-- Actions for sent bookings -->
       <q-btn
         v-else-if="isSent && status === 'pending'"
         label="Cancel"
         color="negative"
-        outline
         rounded
-        class="full-width"
+        flat
+        class="bg-block full-width"
         @click="$emit('cancel', id)"
       />
-      
+
       <!-- View details for other statuses -->
       <q-btn
         v-else
         label="View Artist"
-        color="dark"
-        outline
         rounded
         :to="`/artist/${artist?.id}`"
-        class="full-width"
+        flat
+        class="bg-block full-width"
       />
     </div>
   </div>
@@ -159,82 +158,73 @@ const getStatusLabel = (status: IBooking['status']) => {
 
 <style scoped lang="scss">
 .booking-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 248, 255, 0.9) 100%);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
   overflow: hidden;
-  padding: 20px;
-  
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
-    
+
     .user-info {
       display: flex;
       align-items: center;
-      
+
       .user-name {
         font-weight: 600;
-        color: var(--brand-dark);
         font-size: 16px;
       }
-      
+
       .booking-date {
-        color: var(--text-secondary);
         font-size: 14px;
         margin-top: 2px;
       }
     }
-    
+
     .status-badge {
       padding: 2px 6px;
       border-radius: 20px;
       font-size: 10px;
       font-weight: 600;
-      
+
       &.pending {
         background: var(--q-warning);
         color: white;
       }
-      
+
       &.accepted {
         background: var(--q-positive);
         color: white;
       }
-      
+
       &.rejected {
         background: var(--q-negative);
         color: white;
       }
-      
+
       &.cancelled {
         background: var(--grey-6);
         color: white;
       }
-      
+
       &.completed {
         background: var(--info);
         color: white;
       }
     }
   }
-  
+
   .card-content {
     margin-bottom: 20px;
-    
+
     .booking-title {
       font-size: 18px;
       font-weight: 600;
-      color: var(--brand-dark);
       margin: 0;
     }
-    
+
     .booking-description {
-      color: var(--text-secondary);
       margin: 0 0 16px 0;
       line-height: 1.5;
     }
@@ -243,34 +233,31 @@ const getStatusLabel = (status: IBooking['status']) => {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: var(--text-secondary);
       font-size: 14px;
     }
-    
+
     .time-info {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: var(--text-secondary);
       font-size: 14px;
     }
-    
+
     .location-info {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: var(--text-secondary);
       font-size: 14px;
       margin-top: 8px;
     }
   }
-  
+
   .card-actions {
     .action-buttons {
       display: flex;
       gap: 16px;
     }
-    
+
     .q-btn {
       font-weight: 600;
     }

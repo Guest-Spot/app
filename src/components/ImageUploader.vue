@@ -1,13 +1,13 @@
 <template>
   <div
-    class="image-uploader border-radius-md"
+    class="image-uploader border-radius-lg q-pa-sm bg-block"
     :class="{
       'image-uploader--sm': size === 'sm',
       'image-uploader--circle': circle,
     }"
   >
     <template v-if="imageSrc">
-      <div class="image-preview-wrapper">
+      <div class="image-preview-wrapper border-radius-md">
         <q-img
           :src="imageSrc"
           @click="zoomImage"
@@ -33,12 +33,12 @@
           @update:model-value="onChangeImage"
         >
           <span class="flex column items-center justify-center full-width full-height">
-            <q-icon name="image" size="48px" color="grey-5" />
+            <q-icon name="image" size="48px" color="grey-6" />
             <p class="text-grey-6 q-mt-sm">Upload image</p>
           </span>
         </q-file>
       </div>
-      
+
       <!-- Hidden camera input -->
       <input
         ref="cameraInput"
@@ -48,33 +48,33 @@
         @change="onCameraSelected"
         style="display: none;"
       />
-  
+
       <!-- Open camera button (mobile only) -->
       <q-btn
         v-if="isMobile"
         round
-        push
+        size="sm"
         icon="camera_alt"
-        class="absolute-bottom-right image-uploader_camera-button"
+        text-color="primary"
+        unelevated
+        class="absolute-bottom-right q-mr-lg q-mb-lg bg-block"
         @click.stop="openCamera"
       />
     </template>
 
     <div
       v-if="imageSrc"
-      class="flex column absolute-bottom-right q-mr-sm q-mb-sm"
+      class="flex column absolute-bottom-right q-mr-md q-mb-md"
     >
       <q-btn
         round
-        push
-        color="deep-orange"
+        size="sm"
+        unelevated
+        class="bg-block"
+        text-color="primary"
+        icon="delete_forever"
         @click="clear"
-      >
-        <q-icon
-          name="delete_forever"
-          color="white"
-        />
-      </q-btn>
+      />
     </div>
 
     <!-- Dialog -->
@@ -95,7 +95,7 @@
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
 import useImage from '../modules/useImage'
-import ImagePreviewDialog from './ImagePreviewDialog.vue'
+import ImagePreviewDialog from 'src/components/Dialogs/ImagePreviewDialog.vue'
 import { useQuasar, type ValidationRule } from 'quasar'
 import {
   ref,
@@ -217,109 +217,109 @@ watch(image, async (newValue) => {
 </script>
 
 <style lang="scss">
-  .image-uploader {
+.image-uploader {
+  width: 100%;
+  height: 210px;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  .q-file {
     width: 100%;
-    height: 210px;
-    overflow: hidden;
-    text-align: center;
+    height: 100%;
     position: relative;
+
+    .q-field__control {
+      height: 100%;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      justify-content: center;
+      position: relative;
+
+      &::before,
+      &::after {
+        border: 2px dashed rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+      }
+
+      .q-field__append {
+        position: absolute;
+        top: 0;
+        right: 16px;
+      }
+    }
+
+    span {
+      font-size: 16px;
+      font-weight: bold;
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      user-select: none;
+      color: var(--text-black);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  &--sm {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    min-height: 30px;
+    border-radius: var(--border-radius-xs);
+
+    span {
+      font-size: 16px;
+      line-height: normal;
+    }
+  }
+
+  &--zoom {
+    cursor: pointer;
+  }
+
+  &--circle {
+    border-radius: 100%;
+  }
+
+  .image-preview-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
 
-    &_camera-button {
-      bottom: 16px;
-      right: 16px;
-      z-index: 10;
+    .zoom-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
     }
+  }
+}
 
-    .q-file {
-      width: 100%;
-      height: 100%;
-      position: relative;
-
-      .q-field__control {
-        height: 100%;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        justify-content: center;
-        position: relative;
-
-        &::before,
-        &::after {
-          border: 2px dashed var(--border-light);
-          border-radius: 20px;
-        }
-
-        .q-field__append {
-          position: absolute;
-          top: 0;
-          right: 16px;
-        }
-      }
-
-      span {
-        font-size: 16px;
-        font-weight: bold;
-        opacity: 0.5;
-        display: flex;
-        align-items: center;
-        pointer-events: none;
-        user-select: none;
-        color: var(--text-black);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-    }
-
-
-
-    &--sm {
-      width: 30px;
-      min-width: 30px;
-      height: 30px;
-      min-height: 30px;
-      border-radius: var(--border-radius-xs);
-
-      span {
-        font-size: 16px;
-        line-height: normal;
-      }
-    }
-
-    &--zoom {
-      cursor: pointer;
-    }
-
-    &--circle {
-      border-radius: 100%;
-    }
-
-    .image-preview-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-
-      .zoom-indicator {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-      }
-
-      &:hover .zoom-indicator {
-        opacity: 1;
+.body--dark {
+  .image-uploader {
+    .q-field__control {
+      &::before,
+      &::after {
+        border: 2px dashed rgba(255, 255, 255, 0.1);
       }
     }
   }
+}
 </style>

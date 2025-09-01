@@ -1,13 +1,19 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
-    <!-- Navigation Tabs -->
-    <TabsComp
-      :tabs="TABS"
-      :activeTab="activeTab"
-      use-query
-      @setActiveTab="setActiveTab"
-      class="q-mb-sm q-px-lg"
-    />
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
+    <div class="container">
+      <ProfileHeader />
+    </div>
+
+    <div class="container">
+      <TabsComp
+        :tabs="TABS"
+        :activeTab="activeTab"
+        use-query
+        send-initial-tab
+        @setActiveTab="setActiveTab"
+        class="full-width"
+      />
+    </div>
 
     <div class="container">
       <!-- Main Content Area -->
@@ -29,6 +35,7 @@ import { ref } from 'vue';
 import { AboutMeTab, PortfolioTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
+import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';

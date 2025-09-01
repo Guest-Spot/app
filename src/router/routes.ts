@@ -42,12 +42,12 @@ const routes: RouteRecordRaw[] = [
       { 
         path: 'trips-bookings', 
         component: () => import('pages/TripsBookingsPage.vue'),
-        meta: { title: 'Trips & Bookings' }
+        meta: { title: 'Artist Trips & Bookings' }
       },
       { 
         path: 'bookings', 
         component: () => import('pages/BookingsPage.vue'),
-        meta: { title: 'Bookings' }
+        meta: { title: 'Shop Bookings' }
       },
       { 
         path: 'profile', 

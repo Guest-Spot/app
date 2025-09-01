@@ -1,10 +1,10 @@
 <template>
   <div class="portfolio-tab flex column q-gap-md">
     <!-- Portfolio Header -->
-    <div class="portfolio-header">
+    <div class="portfolio-header bg-block border-radius-lg">
       <h3 class="text-subtitle1 text-bold q-my-none">My Portfolio ({{ portfolioItems.length }})</h3>
       <q-btn
-        color="dark"
+        color="primary"
         icon="add"
         size="sm"
         @click="addNewWork"
@@ -18,7 +18,7 @@
       <div
         v-for="(work, index) in portfolioItems"
         :key="index"
-        class="portfolio-item"
+        class="portfolio-item bg-block border-radius-md"
       >
         <div class="work-image">
           <q-img
@@ -36,13 +36,6 @@
                 size="sm"
                 @click="editWork(index)"
               />
-              <!-- <q-btn
-                round
-                color="negative"
-                icon="delete"
-                size="sm"
-                @click="deleteWork(index)"
-              /> -->
             </div>
           </q-img>
         </div>
@@ -57,7 +50,7 @@
               color="dark"
               text-color="white"
               size="sm"
-              class="work-tag"
+              class="work-tag bg-block"
             />
           </div>
         </div>
@@ -116,21 +109,21 @@ const portfolioItems = ref<PortfolioWork[]>([
     id: 1,
     title: 'Live Performance at Club XYZ',
     description: 'Amazing night performing my latest hits to a sold-out crowd.',
-    imageUrl: 'https://picsum.photos/300/300?random=1',
+    imageUrl: 'examples/example1.jpg',
     tags: ['Live', 'Performance', 'Club']
   },
   {
     id: 2,
     title: 'Studio Recording Session',
     description: 'Recording my new single with professional sound engineers.',
-    imageUrl: 'https://picsum.photos/300/300?random=2',
+    imageUrl: 'examples/example2.jpeg',
     tags: ['Studio', 'Recording', 'Single']
   },
   {
     id: 3,
     title: 'Music Festival Appearance',
     description: 'Performing at the biggest music festival in the city.',
-    imageUrl: 'https://picsum.photos/300/300?random=3',
+    imageUrl: 'examples/example3.jpg',
     tags: ['Festival', 'Live', 'Music']
   }
 ]);
@@ -201,12 +194,6 @@ const handleWorkConfirm = (work: PortfolioForm) => {
   }
 };
 
-// const deleteWork = (index: number) => {
-//   console.log('Delete work clicked', index);
-//   // TODO: Implement delete work functionality
-//   portfolioItems.value.splice(index, 1);
-// };
-
 // Expose data for parent component
 defineExpose({
   portfolioItems
@@ -218,10 +205,7 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 4px 4px 4px 16px;
 }
 
@@ -239,10 +223,6 @@ defineExpose({
 }
 
 .portfolio-item {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
@@ -281,14 +261,12 @@ defineExpose({
 
 .work-title {
   margin: 0 0 10px 0;
-  color: var(--brand-dark);
   font-size: 18px;
   font-weight: 600;
 }
 
 .work-description {
   margin: 0 0 15px 0;
-  color: var(--brand-dark);
   font-size: 14px;
   line-height: 1.5;
 }

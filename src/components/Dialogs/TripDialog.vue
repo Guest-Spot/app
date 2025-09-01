@@ -8,7 +8,8 @@
         <div class="text-subtitle1 text-bold">{{ title }}</div>
         <q-btn
           icon="close"
-          color="dark"
+          class="bg-block"
+          text-color="primary"
           round
           dense
           size="sm"
@@ -29,18 +30,6 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Date</label>
-          <q-input
-            v-model="formData.date"
-            outlined
-            dense
-            rounded
-            type="date"
-            placeholder="Select date"
-            class="custom-input"
-          />
-        </div>
-        <div class="input-group">
           <label class="input-label">Venue</label>
           <q-input
             v-model="formData.venue"
@@ -51,6 +40,38 @@
             class="custom-input"
           />
         </div>
+        <div class="input-group">
+          <label class="input-label">Date</label>
+          <q-input
+            v-model="formData.date"
+            outlined
+            dense
+            rounded
+            placeholder="Select date"
+            class="custom-input"
+            mask="####-##-##"
+            fill-mask
+            readonly
+            @click.stop="dateProxy?.show()"
+          >
+            <template #append>
+              <q-icon name="event" class="cursor-pointer" @click.stop="dateProxy?.show()" />
+            </template>
+            <q-popup-proxy
+              ref="dateProxy"
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date
+                v-model="formData.date"
+                mask="YYYY-MM-DD"
+                class="bg-block"
+                @update:model-value="() => dateProxy?.hide()"
+              />
+            </q-popup-proxy>
+          </q-input>
+        </div>
         <div class="input-row">
           <div class="input-group">
             <label class="input-label">Start Time</label>
@@ -59,10 +80,31 @@
               outlined
               dense
               rounded
-              type="time"
               placeholder="Start time"
               class="custom-input"
-            />
+              mask="time"
+              fill-mask
+              readonly
+              @click.stop="startTimeProxy?.show()"
+            >
+              <template #append>
+                <q-icon name="schedule" class="cursor-pointer" @click.stop="startTimeProxy?.show()" />
+              </template>
+              <q-popup-proxy
+                ref="startTimeProxy"
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-time
+                  v-model="formData.startTime"
+                  format24h
+                  unelevated
+                  class="bg-block"
+                  @update:model-value="() => startTimeProxy?.hide()"
+                />
+              </q-popup-proxy>
+            </q-input>
           </div>
           <div class="input-group">
             <label class="input-label">End Time</label>
@@ -71,10 +113,31 @@
               outlined
               dense
               rounded
-              type="time"
               placeholder="End time"
               class="custom-input"
-            />
+              mask="time"
+              fill-mask
+              readonly
+              @click.stop="endTimeProxy?.show()"
+            >
+              <template #append>
+                <q-icon name="schedule" class="cursor-pointer" @click.stop="endTimeProxy?.show()" />
+              </template>
+              <q-popup-proxy
+                ref="endTimeProxy"
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-time
+                  v-model="formData.endTime"
+                  format24h
+                  unelevated
+                  class="bg-block"
+                  @update:model-value="() => endTimeProxy?.hide()"
+                />
+              </q-popup-proxy>
+            </q-input>
           </div>
         </div>
         <div class="input-group">
@@ -92,11 +155,13 @@
         </div>
       </q-card-section>
 
-      <q-card-actions class="dialog-actions">
+      <q-card-actions class="dialog-actions bg-block">
         <div class="left-actions">
           <q-btn
             v-if="isEditing"
             round
+            flat
+            class="bg-block"
             color="negative"
             @click="deleteTrip"
             icon="delete"
@@ -104,16 +169,16 @@
           <q-btn
             label="Cancel"
             rounded
-            color="grey-6"
+            unelevated
+            class="bg-block q-btn-min-width"
             @click="closeDialog"
-            class="q-btn-min-width"
           />
         </div>
         <div class="right-actions">
           <q-btn
             :label="isEditing ? 'Update' : 'Add'"
             rounded
-            color="dark"
+            color="primary"
             @click="confirmTrip"
             class="q-btn-min-width"
           />
@@ -156,6 +221,9 @@ const $q = useQuasar();
 
 const isVisible = ref(props.modelValue);
 const formData = ref<TripForm>({ ...props.trip });
+const startTimeProxy = ref();
+const endTimeProxy = ref();
+const dateProxy = ref();
 
 // Watch for external changes to modelValue
 watch(() => props.modelValue, (newValue) => {
@@ -211,75 +279,81 @@ const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
 <style scoped lang="scss">
 .trip-dialog {
   border-radius: 20px 20px 0 0;
-  min-height: 500px;
-  
+  width: 100%;
+  max-width: 500px;
+  min-height: 600px;
+
   .dialog-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
-    border-bottom: 1px solid var(--border-light);
-    
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
     .text-subtitle1 {
       font-weight: 600;
-      color: var(--brand-dark);
+      /* align with CreateBookingDialog header */
     }
   }
-  
+
   .dialog-content {
     padding: 20px;
-    
+
     .input-group {
       margin-bottom: 20px;
-      
+
       .input-label {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
-        color: var(--brand-dark);
         font-size: 14px;
       }
-      
+
       .custom-input {
         width: 100%;
       }
     }
-    
+
     .input-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      margin-bottom: 20px;
     }
   }
-  
+
   .dialog-actions {
-    padding: 10px 20px 20px;
+    padding: 16px 20px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     bottom: 0;
-    background: white;
-    border-top: 1px solid var(--border-light);
     z-index: 10;
-    
+
     .left-actions {
       display: flex;
       gap: 10px;
     }
-    
+
     .right-actions {
       display: flex;
       gap: 10px;
     }
-    
+
     .q-btn {
       font-weight: 600;
     }
 
     .q-btn-min-width {
       min-width: 100px;
+    }
+  }
+}
+
+.body--dark {
+  .trip-dialog {
+    .dialog-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
   }
 }

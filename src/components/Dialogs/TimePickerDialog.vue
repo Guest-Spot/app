@@ -8,7 +8,8 @@
         <div class="text-subtitle1 text-bold">{{ title }}</div>
         <q-btn
           icon="close"
-          color="dark"
+          class="bg-block"
+          text-color="primary"
           round
           dense
           size="sm"
@@ -19,21 +20,22 @@
         <q-time
           v-model="timeValue"
           format24h
-          color="dark"
-          class="full-width"
+          unelevated
+          class="full-width bg-block"
         />
       </q-card-section>
-      <q-card-actions class="dialog-actions">
+      <q-card-actions class="dialog-actions bg-block">
         <q-btn
           label="Отмена"
           rounded
-          color="grey-6"
+          class="bg-block"
+          unelevated
           @click="closeDialog"
         />
         <q-btn
           label="Готово"
           rounded
-          color="dark"
+          color="primary"
           @click="confirmTime"
         />
       </q-card-actions>
@@ -92,37 +94,44 @@ const confirmTime = () => {
 .time-dialog {
   border-radius: 20px 20px 0 0;
   min-height: 400px;
-  
+
   .dialog-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 20px 10px;
-    border-bottom: 1px solid var(--border-light);
-    
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
     .text-h6 {
       font-weight: 600;
-      color: var(--brand-dark);
     }
   }
-  
+
   .dialog-content {
     padding: 20px;
     display: flex;
     justify-content: center;
-    
+
     .q-time {
       max-width: 300px;
     }
   }
-  
+
   .dialog-actions {
-    padding: 10px 20px 20px;
+    padding: 16px 20px 32px;
     justify-content: space-between;
-    
+
     .q-btn {
       min-width: 100px;
       font-weight: 600;
+    }
+  }
+}
+
+.body--dark {
+  .time-dialog {
+    .dialog-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
   }
 }

@@ -1,11 +1,12 @@
 <template>
-  <q-page class="auth-page q-py-md flex column items-start q-gap-md">
+  <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
       <q-btn
         round
+        unelevated
+        text-color="grey-6"
         @click="goBack"
-        class="back-btn"
-        text-color="grey-7"
+        class="bg-block"
       >
         <q-icon name="arrow_back" />
       </q-btn>
@@ -14,7 +15,7 @@
 
     <div class="q-my-auto full-width">
       <div class="container">
-        <div class="content text-center full-width">
+        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
           <q-form @submit="handleLogin" class="login-form">
             <div class="input-group">
               <label class="input-label">Enter your login</label>
@@ -34,7 +35,7 @@
                 </template>
               </q-input>
             </div>
-    
+
             <div class="input-group">
               <label class="input-label">Enter your password</label>
               <q-input
@@ -63,12 +64,11 @@
                 </template>
               </q-input>
             </div>
-    
+
             <div class="button-group q-mt-md">
               <q-btn
                 type="submit"
-                color="dark"
-                class="login-btn full-width"
+                class="login-btn bg-block full-width"
                 :loading="loading"
                 rounded
                 unelevated
@@ -80,9 +80,9 @@
         </div>
 
         <!-- TODO: Add actions section -->
-        <div class="actions-section q-mt-xl">    
+        <div class="actions-section q-mt-xl">
           <div class="text-subtitle1 flex column items-center justify-center q-gap-sm">
-            <span>Don't have an account?</span> 
+            <span>Don't have an account?</span>
             <q-btn flat dense color="primary" rounded label="Contact Support" />
           </div>
         </div>
@@ -113,14 +113,14 @@ const testCredentials = userStore.getTestCredentials('artist');
 
 const handleLogin = async () => {
   loading.value = true;
-  
+
   try {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // Authenticate test user
     const isAuthenticated = userStore.authenticateTestUser(form.value.login, form.value.password, 'artist');
-    
+
     if (isAuthenticated) {
       $q.notify({
         type: 'primary',
@@ -136,7 +136,7 @@ const handleLogin = async () => {
           }
         ]
       });
-      
+
       // Redirect to artist profile
       setTimeout(() => {
         void router.push('/profile');
@@ -144,7 +144,7 @@ const handleLogin = async () => {
     } else {
       throw new Error('Invalid credentials');
     }
-    
+
   } catch (error) {
     console.error('Login error:', error);
     $q.notify({
@@ -178,19 +178,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.content {
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 10px 30px var(--shadow-light);
-  padding: 20px;
-}
-
 .input-label {
   display: block;
   text-align: left;
-  color: var(--text-dark);
   font-size: 14px;
   font-weight: 400;
   line-height: 1.57;
@@ -206,8 +196,6 @@ onMounted(() => {
 }
 
 .login-btn {
-  background: var(--brand-dark);
-  color: white;
   font-weight: 700;
   font-size: 18.8px;
   letter-spacing: 0.6px;

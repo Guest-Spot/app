@@ -12,14 +12,45 @@
   --text-secondary: #{$text-secondary};
   --border-light: #{$border-light};
   --text-dark: #{$text-dark};
-}
+  --bg-block-rgb: 38, 33, 26;
+  --border-radius-xs: 4px;
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 24px;
+  --border-radius-xl: 32px;
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
-body, html {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  // Accend Colors
+  --red-accent: #FF3D00;
+  --blue-accent: #1976D2;
+  --green-accent: #4CAF50;
+  --orange-accent: #FF9800;
+  --purple-accent: #9C27B0;
+  --teal-accent: #009688;
+  --pink-accent: #E91E63;
+  --indigo-accent: #3F51B5;
+
+  // Accent RGB Colors
+  --red-accent-rgb: 255, 61, 0;
+  --blue-accent-rgb: 25, 118, 210;
+  --green-accent-rgb: 76, 175, 80;
+  --orange-accent-rgb: 255, 152, 0;
+  --purple-accent-rgb: 156, 39, 176;
+  --teal-accent-rgb: 0, 150, 136;
+  --pink-accent-rgb: 233, 30, 99;
+  --indigo-accent-rgb: 63, 81, 181;
 }
 
 body.q-ios-padding .q-dialog__inner {
   padding-bottom: 0 !important;
+}
+
+.q-ios-padding .page {
+  padding-top: 70px;
+}
+
+a {
+  text-decoration: none;
 }
 
 #q-app {
@@ -85,36 +116,10 @@ body.q-ios-padding .q-dialog__inner {
   border-radius: 24px;
 }
 
-.custom-input :deep(.q-field__control) {
-  border: 1px solid #D1D1D1;
-  border-radius: 10px;
-  background: #FDFDFD;
-}
-
-.custom-input :deep(.q-field__control:hover) {
-  border-color: #B0B0B0;
-}
-
-.custom-input :deep(.q-field__control--focused) {
-  border-color: #151515;
-  box-shadow: 0 0 0 2px rgba(21, 21, 21, 0.1);
-}
-
-.custom-input :deep(.q-field__native) {
-  color: #696969;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.custom-input :deep(.q-field__native::placeholder) {
-  color: #696969;
-  opacity: 0.8;
-}
-
-.info-expansion {
+.bg-block {
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
+  box-shadow: var(--box-shadow);
 }
 
 .q-btn {
@@ -147,9 +152,17 @@ body.q-ios-padding .q-dialog__inner {
 }
 
 .q-menu,
+.q-time,
+.q-date,
 .q-select__dialog,
 .q-dialog-plugin {
   border-radius: 16px !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid var(--shadow-light);
+}
+
+.body--dark {
+  .bg-block {
+    background: rgba(44, 44, 44, 0.6);
+  }
 }

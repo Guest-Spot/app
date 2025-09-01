@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">

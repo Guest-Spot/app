@@ -1,9 +1,9 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="q-my-auto full-width">
       <div class="container">
         <div class="text-h4 q-mb-lg page-title">Privacy Policy</div>
-        
+
         <div class="privacy-content flex column q-gap-md">
           <q-card class="privacy-card" v-for="(section, index) in privacySections" :key="index">
             <q-card-section class="privacy-section">
@@ -83,7 +83,7 @@ defineOptions({
   border: 1px solid var(--shadow-light);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);

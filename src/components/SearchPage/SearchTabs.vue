@@ -3,8 +3,9 @@
     :tabs="TABS"
     :activeTab="activeTab"
     use-query
+    send-initial-tab
     @setActiveTab="handleTabChange"
-    class="q-mb-lg"
+    class="full-width"
   />
 </template>
 

@@ -1,14 +1,22 @@
 <template>
-  <q-page class="q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
+    <div class="container">
+      <ProfileHeader />
+    </div>
+
     <div class="container">
       <!-- Navigation Tabs -->
       <TabsComp
         :tabs="TABS"
         :activeTab="activeTab"
         use-query
+        send-initial-tab
         @setActiveTab="setActiveTab"
-        class="q-mb-lg"
+        class="full-width"
       />
+    </div>
+
+    <div class="container">
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
@@ -26,9 +34,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { AboutShopTab, ShopArtistsTab } from 'src/components/ProfilePage';
+import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
+import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -46,8 +55,6 @@ const TABS: ITab[] = [
 
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
-
-
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
@@ -114,7 +121,7 @@ const setActiveTab = (tab: ITab) => {
 
 .time-input {
   cursor: pointer;
-  
+
   .q-field__control {
     cursor: pointer;
   }

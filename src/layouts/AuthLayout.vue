@@ -15,8 +15,4 @@
   min-height: 100vh;
   padding-bottom: 32px;
 }
-
-.q-ios-padding .auth-page {
-  padding-top: 70px;
-}
 </style>

@@ -1,15 +1,13 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <div class="image-content q-pa-md">
-      <ImageUploader />
-    </div>
+    <ImageUploader />
 
     <!-- BIO Section -->
     <q-expansion-item
       icon="person"
       label="Basic Information"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -66,7 +64,7 @@
       icon="contact_phone"
       label="Contacts"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -99,7 +97,7 @@
       icon="link"
       label="Links"
       header-class="expansion-header"
-      class="info-expansion"
+      class="bg-block border-radius-lg"
     >
       <div class="info-section">
         <div class="input-group">
@@ -127,23 +125,28 @@
       </div>
     </q-expansion-item>
 
+    <!-- Theme Settings -->
+    <ThemeSettings />
+
     <!-- Save Button -->
     <div class="save-section">
       <q-btn
-        color="dark"
-        class="save-btn full-width"
+        class="full-width bg-block"
         @click="saveChanges"
         rounded
+        size="lg"
         unelevated
-        label="Save changes"
-      />
+      >
+        <q-icon name="save" size="18px" />
+        <span class="q-ml-sm text-subtitle1">Save changes</span>
+      </q-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ImageUploader } from 'src/components';
+import { ImageUploader, ThemeSettings } from 'src/components';
 
 // Form data
 const artistData = ref({
@@ -184,17 +187,8 @@ defineExpose({
 .input-label {
   display: block;
   font-weight: 500;
-  color: var(--brand-dark);
   margin-bottom: 8px;
   font-size: 14px;
-}
-
-.image-content {
-  width: 100%;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  box-shadow: 0 10px 30px var(--shadow-light);
 }
 
 .links-row {
@@ -221,16 +215,5 @@ defineExpose({
 .save-section {
   margin-top: 20px;
   text-align: center;
-}
-
-.save-btn {
-  background: var(--brand-dark);
-  color: white;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 0.6px;
-  text-transform: none;
-  transition: all 0.3s ease;
-  max-width: 300px;
 }
 </style>

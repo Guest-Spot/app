@@ -1,25 +1,24 @@
 <template>
-  <div class="artist-card" @click="navigateToProfile">
-    <div class="artist-avatar">
+  <div class="artist-card bg-block border-radius-md q-pa-md" @click="navigateToProfile">
+    <q-avatar size="80px" class="bg-block">
       <q-img
         :src="artist.avatar || 'https://via.placeholder.com/80x80'"
-        :ratio="1"
+        :ratio="0.85"
         class="avatar-img"
         spinner-color="dark"
         spinner-size="24px"
       />
-    </div>
+    </q-avatar>
     <div class="artist-content">
       <div class="artist-name">{{ artist.name }}</div>
-      <div class="artist-specialty">{{ artist.specialty }}</div>
       <div class="artist-info">
-        <div class="artist-experience">
-          <q-icon name="work" size="14px" color="primary" />
-          <span>{{ artist.experience ? `${artist.experience}+ years` : '2+ years' }}</span>
+        <div class="artist-location text-grey-6">
+          <q-icon name="location_on" size="14px" />
+          <span>{{ artist.location }}</span>
         </div>
-        <div class="artist-status">
-          <q-icon name="circle" size="8px" :color="artist.status === 'available' ? 'positive' : 'warning'" />
-          <span>{{ artist.status === 'available' ? 'Available' : 'Busy' }}</span>
+        <div class="artist-experience text-grey-6">
+          <q-icon name="work" size="14px" />
+          <span>{{ artist.experience ? `${artist.experience}+ years` : '2+ years' }}</span>
         </div>
       </div>
     </div>
@@ -75,12 +74,6 @@ const navigateToProfile = () => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 20px var(--shadow-light);
-  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
 }
 
@@ -88,9 +81,7 @@ const navigateToProfile = () => {
   flex-shrink: 0;
   width: 80px;
   height: 80px;
-  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 15px var(--shadow-light);
 }
 
 .avatar-img {
@@ -107,7 +98,6 @@ const navigateToProfile = () => {
 .artist-name {
   font-size: 18px;
   font-weight: 700;
-  color: var(--brand-dark);
   margin-bottom: 4px;
   line-height: 1.2;
 }
@@ -115,7 +105,6 @@ const navigateToProfile = () => {
 .artist-specialty {
   font-size: 14px;
   font-weight: 600;
-  color: var(--primary);
   margin-bottom: 8px;
   line-height: 1.2;
 }
@@ -127,12 +116,11 @@ const navigateToProfile = () => {
 }
 
 .artist-experience,
-.artist-status {
+.artist-location {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--text-secondary);
   font-weight: 500;
 }
 

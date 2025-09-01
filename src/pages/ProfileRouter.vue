@@ -1,11 +1,11 @@
 <template>
   <div class="profile-router">
     <!-- Shop Profile -->
-    <ProfilePage v-if="userStore.isShop" />
-    
+    <ShopProfile v-if="userStore.isShop" />
+
     <!-- Artist Profile -->
     <ArtistProfile v-else-if="userStore.isArtist" />
-    
+
     <!-- Loading or redirect -->
     <div v-else class="loading-container">
       <q-spinner-dots size="50px" color="dark" />
@@ -18,7 +18,7 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/stores/user-store';
-import ProfilePage from 'src/pages/ProfilePage.vue';
+import ShopProfile from 'src/pages/ShopProfile.vue';
 import ArtistProfile from 'src/pages/ArtistProfile.vue';
 
 const router = useRouter();
@@ -27,7 +27,7 @@ const userStore = useUserStore();
 onMounted(() => {
   // Initialize user store from localStorage
   userStore.initFromStorage();
-  
+
   // If not authenticated, redirect to appropriate login page
   if (!userStore.isAuthenticated) {
     // Check if there was a previous user type to redirect appropriately

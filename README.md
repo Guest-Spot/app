@@ -298,3 +298,16 @@ yarn upgrade
 5. **Deploy**: Distribute through app stores
 
 For detailed configuration, see [quasar.config.ts](quasar.config.ts), [Mobile Configuration Setup](./docs/MOBILE_CONFIG_SETUP.md), and platform-specific configuration files in `src-cordova/` or `src-capacitor/` directories.
+
+
+## Generate icons
+
+```bash
+npx @quasar/icongenie generate -m capacitor \
+  -i ./public/logo-white.png \
+  --png-color 000 \
+  --splashscreen-color 000 \
+  --splashscreen-icon-ratio 35 \
+  --padding 20,20 \
+  --skip-trim
+```

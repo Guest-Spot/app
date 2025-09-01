@@ -1,11 +1,11 @@
 <template>
   <div class="public-portfolio-tab flex column q-gap-md">
     <!-- Portfolio Items -->
-    <div class="portfolio-grid" v-if="portfolioItems.length > 0">
+    <div class="portfolio-grid" v-if="portfolioItems.length">
       <div
         v-for="(work, index) in portfolioItems"
         :key="index"
-        class="portfolio-item"
+        class="portfolio-item bg-block border-radius-md"
       >
         <div class="work-image">
           <q-img
@@ -18,16 +18,14 @@
         </div>
         <div class="work-details">
           <h4 class="work-title">{{ work.title }}</h4>
-          <p class="work-description">{{ work.description }}</p>
+          <p class="work-description text-grey-6">{{ work.description }}</p>
           <div class="work-tags">
             <q-chip
               v-for="tag in work.tags"
               :key="tag"
               :label="tag"
-              color="dark"
-              text-color="white"
               size="sm"
-              class="work-tag"
+              class="work-tag bg-block"
             />
           </div>
         </div>
@@ -35,10 +33,10 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state">
-      <q-icon name="photo_library" size="80px" color="grey-5" />
+    <div v-else class="empty-state bg-block border-radius-lg">
+      <q-icon name="photo_library" size="60px" color="grey-6" />
       <h3 class="empty-title">No portfolio items yet</h3>
-      <p class="empty-description">This artist hasn't added any portfolio items yet</p>
+      <p class="empty-description text-grey-6">This artist hasn't added any portfolio items yet</p>
     </div>
   </div>
 </template>
@@ -71,11 +69,7 @@ defineProps<Props>();
 }
 
 .portfolio-item {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 20px var(--shadow-light);
 }
 
 .work-image {
@@ -99,13 +93,11 @@ defineProps<Props>();
   margin: 0 0 12px 0;
   font-size: 18px;
   font-weight: 700;
-  color: var(--brand-dark);
   line-height: 1.2;
 }
 
 .work-description {
   margin: 0 0 16px 0;
-  color: var(--text-secondary);
   line-height: 1.4;
   font-size: 14px;
 }
@@ -124,21 +116,16 @@ defineProps<Props>();
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
 }
 
 .empty-title {
   margin: 20px 0 12px 0;
   font-size: 20px;
   font-weight: 700;
-  color: var(--brand-dark);
 }
 
 .empty-description {
   margin: 0;
-  color: var(--text-secondary);
   font-size: 16px;
 }
 </style>
