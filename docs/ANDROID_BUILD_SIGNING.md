@@ -128,12 +128,21 @@ echo "APK build and signing completed successfully!"
 
 If your Android SDK is installed in a different location, adjust the path accordingly:
 
+**To find your Android SDK location:**
+- Open Android Studio
+- Go to **Tools > SDK Manager**
+- Navigate to **Android SDK** tab
+- Check the **Android SDK Location** field
+
 ```bash
 # For Windows
 C:\Users\<username>\AppData\Local\Android\Sdk\build-tools\34.0.0\apksigner.bat
 
 # For Linux
 ~/Android/Sdk/build-tools/34.0.0/apksigner
+
+# For macOS (default location)
+~/Library/Android/sdk/build-tools/34.0.0/apksigner
 ```
 
 ## Security Notes
