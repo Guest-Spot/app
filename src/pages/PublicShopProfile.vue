@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-pb-xl flex column items-start q-gap-md">
     <!-- Profile Header Section -->
-    <div class="profile-header q-mb-md relative-position">
+    <div class="profile-header q-mb-md relative-position q-mx-auto">
       <div class="profile-info-container flex column">
 
         <!-- Avatar -->
