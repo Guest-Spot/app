@@ -5,7 +5,7 @@ export interface IShop {
   title: string;
   location: string;
   description: string;
-  avatar: string;
+  pictures: string[];
   phone?: string;
   email?: string;
   dateOpened?: string;
@@ -14,5 +14,4 @@ export interface IShop {
   pricing?: string;
   instagram?: string;
   facebook?: string;
-  addedAt?: number;
 };

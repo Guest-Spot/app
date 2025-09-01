@@ -7,7 +7,6 @@ export interface IArtist {
   username?: string;
   email?: string;
   avatar?: string;
-  addedAt?: number;
   experience?: number;
   location?: string;
   status?: string;

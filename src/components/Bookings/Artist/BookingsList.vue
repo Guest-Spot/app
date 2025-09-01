@@ -199,7 +199,7 @@ onMounted(() => {
       shop: {
         id: 1,
         title: 'Tattoo Studio',
-        avatar: 'shops/shop1.jpg',
+        pictures: ['shops/shop1.jpg'],
       },
     },
     {
@@ -220,7 +220,7 @@ onMounted(() => {
       shop: {
         id: 3,
         title: 'Art Gallery',
-        avatar: 'shops/shop2.jpg',
+        pictures: ['shops/shop2.jpg'],
       },
     },
     {
@@ -241,7 +241,7 @@ onMounted(() => {
       shop: {
         id: 3,
         title: 'Art Gallery',
-        avatar: 'shops/shop3.webp',
+        pictures: ['shops/shop3.webp'],
       },
     },
     {
@@ -262,7 +262,7 @@ onMounted(() => {
       shop: {
         id: 5,
         title: 'Tattoo Studio',
-        avatar: 'shops/shop4.jpg',
+        pictures: ['shops/shop4.jpg'],
       },
     },
   ];

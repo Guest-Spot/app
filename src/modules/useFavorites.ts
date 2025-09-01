@@ -1,4 +1,4 @@
-import { ref, computed, watch, readonly } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
 
@@ -14,11 +14,11 @@ const loadFavorites = () => {
   try {
     const shopsData = localStorage.getItem(STORAGE_KEY_SHOPS);
     const artistsData = localStorage.getItem(STORAGE_KEY_ARTISTS);
-    
+
     if (shopsData) {
       favoriteShops.value = JSON.parse(shopsData);
     }
-    
+
     if (artistsData) {
       favoriteArtists.value = JSON.parse(artistsData);
     }
@@ -45,12 +45,9 @@ watch(favoriteArtists, saveFavorites, { deep: true });
 const totalFavorites = computed(() => favoriteShops.value.length + favoriteArtists.value.length);
 
 // Methods
-const addShopToFavorites = (shop: Omit<IShop, 'addedAt'>) => {
-  const favoriteShop: IShop = {
-    ...shop,
-    addedAt: Date.now()
-  };
-  
+const addShopToFavorites = (shop: IShop) => {
+  const favoriteShop: IShop = shop;
+
   if (!favoriteShops.value.find(s => s.id === shop.id)) {
     favoriteShops.value.push(favoriteShop);
   }
@@ -63,12 +60,9 @@ const removeShopFromFavorites = (shopId: number) => {
   }
 };
 
-const addArtistToFavorites = (artist: Omit<IArtist, 'addedAt'>) => {
-  const favoriteArtist: IArtist = {
-    ...artist,
-    addedAt: Date.now()
-  };
-  
+const addArtistToFavorites = (artist: IArtist) => {
+  const favoriteArtist: IArtist = artist;
+
   if (!favoriteArtists.value.find(a => a.id === artist.id)) {
     favoriteArtists.value.push(favoriteArtist);
   }
@@ -89,7 +83,7 @@ const isArtistFavorite = (artistId: number) => {
   return favoriteArtists.value.some(a => a.id === artistId);
 };
 
-const toggleShopFavorite = (shop: Omit<IShop, 'addedAt'>) => {
+const toggleShopFavorite = (shop: IShop) => {
   if (isShopFavorite(shop.id)) {
     removeShopFromFavorites(shop.id);
   } else {
@@ -97,7 +91,7 @@ const toggleShopFavorite = (shop: Omit<IShop, 'addedAt'>) => {
   }
 };
 
-const toggleArtistFavorite = (artist: Omit<IArtist, 'addedAt'>) => {
+const toggleArtistFavorite = (artist: IArtist) => {
   if (isArtistFavorite(artist.id)) {
     removeArtistFromFavorites(artist.id);
   } else {
@@ -116,12 +110,12 @@ loadFavorites();
 export function useFavorites() {
   return {
     // State
-    favoriteShops: readonly(favoriteShops),
-    favoriteArtists: readonly(favoriteArtists),
-    
+    favoriteShops: favoriteShops,
+    favoriteArtists: favoriteArtists,
+
     // Computed
     totalFavorites,
-    
+
     // Methods
     addShopToFavorites,
     removeShopFromFavorites,

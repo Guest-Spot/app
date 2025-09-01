@@ -163,6 +163,7 @@ const shopData = ref({
   workingHoursEnd: '22:00',
   instagram: 'https://instagram.com/inkparadise_ny',
   facebook: 'https://facebook.com/inkparadise.ny',
+  pictures: ['shops/shop1.jpg', 'shops/shop2.jpg', 'shops/shop3.webp'],
 });
 
 // Mock working hours
