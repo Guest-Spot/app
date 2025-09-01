@@ -30,17 +30,6 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Venue</label>
-          <q-input
-            v-model="formData.venue"
-            outlined
-            dense
-            rounded
-            placeholder="Enter venue name"
-            class="custom-input"
-          />
-        </div>
-        <div class="input-group">
           <label class="input-label">Date</label>
           <q-input
             v-model="formData.date"
@@ -191,27 +180,17 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useQuasar } from 'quasar';
-
-interface TripForm {
-  id: number;
-  location: string;
-  date: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  description: string;
-  photos: string[];
-}
+import type { ITripForm, ITrip } from 'src/interfaces/trip';
 
 interface Props {
   modelValue: boolean;
-  trip: TripForm;
+  trip: ITrip;
   isEditing: boolean;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'confirm', trip: TripForm): void;
+  (e: 'confirm', trip: ITripForm): void;
   (e: 'delete', tripId: number): void;
 }
 
@@ -220,7 +199,7 @@ const emit = defineEmits<Emits>();
 const $q = useQuasar();
 
 const isVisible = ref(props.modelValue);
-const formData = ref<TripForm>({ ...props.trip });
+const formData = ref<ITripForm>({ ...props.trip });
 const startTimeProxy = ref();
 const endTimeProxy = ref();
 const dateProxy = ref();

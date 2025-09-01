@@ -44,8 +44,8 @@
               <span class="info-value text-grey-6">{{ trip.date }}</span>
             </div>
             <div class="info-row">
-              <span class="info-label">Venue:</span>
-              <span class="info-value text-grey-6">{{ trip.venue }}</span>
+              <span class="info-label">Location:</span>
+              <span class="info-value text-grey-6">{{ trip.location }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Start time:</span>
@@ -59,21 +59,6 @@
 
           <div class="trip-description">
             <p>{{ trip.description }}</p>
-          </div>
-
-          <div class="trip-photos hidden" v-if="trip.photos && trip.photos.length > 0">
-            <h5 class="photos-title">Photos from this trip:</h5>
-            <div class="photos-grid">
-              <q-img
-                v-for="(photo, photoIndex) in trip.photos"
-                :key="photoIndex"
-                :src="photo"
-                :ratio="1"
-                class="trip-photo"
-                spinner-color="primary"
-                spinner-size="32px"
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -107,115 +92,114 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TripDialog from 'src/components/Dialogs/TripDialog.vue';
-
-interface Trip {
-  id: number;
-  location: string;
-  date: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  description: string;
-  photos: string[];
-}
-
-interface TripForm {
-  id: number;
-  location: string;
-  date: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  description: string;
-  photos: string[];
-}
+import type { ITrip, ITripForm } from 'src/interfaces/trip';
 
 // Mock trips data
-const trips = ref<Trip[]>([
+const trips = ref<ITrip[]>([
   {
     id: 1,
+    uuid: '1',
+    title: 'Go to New York',
     location: 'New York, NY',
     date: '2024-01-15',
-    venue: 'Madison Square Garden',
     startTime: '20:00',
     endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
-    photos: [
-      'examples/example1.jpg',
-      'examples/example2.jpeg'
-    ]
+    artist: {
+      id: 1,
+      uuid: '1',
+      name: 'John Doe',
+      bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
+      avatar: 'artists/artist1.jpeg'
+    }
   },
   {
     id: 2,
+    uuid: '2',
+    title: 'Go to Los Angeles',
     location: 'Los Angeles, CA',
     date: '2024-02-20',
-    venue: 'The Hollywood Bowl',
     startTime: '19:30',
     endTime: '21:45',
     description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
-    photos: []
+    artist: {
+      id: 2,
+      uuid: '2',
+      name: 'Jane Smith',
+      bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
+      avatar: 'artists/artist2.jpg'
+    }
   },
   {
     id: 3,
+    uuid: '3',
+    title: 'Go to Miami',
     location: 'Miami, FL',
     date: '2024-01-30',
-    venue: 'American Airlines Arena',
     startTime: '23:00',
     endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
-    photos: [
-      'examples/example1.jpg',
-      'examples/example2.jpeg'
-    ]
+    artist: {
+      id: 3,
+      uuid: '3',
+      name: 'Mike Johnson',
+      bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
+      avatar: 'artists/artist3.jpg'
+    }
   }
 ]);
 
 // Dialog state
 const showTripDialog = ref(false);
 const isEditingTrip = ref(false);
-const currentTrip = ref<TripForm>({
+const currentTrip = ref<ITrip>({
   id: 0,
+  uuid: '',
   location: '',
   date: '',
-  venue: '',
   startTime: '',
   endTime: '',
   description: '',
-  photos: []
+  title: '',
+  artist: {
+    id: 0,
+    uuid: '',
+    name: '',
+    bio: '',
+    avatar: ''
+  }
 });
 
 const addNewTrip = () => {
   isEditingTrip.value = false;
   currentTrip.value = {
     id: Date.now(), // Generate temporary ID
+    uuid: '',
     location: '',
     date: '',
-    venue: '',
     startTime: '',
     endTime: '',
     description: '',
-    photos: []
+    title: '',
+    artist: {
+      id: 0,
+      uuid: '',
+      name: '',
+      bio: '',
+      avatar: ''
+    }
   };
   showTripDialog.value = true;
 };
 
 const editTrip = (index: number) => {
   isEditingTrip.value = true;
-  currentTrip.value = { ...trips.value[index] } as TripForm;
+  currentTrip.value = { ...trips.value[index] } as ITrip;
   showTripDialog.value = true;
 };
 
-const handleTripConfirm = (trip: TripForm) => {
-  if (isEditingTrip.value) {
-    // Update existing trip
-    const index = trips.value.findIndex(t => t.id === trip.id);
-    if (index !== -1) {
-      trips.value[index] = { ...trip };
-    }
-  } else {
-    // Add new trip
-    trips.value.push({ ...trip });
-  }
+const handleTripConfirm = (trip: ITripForm) => {
+  console.log('trip', trip);
 };
 
 // Expose data for parent component

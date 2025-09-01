@@ -6,6 +6,7 @@ type BookingType = 'shop-to-artist' | 'artist-to-shop';
 
 export interface IBooking {
   id: number;
+  uuid: string;
   title: string;
   description: string;
   shopId: number;

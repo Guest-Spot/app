@@ -1,13 +1,7 @@
 <template>
   <div class="shop-card bg-block border-radius-md" @click="$emit('click', shop)">
     <div class="shop-image">
-      <q-img
-        :src="shop.avatar || 'https://via.placeholder.com/300x200'"
-        :ratio="16/9"
-        class="shop-img"
-        spinner-color="dark"
-        spinner-size="32px"
-      />
+      <ImageCarousel :pictures="shop.pictures" />
     </div>
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
@@ -37,8 +31,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useFavorites } from '../../modules/useFavorites';
+import { useFavorites } from 'src/modules/useFavorites';
 import type { IShop } from 'src/interfaces/shop';
+import ImageCarousel from 'src/components/SearchPage/ImageCarousel.vue';
 
 interface Props {
   shop: IShop;
@@ -56,9 +51,15 @@ const { isShopFavorite, toggleShopFavorite } = useFavorites();
 
 const isFavorite = computed(() => isShopFavorite(props.shop.id));
 
+const formatTime = (time: string): string => {
+  if (!time) return '';
+  // Remove seconds from time format hh:mm:ss -> hh:mm
+  return time.split(':').slice(0, 2).join(':');
+};
+
 const workingHoursText = computed(() => {
   if (props.shop.workingHoursStart && props.shop.workingHoursEnd) {
-    return `${props.shop.workingHoursStart} - ${props.shop.workingHoursEnd}`;
+    return `${formatTime(props.shop.workingHoursStart)} - ${formatTime(props.shop.workingHoursEnd)}`;
   }
   return '9:00 - 18:00';
 });
@@ -66,11 +67,12 @@ const workingHoursText = computed(() => {
 const toggleFavorite = () => {
   const shopData = {
     id: props.shop.id,
+    uuid: props.shop.uuid,
     username: props.shop.username,
     title: props.shop.title,
     location: props.shop.location,
     description: props.shop.description,
-    avatar: props.shop.avatar,
+    pictures: props.shop.pictures,
     ...(props.shop.phone && { phone: props.shop.phone }),
     ...(props.shop.email && { email: props.shop.email }),
     ...(props.shop.dateOpened && { dateOpened: props.shop.dateOpened }),
@@ -93,12 +95,6 @@ const toggleFavorite = () => {
 
 .shop-image {
   position: relative;
-}
-
-.shop-img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
 }
 
 .shop-details {

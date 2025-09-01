@@ -3,8 +3,9 @@
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
+          v-if="shop?.pictures?.[0]"
           class="full-width"
-          :src="shop?.avatar"
+          :src="shop.pictures[0]"
           fit="cover"
           spinner-color="dark"
           spinner-size="16px"

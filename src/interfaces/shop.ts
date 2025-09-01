@@ -1,10 +1,11 @@
 export interface IShop {
   id: number;
+  uuid: string;
   username: string;
   title: string;
   location: string;
   description: string;
-  avatar: string;
+  pictures: string[];
   phone?: string;
   email?: string;
   dateOpened?: string;
@@ -13,5 +14,4 @@ export interface IShop {
   pricing?: string;
   instagram?: string;
   facebook?: string;
-  addedAt?: number;
 };

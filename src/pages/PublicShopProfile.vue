@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-pb-xl flex column items-start q-gap-md">
     <!-- Profile Header Section -->
-    <div class="profile-header q-mb-md relative-position">
+    <div class="profile-header q-mb-md relative-position q-mx-auto">
       <div class="profile-info-container flex column">
 
         <!-- Avatar -->
@@ -149,6 +149,7 @@ const setActiveTab = (tab: ITab) => {
 // Mock shop data - в реальном приложении будет загружаться по ID
 const shopData = ref({
   id: 1,
+  uuid: '1',
   username: 'ink_paradise',
   location: 'Downtown, NY',
   status: 'Open for business',
@@ -162,6 +163,7 @@ const shopData = ref({
   workingHoursEnd: '22:00',
   instagram: 'https://instagram.com/inkparadise_ny',
   facebook: 'https://facebook.com/inkparadise.ny',
+  pictures: ['shops/shop1.jpg', 'shops/shop2.jpg', 'shops/shop3.webp'],
 });
 
 // Mock working hours
@@ -174,18 +176,21 @@ const workingHours = ref({
 const artists = ref<IArtist[]>([
   {
     id: 1,
+    uuid: '1',
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
     avatar: 'artists/artist1.jpeg'
   },
   {
     id: 2,
+    uuid: '2',
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
     avatar: 'artists/artist2.jpg'
   },
   {
     id: 3,
+    uuid: '3',
     name: 'Mike Johnson',
     bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
     avatar: 'artists/artist3.jpg'

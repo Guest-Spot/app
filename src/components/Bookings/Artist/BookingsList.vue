@@ -183,6 +183,7 @@ onMounted(() => {
   bookings.value = [
     {
       id: 1,
+      uuid: '1',
       title: 'Tattoo Session Request',
       description: 'I would like to visit your shop and ...',
       shopId: 1,
@@ -198,11 +199,12 @@ onMounted(() => {
       shop: {
         id: 1,
         title: 'Tattoo Studio',
-        avatar: 'shops/shop1.jpg',
+        pictures: ['shops/shop1.jpg'],
       },
     },
     {
       id: 2,
+      uuid: '2',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
       shopId: 3,
@@ -218,11 +220,12 @@ onMounted(() => {
       shop: {
         id: 3,
         title: 'Art Gallery',
-        avatar: 'shops/shop2.jpg',
+        pictures: ['shops/shop2.jpg'],
       },
     },
     {
       id: 3,
+      uuid: '3',
       title: 'Master Class',
       description: 'Need a master class in tattooing',
       shopId: 2,
@@ -238,11 +241,12 @@ onMounted(() => {
       shop: {
         id: 3,
         title: 'Art Gallery',
-        avatar: 'shops/shop3.webp',
+        pictures: ['shops/shop3.webp'],
       },
     },
     {
       id: 4,
+      uuid: '4',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
       shopId: 3,
@@ -258,7 +262,7 @@ onMounted(() => {
       shop: {
         id: 5,
         title: 'Tattoo Studio',
-        avatar: 'shops/shop4.jpg',
+        pictures: ['shops/shop4.jpg'],
       },
     },
   ];
