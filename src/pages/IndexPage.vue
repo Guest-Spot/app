@@ -42,7 +42,14 @@
 
         <!-- Artists Tab Content -->
         <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
-          <div v-if="filteredArtists.length" class="flex column q-gap-md">
+          <LoadingState
+            v-if="isLoadingArtists && !filteredArtists.length"
+            :is-loading="isLoadingArtists"
+            title="Loading artists..."
+            description="Please wait while we fetch the latest artists"
+            spinner-name="dots"
+          />
+          <div v-else-if="filteredArtists.length" class="flex column q-gap-md">
             <ArtistCard
               v-for="artist in filteredArtists"
               :key="artist.uuid"
@@ -72,6 +79,7 @@ import type { IArtist } from 'src/interfaces/artist';
 import NoResult from 'src/components/NoResult.vue';
 import LoadingState from 'src/components/LoadingState.vue';
 import useShops from 'src/modules/useShops';
+import useArtists from 'src/modules/useArtists';
 
 // Router
 const router = useRouter();
@@ -96,38 +104,7 @@ const activeFilters = ref<SearchFilters>({
 });
 
 const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
-
-// Mock data for artists
-const artists = ref([
-  {
-    uuid: '1',
-    name: 'Sarah Chen',
-    bio: 'Specializing in Irezumi and modern Japanese styles',
-    avatar: 'artists/artist1.jpeg',
-    location: 'New York, NY'
-  },
-  {
-    uuid: '2',
-    name: 'Mike Rodriguez',
-    bio: 'Portrait and realistic tattoo artist with 8 years experience',
-    avatar: 'artists/artist2.jpg',
-    location: 'Los Angeles, CA'
-  },
-  {
-    uuid: '3',
-    name: 'Emma Thompson',
-    bio: 'Creative artist specializing in unique watercolor designs',
-    avatar: 'artists/artist3.jpg',
-    location: 'Chicago, IL'
-  },
-  {
-    uuid: '4',
-    name: 'Alex Johnson',
-    bio: 'Clean lines and precise geometric tattoo designs',
-    avatar: 'artists/artist4.jpg',
-    location: 'San Francisco, CA'
-  }
-]);
+const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
 
 // Computed properties for filtered results
 const filteredShops = computed(() => {
@@ -169,20 +146,22 @@ const filteredArtists = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(artist =>
       artist.name.toLowerCase().includes(query) ||
-      artist.bio.toLowerCase().includes(query)
+      artist.bio.toLowerCase().includes(query) ||
+      (artist.location && artist.location.toLowerCase().includes(query))
     );
   }
 
-  // Apply location filter (if artists have locations)
+  // Apply location filter
   if (activeFilters.value.location) {
-    // For now, we'll skip location filter for artists as they don't have location field
-    // In the future, you can add location field to artists
+    filtered = filtered.filter(artist =>
+      artist.location && artist.location === activeFilters.value.location
+    );
   }
 
   // Apply category filter
   if (activeFilters.value.category) {
     filtered = filtered.filter(artist =>
-      artist.location.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
+      artist.bio.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
     );
   }
 
@@ -211,5 +190,6 @@ const updateFilters = (filters: SearchFilters) => {
 
 onBeforeMount(() => {
   void fetchShops();
+  void fetchArtists();
 });
 </script>
