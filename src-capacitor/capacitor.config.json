@@ -10,9 +10,7 @@
     "allowNavigation": [
       "*.yourdomain.com",
       "*.googleapis.com"
-    ],
-    "url": "http://192.168.20.51:9500",
-    "cleartext": true
+    ]
   },
   "plugins": {
     "SplashScreen": {

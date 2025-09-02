@@ -28,6 +28,8 @@
           text-color="primary"
           @click="copyLink(item.value)"
         />
+
+        <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
       </div>
     </div>
   </div>

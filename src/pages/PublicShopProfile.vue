@@ -1,19 +1,17 @@
 <template>
   <q-page class="page q-pb-xl flex column items-start q-gap-md">
     <!-- Profile Header Section -->
-    <div class="profile-header q-mb-md relative-position q-mx-auto">
+    <div class="profile-header q-mb-md relative-position q-mx-auto full-width">
       <div class="profile-info-container flex column">
 
-        <!-- Avatar -->
-        <div class="profile-picture">
-          <q-img
-            v-if="shopData.avatar"
-            :src="shopData.avatar"
-            :ratio="1"
-            spinner-color="dark"
-            spinner-size="32px"
+        <!-- Pictures Carousel or Avatar -->
+        <div class="profile-carousel">
+          <ImageCarousel
+            v-if="shopData.pictures && shopData.pictures.length > 0"
+            :pictures="shopData.pictures"
+            height="200px"
           />
-          <q-icon v-else name="store" size="80px" color="grey-6" />
+          <q-skeleton v-else height="200px" square />
         </div>
 
         <!-- Back Button -->
@@ -23,7 +21,7 @@
           dense
           icon="chevron_left"
           @click="$router.back()"
-          class="bg-block absolute-top-left q-ma-md"
+          class="bg-block absolute-top-left q-ma-md q-z-2"
         >
         </q-btn>
 
@@ -34,7 +32,7 @@
           dense
           :color="isFavorite ? 'red' : 'grey-6'"
           @click="toggleFavorite"
-          class="favorite-btn bg-block absolute-top-right q-ma-md"
+          class="favorite-btn bg-block absolute-top-right q-ma-md q-z-2"
         >
           <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
           <q-icon v-else name="favorite_border" size="18px" color="red" />
@@ -43,9 +41,16 @@
         <!-- User Details -->
         <div class="container">
           <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
-            <div class="flex column items-center">
-              <span class="full-name text-h6">{{ shopData.title }}</span>
-              <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
+            <div class="flex column items-center full-width">
+              <template v-if="shopData.title || shopData.description">
+                <span class="full-name text-h6">{{ shopData.title }}</span>
+                <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
+              </template>
+              <template v-else>
+                <q-skeleton type="text" width="50%" height="20px" />
+                <q-skeleton type="text" width="100%" height="20px" />
+                <q-skeleton type="text" width="100%" height="20px" />
+              </template>
             </div>
             <div class="flex justify-center q-gap-sm full-width no-wrap">
               <q-btn
@@ -53,6 +58,7 @@
                 text-color="primary"
                 unelevated
                 rounded
+                :disable="!shopData.uuid"
                 @click="openBookingDialog"
               >
                 <span class="text-body2">Booking request</span>
@@ -74,6 +80,7 @@
            send-initial-tab
            @setActiveTab="setActiveTab"
            size="sm"
+           :disable="!shopData.uuid"
          />
        </div>
 
@@ -106,18 +113,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import type { IArtist } from 'src/interfaces/artist';
 import type { IBooking } from 'src/interfaces/booking';
+import type { IShop } from 'src/interfaces/shop';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
 import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useFavorites } from 'src/modules/useFavorites';
+import useShops from 'src/modules/useShops';
 import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
+import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
+const { fetchShopByUuid } = useShops();
+const route = useRoute();
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -145,32 +158,30 @@ const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
 
-// Mock shop data - в реальном приложении будет загружаться по ID
-const shopData = ref({
-  uuid: '1',
-  username: 'ink_paradise',
-  location: 'Downtown, NY',
-  status: 'Open for business',
-  description: 'Professional tattoo studio with 15+ years of experience in creating unique and beautiful tattoos.',
-  avatar: 'shops/shop1.jpg',
-  title: 'Ink Paradise',
-  phone: '+1 (555) 123-4567',
-  email: 'info@inkparadise.com',
-  dateOpened: '2009-03-15',
-  workingHoursStart: '10:00',
-  workingHoursEnd: '22:00',
-  instagram: 'https://instagram.com/inkparadise_ny',
-  facebook: 'https://facebook.com/inkparadise.ny',
-  pictures: ['shops/shop1.jpg', 'shops/shop2.jpg', 'shops/shop3.webp'],
+// Shop data from Supabase
+const shopData = ref<IShop>({
+  uuid: '',
+  username: '',
+  location: '',
+  description: '',
+  title: '',
+  phone: '',
+  email: '',
+  dateOpened: '',
+  workingHoursStart: '',
+  workingHoursEnd: '',
+  instagram: '',
+  facebook: '',
+  pictures: [],
 });
 
-// Mock working hours
+// Working hours
 const workingHours = ref({
-  start: '10:00',
-  end: '22:00'
+  start: '',
+  end: ''
 });
 
-// Mock artists data
+// Artists data
 const artists = ref<IArtist[]>([
   {
     uuid: '1',
@@ -192,7 +203,7 @@ const artists = ref<IArtist[]>([
   }
 ]);
 
-// Mock portfolio data
+// Portfolio data
 const portfolioItems = ref([
   {
     uuid: '1',
@@ -236,6 +247,30 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
   console.log('Booking submitted:', bookingData);
   showBookingDialog.value = false;
 };
+
+// Fetch shop data on component mount
+const loadShopData = async () => {
+  const uuid = route.params.id as string;
+  if (uuid) {
+    const data = await fetchShopByUuid(uuid);
+    if (data) {
+      shopData.value = data;
+
+      // Update working hours
+      workingHours.value = {
+        start: data.workingHoursStart || '',
+        end: data.workingHoursEnd || ''
+      };
+
+      // In a real application, you would also fetch artists and portfolio items related to this shop
+      // For now we'll keep the mock data for these sections
+    }
+  }
+};
+
+onMounted(async () => {
+  await loadShopData();
+});
 </script>
 
 <style scoped lang="scss">
@@ -248,21 +283,17 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
 }
 
 .profile-info-container {
+  width: 100%;
   display: flex;
   align-items: center;
   overflow: hidden;
 }
 
-.profile-picture {
+.profile-carousel {
   width: 100%;
-  height: 200px;
+  min-height: 200px;
   overflow: hidden;
-
-  :deep(.q-img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  z-index: 1;
 }
 
 .detail-row {

@@ -11,17 +11,7 @@
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType } from 'src/interfaces/enums';
-
-interface ShopData {
-  title: string;
-  description: string;
-  location: string;
-  phone: string;
-  email: string;
-  dateOpened: string;
-  instagram: string;
-  facebook: string;
-}
+import type { IShop } from 'src/interfaces/shop';
 
 interface WorkingHours {
   start: string;
@@ -29,7 +19,7 @@ interface WorkingHours {
 }
 
 interface Props {
-  shopData: ShopData;
+  shopData: IShop;
   workingHours: WorkingHours;
 }
 
@@ -38,16 +28,16 @@ const props = defineProps<Props>();
 const contacts = computed(() => ([
   {
     label: 'Location',
-    value: props.shopData.location,
+    value: props.shopData.location || '',
   },
   {
     label: 'Phone',
-    value: props.shopData.phone,
+    value: props.shopData.phone || '',
     type: InfoItemType.Phone,
   },
   {
     label: 'Email',
-    value: props.shopData.email,
+    value: props.shopData.email || '',
     type: InfoItemType.Email,
   },
 ]));
@@ -55,31 +45,31 @@ const contacts = computed(() => ([
 const workingHours = computed(() => ([
   {
     label: 'Start',
-    value: props.workingHours.start,
+    value: props.workingHours.start || '',
   },
   {
     label: 'End',
-    value: props.workingHours.end,
+    value: props.workingHours.end || '',
   },
 ]));
 
 const additionalInfo = computed(() => ([
   {
     label: 'Date Opened',
-    value: props.shopData.dateOpened,
+    value: props.shopData.dateOpened || '',
   },
 ]));
 
 const links = computed(() => ([
   {
     label: 'Instagram',
-    value: props.shopData.instagram,
+    value: props.shopData.instagram || '',
     type: InfoItemType.Link,
   },
   {
     label: 'Facebook',
-    value: props.shopData.facebook,
+    value: props.shopData.facebook || '',
     type: InfoItemType.Link,
   },
-]));
+].filter(link => !!link.value)));
 </script>
