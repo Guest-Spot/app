@@ -26,7 +26,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { formatTime } = useDate();
+const { formatTime, formatDate } = useDate();
 
 const contacts = computed(() => ([
   {
@@ -59,7 +59,7 @@ const workingHours = computed(() => ([
 const additionalInfo = computed(() => ([
   {
     label: 'Date Opened',
-    value: props.shopData.dateOpened || '',
+    value: formatDate(props.shopData.dateOpened || '') || '',
   },
 ]));
 
