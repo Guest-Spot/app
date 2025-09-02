@@ -19,7 +19,7 @@
         </a>
         <span v-else class="info-value text-grey-6">{{ item.value }}</span>
         <q-btn
-          v-if="item.type === InfoItemType.Link"
+          v-if="item.value && item.type === InfoItemType.Link"
           icon="content_copy"
           size="sm"
           round

@@ -9,4 +9,5 @@ export interface IArtist {
   experience?: number;
   location?: string;
   status?: string;
+  instagram?: string;
 }

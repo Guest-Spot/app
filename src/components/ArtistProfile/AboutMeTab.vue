@@ -22,14 +22,14 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Fullname</label>
+          <label class="input-label">Name</label>
           <q-input
             outlined
             dense
             rounded
-            placeholder="Enter fullname"
+            placeholder="Enter name"
             class="custom-input"
-            v-model="artistData.fullname"
+            v-model="artistData.name"
           />
         </div>
         <div class="input-group">
@@ -151,7 +151,7 @@ import { ImageUploader, ThemeSettings } from 'src/components';
 // Form data
 const artistData = ref({
   username: 'artist_john',
-  fullname: 'John Doe',
+  name: 'John Doe',
   status: 'Available for bookings',
   bio: 'Passionate artist with 5+ years of experience in live performances and studio recordings.',
   phone: '+1 (555) 123-4567',

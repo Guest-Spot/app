@@ -2,7 +2,7 @@
   <div class="public-about-me-tab flex column q-gap-md full-width">
     <InfoCard title="Basic Information" icon="person" :data="basicInformation" />
     <InfoCard title="Contacts" icon="contact_phone" :data="contacts" />
-    <InfoCard title="Social Links" icon="link" :data="socialLinks" />
+    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
   </div>
 </template>
 
@@ -10,20 +10,10 @@
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType } from 'src/interfaces/enums';
-
-interface ArtistData {
-  username: string;
-  fullname: string;
-  status: string;
-  bio: string;
-  phone: string;
-  email: string;
-  instagram: string;
-  facebook: string;
-}
+import type { IArtist } from 'src/interfaces/artist';
 
 interface Props {
-  artistData: ArtistData;
+  artistData: IArtist;
 }
 
 const props = defineProps<Props>();
@@ -31,44 +21,43 @@ const props = defineProps<Props>();
 const basicInformation = computed(() => ([
   {
     label: 'Username',
-    value: props.artistData.username,
+    value: props.artistData.username || '',
   },
   {
-    label: 'Fullname',
-    value: props.artistData.fullname,
+    label: 'name',
+    value: props.artistData.name || '',
   },
   {
     label: 'Status',
-    value: props.artistData.status,
+    value: props.artistData.status || '',
   },
   {
     label: 'Bio',
-    value: props.artistData.bio,
+    value: props.artistData.bio || '',
   },
 ]));
 
 const contacts = computed(() => ([
   {
+    label: 'Location',
+    value: props.artistData.location || '',
+  },
+  {
     label: 'Phone',
-    value: props.artistData.phone,
+    value: props.artistData.phone || '',
     type: InfoItemType.Phone,
   },
   {
     label: 'Email',
-    value: props.artistData.email,
+    value: props.artistData.email || '',
     type: InfoItemType.Email,
   },
 ]));
 
-const socialLinks = computed(() => ([
+const links = computed(() => ([
   {
     label: 'Instagram',
-    value: props.artistData.instagram,
-    type: InfoItemType.Link,
-  },
-  {
-    label: 'Facebook',
-    value: props.artistData.facebook,
+    value: props.artistData.instagram || '',
     type: InfoItemType.Link,
   },
 ]));
