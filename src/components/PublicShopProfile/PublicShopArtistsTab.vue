@@ -6,6 +6,14 @@
         <h3 class="text-subtitle1 text-bold q-my-none">Shop Artists ({{ artists.length }})</h3>
       </div>
 
+      <LoadingState
+        v-if="loading && !artists.length"
+        :is-loading="loading"
+        title="Loading artists..."
+        description="Please wait while we fetch the latest artists"
+        spinner-name="dots"
+      />
+
       <!-- Artists Grid -->
       <div class="artists-grid" v-if="artists.length">
         <ArtistCard
@@ -18,11 +26,12 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="empty-state bg-block border-radius-lg">
-        <q-icon name="people" size="60px" color="grey-6" />
-        <h3 class="empty-title">No Artists Yet</h3>
-        <p class="empty-description text-grey-6">This shop hasn't added any artists yet</p>
-      </div>
+      <NoResult
+        v-else
+        icon="people"
+        title="No Artists Yet"
+        description="This shop hasn't added any artists yet"
+      />
     </div>
   </div>
 </template>
@@ -31,9 +40,12 @@
 import { ArtistCard } from '../SearchPage/index';
 import { useRouter } from 'vue-router';
 import type { IArtist } from '../../interfaces/artist';
+import LoadingState from 'src/components/LoadingState.vue';
+import NoResult from 'src/components/NoResult.vue';
 
 interface Props {
   artists: IArtist[];
+  loading: boolean;
 }
 
 const router = useRouter();

@@ -76,7 +76,6 @@
          <TabsComp
            :tabs="TABS"
            :activeTab="activeTab"
-           use-query
            send-initial-tab
            @setActiveTab="setActiveTab"
            size="sm"
@@ -94,7 +93,10 @@
           />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <PublicShopArtistsTab :artists="artists" />
+          <PublicShopArtistsTab
+            :artists="artists"
+            :loading="isLoading"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicShopPortfolioTab
@@ -134,7 +136,7 @@ import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue'
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
-const { fetchShopByUuid } = useShops();
+const { fetchShopByUuid, fetchShopArtists, isLoading } = useShops();
 const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
 
@@ -188,26 +190,7 @@ const workingHours = ref({
 });
 
 // Artists data
-const artists = ref<IArtist[]>([
-  {
-    uuid: '1',
-    name: 'John Doe',
-    bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
-    avatar: 'artists/artist1.jpeg'
-  },
-  {
-    uuid: '2',
-    name: 'Jane Smith',
-    bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
-    avatar: 'artists/artist2.jpg'
-  },
-  {
-    uuid: '3',
-    name: 'Mike Johnson',
-    bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
-    avatar: 'artists/artist3.jpg'
-  }
-]);
+const artists = ref<IArtist[]>([]);
 
 // Portfolio data
 const portfolioItems = ref<IPortfolio[]>([]);
@@ -245,8 +228,7 @@ const loadShopData = async () => {
         start: data.workingHoursStart || '',
         end: data.workingHoursEnd || ''
       };
-      // In a real application, you would also fetch artists related to this shop
-      // For now we'll keep the mock data for these sections
+      // Working hours are updated from shop data
     }
   }
 };
@@ -260,9 +242,21 @@ const loadPortfolioData = async () => {
   }
 };
 
+// Fetch shop artists data
+const loadShopArtistsData = async () => {
+  const uuid = route.params.id as string;
+  if (uuid) {
+    const data = await fetchShopArtists(uuid);
+    if (data && data.length > 0) {
+      artists.value = data;
+    }
+  }
+};
+
 onBeforeMount(() => {
   void loadShopData();
   void loadPortfolioData();
+  void loadShopArtistsData();
 });
 </script>
 
