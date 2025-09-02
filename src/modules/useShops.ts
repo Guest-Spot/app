@@ -117,11 +117,31 @@ const useShops = () => {
     }
   };
 
+  const fetchShopArtists = async (shopUuid: string) => {
+    isLoading.value = true;
+    try {
+      const { data, error } = await supabase.functions.invoke(`shopArtists/${shopUuid}`);
+
+      if (error) {
+        console.error('Error fetching shop artists:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching shop artists:', error);
+      return [];
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   return {
     shops,
     isLoading,
     fetchShops,
     fetchShopByUuid,
+    fetchShopArtists,
     createShop,
     updateShop,
     deleteShop

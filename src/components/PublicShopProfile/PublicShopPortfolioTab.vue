@@ -9,8 +9,8 @@
       <LoadingState
         v-if="loading && !portfolioItems.length"
         :is-loading="loading"
-        title="Loading shops..."
-        description="Please wait while we fetch the latest shops"
+        title="Loading portfolio items..."
+        description="Please wait while we fetch the latest portfolio items"
         spinner-name="dots"
       />
 

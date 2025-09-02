@@ -5,7 +5,6 @@
         :src="artist.avatar || 'https://via.placeholder.com/80x80'"
         :ratio="0.85"
         class="avatar-img"
-        spinner-color="dark"
         spinner-size="24px"
       />
     </q-avatar>
