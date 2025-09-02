@@ -100,12 +100,13 @@ watch(() => props.pictures, () => {
 
   .q-btn {
     margin: 0;
+    font-size: 6px !important;
   }
 }
 
 :deep(.carousel-dot) {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.8);
 }

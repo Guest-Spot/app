@@ -33,7 +33,7 @@
 import { computed } from 'vue';
 import { useFavorites } from 'src/modules/useFavorites';
 import type { IShop } from 'src/interfaces/shop';
-import ImageCarousel from 'src/components/SearchPage/ImageCarousel.vue';
+import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 interface Props {
   shop: IShop;
