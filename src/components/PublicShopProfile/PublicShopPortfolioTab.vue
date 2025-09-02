@@ -6,54 +6,43 @@
         <h3 class="text-subtitle1 text-bold q-my-none">Shop Portfolio ({{ portfolioItems.length }})</h3>
       </div>
 
+      <LoadingState
+        v-if="loading && !portfolioItems.length"
+        :is-loading="loading"
+        title="Loading shops..."
+        description="Please wait while we fetch the latest shops"
+        spinner-name="dots"
+      />
+
       <!-- Portfolio Grid -->
-      <div class="portfolio-grid" v-if="portfolioItems.length">
-        <div
+      <div class="portfolio-grid" v-else-if="portfolioItems.length">
+        <PortfolioCard
           v-for="item in portfolioItems"
           :key="item.uuid"
-          class="portfolio-item bg-block border-radius-md"
-        >
-          <div class="portfolio-image">
-            <q-img
-              :src="item.imageUrl"
-              :ratio="1"
-              class="portfolio-img"
-              spinner-color="dark"
-              spinner-size="32px"
-            />
-          </div>
-          <div class="portfolio-info">
-            <h4 class="portfolio-title">{{ item.title }}</h4>
-            <p class="portfolio-description">{{ item.description }}</p>
-            <div class="portfolio-tags">
-              <q-chip
-                v-for="tag in item.tags"
-                :key="tag"
-                :label="tag"
-                size="sm"
-                text-color="white"
-                class="portfolio-tag bg-block"
-              />
-            </div>
-          </div>
-        </div>
+          :work="item"
+        />
       </div>
 
       <!-- Empty State -->
-      <div v-else class="empty-state bg-block border-radius-lg">
-        <q-icon name="photo_library" size="60px" color="grey-6" />
-        <h3 class="empty-title">No Portfolio Items Yet</h3>
-        <p class="empty-description text-grey-6">This shop hasn't added any portfolio items yet</p>
-      </div>
+      <NoResult
+        v-else
+        icon="photo_library"
+        title="No Portfolio Items Yet"
+        description="This shop hasn't added any portfolio items yet"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
+import NoResult from 'src/components/NoResult.vue';
+import PortfolioCard from 'src/components/PortfolioCard.vue';
+import LoadingState from 'src/components/LoadingState.vue';
 
 interface Props {
   portfolioItems: IPortfolio[];
+  loading: boolean;
 }
 
 defineProps<Props>();
@@ -71,63 +60,5 @@ defineProps<Props>();
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-}
-
-.portfolio-item {
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.portfolio-image {
-  position: relative;
-}
-
-.portfolio-img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-}
-
-.portfolio-info {
-  padding: 20px;
-}
-
-.portfolio-title {
-  margin: 0 0 12px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.portfolio-description {
-  margin: 0 0 16px 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.portfolio-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.portfolio-tag {
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-title {
-  margin: 16px 0 8px 0;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.empty-description {
-  margin: 0;
-  font-size: 16px;
 }
 </style>

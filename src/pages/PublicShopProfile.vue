@@ -97,7 +97,10 @@
           <PublicShopArtistsTab :artists="artists" />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-          <PublicShopPortfolioTab :portfolio-items="portfolioItems" />
+          <PublicShopPortfolioTab
+            :portfolio-items="portfolioItems"
+            :loading="isLoadingPortfolio"
+          />
         </div>
       </div>
     </div>
@@ -113,11 +116,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IArtist } from 'src/interfaces/artist';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IShop } from 'src/interfaces/shop';
+import type { IPortfolio } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
 import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
@@ -125,11 +129,13 @@ import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useFavorites } from 'src/modules/useFavorites';
 import useShops from 'src/modules/useShops';
+import usePortfolio from 'src/modules/usePortfolio';
 import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const { fetchShopByUuid } = useShops();
+const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
 
 const TAB_ABOUT = 'about';
@@ -204,29 +210,7 @@ const artists = ref<IArtist[]>([
 ]);
 
 // Portfolio data
-const portfolioItems = ref([
-  {
-    uuid: '1',
-    title: 'Traditional Sleeve Design',
-    description: 'Full arm traditional American style tattoo with vibrant colors and classic motifs',
-    imageUrl: 'examples/example1.jpg',
-    tags: ['Traditional', 'Sleeve', 'Color']
-  },
-  {
-    uuid: '2',
-    title: 'Watercolor Floral Piece',
-    description: 'Delicate watercolor style flower tattoo with soft edges and flowing colors',
-    imageUrl: 'examples/example2.jpeg',
-    tags: ['Watercolor', 'Floral', 'Soft']
-  },
-  {
-    uuid: '3',
-    title: 'Realistic Portrait',
-    description: 'Detailed black and grey portrait tattoo showcasing realistic shading techniques',
-    imageUrl: 'examples/example3.jpg',
-    tags: ['Realistic', 'Portrait', 'Black & Grey']
-  }
-]);
+const portfolioItems = ref<IPortfolio[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.uuid));
@@ -261,15 +245,24 @@ const loadShopData = async () => {
         start: data.workingHoursStart || '',
         end: data.workingHoursEnd || ''
       };
-
-      // In a real application, you would also fetch artists and portfolio items related to this shop
+      // In a real application, you would also fetch artists related to this shop
       // For now we'll keep the mock data for these sections
     }
   }
 };
 
-onMounted(async () => {
-  await loadShopData();
+// Fetch portfolio data
+const loadPortfolioData = async () => {
+  const uuid = route.params.id as string;
+  const data = await fetchPortfolioByOwnerUuid(uuid);
+  if (data && data.length > 0) {
+    portfolioItems.value = data;
+  }
+};
+
+onBeforeMount(() => {
+  void loadShopData();
+  void loadPortfolioData();
 });
 </script>
 

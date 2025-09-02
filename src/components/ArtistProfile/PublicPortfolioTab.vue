@@ -2,34 +2,11 @@
   <div class="public-portfolio-tab flex column q-gap-md">
     <!-- Portfolio Items -->
     <div class="portfolio-grid" v-if="portfolioItems.length">
-      <div
+      <PortfolioCard
         v-for="(work, index) in portfolioItems"
-        :key="index"
-        class="portfolio-item bg-block border-radius-md"
-      >
-        <div class="work-image">
-          <q-img
-            :src="work.imageUrl"
-            :ratio="1"
-            class="work-img"
-            spinner-color="dark"
-            spinner-size="32px"
-          />
-        </div>
-        <div class="work-details">
-          <h4 class="work-title">{{ work.title }}</h4>
-          <p class="work-description text-grey-6">{{ work.description }}</p>
-          <div class="work-tags">
-            <q-chip
-              v-for="tag in work.tags"
-              :key="tag"
-              :label="tag"
-              size="sm"
-              class="work-tag bg-block"
-            />
-          </div>
-        </div>
-      </div>
+        :key="`portfolio-${index}`"
+        :work="work"
+      />
     </div>
 
     <!-- Empty State -->
@@ -43,6 +20,7 @@
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
+import PortfolioCard from 'src/components/PortfolioCard.vue';
 
 interface Props {
   portfolioItems: IPortfolio[];

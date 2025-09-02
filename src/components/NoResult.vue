@@ -1,6 +1,6 @@
 <template>
   <div class="flex column items-center q-gap-md bg-block border-radius-md q-pa-lg">
-    <q-icon :name="icon" size="60px" color="grey-6" />
+    <q-icon :name="icon" size="50px" color="grey-6" />
     <div class="flex column items-center">
       <h3 class="no-results-title">{{ title }}</h3>
       <p class="no-results-description text-grey-6 text-center">{{ description }}</p>
@@ -36,7 +36,7 @@ defineProps<{
 
 .no-results-title {
   margin: 0;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
 }
 

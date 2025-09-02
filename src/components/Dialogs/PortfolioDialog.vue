@@ -112,36 +112,28 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import ImageUploader from 'src/components/ImageUploader.vue';
+import type { IPortfolioForm } from 'src/interfaces/portfolio';
 
 defineOptions({
   name: 'PortfolioDialog',
 });
 
-interface PortfolioForm {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  imageFile: File | null;
-  tags: string[];
-}
-
 interface Props {
   modelValue: boolean;
-  work: PortfolioForm;
+  work: IPortfolioForm;
   isEditing: boolean;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'confirm', work: PortfolioForm): void;
+  (e: 'confirm', work: IPortfolioForm): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const isVisible = ref(props.modelValue);
-const formData = ref<PortfolioForm>({ ...props.work });
+const formData = ref<IPortfolioForm>({ ...props.work });
 const newTag = ref('');
 
 // Watch for external changes to modelValue

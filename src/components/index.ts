@@ -3,3 +3,4 @@ export { default as TheHeader } from './TheHeader.vue';
 export { default as TheFooter } from './TheFooter.vue';
 export { default as TabsComp } from './TabsComp.vue';
 export { default as ThemeSettings } from './ThemeSettings.vue';
+export { default as ImageCarousel } from './ImageCarousel.vue';

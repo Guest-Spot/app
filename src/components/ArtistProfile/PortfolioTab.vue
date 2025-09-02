@@ -15,46 +15,11 @@
 
     <!-- Portfolio Items -->
     <div class="portfolio-grid">
-      <div
+      <PortfolioCard
         v-for="(work, index) in portfolioItems"
         :key="index"
-        class="portfolio-item bg-block border-radius-md"
-      >
-        <div class="work-image">
-          <q-img
-            :src="work.imageUrl"
-            :ratio="1"
-            class="work-img"
-            spinner-color="dark"
-            spinner-size="32px"
-          >
-            <div class="work-overlay">
-              <q-btn
-                round
-                color="dark"
-                icon="edit"
-                size="sm"
-                @click="editWork(index)"
-              />
-            </div>
-          </q-img>
-        </div>
-        <div class="work-details">
-          <h4 class="work-title">{{ work.title }}</h4>
-          <p class="work-description">{{ work.description }}</p>
-          <div class="work-tags">
-            <q-chip
-              v-for="tag in work.tags"
-              :key="tag"
-              :label="tag"
-              color="dark"
-              text-color="white"
-              size="sm"
-              class="work-tag bg-block"
-            />
-          </div>
-        </div>
-      </div>
+        :work="work"
+      />
     </div>
 
     <!-- Empty State -->
@@ -85,54 +50,42 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
-
-interface PortfolioWork {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  tags: string[];
-}
-
-interface PortfolioForm {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  imageFile: File | null;
-  tags: string[];
-}
+import type { IPortfolio } from 'src/interfaces/portfolio';
+import type { IPortfolioForm } from 'src/interfaces/portfolio';
+import PortfolioCard from 'src/components/PortfolioCard.vue';
 
 // Mock portfolio data
-const portfolioItems = ref<PortfolioWork[]>([
+const portfolioItems = ref<IPortfolio[]>([
   {
-    id: 1,
+    uuid: '1',
     title: 'Live Performance at Club XYZ',
     description: 'Amazing night performing my latest hits to a sold-out crowd.',
-    imageUrl: 'examples/example1.jpg',
-    tags: ['Live', 'Performance', 'Club']
+    pictures: ['examples/example1.jpg'],
+    tags: ['Live', 'Performance', 'Club'],
+    ownerUuid: '1'
   },
   {
-    id: 2,
+    uuid: '2',
     title: 'Studio Recording Session',
     description: 'Recording my new single with professional sound engineers.',
-    imageUrl: 'examples/example2.jpeg',
-    tags: ['Studio', 'Recording', 'Single']
+    pictures: ['examples/example2.jpeg'],
+    tags: ['Studio', 'Recording', 'Single'],
+    ownerUuid: '1'
   },
   {
-    id: 3,
+    uuid: '3',
     title: 'Music Festival Appearance',
     description: 'Performing at the biggest music festival in the city.',
-    imageUrl: 'examples/example3.jpg',
-    tags: ['Festival', 'Live', 'Music']
+    pictures: ['examples/example3.jpg'],
+    tags: ['Festival', 'Live', 'Music'],
+    ownerUuid: '1'
   }
 ]);
 
 // Dialog state
 const showDialog = ref(false);
 const isEditing = ref(false);
-const currentWork = ref<PortfolioForm>({
-  id: 0,
+const currentWork = ref<IPortfolioForm>({
   title: '',
   description: '',
   imageUrl: '',
@@ -143,7 +96,6 @@ const currentWork = ref<PortfolioForm>({
 const addNewWork = () => {
   isEditing.value = false;
   currentWork.value = {
-    id: Date.now(), // Generate temporary ID
     title: '',
     description: '',
     imageUrl: '',
@@ -153,45 +105,8 @@ const addNewWork = () => {
   showDialog.value = true;
 };
 
-const editWork = (index: number) => {
-  isEditing.value = true;
-  const work = portfolioItems.value[index];
-  if (work) {
-    currentWork.value = {
-      id: work.id,
-      title: work.title,
-      description: work.description,
-      imageUrl: work.imageUrl,
-      imageFile: null,
-      tags: [...work.tags]
-    };
-    showDialog.value = true;
-  }
-};
-
-const handleWorkConfirm = (work: PortfolioForm) => {
-  if (isEditing.value) {
-    // Update existing work
-    const index = portfolioItems.value.findIndex(item => item.id === work.id);
-    if (index !== -1) {
-      portfolioItems.value[index] = {
-        id: work.id,
-        title: work.title,
-        description: work.description,
-        imageUrl: work.imageUrl,
-        tags: work.tags
-      };
-    }
-  } else {
-    // Add new work
-    portfolioItems.value.push({
-      id: work.id,
-      title: work.title,
-      description: work.description,
-      imageUrl: work.imageUrl,
-      tags: work.tags
-    });
-  }
+const handleWorkConfirm = (work: IPortfolioForm) => {
+  console.log('work', work);
 };
 
 // Expose data for parent component
@@ -220,64 +135,6 @@ defineExpose({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
-}
-
-.portfolio-item {
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px var(--shadow-light);
-  }
-}
-
-.work-image {
-  position: relative;
-}
-
-.work-img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.work-overlay {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 4px;
-  transition: opacity 0.3s ease;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 4px;
-}
-
-.work-details {
-  padding: 20px;
-}
-
-.work-title {
-  margin: 0 0 10px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.work-description {
-  margin: 0 0 15px 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.work-tags {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.work-tag {
-  font-size: 12px;
 }
 
 .empty-state {
