@@ -13,11 +13,18 @@
               spinner-color="dark"
               spinner-size="32px"
             />
-            <q-icon v-else name="person" size="60px" color="grey-6" />
+            <!-- <q-icon v-else name="person" size="60px" color="grey-6" /> -->
+            <q-skeleton v-else width="150px" height="150px" square />
           </q-avatar>
-          <div class="flex column items-center">
-            <span class="full-name text-h6">{{ artistData.fullname }}</span>
-            <span class="status text-body2 text-grey-6">{{ artistData.status }}</span>
+          <div class="flex column items-center full-width">
+            <template v-if="artistData.name || artistData.status">
+              <span class="full-name text-h6">{{ artistData.name }}</span>
+              <span class="status text-body2 text-grey-6">{{ artistData.status }}</span>
+            </template>
+            <template v-else>
+              <q-skeleton type="text" width="50%" height="20px" />
+              <q-skeleton type="text" width="70%" height="20px" />
+            </template>
           </div>
 
           <!-- Booking Button -->
@@ -96,18 +103,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import PublicAboutMeTab from 'src/components/ArtistProfile/PublicAboutMeTab.vue';
-import PublicPortfolioTab from 'src/components/ArtistProfile/PublicPortfolioTab.vue';
-import PublicTripsTab from 'src/components/ArtistProfile/PublicTripsTab.vue';
-import TabsComp from 'src/components/TabsComp.vue';
+import { ref, computed, onBeforeMount } from 'vue';
+import { useRoute } from 'vue-router';
+import useArtists from 'src/modules/useArtists';
+import usePortfolio from 'src/modules/usePortfolio';
+import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
+import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import type { IBooking } from 'src/interfaces/booking';
 import type { ITrip } from 'src/interfaces/trip';
 import { useFavorites } from 'src/modules/useFavorites';
-import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
+import { CreateBookingDialog } from 'src/components/Dialogs';
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
+const { fetchArtistByUuid } = useArtists();
+const { fetchPortfolioByOwnerUuid } = usePortfolio();
+const route = useRoute();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -135,75 +146,25 @@ const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
 
-// Mock artist data - в реальном приложении будет загружаться по ID
+// Artist data from Supabase
 const artistData = ref({
-  uuid: '1',
-  username: 'artist_john',
-  fullname: 'John Doe',
-  status: 'Available for bookings',
-  bio: 'Passionate artist with 5+ years of experience in live performances and studio recordings.',
-  avatar: 'artists/artist1.jpeg',
-  phone: '+1 (555) 123-4567',
-  email: 'john.doe@example.com',
-  instagram: 'https://instagram.com/johndoe_artist',
-  facebook: 'https://facebook.com/johndoe.artist',
+  uuid: '',
+  username: '',
+  name: '',
+  status: '',
+  bio: '',
+  avatar: '',
+  phone: '',
+  email: '',
+  instagram: '',
+  facebook: '',
 });
 
-// Mock portfolio data
-const portfolioItems = ref([
-  {
-    uuid: '1',
-    title: 'Live Performance at Central Park',
-    description: 'Amazing live performance with full orchestra',
-    imageUrl: 'examples/example1.jpg',
-    tags: ['Live', 'Orchestra', 'Performance'],
-    ownerUuid: '1',
-    pictures: ['examples/example1.jpg']
-  },
-  {
-    uuid: '2',
-    title: 'Studio Recording Session',
-    description: 'Professional studio recording for new album',
-    imageUrl: 'examples/example2.jpeg',
-    tags: ['Studio', 'Recording', 'Album'],
-    ownerUuid: '1',
-    pictures: ['examples/example2.jpeg']
-  }
-]);
+// Portfolio data
+const portfolioItems = ref([]);
 
-// Mock trips data
-const trips = ref<ITrip[]>([
-  {
-    uuid: '1',
-    title: 'European Tour 2024',
-    description: 'Multi-city tour across Europe',
-    startTime: '2024-06-01',
-    endTime: '2024-08-31',
-    status: 'Upcoming',
-    location: 'Europe',
-    date: '2024-06-01',
-    artist: {
-      uuid: '1',
-      name: 'John Doe',
-      bio: 'Experienced artist with a passion for music',
-    }
-  },
-  {
-    uuid: '2',
-    title: 'Asia Festival',
-    description: 'Music festival in Tokyo and Seoul',
-    startTime: '2024-09-15',
-    endTime: '2024-09-30',
-    status: 'Planning',
-    location: 'Asia',
-    date: '2024-09-15',
-    artist: {
-      uuid: '2',
-      name: 'Jane Smith',
-      bio: 'Creative artist with a passion for music',
-    }
-  }
-]);
+// Trips data
+const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.uuid));
@@ -212,7 +173,7 @@ const isFavorite = computed(() => isArtistFavorite(artistData.value.uuid));
 const toggleFavorite = () => {
   toggleArtistFavorite({
     uuid: artistData.value.uuid,
-    name: artistData.value.fullname,
+    name: artistData.value.name,
     status: artistData.value.status,
     bio: artistData.value.bio,
     avatar: artistData.value.avatar
@@ -230,6 +191,67 @@ const handleBookingSubmit = (data: Partial<IBooking>) => {
   console.log('Booking submitted:', data);
   showBookingDialog.value = false;
 };
+
+// Function to load artist data
+const loadArtistData = async () => {
+  const uuid = route.params.id as string;
+  if (uuid) {
+    const data = await fetchArtistByUuid(uuid);
+    if (data) {
+      artistData.value = data;
+    }
+  }
+};
+
+// Function to load portfolio data
+const loadPortfolioData = async () => {
+  const uuid = route.params.id as string;
+  if (uuid) {
+    const data = await fetchPortfolioByOwnerUuid(uuid);
+    if (data && data.length > 0) {
+      portfolioItems.value = data;
+    }
+  }
+};
+
+// Function to load trips data
+const loadTripsData = () => {
+  const uuid = route.params.id as string;
+  if (uuid) {
+    // Здесь должен быть вызов API для получения поездок артиста
+    // Пока оставляем пустым, так как нет соответствующего API в useArtists
+    // В будущем можно добавить fetchArtistTrips или аналогичный метод
+
+    // Временное решение - имитация загрузки данных
+    // Это нужно будет заменить на реальный API-вызов
+    const mockTrips: ITrip[] = [
+      {
+        uuid: uuid + '-trip1',
+        title: 'European Tour 2024',
+        description: 'Multi-city tour across Europe',
+        startTime: '2024-06-01',
+        endTime: '2024-08-31',
+        status: 'Upcoming',
+        location: 'Europe',
+        date: '2024-06-01',
+        artist: {
+          uuid: uuid,
+          name: artistData.value.name,
+          bio: artistData.value.bio || '',
+        }
+      }
+    ];
+
+    trips.value = mockTrips;
+  }
+};
+
+// Load all data on component mount
+onBeforeMount(() => {
+  void loadArtistData();
+  void loadPortfolioData();
+  void loadTripsData();
+});
 </script>
 
 <style scoped lang="scss">

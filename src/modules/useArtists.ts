@@ -31,11 +31,7 @@ const useArtists = () => {
   const fetchArtistByUuid = async (uuid: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase
-        .from('artists')
-        .select('*')
-        .eq('uuid', uuid)
-        .single();
+      const { data, error } = await supabase.functions.invoke(`artist/${uuid}`);
 
       if (error) {
         console.error('Error fetching artist by UUID:', error);
