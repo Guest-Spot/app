@@ -1,47 +1,29 @@
 <template>
-  <q-carousel
-    v-model="slide"
-    animated
-    :navigation="!!(pictures?.length && pictures.length > 1)"
-    infinite
-    swipeable
-    transition-prev="slide-right"
-    transition-next="slide-left"
-    class="image-carousel"
-    :height="height"
-    @click.stop
-  >
-    <template v-slot:navigation-icon="{ active, onClick }">
-      <q-btn
-        size="xs"
-        flat round dense @click="onClick"
-        class="q-ma-none"
-      >
-        <div class="carousel-dot" :class="{ 'carousel-dot--active': active }" />
-      </q-btn>
-    </template>
-
-    <q-carousel-slide
-      v-for="(picture, index) in pictures"
-      :key="index"
-      :name="index"
-      class="column no-wrap q-pa-none"
+  <div class="image-carousel" :style="{ height: height }">
+    <Carousel
+      v-if="pictures && pictures.length > 0"
+      v-bind="carouselConfig"
+      @click.stop
     >
-      <q-img
-        :src="picture"
-        :ratio="16/9"
-        class="carousel-img"
-        spinner-color="dark"
-        spinner-size="32px"
-      />
-    </q-carousel-slide>
+      <Slide v-for="(picture, index) in pictures" :key="`key-${picture}-${index}`">
+        <div class="carousel-slide">
+          <q-img
+            :src="picture"
+            :ratio="16/9"
+            class="carousel-img"
+            spinner-color="dark"
+            spinner-size="32px"
+          />
+        </div>
+      </Slide>
+
+      <template #addons>
+        <Pagination />
+      </template>
+    </Carousel>
 
     <!-- Fallback image if no pictures -->
-    <q-carousel-slide
-      v-if="!pictures || pictures.length === 0"
-      name="0"
-      class="column no-wrap"
-    >
+    <div v-else class="fallback-container">
       <q-img
         :src="fallbackImage"
         :ratio="16/9"
@@ -49,12 +31,14 @@
         spinner-color="dark"
         spinner-size="32px"
       />
-    </q-carousel-slide>
-  </q-carousel>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed } from 'vue';
+import 'vue3-carousel/carousel.css';
+import { Carousel, Slide, Pagination } from 'vue3-carousel';
 
 interface Props {
   pictures?: string[];
@@ -62,60 +46,102 @@ interface Props {
   fallbackImage?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   pictures: () => [],
   height: '200px',
   fallbackImage: 'https://via.placeholder.com/300x200'
 });
 
-const slide = ref(0);
-
-watch(() => props.pictures, () => {
-  if (props.pictures.length > 0) {
-    slide.value = 0;
-  }
-}, { immediate: true });
+const carouselConfig = computed(() => ({
+  itemsToShow: 1,
+  wrapAround: true,
+  snapAlign: 'center' as const,
+  transition: 500
+}));
 </script>
 
 <style scoped lang="scss">
 .image-carousel {
   border-radius: 8px 8px 0 0;
   overflow: hidden;
+  position: relative;
+  touch-action: pan-y;
 }
 
-.carousel-img {
+.carousel-slide {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-:deep(.q-carousel__navigation-inner) {
-  flex: none;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--box-shadow);
-  margin: 0 auto;
-  border-radius: var(--border-radius-lg);
-  padding: 0 2px;
-
-  .q-btn {
-    margin: 0;
-    font-size: 6px !important;
+  .carousel-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
   }
 }
 
-:deep(.carousel-dot) {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
+.fallback-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-:deep(.carousel-dot--active) {
-  background: var(--q-primary);
+// Vue3-carousel navigation styles
+:deep(.carousel__navigation) {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  &.carousel__navigation--prev {
+    left: 10px;
+  }
+
+  &.carousel__navigation--next {
+    right: 10px;
+  }
+
+  .carousel__navigation-button {
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
 }
 
-:deep(.q-carousel__navigation--bottom) {
-  bottom: 4px;
+// Vue3-carousel pagination styles
+:deep(.carousel__pagination) {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+
+  .carousel__pagination-button {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &--active {
+      background: var(--q-primary);
+    }
+  }
 }
 </style>

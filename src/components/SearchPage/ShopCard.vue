@@ -111,7 +111,6 @@ const toggleFavorite = () => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 12px;
 }
 
 .shop-location,
