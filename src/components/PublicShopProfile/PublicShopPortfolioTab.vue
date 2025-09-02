@@ -10,7 +10,7 @@
       <div class="portfolio-grid" v-if="portfolioItems.length">
         <div
           v-for="item in portfolioItems"
-          :key="item.id"
+          :key="item.uuid"
           class="portfolio-item bg-block border-radius-md"
         >
           <div class="portfolio-image">
@@ -50,16 +50,10 @@
 </template>
 
 <script setup lang="ts">
-interface PortfolioItem {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  tags: string[];
-}
+import type { IPortfolio } from 'src/interfaces/portfolio';
 
 interface Props {
-  portfolioItems: PortfolioItem[];
+  portfolioItems: IPortfolio[];
 }
 
 defineProps<Props>();

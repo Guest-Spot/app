@@ -18,7 +18,7 @@
       <div class="artists-grid" v-if="artists.length">
         <ArtistCard
           v-for="artist in artists"
-          :key="artist.id"
+          :key="artist.uuid"
           :artist="artist"
           @click="handleArtistClick"
           @favorite="handleFavoriteToggle"
@@ -58,7 +58,6 @@ import type { IArtist } from 'src/interfaces/artist';
 // Artists data
 const artists = ref<IArtist[]>([
   {
-    id: 1,
     uuid: '1',
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
@@ -67,7 +66,6 @@ const artists = ref<IArtist[]>([
     experience: 8
   },
   {
-    id: 2,
     uuid: '2',
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos.',
@@ -88,9 +86,9 @@ const handleArtistClick = (artist: IArtist) => {
   console.log('Artist clicked:', artist);
 };
 
-const handleFavoriteToggle = (artistId: number) => {
+const handleFavoriteToggle = (artistUuid: string) => {
   // Handle favorite toggle - could update local state or make API call
-  console.log('Favorite toggled for artist:', artistId);
+  console.log('Favorite toggled for artist:', artistUuid);
 };
 
 // Expose data for parent component

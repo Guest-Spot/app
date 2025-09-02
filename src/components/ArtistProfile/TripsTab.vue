@@ -97,7 +97,6 @@ import type { ITrip, ITripForm } from 'src/interfaces/trip';
 // Mock trips data
 const trips = ref<ITrip[]>([
   {
-    id: 1,
     uuid: '1',
     title: 'Go to New York',
     location: 'New York, NY',
@@ -105,8 +104,8 @@ const trips = ref<ITrip[]>([
     startTime: '20:00',
     endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
+    status: '',
     artist: {
-      id: 1,
       uuid: '1',
       name: 'John Doe',
       bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
@@ -114,7 +113,6 @@ const trips = ref<ITrip[]>([
     }
   },
   {
-    id: 2,
     uuid: '2',
     title: 'Go to Los Angeles',
     location: 'Los Angeles, CA',
@@ -122,8 +120,8 @@ const trips = ref<ITrip[]>([
     startTime: '19:30',
     endTime: '21:45',
     description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
+    status: '',
     artist: {
-      id: 2,
       uuid: '2',
       name: 'Jane Smith',
       bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
@@ -131,7 +129,6 @@ const trips = ref<ITrip[]>([
     }
   },
   {
-    id: 3,
     uuid: '3',
     title: 'Go to Miami',
     location: 'Miami, FL',
@@ -139,8 +136,8 @@ const trips = ref<ITrip[]>([
     startTime: '23:00',
     endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
+    status: '',
     artist: {
-      id: 3,
       uuid: '3',
       name: 'Mike Johnson',
       bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
@@ -153,7 +150,6 @@ const trips = ref<ITrip[]>([
 const showTripDialog = ref(false);
 const isEditingTrip = ref(false);
 const currentTrip = ref<ITrip>({
-  id: 0,
   uuid: '',
   location: '',
   date: '',
@@ -161,8 +157,8 @@ const currentTrip = ref<ITrip>({
   endTime: '',
   description: '',
   title: '',
+  status: '',
   artist: {
-    id: 0,
     uuid: '',
     name: '',
     bio: '',
@@ -173,7 +169,6 @@ const currentTrip = ref<ITrip>({
 const addNewTrip = () => {
   isEditingTrip.value = false;
   currentTrip.value = {
-    id: Date.now(), // Generate temporary ID
     uuid: '',
     location: '',
     date: '',
@@ -181,8 +176,8 @@ const addNewTrip = () => {
     endTime: '',
     description: '',
     title: '',
+    status: '',
     artist: {
-      id: 0,
       uuid: '',
       name: '',
       bio: '',

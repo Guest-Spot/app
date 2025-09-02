@@ -13,9 +13,7 @@ const useShops = () => {
   const fetchShops = async () => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase
-        .from('shops_view')
-        .select('*');
+      const { data, error } = await supabase.functions.invoke('shops')
 
       if (error) {
         console.error('Error fetching shops:', error);

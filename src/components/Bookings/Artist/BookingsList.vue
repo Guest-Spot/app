@@ -28,7 +28,7 @@
         <div v-else class="bookings-grid">
           <BookingCard
             v-for="booking in sentBookings"
-            :key="booking.id"
+            :key="booking.uuid"
             :booking="booking"
             @cancel="cancelBooking"
           />
@@ -46,7 +46,7 @@
         <div v-else class="bookings-grid">
           <BookingCard
             v-for="booking in receivedBookings"
-            :key="booking.id"
+            :key="booking.uuid"
             :booking="booking"
             @accept="acceptBooking"
             @reject="rejectBooking"
@@ -99,8 +99,8 @@ const setActiveFilter = (filter: ITab) => {
   activeFilter.value = filter;
 };
 
-const acceptBooking = (bookingId: number) => {
-  const booking = bookings.value.find(b => b.id === bookingId);
+const acceptBooking = (bookingUuid: string) => {
+  const booking = bookings.value.find(b => b.uuid === bookingUuid);
   if (booking) {
     booking.status = 'accepted';
     booking.updatedAt = new Date().toISOString();
@@ -120,8 +120,8 @@ const acceptBooking = (bookingId: number) => {
   }
 };
 
-const rejectBooking = (bookingId: number) => {
-  const booking = bookings.value.find(b => b.id === bookingId);
+const rejectBooking = (bookingUuid: string) => {
+  const booking = bookings.value.find(b => b.uuid === bookingUuid);
   if (booking) {
     booking.status = 'rejected';
     booking.updatedAt = new Date().toISOString();
@@ -141,7 +141,7 @@ const rejectBooking = (bookingId: number) => {
   }
 };
 
-const cancelBooking = (bookingId: number) => {
+const cancelBooking = (bookingUuid: string) => {
   $q.dialog({
     title: 'Cancel Booking',
     message: 'Are you sure you want to cancel this booking request?',
@@ -156,7 +156,7 @@ const cancelBooking = (bookingId: number) => {
       label: 'Yes, Cancel'
     }
   }).onOk(() => {
-    const booking = bookings.value.find(b => b.id === bookingId);
+    const booking = bookings.value.find(b => b.uuid === bookingUuid);
     if (booking) {
       booking.status = 'cancelled';
       booking.updatedAt = new Date().toISOString();
@@ -182,12 +182,11 @@ onMounted(() => {
   // Mock data for demonstration
   bookings.value = [
     {
-      id: 1,
       uuid: '1',
       title: 'Tattoo Session Request',
       description: 'I would like to visit your shop and ...',
-      shopId: 1,
-      artistId: 2,
+      shopUuid: '1',
+      artistUuid: '2',
       location: '123 Main St, Anytown, USA',
       startTime: '10:00',
       endTime: '14:00',
@@ -197,18 +196,17 @@ onMounted(() => {
       updatedAt: '2024-01-20T10:00:00Z',
       type: 'shop-to-artist',
       shop: {
-        id: 1,
+        uuid: '1',
         title: 'Tattoo Studio',
         pictures: ['shops/shop1.jpg'],
       },
     },
     {
-      id: 2,
       uuid: '2',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
-      shopId: 3,
-      artistId: 1,
+      shopUuid: '3',
+      artistUuid: '1',
       location: '123 Main St, Anytown, USA',
       startTime: '09:00',
       endTime: '17:00',
@@ -218,18 +216,17 @@ onMounted(() => {
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
       shop: {
-        id: 3,
+        uuid: '3',
         title: 'Art Gallery',
         pictures: ['shops/shop2.jpg'],
       },
     },
     {
-      id: 3,
       uuid: '3',
       title: 'Master Class',
       description: 'Need a master class in tattooing',
-      shopId: 2,
-      artistId: 2,
+      shopUuid: '2',
+      artistUuid: '2',
       location: '123 Main St, Anytown, USA',
       startTime: '09:00',
       endTime: '17:00',
@@ -239,18 +236,17 @@ onMounted(() => {
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
       shop: {
-        id: 3,
+        uuid: '3',
         title: 'Art Gallery',
         pictures: ['shops/shop3.webp'],
       },
     },
     {
-      id: 4,
       uuid: '4',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
-      shopId: 3,
-      artistId: 2,
+      shopUuid: '3',
+      artistUuid: '2',
       location: '123 Main St, Anytown, USA',
       startTime: '09:00',
       endTime: '17:00',
@@ -260,7 +256,7 @@ onMounted(() => {
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
       shop: {
-        id: 5,
+        uuid: '5',
         title: 'Tattoo Studio',
         pictures: ['shops/shop4.jpg'],
       },

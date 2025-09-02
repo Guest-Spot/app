@@ -98,8 +98,7 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-id="shopData.id"
-      :artist-id="0"
+      :shop-uuid="shopData.uuid"
       type="shop-to-artist"
       @submit="handleBookingSubmit"
     />
@@ -148,7 +147,6 @@ const setActiveTab = (tab: ITab) => {
 
 // Mock shop data - в реальном приложении будет загружаться по ID
 const shopData = ref({
-  id: 1,
   uuid: '1',
   username: 'ink_paradise',
   location: 'Downtown, NY',
@@ -175,21 +173,18 @@ const workingHours = ref({
 // Mock artists data
 const artists = ref<IArtist[]>([
   {
-    id: 1,
     uuid: '1',
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
     avatar: 'artists/artist1.jpeg'
   },
   {
-    id: 2,
     uuid: '2',
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
     avatar: 'artists/artist2.jpg'
   },
   {
-    id: 3,
     uuid: '3',
     name: 'Mike Johnson',
     bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
@@ -200,21 +195,21 @@ const artists = ref<IArtist[]>([
 // Mock portfolio data
 const portfolioItems = ref([
   {
-    id: 1,
+    uuid: '1',
     title: 'Traditional Sleeve Design',
     description: 'Full arm traditional American style tattoo with vibrant colors and classic motifs',
     imageUrl: 'examples/example1.jpg',
     tags: ['Traditional', 'Sleeve', 'Color']
   },
   {
-    id: 2,
+    uuid: '2',
     title: 'Watercolor Floral Piece',
     description: 'Delicate watercolor style flower tattoo with soft edges and flowing colors',
     imageUrl: 'examples/example2.jpeg',
     tags: ['Watercolor', 'Floral', 'Soft']
   },
   {
-    id: 3,
+    uuid: '3',
     title: 'Realistic Portrait',
     description: 'Detailed black and grey portrait tattoo showcasing realistic shading techniques',
     imageUrl: 'examples/example3.jpg',
@@ -223,7 +218,7 @@ const portfolioItems = ref([
 ]);
 
 // Computed properties for favorites
-const isFavorite = computed(() => isShopFavorite(shopData.value.id));
+const isFavorite = computed(() => isShopFavorite(shopData.value.uuid));
 
 // Methods
 const toggleFavorite = () => {

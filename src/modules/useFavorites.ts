@@ -48,13 +48,13 @@ const totalFavorites = computed(() => favoriteShops.value.length + favoriteArtis
 const addShopToFavorites = (shop: IShop) => {
   const favoriteShop: IShop = shop;
 
-  if (!favoriteShops.value.find(s => s.id === shop.id)) {
+  if (!favoriteShops.value.find(s => s.uuid === shop.uuid)) {
     favoriteShops.value.push(favoriteShop);
   }
 };
 
-const removeShopFromFavorites = (shopId: number) => {
-  const index = favoriteShops.value.findIndex(s => s.id === shopId);
+const removeShopFromFavorites = (shopId: string) => {
+  const index = favoriteShops.value.findIndex(s => s.uuid === shopId);
   if (index !== -1) {
     favoriteShops.value.splice(index, 1);
   }
@@ -63,37 +63,37 @@ const removeShopFromFavorites = (shopId: number) => {
 const addArtistToFavorites = (artist: IArtist) => {
   const favoriteArtist: IArtist = artist;
 
-  if (!favoriteArtists.value.find(a => a.id === artist.id)) {
+  if (!favoriteArtists.value.find(a => a.uuid === artist.uuid)) {
     favoriteArtists.value.push(favoriteArtist);
   }
 };
 
-const removeArtistFromFavorites = (artistId: number) => {
-  const index = favoriteArtists.value.findIndex(a => a.id === artistId);
+const removeArtistFromFavorites = (artistId: string) => {
+  const index = favoriteArtists.value.findIndex(a => a.uuid === artistId);
   if (index !== -1) {
     favoriteArtists.value.splice(index, 1);
   }
 };
 
-const isShopFavorite = (shopId: number) => {
-  return favoriteShops.value.some(s => s.id === shopId);
+const isShopFavorite = (shopId: string) => {
+  return favoriteShops.value.some(s => s.uuid === shopId);
 };
 
-const isArtistFavorite = (artistId: number) => {
-  return favoriteArtists.value.some(a => a.id === artistId);
+const isArtistFavorite = (artistId: string) => {
+  return favoriteArtists.value.some(a => a.uuid === artistId);
 };
 
 const toggleShopFavorite = (shop: IShop) => {
-  if (isShopFavorite(shop.id)) {
-    removeShopFromFavorites(shop.id);
+  if (isShopFavorite(shop.uuid)) {
+    removeShopFromFavorites(shop.uuid);
   } else {
     addShopToFavorites(shop);
   }
 };
 
 const toggleArtistFavorite = (artist: IArtist) => {
-  if (isArtistFavorite(artist.id)) {
-    removeArtistFromFavorites(artist.id);
+  if (isArtistFavorite(artist.uuid)) {
+    removeArtistFromFavorites(artist.uuid);
   } else {
     addArtistToFavorites(artist);
   }

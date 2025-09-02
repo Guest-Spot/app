@@ -4,7 +4,7 @@
     <div class="trips-list" v-if="trips.length">
       <div
         v-for="(trip, index) in trips"
-        :key="index"
+        :key="`trip-${index}`"
         class="trip-item bg-block border-radius-md q-pa-lg"
       >
         <q-chip
@@ -23,12 +23,12 @@
             <div class="date-item">
               <q-icon name="event" size="16px" color="grey-6" />
               <span class="date-label">Start:</span>
-              <span class="date-value text-grey-6">{{ formatDate(trip.startDate) }}</span>
+              <span class="date-value text-grey-6">{{ formatDate(trip.startTime) }}</span>
             </div>
             <div class="date-item">
               <q-icon name="event" size="16px" color="grey-6" />
               <span class="date-label">End:</span>
-              <span class="date-value text-grey-6">{{ formatDate(trip.endDate) }}</span>
+              <span class="date-value text-grey-6">{{ formatDate(trip.endTime) }}</span>
             </div>
           </div>
         </div>
@@ -45,17 +45,10 @@
 </template>
 
 <script setup lang="ts">
-interface Trip {
-  id: number;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-}
+import type { ITrip } from 'src/interfaces/trip';
 
 interface Props {
-  trips: Trip[];
+  trips: ITrip[];
 }
 
 defineProps<Props>();

@@ -33,7 +33,7 @@
 import { computed } from 'vue';
 import { useFavorites } from 'src/modules/useFavorites';
 import type { IShop } from 'src/interfaces/shop';
-import ImageCarousel from 'src/components/SearchPage/ImageCarousel.vue';
+import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 interface Props {
   shop: IShop;
@@ -41,7 +41,7 @@ interface Props {
 
 interface Emits {
   (e: 'click', shop: IShop): void;
-  (e: 'favorite', shopId: number): void;
+  (e: 'favorite', shopUuid: string): void;
 }
 
 const props = defineProps<Props>();
@@ -49,7 +49,7 @@ const emit = defineEmits<Emits>();
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 
-const isFavorite = computed(() => isShopFavorite(props.shop.id));
+const isFavorite = computed(() => isShopFavorite(props.shop.uuid));
 
 const formatTime = (time: string): string => {
   if (!time) return '';
@@ -66,7 +66,6 @@ const workingHoursText = computed(() => {
 
 const toggleFavorite = () => {
   const shopData = {
-    id: props.shop.id,
     uuid: props.shop.uuid,
     username: props.shop.username,
     title: props.shop.title,
@@ -83,7 +82,7 @@ const toggleFavorite = () => {
     ...(props.shop.facebook && { facebook: props.shop.facebook })
   };
   toggleShopFavorite(shopData);
-  emit('favorite', props.shop.id);
+  emit('favorite', props.shop.uuid);
 };
 </script>
 
@@ -111,7 +110,6 @@ const toggleFavorite = () => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 12px;
 }
 
 .shop-location,

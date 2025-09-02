@@ -11,7 +11,7 @@
           <div v-if="favoriteShops.length" class="flex column q-gap-md">
             <ShopCard
               v-for="shop in favoriteShops"
-              :key="shop.id"
+              :key="shop.uuid"
               :shop="shop"
               @click="selectShop"
               @favorite="toggleFavorite"
@@ -34,7 +34,7 @@
           <div v-if="favoriteArtists.length" class="flex column q-gap-md">
             <ArtistCard
               v-for="artist in favoriteArtists"
-              :key="artist.id"
+              :key="artist.uuid"
               :artist="artist"
               @click="selectArtist"
               @favorite="toggleFavorite"
@@ -77,15 +77,15 @@ const router = useRouter();
 
 // Methods
 const selectShop = (shop: IShop) => {
-  void router.push(`/shop/${shop.id}`);
+  void router.push(`/shop/${shop.uuid}`);
 };
 
 const selectArtist = (artist: IArtist) => {
-  void router.push(`/artist/${artist.id}`);
+  void router.push(`/artist/${artist.uuid}`);
 };
 
-const toggleFavorite = (id: number) => {
-  console.log('Toggle favorite for ID:', id);
+const toggleFavorite = (shopUuid: string) => {
+  console.log('Toggle favorite for ID:', shopUuid);
   // Toggle favorite status is handled by the card components
 };
 

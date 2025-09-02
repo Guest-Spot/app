@@ -42,16 +42,10 @@
 </template>
 
 <script setup lang="ts">
-interface PortfolioWork {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string;
-  tags: string[];
-}
+import type { IPortfolio } from 'src/interfaces/portfolio';
 
 interface Props {
-  portfolioItems: PortfolioWork[];
+  portfolioItems: IPortfolio[];
 }
 
 defineProps<Props>();
