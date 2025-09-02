@@ -1,7 +1,6 @@
 import type { IArtist } from 'src/interfaces/artist';
 
 export interface ITrip {
-  id: number;
   uuid: string;
   location: string;
   date: string;
@@ -9,11 +8,12 @@ export interface ITrip {
   endTime: string;
   title: string;
   description: string;
+  status: string;
   artist: IArtist;
 }
 
 export interface ITripForm {
-  id: number;
+  uuid: string;
   location: string;
   date: string;
   startTime: string;

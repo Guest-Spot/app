@@ -47,7 +47,7 @@ interface Props {
 
 interface Emits {
   (e: 'click', artist: IArtist): void;
-  (e: 'favorite', artistId: number): void;
+  (e: 'favorite', artistUuid: string): void;
 }
 
 const props = defineProps<Props>();
@@ -56,15 +56,15 @@ const router = useRouter();
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 
-const isFavorite = computed(() => isArtistFavorite(props.artist.id));
+const isFavorite = computed(() => isArtistFavorite(props.artist.uuid));
 
 const toggleFavorite = () => {
   toggleArtistFavorite(props.artist);
-  emit('favorite', props.artist.id);
+  emit('favorite', props.artist.uuid);
 };
 
 const navigateToProfile = () => {
-  void router.push(`/artist/${props.artist.id}`);
+  void router.push(`/artist/${props.artist.uuid}`);
   emit('click', props.artist);
 };
 </script>

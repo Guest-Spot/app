@@ -1,5 +1,4 @@
 export interface IArtist {
-  id: number;
   uuid: string;
   name: string;
   bio: string;

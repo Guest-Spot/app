@@ -88,7 +88,7 @@
     <CreateBookingDialog
       v-model="showBookingDialog"
       :shop-id="0"
-      :artist-id="artistData.id"
+      :artist-id="artistData.uuid"
       type="artist-to-shop"
       @submit="handleBookingSubmit"
     />
@@ -103,6 +103,7 @@ import PublicTripsTab from 'src/components/ArtistProfile/PublicTripsTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import type { IBooking } from 'src/interfaces/booking';
+import type { ITrip } from 'src/interfaces/trip';
 import { useFavorites } from 'src/modules/useFavorites';
 import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 
@@ -136,7 +137,6 @@ const setActiveTab = (tab: ITab) => {
 
 // Mock artist data - в реальном приложении будет загружаться по ID
 const artistData = ref({
-  id: 1,
   uuid: '1',
   username: 'artist_john',
   fullname: 'John Doe',
@@ -152,14 +152,14 @@ const artistData = ref({
 // Mock portfolio data
 const portfolioItems = ref([
   {
-    id: 1,
+    uuid: '1',
     title: 'Live Performance at Central Park',
     description: 'Amazing live performance with full orchestra',
     imageUrl: 'examples/example1.jpg',
     tags: ['Live', 'Orchestra', 'Performance']
   },
   {
-    id: 2,
+    uuid: '2',
     title: 'Studio Recording Session',
     description: 'Professional studio recording for new album',
     imageUrl: 'examples/example2.jpeg',
@@ -168,33 +168,45 @@ const portfolioItems = ref([
 ]);
 
 // Mock trips data
-const trips = ref([
+const trips = ref<ITrip[]>([
   {
-    id: 1,
+    uuid: '1',
     title: 'European Tour 2024',
     description: 'Multi-city tour across Europe',
-    startDate: '2024-06-01',
-    endDate: '2024-08-31',
-    status: 'Upcoming'
+    startTime: '2024-06-01',
+    endTime: '2024-08-31',
+    status: 'Upcoming',
+    location: 'Europe',
+    date: '2024-06-01',
+    artist: {
+      uuid: '1',
+      name: 'John Doe',
+      bio: 'Experienced artist with a passion for music',
+    }
   },
   {
-    id: 2,
     uuid: '2',
     title: 'Asia Festival',
     description: 'Music festival in Tokyo and Seoul',
-    startDate: '2024-09-15',
-    endDate: '2024-09-30',
-    status: 'Planning'
+    startTime: '2024-09-15',
+    endTime: '2024-09-30',
+    status: 'Planning',
+    location: 'Asia',
+    date: '2024-09-15',
+    artist: {
+      uuid: '2',
+      name: 'Jane Smith',
+      bio: 'Creative artist with a passion for music',
+    }
   }
 ]);
 
 // Computed properties for favorites
-const isFavorite = computed(() => isArtistFavorite(artistData.value.id));
+const isFavorite = computed(() => isArtistFavorite(artistData.value.uuid));
 
 // Methods
 const toggleFavorite = () => {
   toggleArtistFavorite({
-    id: artistData.value.id,
     uuid: artistData.value.uuid,
     name: artistData.value.fullname,
     status: artistData.value.status,

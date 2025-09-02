@@ -10,7 +10,7 @@
       <div class="artists-grid" v-if="artists.length">
         <ArtistCard
           v-for="artist in artists"
-          :key="artist.id"
+          :key="artist.uuid"
           :artist="artist"
           @click="handleArtistClick"
           @favorite="handleFavorite"
@@ -41,12 +41,12 @@ const router = useRouter();
 defineProps<Props>();
 
 const handleArtistClick = (artist: IArtist) => {
-  void router.push(`/artist/${artist.id}`);
+  void router.push(`/artist/${artist.uuid}`);
 };
 
-const handleFavorite = (artistId: number) => {
+const handleFavorite = (artistUuid: string) => {
   // Handle favorite toggle if needed
-  console.log('Artist favorited:', artistId);
+  console.log('Artist favorited:', artistUuid);
 };
 </script>
 

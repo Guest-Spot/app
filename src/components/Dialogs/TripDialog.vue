@@ -191,7 +191,7 @@ interface Props {
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
   (e: 'confirm', trip: ITripForm): void;
-  (e: 'delete', tripId: number): void;
+  (e: 'delete', tripUuid: string): void;
 }
 
 const props = defineProps<Props>();
@@ -245,7 +245,7 @@ const deleteTrip = () => {
       label: 'Delete'
     }
   }).onOk(() => {
-    emit('delete', formData.value.id);
+    emit('delete', formData.value.uuid);
     isVisible.value = false;
   });
 };

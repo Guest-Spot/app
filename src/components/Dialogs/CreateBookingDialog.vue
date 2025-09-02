@@ -185,8 +185,8 @@ import type { IBooking } from 'src/interfaces/booking';
 
 interface Props {
   modelValue: boolean;
-  shopId?: number;
-  artistId?: number;
+  shopUuid?: string;
+  artistUuid?: string;
   type: 'shop-to-artist' | 'artist-to-shop';
 }
 
@@ -213,8 +213,8 @@ const bookingData = ref<Partial<IBooking>>({
   date: '',
   startTime: '',
   endTime: '',
-  shopId: props.shopId || 0,
-  artistId: props.artistId || 0,
+  shopUuid: props.shopUuid || '',
+  artistUuid: props.artistUuid || '',
   status: 'pending',
   type: props.type
 });
@@ -239,8 +239,8 @@ const resetForm = () => {
     date: '',
     startTime: '',
     endTime: '',
-    shopId: props.shopId || 0,
-    artistId: props.artistId || 0,
+    shopUuid: props.shopUuid || '',
+    artistUuid: props.artistUuid || '',
     status: 'pending'
   };
 };
@@ -292,8 +292,8 @@ const onSubmit = () => {
     // Emit the booking data
     emit('submit', {
       ...bookingData.value,
-      shopId: props.shopId || 0,
-      artistId: props.artistId || 0
+      shopUuid: props.shopUuid || '',
+      artistUuid: props.artistUuid || ''
     });
 
     // Show success message

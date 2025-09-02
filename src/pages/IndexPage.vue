@@ -26,7 +26,7 @@
           <div v-else-if="filteredShops.length" class="flex column q-gap-md">
             <ShopCard
               v-for="shop in filteredShops"
-              :key="shop.id"
+              :key="shop.uuid"
               :shop="shop"
               @click="selectShop"
               @favorite="toggleFavorite"
@@ -45,7 +45,7 @@
           <div v-if="filteredArtists.length" class="flex column q-gap-md">
             <ArtistCard
               v-for="artist in filteredArtists"
-              :key="artist.id"
+              :key="artist.uuid"
               :artist="artist"
               @click="selectArtist"
               @favorite="toggleFavorite"
@@ -100,7 +100,6 @@ const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
 // Mock data for artists
 const artists = ref([
   {
-    id: 1,
     uuid: '1',
     name: 'Sarah Chen',
     bio: 'Specializing in Irezumi and modern Japanese styles',
@@ -108,7 +107,6 @@ const artists = ref([
     location: 'New York, NY'
   },
   {
-    id: 2,
     uuid: '2',
     name: 'Mike Rodriguez',
     bio: 'Portrait and realistic tattoo artist with 8 years experience',
@@ -116,7 +114,6 @@ const artists = ref([
     location: 'Los Angeles, CA'
   },
   {
-    id: 3,
     uuid: '3',
     name: 'Emma Thompson',
     bio: 'Creative artist specializing in unique watercolor designs',
@@ -124,7 +121,6 @@ const artists = ref([
     location: 'Chicago, IL'
   },
   {
-    id: 4,
     uuid: '4',
     name: 'Alex Johnson',
     bio: 'Clean lines and precise geometric tattoo designs',
@@ -195,15 +191,15 @@ const filteredArtists = computed(() => {
 
 // Methods
 const selectShop = (shop: IShop) => {
-  void router.push(`/shop/${shop.id}`);
+  void router.push(`/shop/${shop.uuid}`);
 };
 
 const selectArtist = (artist: IArtist) => {
-  void router.push(`/artist/${artist.id}`);
+  void router.push(`/artist/${artist.uuid}`);
 };
 
-const toggleFavorite = (id: number) => {
-  console.log('Toggle favorite for ID:', id);
+const toggleFavorite = (shopUuid: string) => {
+  console.log('Toggle favorite for ID:', shopUuid);
   // Toggle favorite status is now handled by the card components
 };
 
