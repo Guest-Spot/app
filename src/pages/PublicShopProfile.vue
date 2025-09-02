@@ -209,22 +209,25 @@ const portfolioItems = ref([
     uuid: '1',
     title: 'Traditional Sleeve Design',
     description: 'Full arm traditional American style tattoo with vibrant colors and classic motifs',
-    imageUrl: 'examples/example1.jpg',
-    tags: ['Traditional', 'Sleeve', 'Color']
+    pictures: ['examples/example1.jpg'],
+    tags: ['Traditional', 'Sleeve', 'Color'],
+    ownerUuid: '1'
   },
   {
     uuid: '2',
     title: 'Watercolor Floral Piece',
     description: 'Delicate watercolor style flower tattoo with soft edges and flowing colors',
-    imageUrl: 'examples/example2.jpeg',
-    tags: ['Watercolor', 'Floral', 'Soft']
+    pictures: ['examples/example2.jpeg'],
+    tags: ['Watercolor', 'Floral', 'Soft'],
+    ownerUuid: '1'
   },
   {
     uuid: '3',
     title: 'Realistic Portrait',
     description: 'Detailed black and grey portrait tattoo showcasing realistic shading techniques',
-    imageUrl: 'examples/example3.jpg',
-    tags: ['Realistic', 'Portrait', 'Black & Grey']
+    pictures: ['examples/example3.jpg'],
+    tags: ['Realistic', 'Portrait', 'Black & Grey'],
+    ownerUuid: '1'
   }
 ]);
 

@@ -2,6 +2,7 @@
   <div class="image-carousel" :style="{ height: height }">
     <Carousel
       v-if="pictures && pictures.length > 0"
+      :enabled="pictures && pictures.length > 1"
       v-bind="carouselConfig"
     >
       <Slide v-for="(picture, index) in pictures" :key="`key-${picture}-${index}`">
@@ -17,7 +18,7 @@
       </Slide>
 
       <template #addons>
-        <Pagination />
+        <Pagination v-if="pictures && pictures.length > 1" />
       </template>
     </Carousel>
 

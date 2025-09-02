@@ -156,14 +156,18 @@ const portfolioItems = ref([
     title: 'Live Performance at Central Park',
     description: 'Amazing live performance with full orchestra',
     imageUrl: 'examples/example1.jpg',
-    tags: ['Live', 'Orchestra', 'Performance']
+    tags: ['Live', 'Orchestra', 'Performance'],
+    ownerUuid: '1',
+    pictures: ['examples/example1.jpg']
   },
   {
     uuid: '2',
     title: 'Studio Recording Session',
     description: 'Professional studio recording for new album',
     imageUrl: 'examples/example2.jpeg',
-    tags: ['Studio', 'Recording', 'Album']
+    tags: ['Studio', 'Recording', 'Album'],
+    ownerUuid: '1',
+    pictures: ['examples/example2.jpeg']
   }
 ]);
 

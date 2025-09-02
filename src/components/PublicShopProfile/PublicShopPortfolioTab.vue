@@ -8,35 +8,11 @@
 
       <!-- Portfolio Grid -->
       <div class="portfolio-grid" v-if="portfolioItems.length">
-        <div
+        <PortfolioCard
           v-for="item in portfolioItems"
           :key="item.uuid"
-          class="portfolio-item bg-block border-radius-md"
-        >
-          <div class="portfolio-image">
-            <q-img
-              :src="item.imageUrl"
-              :ratio="1"
-              class="portfolio-img"
-              spinner-color="dark"
-              spinner-size="32px"
-            />
-          </div>
-          <div class="portfolio-info">
-            <h4 class="portfolio-title">{{ item.title }}</h4>
-            <p class="portfolio-description">{{ item.description }}</p>
-            <div class="portfolio-tags">
-              <q-chip
-                v-for="tag in item.tags"
-                :key="tag"
-                :label="tag"
-                size="sm"
-                text-color="white"
-                class="portfolio-tag bg-block"
-              />
-            </div>
-          </div>
-        </div>
+          :work="item"
+        />
       </div>
 
       <!-- Empty State -->
@@ -51,6 +27,7 @@
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
+import PortfolioCard from 'src/components/PortfolioCard.vue';
 
 interface Props {
   portfolioItems: IPortfolio[];
@@ -71,48 +48,6 @@ defineProps<Props>();
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
-}
-
-.portfolio-item {
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.portfolio-image {
-  position: relative;
-}
-
-.portfolio-img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-}
-
-.portfolio-info {
-  padding: 20px;
-}
-
-.portfolio-title {
-  margin: 0 0 12px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.portfolio-description {
-  margin: 0 0 16px 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.portfolio-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.portfolio-tag {
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .empty-state {
