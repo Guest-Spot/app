@@ -1,9 +1,11 @@
 const LOCAL_URL = 'http://localhost:9000';
+const LOCAL_CAPACITOR_URL = 'http://192.168.20.51:9500';
 const STAGING_URL = 'https://guest-spot.vercel.app';
 const PRODUCTION_URL = 'https://guest-spot.vercel.app';
 
 const allowed = new Set([
   LOCAL_URL,
+  LOCAL_CAPACITOR_URL,
   STAGING_URL,
   PRODUCTION_URL
 ]);
