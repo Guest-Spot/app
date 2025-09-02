@@ -36,9 +36,7 @@
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import NoResult from 'src/components/NoResult.vue';
-import PortfolioCard from 'src/components/PortfolioCard.vue';
-import LoadingState from 'src/components/LoadingState.vue';
+import { NoResult, PortfolioCard, LoadingState } from 'src/components';
 
 interface Props {
   portfolioItems: IPortfolio[];

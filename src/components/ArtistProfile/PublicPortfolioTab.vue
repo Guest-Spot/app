@@ -1,29 +1,43 @@
 <template>
   <div class="public-portfolio-tab flex column q-gap-md">
+    <div class="section-header q-mb-md bg-block border-radius-md">
+      <h3 class="text-subtitle1 text-bold q-my-none">Artist Portfolio ({{ portfolioItems.length }})</h3>
+    </div>
+
+    <LoadingState
+      v-if="loading && !portfolioItems.length"
+      :is-loading="loading"
+      title="Loading portfolio items..."
+      description="Please wait while we fetch the latest portfolio items"
+      spinner-name="dots"
+    />
+
     <!-- Portfolio Items -->
-    <div class="portfolio-grid" v-if="portfolioItems.length">
+    <div class="portfolio-grid" v-else-if="portfolioItems.length">
       <PortfolioCard
-        v-for="(work, index) in portfolioItems"
-        :key="`portfolio-${index}`"
-        :work="work"
+        v-for="item in portfolioItems"
+        :key="item.uuid"
+        :work="item"
       />
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state bg-block border-radius-lg">
-      <q-icon name="photo_library" size="60px" color="grey-6" />
-      <h3 class="empty-title">No portfolio items yet</h3>
-      <p class="empty-description text-grey-6">This artist hasn't added any portfolio items yet</p>
-    </div>
+    <NoResult
+      v-else
+      icon="photo_library"
+      title="No Portfolio Items Yet"
+      description="This artist hasn't added any portfolio items yet"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import PortfolioCard from 'src/components/PortfolioCard.vue';
+import { PortfolioCard, NoResult, LoadingState } from 'src/components';
 
 interface Props {
   portfolioItems: IPortfolio[];
+  loading: boolean;
 }
 
 defineProps<Props>();

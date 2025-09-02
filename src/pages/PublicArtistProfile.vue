@@ -83,7 +83,7 @@
           <PublicAboutMeTab :artist-data="artistData" />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-          <PublicPortfolioTab :portfolio-items="portfolioItems" />
+          <PublicPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
         </div>
         <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
           <PublicTripsTab :trips="trips" />
@@ -112,12 +112,13 @@ import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import type { IBooking } from 'src/interfaces/booking';
 import type { ITrip } from 'src/interfaces/trip';
+import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
 import { CreateBookingDialog } from 'src/components/Dialogs';
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const { fetchArtistByUuid } = useArtists();
-const { fetchPortfolioByOwnerUuid } = usePortfolio();
+const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
 
 const TAB_ABOUT = 'about';
@@ -161,7 +162,7 @@ const artistData = ref({
 });
 
 // Portfolio data
-const portfolioItems = ref([]);
+const portfolioItems = ref<IPortfolio[]>([]);
 
 // Trips data
 const trips = ref<ITrip[]>([]);

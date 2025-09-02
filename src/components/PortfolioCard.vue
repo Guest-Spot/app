@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import ImageCarousel from 'src/components/ImageCarousel.vue';
+import { ImageCarousel } from 'src/components';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 
 interface Props {
