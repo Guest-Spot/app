@@ -100,7 +100,7 @@ const copyLink = (value: string) => {
 
 .info-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 16px;
   gap: 12px;
 

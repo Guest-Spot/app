@@ -12,6 +12,7 @@ import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType } from 'src/interfaces/enums';
 import type { IShop } from 'src/interfaces/shop';
+import useDate from 'src/modules/useDate';
 
 interface WorkingHours {
   start: string;
@@ -24,6 +25,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const { formatTime } = useDate();
 
 const contacts = computed(() => ([
   {
@@ -45,11 +48,11 @@ const contacts = computed(() => ([
 const workingHours = computed(() => ([
   {
     label: 'Start',
-    value: props.workingHours.start || '',
+    value: formatTime(props.workingHours.start) || '',
   },
   {
     label: 'End',
-    value: props.workingHours.end || '',
+    value: formatTime(props.workingHours.end) || '',
   },
 ]));
 

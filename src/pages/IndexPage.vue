@@ -17,7 +17,7 @@
         <!-- Shops Tab Content -->
         <div v-if="activeTab === TAB_SHOPS" class="tab-content">
           <LoadingState
-            v-if="isLoadingShops"
+            v-if="isLoadingShops && !filteredShops.length"
             :is-loading="isLoadingShops"
             title="Loading shops..."
             description="Please wait while we fetch the latest shops"
