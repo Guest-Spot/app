@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useFavorites } from 'src/modules/useFavorites';
+import useDate from 'src/modules/useDate';
 import type { IShop } from 'src/interfaces/shop';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 
@@ -48,14 +49,9 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
+const { formatTime } = useDate();
 
 const isFavorite = computed(() => isShopFavorite(props.shop.uuid));
-
-const formatTime = (time: string): string => {
-  if (!time) return '';
-  // Remove seconds from time format hh:mm:ss -> hh:mm
-  return time.split(':').slice(0, 2).join(':');
-};
 
 const workingHoursText = computed(() => {
   if (props.shop.workingHoursStart && props.shop.workingHoursEnd) {

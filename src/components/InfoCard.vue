@@ -28,6 +28,8 @@
           text-color="primary"
           @click="copyLink(item.value)"
         />
+
+        <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
       </div>
     </div>
   </div>
@@ -98,7 +100,7 @@ const copyLink = (value: string) => {
 
 .info-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 16px;
   gap: 12px;
 

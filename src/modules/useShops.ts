@@ -31,11 +31,7 @@ const useShops = () => {
   const fetchShopByUuid = async (uuid: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase
-        .from('shops_view')
-        .select('*')
-        .eq('uuid', uuid)
-        .single();
+      const { data, error } = await supabase.functions.invoke(`shop/${uuid}`);
 
       if (error) {
         console.error('Error fetching shop by UUID:', error);

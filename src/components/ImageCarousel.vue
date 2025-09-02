@@ -3,7 +3,6 @@
     <Carousel
       v-if="pictures && pictures.length > 0"
       v-bind="carouselConfig"
-      @click.stop
     >
       <Slide v-for="(picture, index) in pictures" :key="`key-${picture}-${index}`">
         <div class="carousel-slide">
