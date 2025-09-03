@@ -49,15 +49,17 @@
 
       <q-card-actions class="dialog-actions bg-block">
         <q-btn
-          label="Cancel"
+          color="grey-9"
+          label="Clear All"
           rounded
           unelevated
-          class="bg-block"
-          @click="closeDialog"
+          class="bg-block min-width"
+          @click="clearSort"
         />
         <q-btn
           rounded
           color="primary"
+          class="min-width"
           @click="closeDialog"
         >
           <div class="q-px-md">
@@ -148,6 +150,15 @@ const selectSortOption = (value: string) => {
 const closeDialog = () => {
   isVisible.value = false;
 };
+
+const clearSort = () => {
+  sortBy.value = null;
+  sortDirection.value = 'desc';
+  emit('update:sortValue', {
+    sortBy: sortBy.value,
+    sortDirection: sortDirection.value
+  });
+};
 </script>
 
 <style scoped lang="scss">
@@ -180,8 +191,11 @@ const closeDialog = () => {
     z-index: 10;
 
     .q-btn {
-      min-width: 100px;
       font-weight: 600;
+    }
+
+    .min-width {
+      min-width: 100px;
     }
   }
 }

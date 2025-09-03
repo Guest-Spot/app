@@ -1,13 +1,6 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
-      <!-- Search Section -->
-      <SearchBar
-        v-model="searchQuery"
-        @update:filters="updateFilters"
-        class="hidden"
-      />
-
       <!-- Navigation Tabs -->
       <div class="q-mb-md">
         <SearchTabs
@@ -17,7 +10,9 @@
 
       <SearchHeader
         :title="activeTab === TAB_SHOPS ? `Shops (${filteredShops.length})` : `Artists (${filteredArtists.length})`"
-        @toggle-search="showSearchBar = true"
+        :has-filters="hasActiveFilters"
+        :has-sort="hasActiveSort"
+        @search="onSearch"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
       />
@@ -50,7 +45,6 @@
               :key="shop.uuid"
               :shop="shop"
               @click="selectShop"
-              @favorite="toggleFavorite"
             />
           </div>
           <NoResult
@@ -76,7 +70,6 @@
               :key="artist.uuid"
               :artist="artist"
               @click="selectArtist"
-              @favorite="toggleFavorite"
             />
           </div>
           <NoResult
@@ -94,7 +87,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
-import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
+import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
 import NoResult from 'src/components/NoResult.vue';
@@ -110,7 +103,6 @@ const router = useRouter();
 // Tab management
 const activeTab = ref(TAB_SHOPS);
 const searchQuery = ref('');
-const showSearchBar = ref(false);
 const showFilterDialog = ref(false);
 const showSortDialog = ref(false);
 
@@ -144,6 +136,10 @@ const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
 const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
 
 // Computed properties for filtered results
+const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => filter !== null));
+
+const hasActiveSort = computed(() => sortSettings.value.sortBy !== null);
+
 const filteredShops = computed(() => {
   let filtered = shops.value;
 
@@ -206,23 +202,16 @@ const filteredArtists = computed(() => {
 });
 
 // Methods
+const onSearch = (query: string) => {
+  searchQuery.value = query;
+};
+
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.uuid}`);
 };
 
 const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.uuid}`);
-};
-
-const toggleFavorite = (shopUuid: string) => {
-  console.log('Toggle favorite for ID:', shopUuid);
-  // Toggle favorite status is now handled by the card components
-};
-
-const updateFilters = (filters: SearchFilters) => {
-  activeFilters.value = filters;
-  console.log('Filters updated:', filters);
-  // Apply filters to search results
 };
 
 onBeforeMount(() => {

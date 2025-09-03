@@ -71,9 +71,8 @@
 
       <q-card-actions class="dialog-actions bg-block">
         <q-btn
-          color="grey-6"
+          color="grey-9"
           label="Clear All"
-          flat
           @click="clearFilters"
           rounded
           unelevated

@@ -8,6 +8,7 @@
         <q-btn
           icon="search"
           class="bg-block"
+          :text-color="searchQuery ? 'primary' : ''"
           round
           dense
           @click="showSearch = true"
@@ -15,6 +16,7 @@
         <q-btn
           icon="filter_list"
           class="bg-block"
+          :text-color="hasFilters ? 'primary' : ''"
           round
           dense
           @click="$emit('toggle-filters')"
@@ -22,6 +24,7 @@
         <q-btn
           icon="sort"
           class="bg-block"
+          :text-color="hasSort ? 'primary' : ''"
           round
           dense
           @click="$emit('toggle-sort')"
@@ -44,12 +47,13 @@
               v-model="searchQuery"
               outlined
               dense
-              placeholder="Search..."
+              placeholder="Search by name or location"
               class="full-width"
               autofocus
+              debounce="500"
               clearable
               rounded
-              @keyup.enter="handleSearch"
+              @update:model-value="handleSearch"
             >
               <template v-slot:prepend>
                 <q-icon name="search" />
@@ -76,6 +80,8 @@ import { ref } from 'vue';
 
 interface Props {
   title: string;
+  hasFilters: boolean;
+  hasSort: boolean;
 }
 
 interface Emits {
@@ -92,15 +98,11 @@ const showSearch = ref(false);
 const searchQuery = ref('');
 
 function handleSearch() {
-  if (searchQuery.value.trim()) {
-    emit('search', searchQuery.value);
-    closeSearch();
-  }
+  emit('search', searchQuery.value?.trim() || '');
 }
 
 function closeSearch() {
   showSearch.value = false;
-  searchQuery.value = '';
 }
 </script>
 
