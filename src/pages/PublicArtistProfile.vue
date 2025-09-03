@@ -73,6 +73,7 @@
           send-initial-tab
           @setActiveTab="setActiveTab"
           size="sm"
+          :disable="!artistData.uuid"
         />
       </div>
 
@@ -86,7 +87,7 @@
           <PublicPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
         </div>
         <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
-          <PublicTripsTab :trips="trips" />
+          <PublicTripsTab :trips="trips" :loading="isLoadingTrips" />
         </div>
       </div>
     </div>
@@ -107,6 +108,7 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import useArtists from 'src/modules/useArtists';
 import usePortfolio from 'src/modules/usePortfolio';
+import useTrips from 'src/modules/useTrips';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
@@ -119,6 +121,7 @@ import { CreateBookingDialog } from 'src/components/Dialogs';
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const { fetchArtistByUuid } = useArtists();
 const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
+const { fetchTripsByArtistUuid, isLoading: isLoadingTrips } = useTrips();
 const route = useRoute();
 
 const TAB_ABOUT = 'about';
@@ -216,34 +219,13 @@ const loadPortfolioData = async () => {
 };
 
 // Function to load trips data
-const loadTripsData = () => {
+const loadTripsData = async () => {
   const uuid = route.params.id as string;
   if (uuid) {
-    // Здесь должен быть вызов API для получения поездок артиста
-    // Пока оставляем пустым, так как нет соответствующего API в useArtists
-    // В будущем можно добавить fetchArtistTrips или аналогичный метод
-
-    // Временное решение - имитация загрузки данных
-    // Это нужно будет заменить на реальный API-вызов
-    const mockTrips: ITrip[] = [
-      {
-        uuid: uuid + '-trip1',
-        title: 'European Tour 2024',
-        description: 'Multi-city tour across Europe',
-        startTime: '2024-06-01',
-        endTime: '2024-08-31',
-        status: 'Upcoming',
-        location: 'Europe',
-        date: '2024-06-01',
-        artist: {
-          uuid: uuid,
-          name: artistData.value.name,
-          bio: artistData.value.bio || '',
-        }
-      }
-    ];
-
-    trips.value = mockTrips;
+    const data = await fetchTripsByArtistUuid(uuid);
+    if (data && data.length > 0) {
+      trips.value = data;
+    }
   }
 };
 
