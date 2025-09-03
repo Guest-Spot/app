@@ -78,7 +78,6 @@
            :activeTab="activeTab"
            send-initial-tab
            @setActiveTab="setActiveTab"
-           size="sm"
            :disable="!shopData.uuid"
          />
        </div>

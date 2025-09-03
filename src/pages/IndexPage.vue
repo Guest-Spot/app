@@ -1,15 +1,18 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
-      <!-- Navigation Tabs -->
-      <SearchTabs v-model="activeTab" />
-
       <!-- Search Section -->
       <SearchBar
         v-model="searchQuery"
         @update:filters="updateFilters"
-        class="q-mt-lg q-mb-md"
       />
+
+      <!-- Navigation Tabs -->
+       <div class="q-my-lg">
+         <SearchTabs
+           v-model="activeTab"
+         />
+       </div>
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">

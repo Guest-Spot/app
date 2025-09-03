@@ -9,6 +9,7 @@
         placeholder="Search for shops or artists"
         class="bg-block border-radius-lg"
         clearable
+        :disable="disable"
         @update:model-value="onUpdateModelValue"
       >
         <template v-slot:prepend>
@@ -123,6 +124,7 @@ interface Filters {
 
 interface Props {
   modelValue: string;
+  disable?: boolean;
 }
 
 interface Emits {
