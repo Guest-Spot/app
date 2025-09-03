@@ -1,8 +1,7 @@
 <template>
   <div class="trips-tab flex column q-gap-md">
     <!-- Trips Header -->
-    <div class="trips-header bg-block border-radius-lg">
-      <h3 class="text-subtitle1 text-bold q-my-none">My Portfolio ({{ trips.length }})</h3>
+    <ListHeader :title="`Artist Trips (${trips.length})`">
       <q-btn
         color="primary"
         icon="add"
@@ -11,7 +10,7 @@
         round
         unelevated
       />
-    </div>
+    </ListHeader>
 
     <!-- Loading State -->
     <LoadingState
@@ -61,6 +60,7 @@ import ArtistTripCard from 'src/components/ArtistTripCard.vue';
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResult from 'src/components/NoResult.vue';
 import type { ITrip, ITripForm } from 'src/interfaces/trip';
+import ListHeader from 'src/components/ListHeader.vue';
 
 // State
 const isLoading = ref(false);
@@ -150,13 +150,6 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.trips-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 4px 4px 16px;
-}
-
 .section-title {
   margin: 0;
   color: var(--brand-dark);

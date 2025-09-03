@@ -73,6 +73,7 @@
           send-initial-tab
           @setActiveTab="setActiveTab"
           size="sm"
+          :disable="!artistData.uuid"
         />
       </div>
 
