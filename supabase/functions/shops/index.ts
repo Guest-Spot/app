@@ -3,7 +3,6 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
-// Функция для получения всех магазинов
 Deno.serve(async (req)=>{
   const origin = req.headers.get('Origin') ?? '';
 
@@ -21,7 +20,7 @@ Deno.serve(async (req)=>{
         }
       }
     });
-    const viewFields = 'uuid, username, location, pictures, title, description, phone, email, dateOpened, workingHoursStart, workingHoursEnd, instagram';
+    const viewFields = 'uuid, created_at, username, lat, lng, city, address, pictures, title, description, phone, email, dateOpened, openingHours, instagram';
     const { data, error } = await supabase.from('shops').select(viewFields);
     if (error) throw error;
     return new Response(JSON.stringify(data), {
