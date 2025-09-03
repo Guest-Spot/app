@@ -18,21 +18,30 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
-        <q-list separator>
+        <q-list class="flex column q-gap-sm">
           <q-item
             v-for="option in sortOptions"
             :key="option.value"
             clickable
+            rounded
+            dense
             v-ripple
             @click="selectSortOption(option.value)"
-            :active="sortBy === option.value"
-            active-class="text-primary"
+            class="bg-block border-radius-lg q-pl-sm q-pr-none"
           >
+            <q-item-section avatar>
+              <q-radio v-model="sortBy" :val="option.value" />
+            </q-item-section>
             <q-item-section>
               <q-item-label>{{ option.label }}</q-item-label>
             </q-item-section>
             <q-item-section avatar v-if="sortBy === option.value">
-              <q-icon :name="sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward'" color="primary" />
+              <q-avatar class="bg-block">
+                <q-icon
+                  :name="sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward'"
+                  :color="sortBy === option.value ? 'primary' : 'grey-9'"
+                />
+              </q-avatar>
             </q-item-section>
           </q-item>
         </q-list>
