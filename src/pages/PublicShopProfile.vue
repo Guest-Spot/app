@@ -89,7 +89,7 @@
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
           <PublicAboutShopTab
             :shop-data="shopData"
-            :working-hours="workingHours"
+            :loading="isLoading"
           />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
@@ -136,7 +136,7 @@ import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue'
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
-const { fetchShopByUuid, fetchShopArtists, isLoading } = useShops();
+const { fetchShopByUuid, fetchShopArtists, isLoading, findShopByUuidInStore } = useShops();
 const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
 
@@ -179,14 +179,7 @@ const shopData = ref<IShop>({
   workingHoursStart: '',
   workingHoursEnd: '',
   instagram: '',
-  facebook: '',
   pictures: [],
-});
-
-// Working hours
-const workingHours = ref({
-  start: '',
-  end: ''
 });
 
 // Artists data
@@ -215,20 +208,18 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
   showBookingDialog.value = false;
 };
 
-// Fetch shop data on component mount
+// Fetch shop data from store or supabase
 const loadShopData = async () => {
   const uuid = route.params.id as string;
   if (uuid) {
-    const data = await fetchShopByUuid(uuid);
-    if (data) {
-      shopData.value = data;
-
-      // Update working hours
-      workingHours.value = {
-        start: data.workingHoursStart || '',
-        end: data.workingHoursEnd || ''
-      };
-      // Working hours are updated from shop data
+    const shopInStore = findShopByUuidInStore(uuid);
+    if (shopInStore) {
+      shopData.value = shopInStore;
+    } else {
+      const data = await fetchShopByUuid(uuid);
+      if (data) {
+        shopData.value = data;
+      }
     }
   }
 };

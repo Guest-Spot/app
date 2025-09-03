@@ -117,6 +117,10 @@ const useArtists = () => {
     }
   };
 
+  const findArtistByUuidInStore = (uuid: string) => {
+    return artists.value.find(artist => artist.uuid === uuid);
+  };
+
   return {
     artists,
     isLoading,
@@ -124,7 +128,8 @@ const useArtists = () => {
     fetchArtistByUuid,
     createArtist,
     updateArtist,
-    deleteArtist
+    deleteArtist,
+    findArtistByUuidInStore
   };
 };
 

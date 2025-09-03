@@ -59,6 +59,7 @@ import type { IArtist } from 'src/interfaces/artist';
 const artists = ref<IArtist[]>([
   {
     uuid: '1',
+    username: 'john_doe',
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
     avatar: 'artists/artist1.jpeg',
@@ -67,6 +68,7 @@ const artists = ref<IArtist[]>([
   },
   {
     uuid: '2',
+    username: 'jane_smith',
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos.',
     avatar: 'artists/artist2.jpg',
