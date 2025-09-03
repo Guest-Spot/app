@@ -15,53 +15,13 @@
 
     <!-- Trips List -->
     <div v-if="trips.length" class="trips-list">
-      <div
+      <ArtistTripCard
         v-for="(trip, index) in trips"
         :key="index"
-        class="trip-item bg-block border-radius-md"
-      >
-        <div class="trip-header bg-block q-pa-md">
-          <div class="trip-location">
-            <q-icon name="location_on" color="primary" size="20px" />
-            <span class="location-text">{{ trip.location }}</span>
-          </div>
-          <div class="trip-actions">
-            <q-btn
-              round
-              class="bg-block"
-              icon="edit"
-              size="sm"
-              unelevated
-              @click="editTrip(index)"
-            />
-          </div>
-        </div>
-
-        <div class="trip-content">
-          <div class="trip-info">
-            <div class="info-row">
-              <span class="info-label">Date:</span>
-              <span class="info-value text-grey-6">{{ trip.date }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Location:</span>
-              <span class="info-value text-grey-6">{{ trip.location }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Start time:</span>
-              <span class="info-value text-grey-6">{{ trip.startTime }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">End time:</span>
-              <span class="info-value text-grey-6">{{ trip.endTime }}</span>
-            </div>
-          </div>
-
-          <div class="trip-description">
-            <p>{{ trip.description }}</p>
-          </div>
-        </div>
-      </div>
+        :trip="trip"
+        editable
+        @edit="editTrip(index)"
+      />
     </div>
 
     <!-- Empty State -->
@@ -92,6 +52,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TripDialog from 'src/components/Dialogs/TripDialog.vue';
+import ArtistTripCard from 'src/components/ArtistTripCard.vue';
 import type { ITrip, ITripForm } from 'src/interfaces/trip';
 
 // Mock trips data
@@ -199,61 +160,6 @@ defineExpose({
   gap: 16px;
 }
 
-.trip-item {
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.trip-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.trip-location {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.location-text {
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.trip-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.trip-content {
-  padding: 20px;
-}
-
-.trip-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.info-label {
-  font-weight: 600;
-  min-width: 60px;
-}
-
-.trip-description {
-  p {
-    margin: 0;
-    line-height: 1.6;
-  }
-}
 
 .trip-photos {
   padding-top: 20px;

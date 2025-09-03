@@ -12,7 +12,7 @@
 
     <!-- Trips List -->
     <div class="trips-list" v-else-if="trips.length">
-      <TripCard
+      <ArtistTripCard
         v-for="(trip, index) in trips"
         :key="`trip-${index}`"
         :trip="trip"
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import type { ITrip } from 'src/interfaces/trip';
 import ListHeader from 'src/components/ListHeader.vue';
-import { NoResult, LoadingState, TripCard } from 'src/components';
+import { NoResult, LoadingState, ArtistTripCard } from 'src/components';
 
 interface Props {
   trips: ITrip[];
