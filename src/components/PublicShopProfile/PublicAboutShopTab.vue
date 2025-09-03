@@ -1,6 +1,6 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
-    <InfoCard title="Working Hours" icon="schedule" :data="workingHours" />
+    <InfoCard title="Working Hours" icon="schedule" :data="workingHours" :loading="loading" />
     <InfoCard title="Contacts" icon="location_on" :data="contacts" />
     <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
@@ -14,14 +14,9 @@ import { InfoItemType } from 'src/interfaces/enums';
 import type { IShop } from 'src/interfaces/shop';
 import useDate from 'src/modules/useDate';
 
-interface WorkingHours {
-  start: string;
-  end: string;
-}
-
 interface Props {
   shopData: IShop;
-  workingHours: WorkingHours;
+  loading: boolean;
 }
 
 const props = defineProps<Props>();
@@ -48,11 +43,11 @@ const contacts = computed(() => ([
 const workingHours = computed(() => ([
   {
     label: 'Start',
-    value: formatTime(props.workingHours.start) || '',
+    value: formatTime(props.shopData.workingHoursStart || ''),
   },
   {
     label: 'End',
-    value: formatTime(props.workingHours.end) || '',
+    value: formatTime(props.shopData.workingHoursEnd || ''),
   },
 ]));
 
