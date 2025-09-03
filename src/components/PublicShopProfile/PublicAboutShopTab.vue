@@ -63,11 +63,6 @@ const links = computed(() => ([
     label: 'Instagram',
     value: props.shopData.instagram || '',
     type: InfoItemType.Link,
-  },
-  {
-    label: 'Facebook',
-    value: props.shopData.facebook || '',
-    type: InfoItemType.Link,
-  },
+  }
 ].filter(link => !!link.value)));
 </script>

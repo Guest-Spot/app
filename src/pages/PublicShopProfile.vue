@@ -179,7 +179,6 @@ const shopData = ref<IShop>({
   workingHoursStart: '',
   workingHoursEnd: '',
   instagram: '',
-  facebook: '',
   pictures: [],
 });
 

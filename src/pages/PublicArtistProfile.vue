@@ -117,9 +117,10 @@ import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
 import { CreateBookingDialog } from 'src/components/Dialogs';
+import type { IArtist } from 'src/interfaces/artist';
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
-const { fetchArtistByUuid } = useArtists();
+const { fetchArtistByUuid, findArtistByUuidInStore } = useArtists();
 const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
 const { fetchTripsByArtistUuid, isLoading: isLoadingTrips } = useTrips();
 const route = useRoute();
@@ -151,7 +152,7 @@ const setActiveTab = (tab: ITab) => {
 };
 
 // Artist data from Supabase
-const artistData = ref({
+const artistData = ref<IArtist>({
   uuid: '',
   username: '',
   name: '',
@@ -160,8 +161,7 @@ const artistData = ref({
   avatar: '',
   phone: '',
   email: '',
-  instagram: '',
-  facebook: '',
+  instagram: ''
 });
 
 // Portfolio data
@@ -178,9 +178,13 @@ const toggleFavorite = () => {
   toggleArtistFavorite({
     uuid: artistData.value.uuid,
     name: artistData.value.name,
-    status: artistData.value.status,
     bio: artistData.value.bio,
-    avatar: artistData.value.avatar
+    username: artistData.value.username,
+    status: artistData.value.status || '',
+    avatar: artistData.value.avatar || '',
+    phone: artistData.value.phone || '',
+    email: artistData.value.email || '',
+    instagram: artistData.value.instagram || ''
   });
 };
 
@@ -200,9 +204,14 @@ const handleBookingSubmit = (data: Partial<IBooking>) => {
 const loadArtistData = async () => {
   const uuid = route.params.id as string;
   if (uuid) {
-    const data = await fetchArtistByUuid(uuid);
-    if (data) {
-      artistData.value = data;
+    const artistInStore = findArtistByUuidInStore(uuid);
+    if (artistInStore) {
+      artistData.value = artistInStore;
+    } else {
+      const data = await fetchArtistByUuid(uuid);
+      if (data) {
+        artistData.value = data;
+      }
     }
   }
 };

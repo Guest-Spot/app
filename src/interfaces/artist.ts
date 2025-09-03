@@ -2,8 +2,8 @@ export interface IArtist {
   uuid: string;
   name: string;
   bio: string;
+  username: string;
   phone?: string;
-  username?: string;
   email?: string;
   avatar?: string;
   experience?: number;

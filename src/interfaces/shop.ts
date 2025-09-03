@@ -12,5 +12,4 @@ export interface IShop {
   workingHoursEnd?: string;
   pricing?: string;
   instagram?: string;
-  facebook?: string;
 };

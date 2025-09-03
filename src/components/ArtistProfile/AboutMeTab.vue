@@ -111,17 +111,6 @@
             v-model="artistData.instagram"
           />
         </div>
-        <div class="input-group">
-          <label class="input-label">Facebook</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Facebook link"
-            class="custom-input"
-            v-model="artistData.facebook"
-          />
-        </div>
       </div>
     </q-expansion-item>
 
@@ -157,7 +146,6 @@ const artistData = ref({
   phone: '+1 (555) 123-4567',
   email: 'john.doe@example.com',
   instagram: 'https://instagram.com/johndoe_artist',
-  facebook: 'https://facebook.com/johndoe.artist',
 });
 
 const saveChanges = () => {
