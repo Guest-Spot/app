@@ -1,81 +1,45 @@
 <template>
   <div class="public-trips-tab flex column q-gap-md">
+    <ListHeader :title="`Artist Trips (${trips.length})`" />
+
+    <LoadingState
+      v-if="loading && !trips.length"
+      :is-loading="loading"
+      title="Loading trips..."
+      description="Please wait while we fetch the latest trips"
+      spinner-name="dots"
+    />
+
     <!-- Trips List -->
-    <div class="trips-list" v-if="trips.length">
-      <div
+    <div class="trips-list" v-else-if="trips.length">
+      <TripCard
         v-for="(trip, index) in trips"
         :key="`trip-${index}`"
-        class="trip-item bg-block border-radius-md q-pa-lg"
-      >
-        <q-chip
-          :label="trip.status"
-          :color="getStatusColor(trip.status)"
-          text-color="white"
-          size="sm"
-          class="trip-status absolute-top-right q-ma-md"
-        />
-        <div class="trip-header flex column q-gap-sm q-mb-md">
-          <h4 class="trip-title">{{ trip.title }}</h4>
-          <p class="trip-description text-grey-6">{{ trip.description }}</p>
-        </div>
-        <div class="trip-content">
-          <div class="trip-dates">
-            <div class="date-item">
-              <q-icon name="event" size="16px" color="grey-6" />
-              <span class="date-label">Start:</span>
-              <span class="date-value text-grey-6">{{ formatDate(trip.startTime) }}</span>
-            </div>
-            <div class="date-item">
-              <q-icon name="event" size="16px" color="grey-6" />
-              <span class="date-label">End:</span>
-              <span class="date-value text-grey-6">{{ formatDate(trip.endTime) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        :trip="trip"
+      />
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state bg-block border-radius-lg">
-      <q-icon name="flight" size="60px" color="grey-6" />
-      <h3 class="empty-title">No trips planned yet</h3>
-      <p class="empty-description text-grey-6">This artist hasn't announced any upcoming trips or tours</p>
-    </div>
+    <NoResult
+      v-else
+      icon="flight"
+      title="No trips planned yet"
+      description="This artist hasn't announced any upcoming trips or tours"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { ITrip } from 'src/interfaces/trip';
+import ListHeader from 'src/components/ListHeader.vue';
+import { NoResult, LoadingState, TripCard } from 'src/components';
 
 interface Props {
   trips: ITrip[];
+  loading: boolean;
 }
 
 defineProps<Props>();
-
-const getStatusColor = (status: string): string => {
-  switch (status.toLowerCase()) {
-    case 'upcoming':
-      return 'positive';
-    case 'ongoing':
-      return 'primary';
-    case 'completed':
-      return 'grey-6';
-    case 'planning':
-      return 'warning';
-    default:
-      return 'grey-6';
-  }
-};
-
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
 </script>
 
 <style scoped lang="scss">

@@ -105,12 +105,7 @@ const trips = ref<ITrip[]>([
     endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
     status: '',
-    artist: {
-      uuid: '1',
-      name: 'John Doe',
-      bio: 'Experienced tattoo artist specializing in traditional American style tattoos with a modern twist.',
-      avatar: 'artists/artist1.jpeg'
-    }
+    artistUuid: '1'
   },
   {
     uuid: '2',
@@ -121,12 +116,7 @@ const trips = ref<ITrip[]>([
     endTime: '21:45',
     description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
     status: '',
-    artist: {
-      uuid: '2',
-      name: 'Jane Smith',
-      bio: 'Creative artist known for beautiful watercolor style tattoos and unique designs.',
-      avatar: 'artists/artist2.jpg'
-    }
+    artistUuid: '2'
   },
   {
     uuid: '3',
@@ -137,12 +127,7 @@ const trips = ref<ITrip[]>([
     endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
     status: '',
-    artist: {
-      uuid: '3',
-      name: 'Mike Johnson',
-      bio: 'Master of realistic black and grey tattoos, specializing in portraits and detailed artwork.',
-      avatar: 'artists/artist3.jpg'
-    }
+    artistUuid: '3'
   }
 ]);
 
@@ -158,12 +143,7 @@ const currentTrip = ref<ITrip>({
   description: '',
   title: '',
   status: '',
-  artist: {
-    uuid: '',
-    name: '',
-    bio: '',
-    avatar: ''
-  }
+  artistUuid: '4'
 });
 
 const addNewTrip = () => {
@@ -177,12 +157,7 @@ const addNewTrip = () => {
     description: '',
     title: '',
     status: '',
-    artist: {
-      uuid: '',
-      name: '',
-      bio: '',
-      avatar: ''
-    }
+    artistUuid: ''
   };
   showTripDialog.value = true;
 };

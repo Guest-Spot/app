@@ -1,8 +1,6 @@
 <template>
   <div class="public-portfolio-tab flex column q-gap-md">
-    <div class="section-header q-mb-md bg-block border-radius-md">
-      <h3 class="text-subtitle1 text-bold q-my-none">Artist Portfolio ({{ portfolioItems.length }})</h3>
-    </div>
+    <ListHeader :title="`Artist Portfolio (${portfolioItems.length})`" />
 
     <LoadingState
       v-if="loading && !portfolioItems.length"
@@ -33,6 +31,7 @@
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
+import ListHeader from 'src/components/ListHeader.vue';
 import { PortfolioCard, NoResult, LoadingState } from 'src/components';
 
 interface Props {
