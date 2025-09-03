@@ -8,3 +8,4 @@ export { default as PortfolioCard } from './PortfolioCard.vue';
 export { default as ArtistTripCard } from './ArtistTripCard.vue';
 export { default as NoResult } from './NoResult.vue';
 export { default as LoadingState } from './LoadingState.vue';
+export { default as ListHeader } from './ListHeader.vue';

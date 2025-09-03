@@ -1,6 +1,6 @@
 <template>
-  <div class="list-header bg-block border-radius-md">
-    <h3 class="text-subtitle1 text-bold q-my-none">{{ title }}</h3>
+  <div class="list-header bg-block border-radius-lg">
+    <h3 v-if="title" class="text-subtitle1 text-bold q-my-none">{{ title }}</h3>
     <slot />
   </div>
 </template>

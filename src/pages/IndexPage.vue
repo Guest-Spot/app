@@ -5,14 +5,33 @@
       <SearchBar
         v-model="searchQuery"
         @update:filters="updateFilters"
+        class="hidden"
       />
 
       <!-- Navigation Tabs -->
-       <div class="q-my-lg">
-         <SearchTabs
-           v-model="activeTab"
-         />
-       </div>
+      <div class="q-mb-md">
+        <SearchTabs
+          v-model="activeTab"
+        />
+      </div>
+
+      <SearchHeader
+        :title="activeTab === TAB_SHOPS ? `Shops (${filteredShops.length})` : `Artists (${filteredArtists.length})`"
+        @toggle-search="showSearchBar = true"
+        @toggle-filters="showFilterDialog = true"
+        @toggle-sort="showSortDialog = true"
+      />
+
+      <!-- Dialogs -->
+      <FilterDialog
+        v-model="showFilterDialog"
+        v-model:filterValue="activeFilters"
+      />
+
+      <SortDialog
+        v-model="showSortDialog"
+        v-model:sortValue="sortSettings"
+      />
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
@@ -82,6 +101,8 @@ import NoResult from 'src/components/NoResult.vue';
 import LoadingState from 'src/components/LoadingState.vue';
 import useShops from 'src/modules/useShops';
 import useArtists from 'src/modules/useArtists';
+import SearchHeader from 'src/components/SearchPage/SearchHeader.vue';
+import { FilterDialog, SortDialog } from 'src/components/Dialogs';
 
 // Router
 const router = useRouter();
@@ -89,6 +110,9 @@ const router = useRouter();
 // Tab management
 const activeTab = ref(TAB_SHOPS);
 const searchQuery = ref('');
+const showSearchBar = ref(false);
+const showFilterDialog = ref(false);
+const showSortDialog = ref(false);
 
 // Filters
 interface SearchFilters {
@@ -103,6 +127,17 @@ const activeFilters = ref<SearchFilters>({
   category: null,
   rating: null,
   priceRange: null
+});
+
+// Sort settings
+interface SortSettings {
+  sortBy: string | null;
+  sortDirection: 'asc' | 'desc';
+}
+
+const sortSettings = ref<SortSettings>({
+  sortBy: null,
+  sortDirection: 'desc'
 });
 
 const { shops, fetchShops, isLoading: isLoadingShops } = useShops();

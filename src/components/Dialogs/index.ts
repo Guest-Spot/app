@@ -1,5 +1,7 @@
 export { default as ArtistInviteDialog } from './ArtistInviteDialog.vue';
 export { default as CreateBookingDialog } from './CreateBookingDialog.vue';
+export { default as FilterDialog } from './FilterDialog.vue';
 export { default as PortfolioDialog } from './PortfolioDialog.vue';
+export { default as SortDialog } from './SortDialog.vue';
 export { default as TimePickerDialog } from './TimePickerDialog.vue';
 export { default as TripDialog } from './TripDialog.vue';
