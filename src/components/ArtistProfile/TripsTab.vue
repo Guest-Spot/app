@@ -13,8 +13,17 @@
       />
     </div>
 
+    <!-- Loading State -->
+    <LoadingState
+      v-if="isLoading"
+      :is-loading="isLoading"
+      title="Loading Trips"
+      description="Please wait while we fetch your trips data"
+      spinner-name="dots"
+    />
+
     <!-- Trips List -->
-    <div v-if="trips.length" class="trips-list">
+    <div v-else-if="trips.length" class="trips-list">
       <ArtistTripCard
         v-for="(trip, index) in trips"
         :key="index"
@@ -25,19 +34,15 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state bg-block border-radius-lg">
-      <q-icon name="flight_takeoff" size="60px" color="grey-6" />
-      <h3 class="empty-title">No trips recorded yet</h3>
-      <p class="empty-description">Start documenting your performances and travels</p>
-      <q-btn
-        class="bg-block"
-        icon="add"
-        label="Add Your First Trip"
-        @click="addNewTrip"
-        rounded
-        unelevated
-      />
-    </div>
+    <NoResult
+      v-else
+      icon="train"
+      title="No trips recorded yet"
+      description="Start documenting your performances and travels"
+      link-label="Add Your First Trip"
+      link-icon="add"
+      @click="addNewTrip"
+    />
 
     <!-- Trip Dialog -->
     <TripDialog
@@ -53,7 +58,12 @@
 import { ref } from 'vue';
 import TripDialog from 'src/components/Dialogs/TripDialog.vue';
 import ArtistTripCard from 'src/components/ArtistTripCard.vue';
+import LoadingState from 'src/components/LoadingState.vue';
+import NoResult from 'src/components/NoResult.vue';
 import type { ITrip, ITripForm } from 'src/interfaces/trip';
+
+// State
+const isLoading = ref(false);
 
 // Mock trips data
 const trips = ref<ITrip[]>([
