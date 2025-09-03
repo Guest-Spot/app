@@ -136,6 +136,10 @@ const useShops = () => {
     }
   };
 
+  const findShopByUuidInStore = (uuid: string) => {
+    return shops.value.find(shop => shop.uuid === uuid);
+  };
+
   return {
     shops,
     isLoading,
@@ -144,7 +148,8 @@ const useShops = () => {
     fetchShopArtists,
     createShop,
     updateShop,
-    deleteShop
+    deleteShop,
+    findShopByUuidInStore
   };
 };
 

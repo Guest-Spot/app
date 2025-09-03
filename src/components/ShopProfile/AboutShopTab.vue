@@ -179,17 +179,6 @@
             v-model="shopData.instagram"
           />
         </div>
-        <div class="input-group">
-          <label class="input-label">Facebook</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Facebook link"
-            class="custom-input"
-            v-model="shopData.facebook"
-          />
-        </div>
       </div>
     </q-expansion-item>
 
@@ -226,7 +215,6 @@ const shopData = ref({
   email: '',
   dateOpened: '',
   instagram: '',
-  facebook: '',
 });
 
 const workingHours = ref({

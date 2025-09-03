@@ -21,7 +21,7 @@ Deno.serve(async (req)=>{
         }
       }
     });
-    const viewFields = 'uuid, name, bio, phone, username, email, avatar, experience, location, status';
+    const viewFields = 'uuid, name, bio, phone, username, email, avatar, experience, location, status, instagram';
     const { data, error } = await supabase.from('artists').select(viewFields);
     if (error) throw error;
     return new Response(JSON.stringify(data), {

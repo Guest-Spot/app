@@ -74,8 +74,7 @@ const toggleFavorite = () => {
     ...(props.shop.workingHoursStart && { workingHoursStart: props.shop.workingHoursStart }),
     ...(props.shop.workingHoursEnd && { workingHoursEnd: props.shop.workingHoursEnd }),
     ...(props.shop.pricing && { pricing: props.shop.pricing }),
-    ...(props.shop.instagram && { instagram: props.shop.instagram }),
-    ...(props.shop.facebook && { facebook: props.shop.facebook })
+    ...(props.shop.instagram && { instagram: props.shop.instagram })
   };
   toggleShopFavorite(shopData);
   emit('favorite', props.shop.uuid);
