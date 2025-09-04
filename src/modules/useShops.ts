@@ -11,7 +11,7 @@ const useShops = () => {
 
   const shops = computed(() => shopsStore.getShops);
 
-  const fetchShops = async (filters?: IFilters) => {
+      const fetchShops = async (filters?: IFilters) => {
     isLoading.value = true;
     try {
       let query = supabase
@@ -21,7 +21,11 @@ const useShops = () => {
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (value && value !== null && value !== undefined) {
-            query = query.eq(key, value);
+            if (key === 'name') {
+              query = query.ilike(key, `%${value}%`);
+            } else {
+              query = query.eq(key, value);
+            }
           }
         });
       }

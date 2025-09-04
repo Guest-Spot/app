@@ -17,8 +17,12 @@ const useArtists = () => {
       let query = supabase.from('artists').select('*');
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
-            query = query.eq(key, value);
+          if (value && value !== null && value !== undefined) {
+            if (key === 'name') {
+              query = query.ilike(key, `%${value}%`);
+            } else {
+              query = query.eq(key, value);
+            }
           }
         });
       }
