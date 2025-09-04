@@ -13,7 +13,7 @@
       <div class="artist-info">
         <div class="artist-location text-grey-6">
           <q-icon name="location_on" size="14px" />
-          <span>{{ artist.location }}</span>
+          <span>{{ artist.city }} {{ artist.address }}</span>
         </div>
         <div class="artist-experience text-grey-6">
           <q-icon name="work" size="14px" />

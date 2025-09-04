@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       }
     });
 
-    const viewFields = 'uuid, username, name, bio, avatar, phone, email, experience, experience, location, status, instagram';
+    const viewFields = 'uuid, created_at, username, name, bio, avatar, phone, email, experience, city, address, status, instagram';
 
     if (!artistUuid || artistUuid === 'artist') {
       return new Response(JSON.stringify({

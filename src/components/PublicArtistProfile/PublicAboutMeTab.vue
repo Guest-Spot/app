@@ -39,8 +39,12 @@ const basicInformation = computed(() => ([
 
 const contacts = computed(() => ([
   {
-    label: 'Location',
-    value: props.artistData.location || '',
+    label: 'City',
+    value: props.artistData.city || '',
+  },
+  {
+    label: 'Address',
+    value: props.artistData.address || '',
   },
   {
     label: 'Phone',

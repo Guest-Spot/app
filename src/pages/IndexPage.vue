@@ -148,7 +148,7 @@ const filteredShops = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(shop =>
       shop.title.toLowerCase().includes(query) ||
-      shop.location.toLowerCase().includes(query) ||
+      shop.city.toLowerCase().includes(query) ||
       shop.description.toLowerCase().includes(query)
     );
   }
@@ -156,7 +156,7 @@ const filteredShops = computed(() => {
   // Apply location filter
   if (activeFilters.value.location) {
     filtered = filtered.filter(shop =>
-      shop.location === activeFilters.value.location
+      shop.city === activeFilters.value.location
     );
   }
 
@@ -180,14 +180,14 @@ const filteredArtists = computed(() => {
     filtered = filtered.filter(artist =>
       artist.name.toLowerCase().includes(query) ||
       artist.bio.toLowerCase().includes(query) ||
-      (artist.location && artist.location.toLowerCase().includes(query))
+      (artist.city && artist.city.toLowerCase().includes(query))
     );
   }
 
   // Apply location filter
   if (activeFilters.value.location) {
     filtered = filtered.filter(artist =>
-      artist.location && artist.location === activeFilters.value.location
+      artist.city && artist.city === activeFilters.value.location
     );
   }
 

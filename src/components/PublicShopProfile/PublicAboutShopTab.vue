@@ -1,7 +1,7 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
-    <InfoCard title="Working Hours" icon="schedule" :data="workingHours" :loading="loading" />
     <InfoCard title="Contacts" icon="location_on" :data="contacts" />
+    <InfoCard v-if="workingHours" title="Opening Times" icon="schedule" :data="workingHours" :loading="loading" />
     <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
   </div>
@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType } from 'src/interfaces/enums';
+import { InfoItemType, OpeningTimesDays } from 'src/interfaces/enums';
 import type { IShop } from 'src/interfaces/shop';
 import useDate from 'src/modules/useDate';
 
@@ -25,8 +25,12 @@ const { formatTime, formatDate } = useDate();
 
 const contacts = computed(() => ([
   {
-    label: 'Location',
-    value: props.shopData.location || '',
+    label: 'City',
+    value: props.shopData.city || '',
+  },
+  {
+    label: 'Address',
+    value: props.shopData.address || '',
   },
   {
     label: 'Phone',
@@ -40,16 +44,10 @@ const contacts = computed(() => ([
   },
 ]));
 
-const workingHours = computed(() => ([
-  {
-    label: 'Start',
-    value: formatTime(props.shopData.workingHoursStart || ''),
-  },
-  {
-    label: 'End',
-    value: formatTime(props.shopData.workingHoursEnd || ''),
-  },
-]));
+const workingHours = computed(() => props.shopData.openingTimes?.map(hour => ({
+  label: OpeningTimesDays[hour.day as keyof typeof OpeningTimesDays],
+  value: `${formatTime(hour.start)} - ${formatTime(hour.end)}`,
+})));
 
 const additionalInfo = computed(() => ([
   {

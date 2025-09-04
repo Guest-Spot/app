@@ -18,11 +18,11 @@
       <div class="shop-info">
         <div class="shop-location text-grey-6">
           <q-icon name="location_on" size="16px" />
-          <span>{{ shop.location }}</span>
+          <span>{{ shop.city }} {{ shop.address }}</span>
         </div>
         <div class="shop-hours text-grey-6">
           <q-icon name="schedule" size="16px" />
-          <span>{{ workingHoursText }}</span>
+          <span>{{ openingTimeText }}</span>
         </div>
       </div>
     </div>
@@ -35,6 +35,7 @@ import { useFavorites } from 'src/modules/useFavorites';
 import useDate from 'src/modules/useDate';
 import type { IShop } from 'src/interfaces/shop';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
+import { OpeningTimesIndexDays } from 'src/interfaces/enums';
 
 interface Props {
   shop: IShop;
@@ -53,11 +54,16 @@ const { formatTime } = useDate();
 
 const isFavorite = computed(() => isShopFavorite(props.shop.uuid));
 
-const workingHoursText = computed(() => {
-  if (props.shop.workingHoursStart && props.shop.workingHoursEnd) {
-    return `${formatTime(props.shop.workingHoursStart)} - ${formatTime(props.shop.workingHoursEnd)}`;
+const openingTimeText = computed(() => {
+  const dayIndex = new Date().getDay();
+  const todayKey = Object.entries(OpeningTimesIndexDays).find(
+    ([, value]) => Number(value) === dayIndex
+  )?.[0] as keyof typeof OpeningTimesIndexDays | undefined;
+  const todayTime = props.shop.openingTimes?.find(time => time.day === todayKey);
+  if (todayTime) {
+    return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
   }
-  return '9:00 - 18:00';
+  return '9:00 AM - 6:00 PM';
 });
 
 const toggleFavorite = () => {
@@ -65,14 +71,16 @@ const toggleFavorite = () => {
     uuid: props.shop.uuid,
     username: props.shop.username,
     title: props.shop.title,
-    location: props.shop.location,
+    city: props.shop.city,
+    address: props.shop.address,
     description: props.shop.description,
     pictures: props.shop.pictures,
+    lat: props.shop.lat,
+    lng: props.shop.lng,
     ...(props.shop.phone && { phone: props.shop.phone }),
     ...(props.shop.email && { email: props.shop.email }),
     ...(props.shop.dateOpened && { dateOpened: props.shop.dateOpened }),
-    ...(props.shop.workingHoursStart && { workingHoursStart: props.shop.workingHoursStart }),
-    ...(props.shop.workingHoursEnd && { workingHoursEnd: props.shop.workingHoursEnd }),
+    ...(props.shop.openingTimes && { openingTimes: props.shop.openingTimes }),
     ...(props.shop.pricing && { pricing: props.shop.pricing }),
     ...(props.shop.instagram && { instagram: props.shop.instagram })
   };

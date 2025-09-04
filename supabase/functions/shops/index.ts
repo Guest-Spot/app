@@ -20,8 +20,7 @@ Deno.serve(async (req)=>{
         }
       }
     });
-    const viewFields = 'uuid, created_at, username, lat, lng, city, address, pictures, title, description, phone, email, dateOpened, openingHours, instagram';
-    const { data, error } = await supabase.from('shops').select(viewFields);
+    const { data, error } = await supabase.from('shops_with_opening_times').select('*');
     if (error) throw error;
     return new Response(JSON.stringify(data), {
       headers: {

@@ -169,16 +169,17 @@ const setActiveTab = (tab: ITab) => {
 const shopData = ref<IShop>({
   uuid: '',
   username: '',
-  location: '',
+  city: '',
+  address: '',
   description: '',
   title: '',
   phone: '',
   email: '',
   dateOpened: '',
-  workingHoursStart: '',
-  workingHoursEnd: '',
   instagram: '',
   pictures: [],
+  lat: 0,
+  lng: 0,
 });
 
 // Artists data

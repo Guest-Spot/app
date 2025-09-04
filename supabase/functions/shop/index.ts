@@ -25,8 +25,6 @@ Deno.serve(async (req) => {
       }
     });
 
-    const viewFields = 'uuid, username, location, pictures, title, description, phone, email, dateOpened, workingHoursStart, workingHoursEnd, instagram';
-
     if (!shopUuid || shopUuid === 'shop') {
       return new Response(JSON.stringify({
         message: 'Shop UUID is required'
@@ -40,8 +38,8 @@ Deno.serve(async (req) => {
     }
 
     const { data, error } = await supabase
-      .from('shops')
-      .select(viewFields)
+      .from('shops_with_opening_times')
+      .select('*')
       .eq('uuid', shopUuid)
       .single();
 
