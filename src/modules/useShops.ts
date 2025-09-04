@@ -2,6 +2,7 @@ import { computed, inject, ref } from "vue";
 import { useShopsStore } from "src/stores/shops";
 import type { IShop } from "src/interfaces/shop";
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { IFilters } from 'src/interfaces/filters';
 
 const useShops = () => {
   const supabase = inject('supabase') as SupabaseClient;
@@ -10,10 +11,22 @@ const useShops = () => {
 
   const shops = computed(() => shopsStore.getShops);
 
-  const fetchShops = async () => {
+  const fetchShops = async (filters?: IFilters) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke('shops')
+      let query = supabase
+        .from('shops_with_opening_times')
+        .select('*');
+
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            query = query.eq(key, value);
+          }
+        });
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching shops:', error);

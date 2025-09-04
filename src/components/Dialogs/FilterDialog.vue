@@ -21,46 +21,14 @@
         <div class="flex column q-gap-md">
           <!-- Location Filter -->
           <div class="filter-group">
-            <label class="filter-label">Location</label>
+            <label class="filter-label">City</label>
             <q-select
-              v-model="filters.location"
-              :options="locationOptions"
+              v-model="filters.city"
+              :options="cities"
               outlined
               dense
               rounded
-              placeholder="Select location"
-              class="filter-select"
-              clearable
-              @update:model-value="applyFilters"
-            />
-          </div>
-
-          <!-- Rating Filter -->
-          <div class="filter-group">
-            <label class="filter-label">Rating</label>
-            <q-select
-              v-model="filters.rating"
-              :options="ratingOptions"
-              outlined
-              dense
-              rounded
-              placeholder="Select rating"
-              class="filter-select"
-              clearable
-              @update:model-value="applyFilters"
-            />
-          </div>
-
-          <!-- Price Range Filter -->
-          <div class="filter-group">
-            <label class="filter-label">Price Range</label>
-            <q-select
-              v-model="filters.priceRange"
-              :options="priceRangeOptions"
-              outlined
-              dense
-              rounded
-              placeholder="Select price range"
+              placeholder="Select city"
               class="filter-select"
               clearable
               @update:model-value="applyFilters"
@@ -93,111 +61,60 @@
   </q-dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
+<script lang="ts" setup>
+import { ref, watch } from 'vue';
+import useCities from 'src/modules/useCities';
+import type { IFilters } from 'src/interfaces/filters';
 
-export default defineComponent({
-  name: 'FilterDialog',
-  props: {
-    modelValue: {
-      type: Boolean,
-      required: true
-    },
-    filterValue: {
-      type: Object,
-      required: true
-    }
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    required: true
   },
-  emits: ['update:modelValue', 'update:filterValue'],
-  setup(props, { emit }) {
-    interface Filters {
-      location: string | null;
-      category: string | null;
-      rating: string | null;
-      priceRange: string | null;
-    }
-
-    // Dialog visibility
-    const isVisible = ref(props.modelValue);
-
-    // Filters state
-    const filters = ref<Filters>({ ...props.filterValue as Filters });
-
-    // Watch for props changes
-    watch(() => props.modelValue, (newValue) => {
-      isVisible.value = newValue;
-    });
-
-    watch(() => props.filterValue, (newValue) => {
-      filters.value = { ...newValue as Filters };
-    }, { deep: true });
-
-    // Watch for internal changes to isVisible
-    watch(isVisible, (newValue) => {
-      emit('update:modelValue', newValue);
-    });
-
-    // Filter options
-    const locationOptions = [
-      'Downtown, NY',
-      'Brooklyn, NY',
-      'Manhattan, NY',
-      'Queens, NY',
-      'Bronx, NY',
-      'Staten Island, NY'
-    ];
-
-    const ratingOptions = [
-      '5 stars',
-      '4+ stars',
-      '3+ stars',
-      '2+ stars'
-    ];
-
-    const priceRangeOptions = [
-      'Under $100',
-      '$100 - $200',
-      '$200 - $300',
-      '$300 - $500',
-      'Over $500'
-    ];
-
-    // Check if any filters are active
-    const hasActiveFilters = computed(() => {
-      return Object.values(filters.value).some(filter => filter !== null);
-    });
-
-    const applyFilters = () => {
-      emit('update:filterValue', filters.value);
-    };
-
-    const clearFilters = () => {
-      filters.value = {
-        location: null,
-        category: null,
-        rating: null,
-        priceRange: null
-      };
-      emit('update:filterValue', filters.value);
-    };
-
-    const closeDialog = () => {
-      isVisible.value = false;
-    };
-
-    return {
-      isVisible,
-      filters,
-      locationOptions,
-      ratingOptions,
-      priceRangeOptions,
-      hasActiveFilters,
-      applyFilters,
-      clearFilters,
-      closeDialog
-    };
+  filterValue: {
+    type: Object,
+    required: true
   }
 });
+
+const emit = defineEmits(['update:modelValue', 'update:filterValue']);
+
+const { cities } = useCities();
+
+// Dialog visibility
+const isVisible = ref(props.modelValue);
+
+// Filters state
+const filters = ref<IFilters>({ ...props.filterValue as IFilters });
+
+// Watch for props changes
+watch(() => props.modelValue, (newValue) => {
+  isVisible.value = newValue;
+});
+
+watch(() => props.filterValue, (newValue) => {
+  filters.value = { ...newValue as IFilters };
+}, { deep: true });
+
+// Watch for internal changes to isVisible
+watch(isVisible, (newValue) => {
+  emit('update:modelValue', newValue);
+});
+
+const applyFilters = () => {
+  emit('update:filterValue', filters.value);
+};
+
+const clearFilters = () => {
+  filters.value = {
+    city: null,
+  };
+  emit('update:filterValue', filters.value);
+};
+
+const closeDialog = () => {
+  isVisible.value = false;
+};
 </script>
 
 <style scoped lang="scss">

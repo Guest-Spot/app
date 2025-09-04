@@ -47,7 +47,7 @@
               v-model="searchQuery"
               outlined
               dense
-              placeholder="Search by name or location"
+              placeholder="Search by name"
               class="full-width"
               autofocus
               debounce="500"

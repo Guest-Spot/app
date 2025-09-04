@@ -9,7 +9,7 @@
       </div>
 
       <SearchHeader
-        :title="activeTab === TAB_SHOPS ? `Shops (${filteredShops.length})` : `Artists (${filteredArtists.length})`"
+        :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${filteredArtists.length})`"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
         @search="onSearch"
@@ -33,15 +33,15 @@
         <!-- Shops Tab Content -->
         <div v-if="activeTab === TAB_SHOPS" class="tab-content">
           <LoadingState
-            v-if="isLoadingShops && !filteredShops.length"
+            v-if="isLoadingShops && !shops.length"
             :is-loading="isLoadingShops"
             title="Loading shops..."
             description="Please wait while we fetch the latest shops"
             spinner-name="dots"
           />
-          <div v-else-if="filteredShops.length" class="flex column q-gap-md">
+          <div v-else-if="shops.length" class="flex column q-gap-md">
             <ShopCard
-              v-for="shop in filteredShops"
+              v-for="shop in shops"
               :key="shop.uuid"
               :shop="shop"
               @click="selectShop"
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
@@ -96,6 +96,8 @@ import useShops from 'src/modules/useShops';
 import useArtists from 'src/modules/useArtists';
 import SearchHeader from 'src/components/SearchPage/SearchHeader.vue';
 import { FilterDialog, SortDialog } from 'src/components/Dialogs';
+import useCities from 'src/modules/useCities';
+import type { IFilters } from 'src/interfaces/filters';
 
 // Router
 const router = useRouter();
@@ -106,19 +108,8 @@ const searchQuery = ref('');
 const showFilterDialog = ref(false);
 const showSortDialog = ref(false);
 
-// Filters
-interface SearchFilters {
-  location: string | null;
-  category: string | null;
-  rating: string | null;
-  priceRange: string | null;
-}
-
-const activeFilters = ref<SearchFilters>({
-  location: null,
-  category: null,
-  rating: null,
-  priceRange: null
+const activeFilters = ref<IFilters>({
+  city: null,
 });
 
 // Sort settings
@@ -134,42 +125,12 @@ const sortSettings = ref<SortSettings>({
 
 const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
 const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
+const { fetchCities } = useCities();
 
 // Computed properties for filtered results
 const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => filter !== null));
 
 const hasActiveSort = computed(() => sortSettings.value.sortBy !== null);
-
-const filteredShops = computed(() => {
-  let filtered = shops.value;
-
-  // Apply search query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(shop =>
-      shop.title.toLowerCase().includes(query) ||
-      shop.city.toLowerCase().includes(query) ||
-      shop.description.toLowerCase().includes(query)
-    );
-  }
-
-  // Apply location filter
-  if (activeFilters.value.location) {
-    filtered = filtered.filter(shop =>
-      shop.city === activeFilters.value.location
-    );
-  }
-
-  // Apply category filter (if shops have categories)
-  if (activeFilters.value.category) {
-    // For now, we'll filter by description containing the category
-    filtered = filtered.filter(shop =>
-      shop.description.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
-    );
-  }
-
-  return filtered;
-});
 
 const filteredArtists = computed(() => {
   let filtered = artists.value;
@@ -185,16 +146,9 @@ const filteredArtists = computed(() => {
   }
 
   // Apply location filter
-  if (activeFilters.value.location) {
+  if (activeFilters.value.city) {
     filtered = filtered.filter(artist =>
-      artist.city && artist.city === activeFilters.value.location
-    );
-  }
-
-  // Apply category filter
-  if (activeFilters.value.category) {
-    filtered = filtered.filter(artist =>
-      artist.bio.toLowerCase().includes(activeFilters.value.category!.toLowerCase())
+      artist.city && artist.city === activeFilters.value.city
     );
   }
 
@@ -214,8 +168,13 @@ const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.uuid}`);
 };
 
+watch(() => activeFilters.value, (newFilters) => {
+  void fetchShops(newFilters);
+});
+
 onBeforeMount(() => {
   void fetchShops();
   void fetchArtists();
+  void fetchCities();
 });
 </script>

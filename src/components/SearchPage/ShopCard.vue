@@ -60,10 +60,10 @@ const openingTimeText = computed(() => {
     ([, value]) => Number(value) === dayIndex
   )?.[0] as keyof typeof OpeningTimesIndexDays | undefined;
   const todayTime = props.shop.openingTimes?.find(time => time.day === todayKey);
-  if (todayTime) {
+  if (todayTime?.start && todayTime?.end) {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
   }
-  return '9:00 AM - 6:00 PM';
+  return 'Closed';
 });
 
 const toggleFavorite = () => {
