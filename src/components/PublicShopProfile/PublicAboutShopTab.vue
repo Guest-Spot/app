@@ -63,7 +63,8 @@ const workingHours = computed(() => {
 
   return times.map(time => ({
     label: OpeningTimesDays[time.day as keyof typeof OpeningTimesDays],
-    value: `${formatTime(time.start)} - ${formatTime(time.end)}`,
+    value: (time.start && time.end) ? `${formatTime(time.start)} - ${formatTime(time.end)}` : 'Closed',
+    className: time.start && time.end ? '' : 'opening-times--closed',
   }));
 });
 
@@ -98,13 +99,15 @@ const links = computed(() => ([
     }
 
     &:nth-child(6), &:nth-child(7) {
-      &::before {
-        background-color: var(--text-secondary);
-      }
-
       .info-label {
         opacity: 0.6;
       }
+    }
+  }
+
+  :deep(.opening-times--closed) {
+    &::before {
+      background-color: var(--text-secondary);
     }
   }
 }
