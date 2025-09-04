@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 defineOptions({
   name: 'TabsComp'
@@ -38,6 +38,7 @@ const props = defineProps<{
   sendInitialTab?: boolean;
 }>();
 
+const route = useRoute();
 const router = useRouter();
 
 const currentActiveTab = computed(() => props.activeTab);
@@ -48,7 +49,7 @@ const emit = defineEmits<{
 
 const handleTabClick = (tab: ITab) => {
   if (props.useQuery ?? false) {
-    void router.replace({ query: { tab: tab.tab } });
+    void router.replace({ query: { ...route.query, tab: tab.tab } });
   }
   emit('setActiveTab', tab);
 };

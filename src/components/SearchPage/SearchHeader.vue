@@ -8,10 +8,10 @@
         <q-btn
           icon="search"
           class="bg-block"
-          :text-color="searchQuery ? 'primary' : ''"
+          :text-color="modelValue ? 'primary' : ''"
           round
           dense
-          @click="showSearch = true"
+          @click="$emit('toggle-search')"
         />
         <q-btn
           icon="filter_list"
@@ -31,52 +31,11 @@
         />
       </div>
     </ListHeader>
-
-    <q-dialog
-      v-model="showSearch"
-      position="top"
-      full-width
-      full-height
-      transition-show="slide-down"
-      transition-hide="slide-up"
-    >
-      <q-card class="search-dialog bg-block">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="col search-input-container">
-            <q-input
-              v-model="searchQuery"
-              outlined
-              dense
-              placeholder="Search by name"
-              class="full-width"
-              autofocus
-              debounce="500"
-              clearable
-              rounded
-              @update:model-value="handleSearch"
-            >
-              <template v-slot:prepend>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </div>
-          <q-btn
-            icon="close"
-            flat
-            round
-            dense
-            class="q-ml-sm bg-block"
-            @click="closeSearch"
-          />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ListHeader } from 'src/components';
-import { ref } from 'vue';
 
 interface Props {
   modelValue: string | null;
@@ -92,29 +51,9 @@ interface Emits {
   (e: 'update:modelValue', value: string): void;
 }
 
-const emit = defineEmits<Emits>();
-const props = defineProps<Props>();
-
-const showSearch = ref(false);
-const searchQuery = ref(props.modelValue);
-
-function handleSearch() {
-  emit('update:modelValue', searchQuery.value?.trim() || '');
-}
-
-function closeSearch() {
-  showSearch.value = false;
-}
+defineEmits<Emits>();
+defineProps<Props>();
 </script>
 
 <style lang="scss" scoped>
-.search-dialog {
-  background-color: var(--q-primary-lighten);
-  height: auto;
-  border-radius: 0 0 16px 16px;
-
-  .search-input-container {
-    padding: 8px 0;
-  }
-}
 </style>
