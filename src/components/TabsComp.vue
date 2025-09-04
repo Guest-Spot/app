@@ -1,5 +1,7 @@
 <template>
-  <div class="tabs-comp flex q-gap-sm justify-start no-wrap">
+  <div
+    class="tabs-comp flex q-gap-sm justify-start no-wrap q-pt-sm"
+  >
     <q-btn
       v-for="t in tabs"
       :key="`tab-${t.tab}-${t.label}`"
@@ -14,8 +16,8 @@
       @click="handleTabClick(t)"
       v-bind="$attrs"
     >
-      <span>{{ t.label }}</span>
-      <span v-if="t.count" class="text-bold q-ml-xs">({{ t.count }})</span>
+      <span class="tabs-comp-label">{{ t.label }}</span>
+      <q-badge v-if="t.count" rounded class="tabs-comp-counter text-bold q-ml-xs">{{ t.count }}</q-badge>
     </q-btn>
   </div>
 </template>
@@ -69,5 +71,16 @@ onMounted(() => {
 <style lang="scss" scoped>
 .tabs-comp {
   overflow-x: auto;
+}
+
+.tabs-comp-counter {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  z-index: 1;
+}
+
+.tabs-comp-label {
+  white-space: nowrap;
 }
 </style>

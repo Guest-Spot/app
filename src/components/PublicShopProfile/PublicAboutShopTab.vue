@@ -1,7 +1,7 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
     <InfoCard title="Contacts" icon="location_on" :data="contacts" />
-    <InfoCard v-if="workingHours" title="Opening Times" icon="schedule" :data="workingHours" :loading="loading" />
+    <InfoCard v-if="workingHours?.length" title="Opening Times" icon="schedule" :data="workingHours" :loading="loading" />
     <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
   </div>

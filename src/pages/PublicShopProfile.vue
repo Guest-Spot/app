@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-pb-xl flex column items-start q-gap-md">
     <!-- Profile Header Section -->
-    <div class="profile-header q-mb-md relative-position q-mx-auto full-width">
+    <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <div class="profile-info-container flex column">
 
         <!-- Pictures Carousel or Avatar -->
@@ -143,28 +143,6 @@ const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
 
-const TABS: ITab[] = [
-  {
-    label: 'About shop',
-    tab: TAB_ABOUT
-  },
-  {
-    label: 'Artists',
-    tab: TAB_ARTISTS
-  },
-  {
-    label: 'Portfolio',
-    tab: TAB_PORTFOLIO
-  }
-];
-
-// Tab management
-const activeTab = ref<ITab>(TABS[0]!);
-
-const setActiveTab = (tab: ITab) => {
-  activeTab.value = tab;
-};
-
 // Shop data from Supabase
 const shopData = ref<IShop>({
   uuid: '',
@@ -191,14 +169,36 @@ const portfolioItems = ref<IPortfolio[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.uuid));
 
+const TABS = computed<ITab[]>(() => [
+  {
+    label: 'About shop',
+    tab: TAB_ABOUT
+  },
+  {
+    label: 'Artists',
+    tab: TAB_ARTISTS,
+    count: artists.value.length
+  },
+  {
+    label: 'Portfolio',
+    tab: TAB_PORTFOLIO,
+    count: portfolioItems.value.length
+  }
+]);
+
+const showBookingDialog = ref(false);
+const activeTab = ref<ITab>(TABS.value[0]!);
+
 // Methods
 const toggleFavorite = () => {
   toggleShopFavorite(shopData.value);
 };
 
-// Booking dialog state
-const showBookingDialog = ref(false);
+const setActiveTab = (tab: ITab) => {
+  activeTab.value = tab;
+};
 
+// Booking dialog state
 const openBookingDialog = () => {
   showBookingDialog.value = true;
 };
