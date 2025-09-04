@@ -2,6 +2,7 @@ import { computed, inject, ref } from "vue";
 import { useArtistsStore } from "src/stores/artists";
 import type { IArtist } from "src/interfaces/artist";
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { IFilters } from 'src/interfaces/filters';
 
 const useArtists = () => {
   const supabase = inject('supabase') as SupabaseClient;
@@ -10,10 +11,18 @@ const useArtists = () => {
 
   const artists = computed(() => artistsStore.getArtists);
 
-  const fetchArtists = async () => {
+  const fetchArtists = async (filters?: IFilters) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke('artists')
+      let query = supabase.from('artists').select('*');
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== null && value !== undefined) {
+            query = query.eq(key, value);
+          }
+        });
+      }
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching artists:', error);

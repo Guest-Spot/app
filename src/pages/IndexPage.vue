@@ -9,7 +9,7 @@
       </div>
 
       <SearchHeader
-        :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${filteredArtists.length})`"
+        :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${artists.length})`"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
         @search="onSearch"
@@ -58,15 +58,15 @@
         <!-- Artists Tab Content -->
         <div v-else-if="activeTab === TAB_ARTISTS" class="tab-content">
           <LoadingState
-            v-if="isLoadingArtists && !filteredArtists.length"
+            v-if="isLoadingArtists && !artists.length"
             :is-loading="isLoadingArtists"
             title="Loading artists..."
             description="Please wait while we fetch the latest artists"
             spinner-name="dots"
           />
-          <div v-else-if="filteredArtists.length" class="flex column q-gap-md">
+          <div v-else-if="artists.length" class="flex column q-gap-md">
             <ArtistCard
-              v-for="artist in filteredArtists"
+              v-for="artist in artists"
               :key="artist.uuid"
               :artist="artist"
               @click="selectArtist"
@@ -132,29 +132,6 @@ const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(
 
 const hasActiveSort = computed(() => sortSettings.value.sortBy !== null);
 
-const filteredArtists = computed(() => {
-  let filtered = artists.value;
-
-  // Apply search query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(artist =>
-      artist.name.toLowerCase().includes(query) ||
-      artist.bio.toLowerCase().includes(query) ||
-      (artist.city && artist.city.toLowerCase().includes(query))
-    );
-  }
-
-  // Apply location filter
-  if (activeFilters.value.city) {
-    filtered = filtered.filter(artist =>
-      artist.city && artist.city === activeFilters.value.city
-    );
-  }
-
-  return filtered;
-});
-
 // Methods
 const onSearch = (query: string) => {
   searchQuery.value = query;
@@ -169,7 +146,11 @@ const selectArtist = (artist: IArtist) => {
 };
 
 watch(() => activeFilters.value, (newFilters) => {
-  void fetchShops(newFilters);
+  if (activeTab.value === TAB_SHOPS) {
+    void fetchShops(newFilters);
+  } else {
+    void fetchArtists(newFilters);
+  }
 });
 
 onBeforeMount(() => {
