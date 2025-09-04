@@ -11,7 +11,7 @@
           spinner-size="16px"
         />
         <div class="absolute-bottom-left q-ml-md q-mb-md bg-white text-dark shop-name q-px-sm">
-          {{ shop?.title || 'Shop' }}
+          {{ shop?.name || 'Shop' }}
         </div>
       </div>
       <div class="status-badge absolute-top-right q-mr-md q-mt-md" :class="status">

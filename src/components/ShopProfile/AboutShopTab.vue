@@ -19,7 +19,7 @@
             rounded
             placeholder="Enter shop title"
             class="custom-input"
-            v-model="shopData.title"
+            v-model="shopData.name"
           />
         </div>
         <div class="input-group">
@@ -208,7 +208,7 @@ import { ImageUploader, ThemeSettings } from 'src/components';
 
 // Form data
 const shopData = ref({
-  title: '',
+  name: '',
   description: '',
   location: '',
   phone: '',

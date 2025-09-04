@@ -101,11 +101,7 @@ const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
 const sortOptions = [
-  { label: 'Most Popular', value: 'popularity' },
-  { label: 'Highest Rated', value: 'rating' },
-  { label: 'Price: Low to High', value: 'price_asc' },
-  { label: 'Price: High to Low', value: 'price_desc' },
-  { label: 'Newest', value: 'date' }
+  { label: 'Name: A to Z', value: 'name' }
 ];
 
 // Watch for props changes
@@ -130,15 +126,6 @@ const selectSortOption = (value: string) => {
   } else {
     // Set new sort option
     sortBy.value = value;
-
-    // Set default direction based on the option
-    if (value === 'price_asc') {
-      sortDirection.value = 'asc';
-    } else if (value === 'price_desc') {
-      sortDirection.value = 'desc';
-    } else {
-      sortDirection.value = 'desc'; // Default for other options
-    }
   }
 
   emit('update:sortValue', {
@@ -153,7 +140,7 @@ const closeDialog = () => {
 
 const clearSort = () => {
   sortBy.value = null;
-  sortDirection.value = 'desc';
+  sortDirection.value = 'asc';
   emit('update:sortValue', {
     sortBy: sortBy.value,
     sortDirection: sortDirection.value

@@ -5,7 +5,7 @@
     </div>
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
-        <h4 class="shop-title">{{ shop.title }}</h4>
+        <h4 class="shop-title">{{ shop.name }}</h4>
         <q-btn
           round
           flat
@@ -60,17 +60,17 @@ const openingTimeText = computed(() => {
     ([, value]) => Number(value) === dayIndex
   )?.[0] as keyof typeof OpeningTimesIndexDays | undefined;
   const todayTime = props.shop.openingTimes?.find(time => time.day === todayKey);
-  if (todayTime) {
+  if (todayTime?.start && todayTime?.end) {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
   }
-  return '9:00 AM - 6:00 PM';
+  return 'Closed';
 });
 
 const toggleFavorite = () => {
   const shopData = {
     uuid: props.shop.uuid,
     username: props.shop.username,
-    title: props.shop.title,
+    name: props.shop.name,
     city: props.shop.city,
     address: props.shop.address,
     description: props.shop.description,
