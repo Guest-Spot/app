@@ -9,10 +9,10 @@
       </div>
 
       <SearchHeader
+        v-model="activeFilters.name"
         :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${artists.length})`"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
-        @search="onSearch"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
       />
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch } from 'vue';
+import { ref, computed, onBeforeMount, watch, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
@@ -104,12 +104,12 @@ const router = useRouter();
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
-const searchQuery = ref('');
 const showFilterDialog = ref(false);
 const showSortDialog = ref(false);
 
-const activeFilters = ref<IFilters>({
+const activeFilters = reactive<IFilters>({
   city: null,
+  name: null,
 });
 
 // Sort settings
@@ -128,14 +128,9 @@ const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
 const { fetchCities } = useCities();
 
 // Computed properties for filtered results
-const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => filter !== null));
+const hasActiveFilters = computed(() => Object.values(activeFilters).some(filter => filter !== null));
 
 const hasActiveSort = computed(() => sortSettings.value.sortBy !== null);
-
-// Methods
-const onSearch = (query: string) => {
-  searchQuery.value = query;
-};
 
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.uuid}`);
@@ -145,7 +140,7 @@ const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.uuid}`);
 };
 
-watch(() => activeFilters.value, (newFilters) => {
+watch(activeFilters, (newFilters) => {
   if (activeTab.value === TAB_SHOPS) {
     void fetchShops(newFilters);
   } else {

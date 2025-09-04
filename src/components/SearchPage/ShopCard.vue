@@ -5,7 +5,7 @@
     </div>
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
-        <h4 class="shop-title">{{ shop.title }}</h4>
+        <h4 class="shop-title">{{ shop.name }}</h4>
         <q-btn
           round
           flat
@@ -70,7 +70,7 @@ const toggleFavorite = () => {
   const shopData = {
     uuid: props.shop.uuid,
     username: props.shop.username,
-    title: props.shop.title,
+    name: props.shop.name,
     city: props.shop.city,
     address: props.shop.address,
     description: props.shop.description,

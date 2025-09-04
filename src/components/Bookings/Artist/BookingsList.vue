@@ -197,7 +197,7 @@ onMounted(() => {
       type: 'shop-to-artist',
       shop: {
         uuid: '1',
-        title: 'Tattoo Studio',
+        name: 'Tattoo Studio',
         pictures: ['shops/shop1.jpg'],
       },
     },
@@ -217,7 +217,7 @@ onMounted(() => {
       type: 'artist-to-shop',
       shop: {
         uuid: '3',
-        title: 'Art Gallery',
+        name: 'Art Gallery',
         pictures: ['shops/shop2.jpg'],
       },
     },
@@ -237,7 +237,7 @@ onMounted(() => {
       type: 'artist-to-shop',
       shop: {
         uuid: '3',
-        title: 'Art Gallery',
+        name: 'Art Gallery',
         pictures: ['shops/shop3.webp'],
       },
     },
@@ -257,7 +257,7 @@ onMounted(() => {
       type: 'artist-to-shop',
       shop: {
         uuid: '5',
-        title: 'Tattoo Studio',
+        name: 'Tattoo Studio',
         pictures: ['shops/shop4.jpg'],
       },
     },

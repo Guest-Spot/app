@@ -20,7 +20,7 @@ const useShops = () => {
 
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          if (value !== null && value !== undefined) {
+          if (value && value !== null && value !== undefined) {
             query = query.eq(key, value);
           }
         });

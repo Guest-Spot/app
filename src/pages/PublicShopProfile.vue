@@ -42,8 +42,8 @@
         <div class="container">
           <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
             <div class="flex column items-center full-width">
-              <template v-if="shopData.title || shopData.description">
-                <span class="full-name text-h6">{{ shopData.title }}</span>
+              <template v-if="shopData.name || shopData.description">
+                <span class="full-name text-h6">{{ shopData.name }}</span>
                 <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
               </template>
               <template v-else>
@@ -150,7 +150,7 @@ const shopData = ref<IShop>({
   city: '',
   address: '',
   description: '',
-  title: '',
+  name: '',
   phone: '',
   email: '',
   dateOpened: '',

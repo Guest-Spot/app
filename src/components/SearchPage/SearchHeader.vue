@@ -79,6 +79,7 @@ import { ListHeader } from 'src/components';
 import { ref } from 'vue';
 
 interface Props {
+  modelValue: string | null;
   title: string;
   hasFilters: boolean;
   hasSort: boolean;
@@ -88,17 +89,17 @@ interface Emits {
   (e: 'toggle-search'): void;
   (e: 'toggle-filters'): void;
   (e: 'toggle-sort'): void;
-  (e: 'search', query: string): void;
+  (e: 'update:modelValue', value: string): void;
 }
 
 const emit = defineEmits<Emits>();
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const showSearch = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref(props.modelValue);
 
 function handleSearch() {
-  emit('search', searchQuery.value?.trim() || '');
+  emit('update:modelValue', searchQuery.value?.trim() || '');
 }
 
 function closeSearch() {

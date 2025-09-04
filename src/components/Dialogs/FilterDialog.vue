@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, type PropType } from 'vue';
 import useCities from 'src/modules/useCities';
 import type { IFilters } from 'src/interfaces/filters';
 
@@ -72,7 +72,7 @@ const props = defineProps({
     required: true
   },
   filterValue: {
-    type: Object,
+    type: Object as PropType<Omit<IFilters, 'name'>>,
     required: true
   }
 });
@@ -85,7 +85,7 @@ const { cities } = useCities();
 const isVisible = ref(props.modelValue);
 
 // Filters state
-const filters = ref<IFilters>({ ...props.filterValue as IFilters });
+const filters = ref<Omit<IFilters, 'name'>>({ ...props.filterValue });
 
 // Watch for props changes
 watch(() => props.modelValue, (newValue) => {
@@ -93,7 +93,7 @@ watch(() => props.modelValue, (newValue) => {
 });
 
 watch(() => props.filterValue, (newValue) => {
-  filters.value = { ...newValue as IFilters };
+  filters.value = { ...newValue };
 }, { deep: true });
 
 // Watch for internal changes to isVisible
