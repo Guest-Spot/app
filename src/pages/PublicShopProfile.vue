@@ -77,6 +77,7 @@
            :tabs="TABS"
            :activeTab="activeTab"
            send-initial-tab
+           use-query
            @setActiveTab="setActiveTab"
            :disable="!shopData.uuid"
          />

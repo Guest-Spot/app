@@ -22,7 +22,20 @@
           :artist="artist"
           @click="handleArtistClick"
           @favorite="handleFavorite"
-        />
+        >
+          <template #footer>
+            <q-btn
+              class="bg-block full-width"
+              text-color="primary"
+              unelevated
+              rounded
+              label="Book Artist"
+              :disable="!artist.uuid"
+              icon="calendar_month"
+              @click.stop
+            />
+          </template>
+        </ArtistCard>
       </div>
 
       <!-- Empty State -->
