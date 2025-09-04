@@ -140,14 +140,26 @@ const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.uuid}`);
 };
 
-watch([activeFilters, searchQuery], ([newFilters, newSearchQuery]) => {
+watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, newSortSettings]) => {
   const resultFilters = { ...newFilters, name: newSearchQuery };
   if (activeTab.value === TAB_SHOPS) {
-    void fetchShops(resultFilters);
+    void fetchShops(resultFilters, {
+      sort: {
+        column: newSortSettings.sortBy || 'name',
+        direction: newSortSettings.sortDirection
+      }
+    });
   } else {
-    void fetchArtists(resultFilters);
+    void fetchArtists(resultFilters, {
+      sort: {
+        column: newSortSettings.sortBy || 'name',
+        direction: newSortSettings.sortDirection
+      }
+    });
   }
 });
+
+
 
 onBeforeMount(() => {
   void fetchShops();

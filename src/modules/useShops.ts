@@ -11,12 +11,16 @@ const useShops = () => {
 
   const shops = computed(() => shopsStore.getShops);
 
-      const fetchShops = async (filters?: IFilters) => {
+      const fetchShops = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
     isLoading.value = true;
     try {
       let query = supabase
         .from('shops_with_opening_times')
         .select('*');
+
+      if (params?.sort) {
+        query = query.order(params.sort.column, { ascending: params.sort.direction === 'asc' });
+      }
 
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {

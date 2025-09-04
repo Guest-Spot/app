@@ -11,10 +11,14 @@ const useArtists = () => {
 
   const artists = computed(() => artistsStore.getArtists);
 
-  const fetchArtists = async (filters?: IFilters) => {
+  const fetchArtists = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
     isLoading.value = true;
     try {
       let query = supabase.from('artists').select('*');
+
+      if (params?.sort) {
+        query = query.order(params.sort.column, { ascending: params.sort.direction === 'asc' });
+      }
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (value && value !== null && value !== undefined) {
