@@ -1,6 +1,7 @@
 <template>
   <q-dialog
     v-model="isVisible"
+    no-route-dismiss
     position="bottom"
   >
     <q-card class="filter-dialog">
@@ -31,7 +32,7 @@
               placeholder="Select city"
               class="filter-select"
               clearable
-              @update:model-value="applyFilters"
+              @update:model-value="onChangeFilters"
             />
           </div>
         </div>
@@ -50,7 +51,7 @@
           rounded
           unelevated
           color="primary"
-          @click="closeDialog"
+          @click="applyFilters"
         >
           <div class="q-px-md">
             <span class="text-body2">Apply</span>
@@ -65,6 +66,7 @@
 import { ref, watch, type PropType } from 'vue';
 import useCities from 'src/modules/useCities';
 import type { IFilters } from 'src/interfaces/filters';
+import { useRouter, useRoute } from 'vue-router';
 
 const props = defineProps({
   modelValue: {
@@ -77,9 +79,12 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:modelValue', 'update:filterValue']);
+const emit = defineEmits(['update:modelValue', 'update:filterValue', 'clearFilters']);
 
 const { cities } = useCities();
+
+const router = useRouter();
+const route = useRoute();
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -101,14 +106,20 @@ watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
 
-const applyFilters = () => {
+const onChangeFilters = () => {
+  void router.replace({ query: { ...route.query, ...filters.value }});
   emit('update:filterValue', filters.value);
+};
+
+const applyFilters = () => {
+  closeDialog();
 };
 
 const clearFilters = () => {
   filters.value = {
     city: null,
   };
+  void router.replace({ query: { ...route.query, ...filters.value }});
   emit('update:filterValue', filters.value);
 };
 

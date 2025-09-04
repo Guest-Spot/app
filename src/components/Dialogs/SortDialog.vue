@@ -1,6 +1,7 @@
 <template>
   <q-dialog
     v-model="isVisible"
+    no-route-dismiss
     position="bottom"
   >
     <q-card class="sort-dialog">
@@ -60,7 +61,7 @@
           rounded
           color="primary"
           class="min-width"
-          @click="closeDialog"
+          @click="applySort"
         >
           <div class="q-px-md">
             <span class="text-body2">Apply</span>
@@ -73,6 +74,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 interface SortValue {
   sortBy: string | null;
@@ -91,6 +93,9 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+
+const router = useRouter();
+const route = useRoute();
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -119,6 +124,13 @@ watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
 
+const saveSortToUrl = (sortBy: string, sortDirection: string) => {
+  const queryParams = {
+    ...(sortBy && sortDirection ? { sort: `${sortBy}:${sortDirection}` } : { sort: null }),
+  };
+  void router.replace({ query: { ...route.query, ...queryParams }});
+};
+
 const selectSortOption = (value: string) => {
   if (sortBy.value === value) {
     // Toggle direction if same option is selected
@@ -127,6 +139,8 @@ const selectSortOption = (value: string) => {
     // Set new sort option
     sortBy.value = value;
   }
+
+  saveSortToUrl(sortBy.value || '', sortDirection.value);
 
   emit('update:sortValue', {
     sortBy: sortBy.value,
@@ -138,9 +152,14 @@ const closeDialog = () => {
   isVisible.value = false;
 };
 
+const applySort = () => {
+  closeDialog();
+};
+
 const clearSort = () => {
   sortBy.value = null;
   sortDirection.value = 'asc';
+  saveSortToUrl(sortBy.value || '', sortDirection.value);
   emit('update:sortValue', {
     sortBy: sortBy.value,
     sortDirection: sortDirection.value

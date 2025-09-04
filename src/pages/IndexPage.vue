@@ -13,11 +13,17 @@
         :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${artists.length})`"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
+        @toggle-search="showSearchDialog = true"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
       />
 
       <!-- Dialogs -->
+      <SearchDialog
+        v-model="showSearchDialog"
+        v-model:query="searchQuery"
+      />
+
       <FilterDialog
         v-model="showFilterDialog"
         v-model:filterValue="activeFilters"
@@ -86,7 +92,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onBeforeMount, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
@@ -95,21 +101,23 @@ import LoadingState from 'src/components/LoadingState.vue';
 import useShops from 'src/modules/useShops';
 import useArtists from 'src/modules/useArtists';
 import SearchHeader from 'src/components/SearchPage/SearchHeader.vue';
-import { FilterDialog, SortDialog } from 'src/components/Dialogs';
+import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
 import useCities from 'src/modules/useCities';
 import type { IFilters } from 'src/interfaces/filters';
 
 // Router
+const route = useRoute();
 const router = useRouter();
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
+const showSearchDialog = ref(false);
 const showFilterDialog = ref(false);
 const showSortDialog = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref(route.query.search as string | null);
 
 const activeFilters = ref<IFilters>({
-  city: null,
+  city: route.query.city as string | null,
 });
 
 // Sort settings
@@ -119,8 +127,8 @@ interface SortSettings {
 }
 
 const sortSettings = ref<SortSettings>({
-  sortBy: null,
-  sortDirection: 'desc'
+  sortBy: route.query.sort?.toString().split(':')[0] as string | null,
+  sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc'
 });
 
 const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
@@ -128,9 +136,9 @@ const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
 const { fetchCities } = useCities();
 
 // Computed properties for filtered results
-const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => filter !== null));
+const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => !!filter));
 
-const hasActiveSort = computed(() => sortSettings.value.sortBy !== null);
+const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.uuid}`);
@@ -140,25 +148,28 @@ const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.uuid}`);
 };
 
-watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, newSortSettings]) => {
-  const resultFilters = { ...newFilters, name: newSearchQuery };
+const fetchShopsAndArtists = (filters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
+  const resultFilters = { ...filters, name: searchQuery || '' };
   void fetchShops(resultFilters, {
     sort: {
-      column: newSortSettings.sortBy || 'name',
-      direction: newSortSettings.sortDirection
+      column: sortSettings.sortBy || 'name',
+      direction: sortSettings.sortDirection
     }
   });
   void fetchArtists(resultFilters, {
     sort: {
-      column: newSortSettings.sortBy || 'name',
-      direction: newSortSettings.sortDirection
+      column: sortSettings.sortBy || 'name',
+      direction: sortSettings.sortDirection
     }
   });
+};
+
+watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, newSortSettings]) => {
+  fetchShopsAndArtists(newFilters, newSearchQuery, newSortSettings);
 });
 
 onBeforeMount(() => {
-  void fetchShops();
-  void fetchArtists();
+  fetchShopsAndArtists(activeFilters.value, searchQuery.value, sortSettings.value);
   void fetchCities();
 });
 </script>
