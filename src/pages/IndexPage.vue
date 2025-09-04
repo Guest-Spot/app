@@ -142,24 +142,19 @@ const selectArtist = (artist: IArtist) => {
 
 watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, newSortSettings]) => {
   const resultFilters = { ...newFilters, name: newSearchQuery };
-  if (activeTab.value === TAB_SHOPS) {
-    void fetchShops(resultFilters, {
-      sort: {
-        column: newSortSettings.sortBy || 'name',
-        direction: newSortSettings.sortDirection
-      }
-    });
-  } else {
-    void fetchArtists(resultFilters, {
-      sort: {
-        column: newSortSettings.sortBy || 'name',
-        direction: newSortSettings.sortDirection
-      }
-    });
-  }
+  void fetchShops(resultFilters, {
+    sort: {
+      column: newSortSettings.sortBy || 'name',
+      direction: newSortSettings.sortDirection
+    }
+  });
+  void fetchArtists(resultFilters, {
+    sort: {
+      column: newSortSettings.sortBy || 'name',
+      direction: newSortSettings.sortDirection
+    }
+  });
 });
-
-
 
 onBeforeMount(() => {
   void fetchShops();
