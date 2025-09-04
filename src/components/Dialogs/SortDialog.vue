@@ -1,6 +1,7 @@
 <template>
   <q-dialog
     v-model="isVisible"
+    no-route-dismiss
     position="bottom"
   >
     <q-card class="sort-dialog">
@@ -139,6 +140,8 @@ const selectSortOption = (value: string) => {
     sortBy.value = value;
   }
 
+  saveSortToUrl(sortBy.value || '', sortDirection.value);
+
   emit('update:sortValue', {
     sortBy: sortBy.value,
     sortDirection: sortDirection.value
@@ -150,7 +153,6 @@ const closeDialog = () => {
 };
 
 const applySort = () => {
-  saveSortToUrl(sortBy.value || '', sortDirection.value);
   closeDialog();
 };
 

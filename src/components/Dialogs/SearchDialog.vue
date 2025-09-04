@@ -4,6 +4,7 @@
     position="top"
     full-width
     full-height
+    no-route-dismiss
     transition-show="slide-down"
     transition-hide="slide-up"
   >

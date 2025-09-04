@@ -1,6 +1,7 @@
 <template>
   <q-dialog
     v-model="isVisible"
+    no-route-dismiss
     position="bottom"
   >
     <q-card class="filter-dialog">
@@ -106,11 +107,11 @@ watch(isVisible, (newValue) => {
 });
 
 const onChangeFilters = () => {
+  void router.replace({ query: { ...route.query, ...filters.value }});
   emit('update:filterValue', filters.value);
 };
 
 const applyFilters = () => {
-  void router.replace({ query: { ...route.query, ...filters.value }});
   closeDialog();
 };
 
