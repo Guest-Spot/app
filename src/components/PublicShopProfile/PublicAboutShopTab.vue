@@ -44,10 +44,21 @@ const contacts = computed(() => ([
   },
 ]));
 
-const workingHours = computed(() => props.shopData.openingTimes?.map(hour => ({
-  label: OpeningTimesDays[hour.day as keyof typeof OpeningTimesDays],
-  value: `${formatTime(hour.start)} - ${formatTime(hour.end)}`,
-})));
+const workingHours = computed(() => {
+  const times = [...(props.shopData.openingTimes || [])];
+  times.sort((a, b) => {
+    const dayA = a.day as keyof typeof OpeningTimesDays;
+    const dayB = b.day as keyof typeof OpeningTimesDays;
+    const orderA = Object.keys(OpeningTimesDays).indexOf(dayA);
+    const orderB = Object.keys(OpeningTimesDays).indexOf(dayB);
+    return orderA - orderB;
+  });
+
+  return times.map(time => ({
+    label: OpeningTimesDays[time.day as keyof typeof OpeningTimesDays],
+    value: `${formatTime(time.start)} - ${formatTime(time.end)}`,
+  }));
+});
 
 const additionalInfo = computed(() => ([
   {

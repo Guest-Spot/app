@@ -1,35 +1,40 @@
 <template>
-  <div class="artist-card bg-block border-radius-md q-pa-md" @click="navigateToProfile">
-    <q-avatar size="80px" class="bg-block">
-      <q-img
-        :src="artist.avatar || 'https://via.placeholder.com/80x80'"
-        :ratio="0.85"
-        class="avatar-img"
-        spinner-size="24px"
-      />
-    </q-avatar>
-    <div class="artist-content">
-      <div class="artist-name">{{ artist.name }}</div>
-      <div class="artist-info">
-        <div class="artist-location text-grey-6">
-          <q-icon name="location_on" size="14px" />
-          <span>{{ artist.city }} {{ artist.address }}</span>
-        </div>
-        <div class="artist-experience text-grey-6">
-          <q-icon name="work" size="14px" />
-          <span>{{ artist.experience ? `${artist.experience}+ years` : '2+ years' }}</span>
+  <div class="artist-card flex column q-gap-md bg-block border-radius-md q-pa-md" @click="navigateToProfile">
+    <div class="flex justify-between items-center q-gap-md full-width">
+      <q-avatar size="80px" class="bg-block">
+        <q-img
+          :src="artist.avatar || 'https://via.placeholder.com/80x80'"
+          :ratio="0.85"
+          class="avatar-img"
+          spinner-size="24px"
+        />
+      </q-avatar>
+      <div class="artist-content">
+        <div class="artist-name q-mb-sm">{{ artist.name }}</div>
+        <div class="artist-info">
+          <div class="artist-location text-grey-6">
+            <q-icon name="location_on" size="14px" />
+            <span>{{ artist.city }} {{ artist.address }}</span>
+          </div>
+          <div class="artist-experience text-grey-6">
+            <q-icon name="work" size="14px" />
+            <span>{{ artist.experience ? `${artist.experience}+ years` : '2+ years' }}</span>
+          </div>
         </div>
       </div>
+      <div class="artist-actions absolute-top-right q-ma-sm q-z-2">
+        <q-btn
+          round
+          flat
+          dense
+          :icon="isFavorite ? 'favorite' : 'favorite_border'"
+          :color="isFavorite ? 'red' : 'grey-6'"
+          @click.stop="toggleFavorite"
+        />
+      </div>
     </div>
-    <div class="artist-actions">
-      <q-btn
-        round
-        flat
-        dense
-        :icon="isFavorite ? 'favorite' : 'favorite_border'"
-        :color="isFavorite ? 'red' : 'grey-6'"
-        @click.stop="toggleFavorite"
-      />
+    <div v-if="$slots.footer" class="artist-footer">
+      <slot name="footer" />
     </div>
   </div>
 </template>
@@ -70,9 +75,6 @@ const navigateToProfile = () => {
 
 <style scoped lang="scss">
 .artist-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   cursor: pointer;
 }
 
@@ -97,7 +99,6 @@ const navigateToProfile = () => {
 .artist-name {
   font-size: 18px;
   font-weight: 700;
-  margin-bottom: 4px;
   line-height: 1.2;
 }
 
