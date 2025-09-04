@@ -72,7 +72,6 @@
           use-query
           send-initial-tab
           @setActiveTab="setActiveTab"
-          size="sm"
           :disable="!artistData.uuid"
         />
       </div>
@@ -154,6 +153,7 @@ const setActiveTab = (tab: ITab) => {
 // Artist data from Supabase
 const artistData = ref<IArtist>({
   uuid: '',
+  created_at: '',
   username: '',
   name: '',
   status: '',
@@ -177,6 +177,7 @@ const isFavorite = computed(() => isArtistFavorite(artistData.value.uuid));
 const toggleFavorite = () => {
   toggleArtistFavorite({
     uuid: artistData.value.uuid,
+    created_at: artistData.value.created_at,
     name: artistData.value.name,
     bio: artistData.value.bio,
     username: artistData.value.username,

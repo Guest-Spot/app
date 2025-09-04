@@ -3,7 +3,6 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
-// Функция для получения всех артистов
 Deno.serve(async (req)=>{
   const origin = req.headers.get('Origin') ?? '';
 
@@ -21,7 +20,7 @@ Deno.serve(async (req)=>{
         }
       }
     });
-    const viewFields = 'uuid, name, bio, phone, username, email, avatar, experience, location, status, instagram';
+    const viewFields = 'uuid, created_at, name, bio, phone, username, email, avatar, experience, city, address, status, instagram';
     const { data, error } = await supabase.from('artists').select(viewFields);
     if (error) throw error;
     return new Response(JSON.stringify(data), {

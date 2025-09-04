@@ -6,7 +6,7 @@
       <h3 class="card-title text-subtitle1">{{ title }}</h3>
     </div>
     <div class="card-content">
-      <div class="info-row" v-for="item in data" :key="`${item.label}-${item.value}`">
+      <div class="info-row" v-for="item in data" :key="`${item.label}-${item.value}`" :class="item.className">
         <span class="info-label">{{ item.label }}:</span>
         <a v-if="item.type === InfoItemType.Phone" target="_blank" :href="`tel:${item.value}`">
           <span class="info-value text-grey-6">{{ item.value }}</span>
@@ -46,6 +46,7 @@ interface Props {
     label: string;
     value: string;
     type?: InfoItemType;
+    className?: string;
   }[];
 }
 

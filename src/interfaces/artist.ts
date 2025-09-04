@@ -1,5 +1,6 @@
 export interface IArtist {
   uuid: string;
+  created_at: string;
   name: string;
   bio: string;
   username: string;
@@ -7,7 +8,8 @@ export interface IArtist {
   email?: string;
   avatar?: string;
   experience?: number;
-  location?: string;
+  city?: string;
+  address?: string;
   status?: string;
   instagram?: string;
 }

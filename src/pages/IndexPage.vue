@@ -1,16 +1,32 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
-      <!-- Search Section -->
-      <SearchBar
-        v-model="searchQuery"
-        @update:filters="updateFilters"
+      <!-- Navigation Tabs -->
+      <div class="q-mb-md">
+        <SearchTabs
+          v-model="activeTab"
+        />
+      </div>
+
+      <SearchHeader
+        :title="activeTab === TAB_SHOPS ? `Shops (${filteredShops.length})` : `Artists (${filteredArtists.length})`"
+        :has-filters="hasActiveFilters"
+        :has-sort="hasActiveSort"
+        @search="onSearch"
+        @toggle-filters="showFilterDialog = true"
+        @toggle-sort="showSortDialog = true"
       />
 
-      <!-- Navigation Tabs -->
-       <div class="q-my-lg">
-        <SearchTabs v-model="activeTab" />
-      </div>
+      <!-- Dialogs -->
+      <FilterDialog
+        v-model="showFilterDialog"
+        v-model:filterValue="activeFilters"
+      />
+
+      <SortDialog
+        v-model="showSortDialog"
+        v-model:sortValue="sortSettings"
+      />
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
@@ -29,7 +45,6 @@
               :key="shop.uuid"
               :shop="shop"
               @click="selectShop"
-              @favorite="toggleFavorite"
             />
           </div>
           <NoResult
@@ -55,7 +70,6 @@
               :key="artist.uuid"
               :artist="artist"
               @click="selectArtist"
-              @favorite="toggleFavorite"
             />
           </div>
           <NoResult
@@ -73,13 +87,15 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
-import { SearchBar, SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
+import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
 import NoResult from 'src/components/NoResult.vue';
 import LoadingState from 'src/components/LoadingState.vue';
 import useShops from 'src/modules/useShops';
 import useArtists from 'src/modules/useArtists';
+import SearchHeader from 'src/components/SearchPage/SearchHeader.vue';
+import { FilterDialog, SortDialog } from 'src/components/Dialogs';
 
 // Router
 const router = useRouter();
@@ -87,6 +103,8 @@ const router = useRouter();
 // Tab management
 const activeTab = ref(TAB_SHOPS);
 const searchQuery = ref('');
+const showFilterDialog = ref(false);
+const showSortDialog = ref(false);
 
 // Filters
 interface SearchFilters {
@@ -103,10 +121,25 @@ const activeFilters = ref<SearchFilters>({
   priceRange: null
 });
 
+// Sort settings
+interface SortSettings {
+  sortBy: string | null;
+  sortDirection: 'asc' | 'desc';
+}
+
+const sortSettings = ref<SortSettings>({
+  sortBy: null,
+  sortDirection: 'desc'
+});
+
 const { shops, fetchShops, isLoading: isLoadingShops } = useShops();
 const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
 
 // Computed properties for filtered results
+const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => filter !== null));
+
+const hasActiveSort = computed(() => sortSettings.value.sortBy !== null);
+
 const filteredShops = computed(() => {
   let filtered = shops.value;
 
@@ -115,7 +148,7 @@ const filteredShops = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(shop =>
       shop.title.toLowerCase().includes(query) ||
-      shop.location.toLowerCase().includes(query) ||
+      shop.city.toLowerCase().includes(query) ||
       shop.description.toLowerCase().includes(query)
     );
   }
@@ -123,7 +156,7 @@ const filteredShops = computed(() => {
   // Apply location filter
   if (activeFilters.value.location) {
     filtered = filtered.filter(shop =>
-      shop.location === activeFilters.value.location
+      shop.city === activeFilters.value.location
     );
   }
 
@@ -147,14 +180,14 @@ const filteredArtists = computed(() => {
     filtered = filtered.filter(artist =>
       artist.name.toLowerCase().includes(query) ||
       artist.bio.toLowerCase().includes(query) ||
-      (artist.location && artist.location.toLowerCase().includes(query))
+      (artist.city && artist.city.toLowerCase().includes(query))
     );
   }
 
   // Apply location filter
   if (activeFilters.value.location) {
     filtered = filtered.filter(artist =>
-      artist.location && artist.location === activeFilters.value.location
+      artist.city && artist.city === activeFilters.value.location
     );
   }
 
@@ -169,23 +202,16 @@ const filteredArtists = computed(() => {
 });
 
 // Methods
+const onSearch = (query: string) => {
+  searchQuery.value = query;
+};
+
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.uuid}`);
 };
 
 const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.uuid}`);
-};
-
-const toggleFavorite = (shopUuid: string) => {
-  console.log('Toggle favorite for ID:', shopUuid);
-  // Toggle favorite status is now handled by the card components
-};
-
-const updateFilters = (filters: SearchFilters) => {
-  activeFilters.value = filters;
-  console.log('Filters updated:', filters);
-  // Apply filters to search results
 };
 
 onBeforeMount(() => {

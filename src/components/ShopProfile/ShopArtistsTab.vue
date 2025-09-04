@@ -59,20 +59,24 @@ import type { IArtist } from 'src/interfaces/artist';
 const artists = ref<IArtist[]>([
   {
     uuid: '1',
+    created_at: '2021-01-01',
     username: 'john_doe',
     name: 'John Doe',
     bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
     avatar: 'artists/artist1.jpeg',
-    location: 'San Francisco, CA',
+    city: 'San Francisco, CA',
+    address: '123 Main St, San Francisco, CA',
     experience: 8
   },
   {
     uuid: '2',
+    created_at: '2021-01-02',
     username: 'jane_smith',
     name: 'Jane Smith',
     bio: 'Creative artist known for beautiful watercolor style tattoos.',
     avatar: 'artists/artist2.jpg',
-    location: 'New York, NY',
+    city: 'New York, NY',
+    address: '456 Main St, New York, NY',
     experience: 5
   }
 ]);

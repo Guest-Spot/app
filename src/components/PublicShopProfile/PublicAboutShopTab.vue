@@ -1,6 +1,13 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
-    <InfoCard title="Working Hours" icon="schedule" :data="workingHours" :loading="loading" />
+    <InfoCard
+      v-if="workingHours?.length"
+      title="Opening Times"
+      icon="schedule"
+      :data="workingHours"
+      :loading="loading"
+      class="opening-times-card"
+    />
     <InfoCard title="Contacts" icon="location_on" :data="contacts" />
     <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
@@ -10,7 +17,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType } from 'src/interfaces/enums';
+import { InfoItemType, OpeningTimesDays } from 'src/interfaces/enums';
 import type { IShop } from 'src/interfaces/shop';
 import useDate from 'src/modules/useDate';
 
@@ -25,8 +32,12 @@ const { formatTime, formatDate } = useDate();
 
 const contacts = computed(() => ([
   {
-    label: 'Location',
-    value: props.shopData.location || '',
+    label: 'City',
+    value: props.shopData.city || '',
+  },
+  {
+    label: 'Address',
+    value: props.shopData.address || '',
   },
   {
     label: 'Phone',
@@ -40,16 +51,22 @@ const contacts = computed(() => ([
   },
 ]));
 
-const workingHours = computed(() => ([
-  {
-    label: 'Start',
-    value: formatTime(props.shopData.workingHoursStart || ''),
-  },
-  {
-    label: 'End',
-    value: formatTime(props.shopData.workingHoursEnd || ''),
-  },
-]));
+const workingHours = computed(() => {
+  const times = [...(props.shopData.openingTimes || [])];
+  times.sort((a, b) => {
+    const dayA = a.day as keyof typeof OpeningTimesDays;
+    const dayB = b.day as keyof typeof OpeningTimesDays;
+    const orderA = Object.keys(OpeningTimesDays).indexOf(dayA);
+    const orderB = Object.keys(OpeningTimesDays).indexOf(dayB);
+    return orderA - orderB;
+  });
+
+  return times.map(time => ({
+    label: OpeningTimesDays[time.day as keyof typeof OpeningTimesDays],
+    value: (time.start && time.end) ? `${formatTime(time.start)} - ${formatTime(time.end)}` : 'Closed',
+    className: time.start && time.end ? '' : 'opening-times--closed',
+  }));
+});
 
 const additionalInfo = computed(() => ([
   {
@@ -66,3 +83,32 @@ const links = computed(() => ([
   }
 ].filter(link => !!link.value)));
 </script>
+
+
+<style scoped lang="scss">
+.opening-times-card {
+  :deep(.info-row) {
+    &::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--q-primary);
+      opacity: 0.6;
+    }
+
+    &:nth-child(6), &:nth-child(7) {
+      .info-label {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  :deep(.opening-times--closed) {
+    &::before {
+      background-color: var(--text-secondary);
+    }
+  }
+}
+</style>
