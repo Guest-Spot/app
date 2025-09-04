@@ -1,7 +1,14 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
+    <InfoCard
+      v-if="workingHours?.length"
+      title="Opening Times"
+      icon="schedule"
+      :data="workingHours"
+      :loading="loading"
+      class="opening-times-card"
+    />
     <InfoCard title="Contacts" icon="location_on" :data="contacts" />
-    <InfoCard v-if="workingHours?.length" title="Opening Times" icon="schedule" :data="workingHours" :loading="loading" />
     <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
   </div>
@@ -75,3 +82,30 @@ const links = computed(() => ([
   }
 ].filter(link => !!link.value)));
 </script>
+
+
+<style scoped lang="scss">
+.opening-times-card {
+  :deep(.info-row) {
+    &::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--q-primary);
+      opacity: 0.6;
+    }
+
+    &:nth-child(6), &:nth-child(7) {
+      &::before {
+        background-color: var(--text-secondary);
+      }
+
+      .info-label {
+        opacity: 0.6;
+      }
+    }
+  }
+}
+</style>
