@@ -72,7 +72,7 @@ const props = defineProps({
     required: true
   },
   filterValue: {
-    type: Object as PropType<Omit<IFilters, 'name'>>,
+    type: Object as PropType<IFilters>,
     required: true
   }
 });
@@ -85,7 +85,7 @@ const { cities } = useCities();
 const isVisible = ref(props.modelValue);
 
 // Filters state
-const filters = ref<Omit<IFilters, 'name'>>({ ...props.filterValue });
+const filters = ref<IFilters>({ ...props.filterValue });
 
 // Watch for props changes
 watch(() => props.modelValue, (newValue) => {
