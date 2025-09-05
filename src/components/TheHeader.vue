@@ -12,9 +12,14 @@
         class="back-btn"
         aria-label="Go back"
       />
-      
-      <q-toolbar-title class="header-title"> {{ pageTitle }} </q-toolbar-title>
-      
+
+      <q-toolbar-title v-if="isProfilePage" class="header-title">
+        Welcome, <span class="text-primary">{{ profile?.fullname }}</span>
+      </q-toolbar-title>
+      <q-toolbar-title v-else class="header-title">
+        {{ pageTitle }}
+      </q-toolbar-title>
+
       <!-- Logout Button - only show on profile pages -->
       <q-btn
         v-if="isProfilePage"
@@ -32,7 +37,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from 'src/stores/user-store';
+import useUser from 'src/modules/useUser';
 
 // Export component for TypeScript
 defineOptions({
@@ -41,7 +46,7 @@ defineOptions({
 
 const route = useRoute();
 const router = useRouter();
-const userStore = useUserStore();
+const { logout, profile } = useUser();
 
 // Check if current page is a profile page
 const isProfilePage = computed(() => {
@@ -64,25 +69,13 @@ const handleBack = () => {
 };
 
 const handleLogout = () => {
-  // Logout user from store (this will clear localStorage)
-  userStore.logout();
-  
-  // Redirect to appropriate login page based on user type
-  if (userStore.type === 'shop') {
-    void router.push('/login/shop');
-  } else if (userStore.type === 'artist') {
-    void router.push('/login/artist');
-  } else {
-    // Default to auth page
-    void router.push('/auth');
-  }
+  void logout();
+  void router.push('/');
 };
 </script>
 
 <style scoped lang="scss">
 .custom-header {
-  border-bottom-left-radius: var(--border-radius-xl);
-  border-bottom-right-radius: var(--border-radius-xl);
   overflow: hidden;
 }
 

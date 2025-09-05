@@ -1,7 +1,7 @@
 <template>
-  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
-      <ProfileHeader />
+      <ProfileHeader class="q-mb-md" />
     </div>
 
     <div class="container">

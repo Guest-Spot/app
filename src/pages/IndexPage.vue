@@ -16,6 +16,7 @@
         @toggle-search="showSearchDialog = true"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
+        class="search-header--sticky"
       />
 
       <!-- Dialogs -->
@@ -173,3 +174,11 @@ onBeforeMount(() => {
   void fetchCities();
 });
 </script>
+
+<style lang="scss" scoped>
+.search-header--sticky {
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+}
+</style>

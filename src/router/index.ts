@@ -33,7 +33,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach((to, from, next) => {
+  function scrollToTop() {
     const QApp = document.querySelector('#q-app');
     if (QApp) {
       setTimeout(() => {
@@ -43,6 +43,10 @@ export default defineRouter(function (/* { store, ssrContext } */) {
         });
       }, 100);
     }
+  }
+
+  Router.beforeEach((to, from, next) => {
+    scrollToTop();
     next();
   });
 

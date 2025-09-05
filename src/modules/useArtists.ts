@@ -1,11 +1,12 @@
-import { computed, inject, ref } from "vue";
+import { computed, ref } from "vue";
 import { useArtistsStore } from "src/stores/artists";
 import type { IArtist } from "src/interfaces/artist";
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { IFilters } from 'src/interfaces/filters';
+import { createClient } from '@supabase/supabase-js';
+import { API_URL, API_KEY } from 'src/config/constants';
 
 const useArtists = () => {
-  const supabase = inject('supabase') as SupabaseClient;
+  const supabase = createClient(API_URL as string, API_KEY as string);
   const artistsStore = useArtistsStore();
   const isLoading = ref(false);
 

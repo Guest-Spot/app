@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from 'src/stores/user-store';
+import { useUserStore } from 'src/stores/user';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -40,16 +40,16 @@ const LINKS = computed(() => [
     isActive: route.path === '/'
   },
   {
-    icon: userStore.isShop ? 'event_note' : 'event',
-    label: 'Bookings',
-    path: userStore.isShop ? '/bookings' : '/trips-bookings',
-    isActive: route.path === '/bookings' || route.path === '/trips-bookings'
-  },
-  {
     icon: 'bookmark',
     label: 'Bookmarks',
     path: '/bookmarks',
     isActive: route.path === '/bookmarks'
+  },
+  {
+    icon: userStore.isShop ? 'event_note' : 'event',
+    label: 'Bookings',
+    path: userStore.isShop ? '/bookings' : '/trips-bookings',
+    isActive: route.path === '/bookings' || route.path === '/trips-bookings'
   },
   {
     icon: 'person',

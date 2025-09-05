@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-between items-center q-gap-md">
-    <div class="text-subtitle1 text-bold">My Profile</div>
+    <div class="text-subtitle1">Welcome, <span class="text-primary">{{ profile?.fullname }}</span></div>
     <q-btn
       text-color="negative"
       icon="logout"
@@ -18,24 +18,31 @@ defineOptions({
   name: 'ProfileHeader'
 });
 
-import { useUserStore } from 'src/stores/user-store';
 import { useRouter } from 'vue-router';
+import useUser from 'src/modules/useUser';
+import { useQuasar } from 'quasar';
 
-const userStore = useUserStore();
 const router = useRouter();
+const $q = useQuasar();
+const { logout, profile } = useUser();
 
 const handleLogout = () => {
-  // Logout user from store (this will clear localStorage)
-  userStore.logout();
-
-  // Redirect to appropriate login page based on user type
-  if (userStore.type === 'shop') {
-    void router.push('/login/shop');
-  } else if (userStore.type === 'artist') {
-    void router.push('/login/artist');
-  } else {
-    // Default to auth page
-    void router.push('/auth');
-  }
+  $q.dialog({
+    title: 'Logout',
+    message: 'Are you sure you want to logout?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Cancel'
+    },
+    ok: {
+      color: 'primary',
+      rounded: true,
+      label: 'Logout'
+    }
+  }).onOk(() => {
+    void logout();
+    void router.push('/');
+  });
 };
 </script>

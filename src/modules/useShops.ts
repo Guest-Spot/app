@@ -1,11 +1,12 @@
-import { computed, inject, ref } from "vue";
+import { computed, ref } from "vue";
 import { useShopsStore } from "src/stores/shops";
 import type { IShop } from "src/interfaces/shop";
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import type { IFilters } from 'src/interfaces/filters';
+import { API_URL, API_KEY } from "src/config/constants";
 
 const useShops = () => {
-  const supabase = inject('supabase') as SupabaseClient;
+  const supabase = createClient(API_URL as string, API_KEY as string);
   const shopsStore = useShopsStore();
   const isLoading = ref(false);
 

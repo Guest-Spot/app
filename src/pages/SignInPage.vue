@@ -5,12 +5,12 @@
         round
         unelevated
         text-color="grey-6"
-        @click="goBack"
+        @click="$router.back()"
         class="bg-block"
       >
         <q-icon name="arrow_back" />
       </q-btn>
-      <h2 class="text-h5 q-my-none">Welcome, <span class="text-primary">Shop Owner!</span></h2>
+      <h2 class="text-h5 q-my-none">Sign in to <span class="text-primary">your account</span></h2>
     </div>
 
     <div class="q-my-auto full-width">
@@ -22,16 +22,16 @@
               <q-input
                 v-model="form.login"
                 type="text"
-                placeholder="Login"
+                placeholder="Email"
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Login is required']"
+                :rules="[val => !!val || 'Email is required']"
                 class="full-width custom-input"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
-                  <q-icon name="person" color="grey-7" />
+                  <q-icon name="email" color="grey-6" />
                 </template>
               </q-input>
             </div>
@@ -41,16 +41,16 @@
               <q-input
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="**************"
+                placeholder="Password"
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Password is required', val => val.length >= 6 || 'Password must be at least 6 characters']"
+                :rules="[val => !!val || 'Password is required', val => val.length >= 3 || 'Password must be at least 3 characters']"
                 class="full-width custom-input"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
-                  <q-icon name="lock" color="grey-7" />
+                  <q-icon name="lock" color="grey-6" />
                 </template>
                 <template v-slot:append>
                   <q-btn
@@ -59,7 +59,7 @@
                     dense
                     :icon="showPassword ? 'visibility_off' : 'visibility'"
                     @click="showPassword = !showPassword"
-                    color="grey-7"
+                    color="grey-6"
                   />
                 </template>
               </q-input>
@@ -73,16 +73,17 @@
                 rounded
                 unelevated
               >
-                Login
+                Sign in
               </q-btn>
             </div>
           </q-form>
         </div>
 
+        <!-- TODO: Add actions section -->
         <div class="actions-section q-mt-xl">
           <div class="text-subtitle1 flex column items-center justify-center q-gap-sm">
             <span>Don't have an account?</span>
-            <q-btn flat dense color="primary" rounded label="Contact Support" />
+            <q-btn flat dense color="primary" rounded label="Contact Support" class="q-px-md" />
           </div>
         </div>
       </div>
@@ -91,14 +92,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useUserStore } from 'src/stores/user-store';
+import useUser from 'src/modules/useUser';
 
 const router = useRouter();
 const $q = useQuasar();
-const userStore = useUserStore();
+const { login, isAuthenticated } = useUser();
 
 const loading = ref(false);
 const showPassword = ref(false);
@@ -107,22 +108,15 @@ const form = ref({
   password: ''
 });
 
-// Get test credentials for shop
-const testCredentials = userStore.getTestCredentials('shop');
-
 const handleLogin = async () => {
   loading.value = true;
 
   try {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await login(form.value.login, form.value.password);
 
-    // Authenticate test user
-    const isAuthenticated = userStore.authenticateTestUser(form.value.login, form.value.password, 'shop');
-
-    if (isAuthenticated) {
+    if (isAuthenticated.value) {
       $q.notify({
-        type: 'positive',
+        type: 'primary',
         message: 'Login successful!',
         position: 'top',
         timeout: 1500,
@@ -136,7 +130,7 @@ const handleLogin = async () => {
         ]
       });
 
-      // Redirect to shop profile
+      // Redirect to artist profile
       setTimeout(() => {
         void router.push('/profile');
       }, 500);
@@ -148,7 +142,7 @@ const handleLogin = async () => {
     console.error('Login error:', error);
     $q.notify({
       type: 'negative',
-      message: 'Login failed. Please check your credentials.',
+      message: 'Invalid login credentials',
       position: 'top',
       timeout: 1500,
       color: 'negative',
@@ -164,16 +158,6 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
-
-const goBack = () => {
-  void router.push('/auth');
-};
-
-// Pre-fill form with test credentials on mount
-onMounted(() => {
-  form.value.login = testCredentials.login;
-  form.value.password = testCredentials.password;
-});
 </script>
 
 <style scoped>
