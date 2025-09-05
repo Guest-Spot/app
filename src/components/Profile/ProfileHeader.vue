@@ -4,7 +4,6 @@
     <q-btn
       text-color="negative"
       icon="logout"
-      size="sm"
       round
       unelevated
       @click="handleLogout"
