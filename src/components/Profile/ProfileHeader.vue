@@ -20,12 +20,29 @@ defineOptions({
 
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
+import { useQuasar } from 'quasar';
 
 const router = useRouter();
+const $q = useQuasar();
 const { logout, profile } = useUser();
 
 const handleLogout = () => {
-  void logout();
-  void router.push('/');
+  $q.dialog({
+    title: 'Logout',
+    message: 'Are you sure you want to logout?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Cancel'
+    },
+    ok: {
+      color: 'primary',
+      rounded: true,
+      label: 'Logout'
+    }
+  }).onOk(() => {
+    void logout();
+    void router.push('/');
+  });
 };
 </script>

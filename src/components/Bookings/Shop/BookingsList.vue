@@ -145,7 +145,7 @@ const cancelBooking = (bookingUuid: string) => {
     title: 'Cancel Booking',
     message: 'Are you sure you want to cancel this booking request?',
     cancel: {
-      color: 'grey-6',
+      color: 'grey-9',
       rounded: true,
       label: 'No, Keep It'
     },

@@ -235,7 +235,7 @@ const deleteTrip = () => {
     title: 'Confirm Deletion',
     message: 'Are you sure you want to delete this trip?',
     cancel: {
-      color: 'grey-6',
+      color: 'grey-9',
       rounded: true,
       title: 'Cancel'
     },

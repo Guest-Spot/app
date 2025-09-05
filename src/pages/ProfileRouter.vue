@@ -1,13 +1,11 @@
 <template>
-  <div class="profile-router">
-    <!-- Shop Profile -->
-    <ShopProfile v-if="isShop" />
+  <!-- Shop Profile -->
+  <ShopProfile v-if="isShop" />
 
-    <!-- Artist Profile -->
-    <ArtistProfile v-else-if="isArtist" />
+  <!-- Artist Profile -->
+  <ArtistProfile v-else-if="isArtist" />
 
-    <SingInToContinue v-else class="fixed-center full-width" title="My Profile" />
-  </div>
+  <SingInToContinue v-else class="fixed-center full-width" title="My Profile" />
 </template>
 
 <script setup lang="ts">
