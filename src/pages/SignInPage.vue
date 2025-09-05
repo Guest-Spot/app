@@ -83,7 +83,7 @@
         <div class="actions-section q-mt-xl">
           <div class="text-subtitle1 flex column items-center justify-center q-gap-sm">
             <span>Don't have an account?</span>
-            <q-btn flat dense color="primary" rounded label="Contact Support" />
+            <q-btn flat dense color="primary" rounded label="Contact Support" class="q-px-md" />
           </div>
         </div>
       </div>
