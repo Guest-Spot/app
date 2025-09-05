@@ -1,29 +1,31 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
-    <div class="container">
+    <template v-if="isAuthenticated">
       <!-- Navigation Tabs -->
-      <TabsComp
-        :tabs="TABS"
-        :activeTab="activeTab"
-        use-query
-        send-initial-tab
-        @setActiveTab="setActiveTab"
-        class="full-width"
-      />
-    </div>
+      <div class="container">
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          use-query
+          send-initial-tab
+          @setActiveTab="setActiveTab"
+          class="full-width"
+        />
+      </div>
 
-    <div class="container">
       <!-- Main Content Area -->
-      <div class="main-content flex column q-gap-md">
-        <!-- Tab Content -->
-        <div v-if="activeTab.tab === TAB_TRIPS" class="tab-content">
-          <TripsTab />
-        </div>
-        <div v-else-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
-          <BookingsList :artist-id="artistId" :shop-id="shopId" />
+      <div class="container">
+        <div class="main-content flex column q-gap-md">
+          <div v-if="activeTab.tab === TAB_TRIPS" class="tab-content">
+            <TripsTab />
+          </div>
+          <div v-else-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
+            <BookingsList :artist-id="artistId" :shop-id="shopId" />
+          </div>
         </div>
       </div>
-    </div>
+    </template>
+    <SingInToContinue v-else class="fixed-center full-width" title="My Trips & Bookings" />
   </q-page>
 </template>
 
@@ -33,6 +35,8 @@ import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
 import BookingsList from 'src/components/Bookings/Artist/BookingsList.vue';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
+import SingInToContinue from 'src/components/SingInToContinue.vue'
+import useUser from 'src/modules/useUser';
 
 const TAB_TRIPS = 'trips';
 const TAB_BOOKINGS = 'bookings';
@@ -47,6 +51,8 @@ const TABS: ITab[] = [
     tab: TAB_BOOKINGS
   }
 ];
+
+const { isAuthenticated } = useUser();
 
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);

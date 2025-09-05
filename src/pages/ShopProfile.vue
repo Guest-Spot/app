@@ -1,6 +1,10 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
+      <ProfileHeader />
+    </div>
+
+    <div class="container">
       <!-- Navigation Tabs -->
       <TabsComp
         :tabs="TABS"
@@ -33,6 +37,7 @@ import { ref } from 'vue';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
+import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -44,8 +49,7 @@ const TABS: ITab[] = [
   },
   {
     label: 'Shop Artists',
-    tab: TAB_ARTISTS,
-    count: 2
+    tab: TAB_ARTISTS
   }
 ];
 

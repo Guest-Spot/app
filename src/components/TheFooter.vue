@@ -40,16 +40,16 @@ const LINKS = computed(() => [
     isActive: route.path === '/'
   },
   {
-    icon: userStore.isShop ? 'event_note' : 'event',
-    label: 'Bookings',
-    path: userStore.isShop ? '/bookings' : '/trips-bookings',
-    isActive: route.path === '/bookings' || route.path === '/trips-bookings'
-  },
-  {
     icon: 'bookmark',
     label: 'Bookmarks',
     path: '/bookmarks',
     isActive: route.path === '/bookmarks'
+  },
+  {
+    icon: userStore.isShop ? 'event_note' : 'event',
+    label: 'Bookings',
+    path: userStore.isShop ? '/bookings' : '/trips-bookings',
+    isActive: route.path === '/bookings' || route.path === '/trips-bookings'
   },
   {
     icon: 'person',

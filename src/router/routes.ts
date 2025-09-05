@@ -26,14 +26,6 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/profile',
-    component: () => import('layouts/ProfileLayout.vue'),
-    meta: { title: 'Profile' },
-    children: [
-      { path: '', component: () => import('pages/ProfileRouter.vue') },
-    ],
-  },
-  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -50,12 +42,12 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'trips-bookings',
         component: () => import('pages/TripsBookingsPage.vue'),
-        meta: { title: 'Artist Trips & Bookings' }
+        meta: { title: 'My Trips & Bookings', requiresAuth: true }
       },
       {
         path: 'bookings',
         component: () => import('pages/BookingsPage.vue'),
-        meta: { title: 'Shop Bookings' }
+        meta: { title: 'Shop Bookings', requiresAuth: true }
       },
       {
         path: 'profile',
