@@ -18,7 +18,7 @@ defineOptions({
   name: 'ProfileHeader'
 });
 
-import { useUserStore } from 'src/stores/user-store';
+import { useUserStore } from 'src/stores/user';
 import { useRouter } from 'vue-router';
 
 const userStore = useUserStore();

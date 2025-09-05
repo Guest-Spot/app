@@ -1,14 +1,5 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  type: 'shop' | 'artist' | 'guest';
-  fullname: string;
-  avatar?: string;
-  isAuthenticated: boolean;
-}
+import type { IUser } from 'src/interfaces/user';
 
 // Test credentials for development
 const TEST_CREDENTIALS = {
@@ -17,13 +8,13 @@ const TEST_CREDENTIALS = {
     password: '123456'
   },
   shop: {
-    login: 'shop_test', 
+    login: 'shop_test',
     password: '123456'
   }
 };
 
 export const useUserStore = defineStore('user', {
-  state: (): User => ({
+  state: (): IUser => ({
     id: '',
     username: '',
     email: '',
@@ -37,6 +28,7 @@ export const useUserStore = defineStore('user', {
     isShop: (state) => state.type === 'shop',
     isArtist: (state) => state.type === 'artist',
     userDisplayName: (state) => state.fullname || state.username,
+    getUser: (state) => state,
   },
 
   actions: {
@@ -73,7 +65,7 @@ export const useUserStore = defineStore('user', {
       localStorage.removeItem('guestspot_user');
     },
 
-    login(userData: Partial<User>) {
+    login(userData: Partial<IUser>) {
       this.id = userData.id || '';
       this.username = userData.username || '';
       this.email = userData.email || '';
@@ -81,7 +73,7 @@ export const useUserStore = defineStore('user', {
       this.fullname = userData.fullname || '';
       this.avatar = userData.avatar || '';
       this.isAuthenticated = true;
-      
+
       // Save to localStorage
       this.saveToStorage();
     },
@@ -94,12 +86,12 @@ export const useUserStore = defineStore('user', {
       this.fullname = '';
       this.avatar = '';
       this.isAuthenticated = false;
-      
+
       // Clear from localStorage
       this.clearStorage();
     },
 
-    updateProfile(profileData: Partial<User>) {
+    updateProfile(profileData: Partial<IUser>) {
       Object.assign(this, profileData);
       this.saveToStorage();
     },
@@ -107,7 +99,7 @@ export const useUserStore = defineStore('user', {
     // Test authentication methods
     authenticateTestUser(login: string, password: string, userType: 'shop' | 'artist'): boolean {
       const credentials = TEST_CREDENTIALS[userType];
-      
+
       if (credentials.login === login && credentials.password === password) {
         if (userType === 'shop') {
           this.loginAsShop();

@@ -29,43 +29,43 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { 
-        path: '', 
+      {
+        path: '',
         component: () => import('pages/IndexPage.vue'),
         meta: { title: 'Search Page' }
       },
-      { 
-        path: 'bookmarks', 
+      {
+        path: 'bookmarks',
         component: () => import('pages/BookmarksPage.vue'),
         meta: { title: 'Bookmarks' }
       },
-      { 
-        path: 'trips-bookings', 
+      {
+        path: 'trips-bookings',
         component: () => import('pages/TripsBookingsPage.vue'),
         meta: { title: 'Artist Trips & Bookings' }
       },
-      { 
-        path: 'bookings', 
+      {
+        path: 'bookings',
         component: () => import('pages/BookingsPage.vue'),
         meta: { title: 'Shop Bookings' }
       },
-      { 
-        path: 'profile', 
+      {
+        path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
         meta: { title: 'My Profile' }
       },
-      { 
-        path: 'faq', 
+      {
+        path: 'faq',
         component: () => import('pages/FAQPage.vue'),
         meta: { title: 'FAQ' }
       },
-      { 
-        path: 'tos', 
+      {
+        path: 'tos',
         component: () => import('pages/TOSPage.vue'),
         meta: { title: 'Terms of Service' }
       },
-      { 
-        path: 'privacy', 
+      {
+        path: 'privacy',
         component: () => import('pages/PrivacyPage.vue'),
         meta: { title: 'Privacy Policy' }
       },
@@ -75,8 +75,8 @@ const routes: RouteRecordRaw[] = [
     path: '/artist/:id',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { 
-        path: '', 
+      {
+        path: '',
         component: () => import('pages/PublicArtistProfile.vue'),
         meta: { title: 'Artist Profile', hasBack: true }
       },
@@ -86,8 +86,8 @@ const routes: RouteRecordRaw[] = [
     path: '/shop/:id',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { 
-        path: '', 
+      {
+        path: '',
         component: () => import('pages/PublicShopProfile.vue'),
         meta: { title: 'Shop Profile', hasBack: true }
       },
@@ -100,8 +100,8 @@ const routes: RouteRecordRaw[] = [
     path: '/:catchAll(.*)*',
     component: () => import('layouts/AuthLayout.vue'),
     children: [
-      { 
-        path: '', 
+      {
+        path: '',
         component: () => import('pages/ErrorNotFound.vue'),
         meta: { title: 'Page Not Found' }
       },

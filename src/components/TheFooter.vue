@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from 'src/stores/user-store';
+import { useUserStore } from 'src/stores/user';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 

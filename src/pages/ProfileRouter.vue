@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from 'src/stores/user-store';
+import { useUserStore } from 'src/stores/user';
 import ShopProfile from 'src/pages/ShopProfile.vue';
 import ArtistProfile from 'src/pages/ArtistProfile.vue';
 

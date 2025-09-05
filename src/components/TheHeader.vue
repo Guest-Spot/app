@@ -12,9 +12,9 @@
         class="back-btn"
         aria-label="Go back"
       />
-      
+
       <q-toolbar-title class="header-title"> {{ pageTitle }} </q-toolbar-title>
-      
+
       <!-- Logout Button - only show on profile pages -->
       <q-btn
         v-if="isProfilePage"
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from 'src/stores/user-store';
+import { useUserStore } from 'src/stores/user';
 
 // Export component for TypeScript
 defineOptions({
@@ -66,7 +66,7 @@ const handleBack = () => {
 const handleLogout = () => {
   // Logout user from store (this will clear localStorage)
   userStore.logout();
-  
+
   // Redirect to appropriate login page based on user type
   if (userStore.type === 'shop') {
     void router.push('/login/shop');

@@ -95,7 +95,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useUserStore } from 'src/stores/user-store';
+import { useUserStore } from 'src/stores/user';
 
 const router = useRouter();
 const $q = useQuasar();
