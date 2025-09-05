@@ -1,11 +1,12 @@
 import { useUserStore } from 'src/stores/user';
-import { computed, inject } from 'vue';
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { computed } from 'vue';
+import { createClient, type User } from '@supabase/supabase-js';
 import { type IProfile, UserType } from 'src/interfaces/user';
+import { API_URL, API_KEY } from 'src/config/constants'
 
 const useUser = () => {
   const userStore = useUserStore();
-  const supabase = inject('supabase') as SupabaseClient;
+  const supabase = createClient(API_URL as string, API_KEY as string);
 
   const user = computed(() => userStore.getUser);
   const profile = computed(() => userStore.getProfile);
@@ -52,6 +53,7 @@ const useUser = () => {
     }
 
     const { data: profile, error: profileErr } = await fetchProfile(user.id);
+
     if (profileErr) {
       console.error(profileErr);
       return;

@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import ShopProfile from 'src/pages/ShopProfile.vue';
@@ -24,7 +24,7 @@ import ArtistProfile from 'src/pages/ArtistProfile.vue';
 const router = useRouter();
 const { isShop, isArtist, isAuthenticated } = useUser();
 
-onMounted(() => {
+onBeforeMount(() => {
   if (!isAuthenticated.value) {
     if (isShop.value) {
       void router.push('/login/shop');

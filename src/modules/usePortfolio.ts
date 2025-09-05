@@ -1,10 +1,10 @@
 import { ref } from "vue";
-import { inject } from "vue";
 import type { IPortfolio } from "src/interfaces/portfolio";
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
+import { API_URL, API_KEY } from 'src/config/constants';
 
 const usePortfolio = () => {
-  const supabase = inject('supabase') as SupabaseClient;
+  const supabase = createClient(API_URL as string, API_KEY as string);
   const isLoading = ref(false);
   const portfolioItems = ref<IPortfolio[]>([]);
 

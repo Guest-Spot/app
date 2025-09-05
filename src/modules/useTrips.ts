@@ -1,10 +1,10 @@
 import { ref } from "vue";
-import { inject } from "vue";
 import type { ITrip } from "src/interfaces/trip";
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
+import { API_URL, API_KEY } from 'src/config/constants';
 
 const useTrips = () => {
-  const supabase = inject('supabase') as SupabaseClient;
+  const supabase = createClient(API_URL as string, API_KEY as string);
   const isLoading = ref(false);
   const trips = ref<ITrip[]>([]);
 

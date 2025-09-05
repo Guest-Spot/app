@@ -52,7 +52,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
-        meta: { title: 'My Profile' }
+        meta: { title: 'My Profile', requiresAuth: true }
       },
       {
         path: 'faq',
