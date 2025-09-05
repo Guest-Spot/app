@@ -1,13 +1,13 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+    <!-- Navigation Tabs -->
     <div class="container">
-      <!-- Navigation Tabs -->
-      <div class="q-mb-md">
-        <SearchTabs
-          v-model="activeTab"
-        />
-      </div>
+      <SearchTabs
+        v-model="activeTab"
+      />
+    </div>
 
+    <div class="container">
       <SearchHeader
         v-model="searchQuery"
         :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${artists.length})`"
@@ -16,7 +16,6 @@
         @toggle-search="showSearchDialog = true"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
-        class="search-header--sticky"
       />
 
       <!-- Dialogs -->
@@ -174,11 +173,3 @@ onBeforeMount(() => {
   void fetchCities();
 });
 </script>
-
-<style lang="scss" scoped>
-.search-header--sticky {
-  position: sticky;
-  top: 8px;
-  z-index: 10;
-}
-</style>

@@ -3,9 +3,11 @@
     <div class="container">
       <!-- Navigation Tabs -->
       <SearchTabs v-model="activeTab" />
+    </div>
 
+    <div class="container">
       <!-- Main Content Area -->
-      <div class="flex column q-gap-md q-mt-lg flex">
+      <div class="flex column q-gap-md flex">
         <!-- Shops Tab Content -->
         <div v-if="activeTab === TAB_SHOPS" class="tab-content">
           <div v-if="favoriteShops.length" class="flex column q-gap-md">

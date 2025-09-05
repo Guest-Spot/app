@@ -43,23 +43,22 @@
           <q-btn
             round
             flat
-            dense
-            icon="chevron_left"
             @click="$router.back()"
-            class="bg-block absolute-top-left q-ma-md"
-          />
+            class="bg-block fixed-top-left q-z-2 back-btn"
+          >
+            <q-icon name="chevron_left" size="24px" />
+          </q-btn>
 
           <!-- Favorite Button -->
           <q-btn
             round
             flat
-            dense
             :color="isFavorite ? 'red' : 'grey-6'"
             @click="toggleFavorite"
-            class="favorite-btn bg-block absolute-top-right q-ma-md"
+            class="favorite-btn bg-block fixed-top-right q-z-2 favorite-btn"
           >
-            <q-icon v-if="isFavorite" name="favorite" size="18px" color="red" />
-            <q-icon v-else name="favorite_border" size="18px" color="red" />
+            <q-icon v-if="isFavorite" name="favorite" size="22px" color="red" />
+            <q-icon v-else name="favorite_border" size="22px" color="red" />
           </q-btn>
         </div>
       </div>
@@ -289,5 +288,15 @@ onBeforeMount(() => {
 .favorite-btn {
   min-width: 36px;
   min-height: 36px;
+}
+
+.back-btn {
+  top: 70px;
+  left: 16px;
+}
+
+.favorite-btn {
+  top: 70px;
+  right: 16px;
 }
 </style>
