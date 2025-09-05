@@ -19,7 +19,7 @@
           round
           flat
           @click="$router.back()"
-          class="bg-block absolute-top-left q-z-2 back-btn"
+          class="bg-block fixed-top-left q-z-2 back-btn"
         >
           <q-icon name="chevron_left" size="24px" />
         </q-btn>
@@ -30,7 +30,7 @@
           flat
           :color="isFavorite ? 'red' : 'grey-6'"
           @click="toggleFavorite"
-          class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
+          class="favorite-btn bg-block fixed-top-right q-z-2 favorite-btn"
         >
           <q-icon v-if="isFavorite" name="favorite" size="24px" color="red" />
           <q-icon v-else name="favorite_border" size="24px" color="red" />
@@ -250,10 +250,30 @@ onBeforeMount(() => {
 </script>
 
 <style scoped lang="scss">
-.q-ios-padding .page {
-  padding-top: 0;
-  border-radius: 50px 50px 0 0;
-  overflow: hidden;
+.back-btn {
+  top: 16px;
+  left: 16px;
+}
+
+.favorite-btn {
+  top: 16px;
+  right: 16px;
+}
+
+.q-ios-padding {
+  .page {
+    padding-top: 0;
+    border-radius: 50px 50px 0 0;
+    overflow: hidden;
+  }
+
+  .back-btn {
+    top: 70px;
+  }
+
+  .favorite-btn {
+    top: 70px;
+  }
 }
 
 .profile-header {
@@ -296,15 +316,5 @@ onBeforeMount(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
-}
-
-.back-btn {
-  top: 70px;
-  left: 16px;
-}
-
-.favorite-btn {
-  top: 70px;
-  right: 16px;
 }
 </style>
