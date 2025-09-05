@@ -26,6 +26,6 @@ const { logout, profile } = useUser();
 
 const handleLogout = () => {
   void logout();
-  void router.push('/auth');
+  void router.push('/');
 };
 </script>

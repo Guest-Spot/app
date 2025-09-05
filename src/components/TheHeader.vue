@@ -70,7 +70,7 @@ const handleBack = () => {
 
 const handleLogout = () => {
   void logout();
-  void router.push('/auth');
+  void router.push('/');
 };
 </script>
 

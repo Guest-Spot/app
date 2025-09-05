@@ -8,6 +8,7 @@
       color="primary"
       label="Sign in"
       class="min-w-100px"
+      to="/sign-in"
     />
   </div>
 </template>

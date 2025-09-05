@@ -5,12 +5,12 @@
         round
         unelevated
         text-color="grey-6"
-        @click="goBack"
+        @click="$router.back()"
         class="bg-block"
       >
         <q-icon name="arrow_back" />
       </q-btn>
-      <h2 class="text-h5 q-my-none">Welcome, <span class="text-primary">Artist!</span></h2>
+      <h2 class="text-h5 q-my-none">Sign in to <span class="text-primary">your account</span></h2>
     </div>
 
     <div class="q-my-auto full-width">
@@ -22,16 +22,16 @@
               <q-input
                 v-model="form.login"
                 type="text"
-                placeholder="Login"
+                placeholder="Email"
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Login is required']"
+                :rules="[val => !!val || 'Email is required']"
                 class="full-width custom-input"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
-                  <q-icon name="person" color="grey-7" />
+                  <q-icon name="email" color="grey-6" />
                 </template>
               </q-input>
             </div>
@@ -50,7 +50,7 @@
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
-                  <q-icon name="lock" color="grey-7" />
+                  <q-icon name="lock" color="grey-6" />
                 </template>
                 <template v-slot:append>
                   <q-btn
@@ -59,7 +59,7 @@
                     dense
                     :icon="showPassword ? 'visibility_off' : 'visibility'"
                     @click="showPassword = !showPassword"
-                    color="grey-7"
+                    color="grey-6"
                   />
                 </template>
               </q-input>
@@ -73,7 +73,7 @@
                 rounded
                 unelevated
               >
-                Login
+                Sign in
               </q-btn>
             </div>
           </q-form>
@@ -157,10 +157,6 @@ const handleLogin = async () => {
   } finally {
     loading.value = false;
   }
-};
-
-const goBack = () => {
-  void router.push('/auth');
 };
 </script>
 

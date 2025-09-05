@@ -2,27 +2,11 @@ import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/auth',
+    path: '/sign-in',
     component: () => import('layouts/AuthLayout.vue'),
-    meta: { title: 'Authentication' },
+    meta: { title: 'Sign In' },
     children: [
-      { path: '', component: () => import('pages/AuthPage.vue') },
-    ],
-  },
-  {
-    path: '/login/shop',
-    component: () => import('layouts/AuthLayout.vue'),
-    meta: { title: 'Shop Login' },
-    children: [
-      { path: '', component: () => import('pages/ShopLoginPage.vue') },
-    ],
-  },
-  {
-    path: '/login/artist',
-    component: () => import('layouts/AuthLayout.vue'),
-    meta: { title: 'Artist Login' },
-    children: [
-      { path: '', component: () => import('pages/ArtistLoginPage.vue') },
+      { path: '', component: () => import('pages/SignInPage.vue') },
     ],
   },
   {
