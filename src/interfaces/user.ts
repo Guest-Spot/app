@@ -1,9 +1,11 @@
-export interface IUser {
+export enum UserType {
+  Shop = 'shop',
+  Artist = 'artist',
+  Guest = 'guest',
+}
+
+export interface IProfile {
   id: string;
-  username: string;
-  email: string;
-  type: 'shop' | 'artist' | 'guest';
-  fullname: string;
-  avatar?: string;
-  isAuthenticated: boolean;
+  created_at: string;
+  type: UserType;
 }

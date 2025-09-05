@@ -1,6 +1,6 @@
 <template>
   <div
-    class="tabs-comp flex q-gap-sm justify-start no-wrap q-pt-sm"
+    class="tabs-comp flex q-gap-sm justify-start no-wrap"
   >
     <q-btn
       v-for="t in tabs"
@@ -72,6 +72,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .tabs-comp {
   overflow-x: auto;
+  padding-top: 8px;
+  margin-top: -8px;
 }
 
 .tabs-comp-counter {

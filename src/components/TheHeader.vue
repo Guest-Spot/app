@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from 'src/stores/user';
+import useUser from 'src/modules/useUser';
 
 // Export component for TypeScript
 defineOptions({
@@ -41,7 +41,7 @@ defineOptions({
 
 const route = useRoute();
 const router = useRouter();
-const userStore = useUserStore();
+const { logout } = useUser();
 
 // Check if current page is a profile page
 const isProfilePage = computed(() => {
@@ -64,18 +64,8 @@ const handleBack = () => {
 };
 
 const handleLogout = () => {
-  // Logout user from store (this will clear localStorage)
-  userStore.logout();
-
-  // Redirect to appropriate login page based on user type
-  if (userStore.type === 'shop') {
-    void router.push('/login/shop');
-  } else if (userStore.type === 'artist') {
-    void router.push('/login/artist');
-  } else {
-    // Default to auth page
-    void router.push('/auth');
-  }
+  void logout();
+  void router.push('/auth');
 };
 </script>
 

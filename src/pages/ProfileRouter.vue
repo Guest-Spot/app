@@ -1,10 +1,10 @@
 <template>
   <div class="profile-router">
     <!-- Shop Profile -->
-    <ShopProfile v-if="userStore.isShop" />
+    <ShopProfile v-if="isShop" />
 
     <!-- Artist Profile -->
-    <ArtistProfile v-else-if="userStore.isArtist" />
+    <ArtistProfile v-else-if="isArtist" />
 
     <!-- Loading or redirect -->
     <div v-else class="loading-container">
@@ -17,35 +17,19 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from 'src/stores/user';
+import useUser from 'src/modules/useUser';
 import ShopProfile from 'src/pages/ShopProfile.vue';
 import ArtistProfile from 'src/pages/ArtistProfile.vue';
 
 const router = useRouter();
-const userStore = useUserStore();
+const { isShop, isArtist, isAuthenticated } = useUser();
 
 onMounted(() => {
-  // Initialize user store from localStorage
-  userStore.initFromStorage();
-
-  // If not authenticated, redirect to appropriate login page
-  if (!userStore.isAuthenticated) {
-    // Check if there was a previous user type to redirect appropriately
-    const storedUser = localStorage.getItem('guestspot_user');
-    if (storedUser) {
-      try {
-        const userData = JSON.parse(storedUser);
-        if (userData.type === 'shop') {
-          void router.push('/login/shop');
-        } else if (userData.type === 'artist') {
-          void router.push('/login/artist');
-        } else {
-          void router.push('/auth');
-        }
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        void router.push('/auth');
-      }
+  if (!isAuthenticated.value) {
+    if (isShop.value) {
+      void router.push('/login/shop');
+    } else if (isArtist.value) {
+      void router.push('/login/artist');
     } else {
       void router.push('/auth');
     }

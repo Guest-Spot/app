@@ -41,7 +41,7 @@
               <q-input
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="**************"
+                placeholder="Password"
                 outlined
                 rounded
                 size="lg"
@@ -92,14 +92,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useUserStore } from 'src/stores/user';
+import useUser from 'src/modules/useUser';
 
 const router = useRouter();
 const $q = useQuasar();
-const userStore = useUserStore();
+const { login, isAuthenticated } = useUser();
 
 const loading = ref(false);
 const showPassword = ref(false);
@@ -108,20 +108,13 @@ const form = ref({
   password: ''
 });
 
-// Get test credentials for artist
-const testCredentials = userStore.getTestCredentials('artist');
-
 const handleLogin = async () => {
   loading.value = true;
 
   try {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await login(form.value.login, form.value.password);
 
-    // Authenticate test user
-    const isAuthenticated = userStore.authenticateTestUser(form.value.login, form.value.password, 'artist');
-
-    if (isAuthenticated) {
+    if (isAuthenticated.value) {
       $q.notify({
         type: 'primary',
         message: 'Login successful!',
@@ -169,12 +162,6 @@ const handleLogin = async () => {
 const goBack = () => {
   void router.push('/auth');
 };
-
-// Pre-fill form with test credentials on mount
-onMounted(() => {
-  form.value.login = testCredentials.login;
-  form.value.password = testCredentials.password;
-});
 </script>
 
 <style scoped>
