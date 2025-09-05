@@ -13,7 +13,12 @@
         aria-label="Go back"
       />
 
-      <q-toolbar-title class="header-title"> {{ pageTitle }} </q-toolbar-title>
+      <q-toolbar-title v-if="isProfilePage" class="header-title">
+        Welcome, <span class="text-primary">{{ profile?.fullname }}</span>
+      </q-toolbar-title>
+      <q-toolbar-title v-else class="header-title">
+        {{ pageTitle }}
+      </q-toolbar-title>
 
       <!-- Logout Button - only show on profile pages -->
       <q-btn
@@ -41,7 +46,7 @@ defineOptions({
 
 const route = useRoute();
 const router = useRouter();
-const { logout } = useUser();
+const { logout, profile } = useUser();
 
 // Check if current page is a profile page
 const isProfilePage = computed(() => {
@@ -71,8 +76,6 @@ const handleLogout = () => {
 
 <style scoped lang="scss">
 .custom-header {
-  border-bottom-left-radius: var(--border-radius-xl);
-  border-bottom-right-radius: var(--border-radius-xl);
   overflow: hidden;
 }
 

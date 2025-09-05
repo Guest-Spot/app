@@ -18,7 +18,7 @@ const useUser = () => {
   const fetchProfile = async (userId: string): Promise<{ data: IProfile | null, error: Error | null }> => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, type, created_at')
+      .select('id, type, created_at, fullname')
       .eq('id', userId)
       .single();
 

@@ -8,4 +8,5 @@ export interface IProfile {
   id: string;
   created_at: string;
   type: UserType;
+  fullname: string;
 }
