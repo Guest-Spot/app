@@ -13,6 +13,7 @@
             class="carousel-img"
             spinner-color="dark"
             spinner-size="32px"
+            :style="{ height: height }"
           />
         </div>
       </Slide>
@@ -62,7 +63,6 @@ const carouselConfig = computed(() => ({
 
 <style scoped lang="scss">
 .image-carousel {
-  border-radius: 8px 8px 0 0;
   overflow: hidden;
   position: relative;
   touch-action: pan-y;
@@ -77,7 +77,6 @@ const carouselConfig = computed(() => ({
 
   .carousel-img {
     width: 100%;
-    height: 200px;
     object-fit: cover;
     display: block;
   }

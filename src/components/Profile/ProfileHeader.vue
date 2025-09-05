@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-between items-center q-gap-md">
-    <div class="text-subtitle1">Welcome, <span class="text-primary">{{ profile?.fullname }}</span></div>
+    <div class="text-h6">Welcome, <span class="text-primary">{{ profile?.fullname }}</span></div>
     <q-btn
       text-color="negative"
       icon="logout"

@@ -21,7 +21,7 @@
               <label class="input-label">Enter your login</label>
               <q-input
                 v-model="form.login"
-                type="text"
+                type="email"
                 placeholder="Email"
                 outlined
                 rounded
