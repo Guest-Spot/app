@@ -24,6 +24,27 @@ allprojects {
     }
 }
 
+// Force Java 17 across all Android subprojects (application and libraries)
+subprojects { subproj ->
+    // Ensure JavaCompile tasks use Java 17 regardless of individual module settings
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    // Also override Android Gradle Plugin compileOptions when present
+    afterEvaluate {
+        if (subproj.hasProperty('android')) {
+            subproj.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
