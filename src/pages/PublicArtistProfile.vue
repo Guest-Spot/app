@@ -1,6 +1,27 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
+      <!-- Back Button -->
+      <q-btn
+        round
+        flat
+        @click="$router.back()"
+        class="bg-block absolute-top-left q-z-2 back-btn"
+      >
+        <q-icon name="chevron_left" size="24px" />
+      </q-btn>
+
+      <!-- Favorite Button -->
+      <q-btn
+        round
+        flat
+        :color="isFavorite ? 'red' : 'grey-6'"
+        @click="toggleFavorite"
+        class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
+      >
+        <q-icon v-if="isFavorite" name="favorite" size="22px" color="red" />
+        <q-icon v-else name="favorite_border" size="22px" color="red" />
+      </q-btn>
       <!-- Profile Header Section -->
       <div class="profile-header q-mb-md">
         <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md q-mt-xl">
@@ -37,28 +58,6 @@
           >
             <span class="text-body2">Booking request</span>
             <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
-          </q-btn>
-
-          <!-- Back Button -->
-          <q-btn
-            round
-            flat
-            @click="$router.back()"
-            class="bg-block absolute-top-left q-z-2 back-btn"
-          >
-            <q-icon name="chevron_left" size="24px" />
-          </q-btn>
-
-          <!-- Favorite Button -->
-          <q-btn
-            round
-            flat
-            :color="isFavorite ? 'red' : 'grey-6'"
-            @click="toggleFavorite"
-            class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
-          >
-            <q-icon v-if="isFavorite" name="favorite" size="22px" color="red" />
-            <q-icon v-else name="favorite_border" size="22px" color="red" />
           </q-btn>
         </div>
       </div>
@@ -247,6 +246,27 @@ onBeforeMount(() => {
 </script>
 
 <style scoped lang="scss">
+.back-btn {
+  top: 16px;
+  left: 16px;
+}
+
+.favorite-btn {
+  top: 16px;
+  right: 16px;
+}
+
+.q-ios-padding {
+  .back-btn {
+    top: 70px;
+  }
+
+  .favorite-btn {
+    top: 70px;
+  }
+}
+
+
 .profile-header {
   text-align: center;
 }
@@ -288,15 +308,5 @@ onBeforeMount(() => {
 .favorite-btn {
   min-width: 36px;
   min-height: 36px;
-}
-
-.back-btn {
-  top: 70px;
-  left: 16px;
-}
-
-.favorite-btn {
-  top: 70px;
-  right: 16px;
 }
 </style>

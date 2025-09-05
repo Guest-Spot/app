@@ -2,6 +2,28 @@
   <q-page class="page q-pb-xl flex column items-start q-gap-md">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
+      <!-- Back Button -->
+      <q-btn
+        round
+        flat
+        @click="$router.back()"
+        class="bg-block absolute-top-left q-z-2 back-btn"
+      >
+        <q-icon name="chevron_left" size="24px" />
+      </q-btn>
+
+      <!-- Favorite Button -->
+      <q-btn
+        round
+        flat
+        :color="isFavorite ? 'red' : 'grey-6'"
+        @click="toggleFavorite"
+        class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
+      >
+        <q-icon v-if="isFavorite" name="favorite" size="24px" color="red" />
+        <q-icon v-else name="favorite_border" size="24px" color="red" />
+      </q-btn>
+
       <div class="profile-info-container flex column">
 
         <!-- Pictures Carousel or Avatar -->
@@ -13,28 +35,6 @@
           />
           <q-skeleton v-else height="300px" square />
         </div>
-
-        <!-- Back Button -->
-        <q-btn
-          round
-          flat
-          @click="$router.back()"
-          class="bg-block absolute-top-left q-z-2 back-btn"
-        >
-          <q-icon name="chevron_left" size="24px" />
-        </q-btn>
-
-        <!-- Favorite Button -->
-        <q-btn
-          round
-          flat
-          :color="isFavorite ? 'red' : 'grey-6'"
-          @click="toggleFavorite"
-          class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
-        >
-          <q-icon v-if="isFavorite" name="favorite" size="24px" color="red" />
-          <q-icon v-else name="favorite_border" size="24px" color="red" />
-        </q-btn>
 
         <!-- User Details -->
         <div class="container">
