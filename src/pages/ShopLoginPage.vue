@@ -45,7 +45,7 @@
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Password is required', val => val.length >= 6 || 'Password must be at least 6 characters']"
+                :rules="[val => !!val || 'Password is required', val => val.length >= 3 || 'Password must be at least 3 characters']"
                 class="full-width custom-input"
                 bg-color="transparent"
               >
@@ -141,7 +141,7 @@ const handleLogin = async () => {
     console.error('Login error:', error);
     $q.notify({
       type: 'negative',
-      message: 'Login failed. Please check your credentials.',
+      message: 'Invalid login credentials',
       position: 'top',
       timeout: 1500,
       color: 'negative',

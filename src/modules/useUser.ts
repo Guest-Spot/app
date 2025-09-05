@@ -1,7 +1,7 @@
 import { useUserStore } from 'src/stores/user';
 import { computed, inject } from 'vue';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { UserType } from 'src/interfaces/user';
+import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { type IProfile, UserType } from 'src/interfaces/user';
 
 const useUser = () => {
   const userStore = useUserStore();
@@ -13,6 +13,57 @@ const useUser = () => {
   const isArtist = computed(() => userStore.getIsArtist);
   const isGuest = computed(() => userStore.getIsGuest);
   const isAuthenticated = computed(() => userStore.getIsAuthenticated);
+
+  const fetchProfile = async (userId: string): Promise<{ data: IProfile | null, error: Error | null }> => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, type, created_at')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error(error);
+      return { data: null, error: error as Error };
+    }
+
+    return { data, error: null };
+  };
+
+  const fetchUser = async (): Promise<{ data: User | null, error: Error | null }> => {
+    const { data, error: userErr } = await supabase.auth.getUser();
+    if (userErr) {
+      console.error(userErr);
+      return { data: null, error: userErr as Error };
+    }
+
+    return { data: data.user, error: null }
+  };
+
+  const fetchUserAndProfile = async (): Promise<void> => {
+    const { data: user, error: userErr } = await fetchUser();
+    if (userErr) {
+      console.error(userErr);
+      return;
+    }
+
+    if (!user?.id) {
+      console.error('User ID is not found');
+      return;
+    }
+
+    const { data: profile, error: profileErr } = await fetchProfile(user.id);
+    if (profileErr) {
+      console.error(profileErr);
+      return;
+    }
+
+    userStore.setUser(user);
+    userStore.setIsAuthenticated(true);
+    userStore.setIsShop(profile?.type === UserType.Shop);
+    userStore.setIsArtist(profile?.type === UserType.Artist);
+    userStore.setIsGuest(profile?.type === UserType.Guest);
+    userStore.setProfile(profile);
+  };
 
   const login = async (login: string, password: string) => {
     const { data, error: signInErr } = await supabase.auth.signInWithPassword({
@@ -30,11 +81,7 @@ const useUser = () => {
       return;
     }
 
-    const { data: profile, error: profileErr } = await supabase
-      .from('profiles')
-      .select('id, type, created_at')
-      .eq('id', data.user.id)
-      .single();
+    const { data: profile, error: profileErr } = await fetchProfile(data.user.id);
 
     if (profileErr) {
       console.error(profileErr);
@@ -42,18 +89,16 @@ const useUser = () => {
     }
 
     userStore.setUser(data.user);
-    userStore.setSession(data.session);
     userStore.setIsAuthenticated(true);
-    userStore.setIsShop(profile.type === UserType.Shop);
-    userStore.setIsArtist(profile.type === UserType.Artist);
-    userStore.setIsGuest(profile.type === UserType.Guest);
+    userStore.setIsShop(profile?.type === UserType.Shop);
+    userStore.setIsArtist(profile?.type === UserType.Artist);
+    userStore.setIsGuest(profile?.type === UserType.Guest);
     userStore.setProfile(profile);
   };
 
   const logout = async () => {
     await supabase.auth.signOut({ scope: 'global' });
     userStore.setUser(null);
-    userStore.setSession(null);
     userStore.setIsAuthenticated(false);
     userStore.setProfile(null);
     userStore.setIsShop(false);
@@ -70,6 +115,9 @@ const useUser = () => {
     isAuthenticated,
     login,
     logout,
+    fetchUser,
+    fetchProfile,
+    fetchUserAndProfile,
   };
 };
 
