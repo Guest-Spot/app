@@ -19,7 +19,7 @@
           round
           flat
           @click="$router.back()"
-          class="bg-block fixed-top-left q-z-2 back-btn"
+          class="bg-block absolute-top-left q-z-2 back-btn"
         >
           <q-icon name="chevron_left" size="24px" />
         </q-btn>
@@ -30,7 +30,7 @@
           flat
           :color="isFavorite ? 'red' : 'grey-6'"
           @click="toggleFavorite"
-          class="favorite-btn bg-block fixed-top-right q-z-2 favorite-btn"
+          class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
         >
           <q-icon v-if="isFavorite" name="favorite" size="24px" color="red" />
           <q-icon v-else name="favorite_border" size="24px" color="red" />
