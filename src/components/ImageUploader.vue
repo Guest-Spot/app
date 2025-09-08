@@ -40,8 +40,20 @@
             @click.stop="removeAt(idx)"
           />
         </div>
-        <div class="image-item__add" v-ripple>
+        <div
+          class="image-item__add border-radius-md cursor-pointer"
+          v-ripple
+          @click.stop="openGallery"
+        >
           <q-icon name="add_photo_alternate" size="24px" color="grey-6" />
+          <input
+            ref="galleryInput"
+            type="file"
+            accept="image/*"
+            :multiple="multiple"
+            @change="onGallerySelected"
+            style="display: none;"
+          />
         </div>
       </div>
 
@@ -189,6 +201,7 @@ const selectedFiles = ref<File[]>([])
 const isLoading = ref(false)
 const dialog = ref(false)
 const cameraInput = ref<HTMLInputElement | null>(null)
+const galleryInput = ref<HTMLInputElement | null>(null)
 const isMobile = $q.platform.is.mobile
 const previewDialogSrc = ref<string | null>(null)
 const dragIndex = ref<number | null>(null)
@@ -249,8 +262,8 @@ async function onChangeImage(input: File | File[]) {
       const files = Array.isArray(input) ? input : [input]
       const results = await Promise.all(files.map((f) => compressAndPrepare(f)))
       const valid = results.filter((r): r is { file: File; base64: string } => !!r)
-      imagesPreview.value = valid.map((v) => v.base64)
-      selectedFiles.value = valid.map((v) => v.file)
+      imagesPreview.value.push(...valid.map((v) => v.base64))
+      selectedFiles.value.push(...valid.map((v) => v.file))
       emit('on-change', selectedFiles.value)
     } else {
       const file = Array.isArray(input) ? input[0] : input
@@ -276,7 +289,24 @@ function openCamera() {
   }
 }
 
+function openGallery() {
+  galleryInput.value?.click()
+}
+
 async function onCameraSelected(event: Event) {
+  const fileList = (event.target as HTMLInputElement | null)?.files
+  if (!fileList || fileList.length === 0) return
+  if (multiple.value) {
+    await onChangeImage(Array.from(fileList))
+  } else {
+    const file = fileList.item(0)
+    if (!file) return
+    await onChangeImage(file)
+  }
+  (event.target as HTMLInputElement).value = ''
+}
+
+async function onGallerySelected(event: Event) {
   const fileList = (event.target as HTMLInputElement | null)?.files
   if (!fileList || fileList.length === 0) return
   if (multiple.value) {
@@ -445,11 +475,10 @@ watch(image, async (newValue) => {
     flex: 0 0 200px;
     height: 100%;
     overflow: hidden;
-    border: 2px solid transparent;
   }
 
   .image-item--primary {
-    border-color: var(--q-primary);
+    border: 2px solid var(--q-primary);
   }
 
   .image-item__remove {
