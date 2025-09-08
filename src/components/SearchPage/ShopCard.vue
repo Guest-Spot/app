@@ -75,13 +75,14 @@ const toggleFavorite = () => {
     address: props.shop.address,
     description: props.shop.description,
     pictures: props.shop.pictures,
-    lat: props.shop.lat,
-    lng: props.shop.lng,
+    lat: props.shop.lat || 0,
+    lng: props.shop.lng || 0,
     ...(props.shop.phone && { phone: props.shop.phone }),
     ...(props.shop.email && { email: props.shop.email }),
     ...(props.shop.dateOpened && { dateOpened: props.shop.dateOpened }),
     ...(props.shop.openingTimes && { openingTimes: props.shop.openingTimes }),
     ...(props.shop.pricing && { pricing: props.shop.pricing }),
+    ...(props.shop.website && { website: props.shop.website }),
     ...(props.shop.instagram && { instagram: props.shop.instagram })
   };
   toggleShopFavorite(shopData);

@@ -69,8 +69,10 @@ import { TimePickerDialog } from 'src/components/Dialogs';
 import type { IOpeningTimes } from 'src/interfaces/shop';
 import { OpeningTimesDays } from 'src/interfaces/enums';
 
+
+
 interface Props {
-  modelValue?: IOpeningTimes[];
+  modelValue: IOpeningTimes[] | [];
 }
 
 interface Emits {
@@ -81,13 +83,13 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const defaultHours: IOpeningTimes[] = [
-  { day: OpeningTimesDays.mon, start: '08:00', end: '23:30' },
-  { day: OpeningTimesDays.tue, start: '08:00', end: '23:30' },
-  { day: OpeningTimesDays.wed, start: '08:00', end: '23:30' },
-  { day: OpeningTimesDays.thu, start: '08:00', end: '23:30' },
-  { day: OpeningTimesDays.fri, start: '08:00', end: '23:30' },
-  { day: OpeningTimesDays.sat, start: '08:00', end: '23:30' },
-  { day: OpeningTimesDays.sun, start: '08:00', end: '23:30' }
+  { day: OpeningTimesDays.mon, start: '', end: '' },
+  { day: OpeningTimesDays.tue, start: '', end: '' },
+  { day: OpeningTimesDays.wed, start: '', end: '' },
+  { day: OpeningTimesDays.thu, start: '', end: '' },
+  { day: OpeningTimesDays.fri, start: '', end: '' },
+  { day: OpeningTimesDays.sat, start: '', end: '' },
+  { day: OpeningTimesDays.sun, start: '', end: '' }
 ];
 
 // Local reactive copy to allow editing
@@ -144,6 +146,7 @@ const onConfirm = (idx: number, type: 'start' | 'end', time: string) => {
 // For potential parent reads as computed
 const value = computed(() => [...localHours]);
 defineExpose({ value });
+
 </script>
 
 <style scoped lang="scss">

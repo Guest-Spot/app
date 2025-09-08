@@ -2,6 +2,8 @@
   <div class="about-shop-tab flex column q-gap-md">
     <!-- Banner Image Section -->
     <ImageUploader
+      :images="shopData.pictures || []"
+      @on-change="shopData.pictures = $event"
       placeholder="Upload images"
       multiple
       placeholderIcon="photo_library"
@@ -24,6 +26,7 @@
             placeholder="Enter shop name"
             class="custom-input"
             v-model="shopData.name"
+            clearable
           />
         </div>
         <div class="input-group">
@@ -38,6 +41,7 @@
             v-model="shopData.description"
             maxlength="200"
             counter
+            clearable
           />
         </div>
       </div>
@@ -60,6 +64,7 @@
             placeholder="Enter shop city"
             class="custom-input"
             v-model="shopData.city"
+            clearable
           />
         </div>
         <div class="input-group">
@@ -69,6 +74,7 @@
             dense
             rounded
             placeholder="Enter shop address"
+            clearable
             class="custom-input"
             v-model="shopData.address"
           />
@@ -79,8 +85,10 @@
             outlined
             dense
             rounded
+            mask="(###) ### - ####"
             placeholder="Enter phone number"
             class="custom-input"
+            clearable
             v-model="shopData.phone"
           />
         </div>
@@ -90,6 +98,8 @@
             outlined
             dense
             rounded
+            type="email"
+            clearable
             placeholder="Enter email address"
             class="custom-input"
             v-model="shopData.email"
@@ -105,7 +115,7 @@
       header-class="expansion-header"
       class="bg-block border-radius-lg full-width"
     >
-      <WorkingHoursEditor v-model="weeklyHours" />
+      <WorkingHoursEditor v-model="openingTimesModel" />
     </q-expansion-item>
 
     <!-- Links -->
@@ -117,6 +127,18 @@
     >
       <div class="info-section">
         <div class="input-group">
+          <label class="input-label">Website</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter Website link"
+            class="custom-input"
+            v-model="shopData.website"
+            clearable
+          />
+        </div>
+        <div class="input-group">
           <label class="input-label">Instagram</label>
           <q-input
             outlined
@@ -125,6 +147,7 @@
             placeholder="Enter Instagram link"
             class="custom-input"
             v-model="shopData.instagram"
+            clearable
           />
         </div>
       </div>
@@ -147,6 +170,7 @@
             placeholder="Enter opening date"
             class="custom-input"
             v-model="shopData.dateOpened"
+            clearable
           />
         </div>
       </div>
@@ -172,13 +196,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import WorkingHoursEditor from 'src/components/ShopProfile/WorkingHoursEditor.vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import { ImageUploader, ThemeSettings } from 'src/components';
 import type { IOpeningTimes } from 'src/interfaces/shop';
 
+const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
+
 // Form data
 const shopData = ref({
+  pictures: [] as File[],
   name: '',
   description: '',
   city: '',
@@ -187,23 +213,25 @@ const shopData = ref({
   email: '',
   dateOpened: '',
   instagram: '',
+  openingTimes: [] as IOpeningTimes[],
+  website: '',
 });
 
-const weeklyHours = ref<IOpeningTimes[]>([]);
+// Computed property for opening times to handle v-model
+const openingTimesModel = computed({
+  get: () => shopData.value.openingTimes || [],
+  set: (value: IOpeningTimes[]) => {
+    shopData.value.openingTimes = value;
+  }
+});
 
 const saveChanges = () => {
-  // TODO: Implement save functionality
-  const shopDataToSave = {
-    ...shopData.value,
-    weeklyHours: weeklyHours.value
-  };
-  console.log('Saving changes...', shopDataToSave);
+  console.log('Saving changes...', shopData.value);
 };
 
 // Expose data for parent component
 defineExpose({
   shopData,
-  weeklyHours
 });
 </script>
 

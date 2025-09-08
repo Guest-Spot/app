@@ -41,7 +41,7 @@
                 round
                 dense
                 size="sm"
-                icon="close"
+                icon="delete_forever"
                 class="image-item__remove bg-block"
                 text-color="negative"
                 @click.stop="removeAt(element.index)"
@@ -79,8 +79,8 @@
       <!-- Single image preview -->
       <div v-else class="image-preview-wrapper border-radius-md">
         <q-img
-          :src="imageSrc || undefined"
-          @click="zoomImage(imageSrc || '')"
+          :src="imagePreview || undefined"
+          @click="zoomImage(imagePreview || '')"
           height="100%"
           fit="cover"
           spinner-size="md"
@@ -165,7 +165,7 @@
 import imageCompression from 'browser-image-compression'
 import useImage from '../modules/useImage'
 import { useQuasar, type ValidationRule } from 'quasar'
-import { ref, toRefs, watch, computed, defineAsyncComponent, type PropType } from 'vue'
+import { ref, toRefs, watch, computed, type PropType } from 'vue'
 import { VueDraggableNext } from 'vue-draggable-next'
 
 const MAX_SIZE = 4096
@@ -174,12 +174,16 @@ defineOptions({
   name: 'ImageUploader',
 })
 
-const emit = defineEmits(['on-change', 'clear'])
+const emit = defineEmits(['clear', 'on-change'])
 
 const props = defineProps({
   image: {
-    type: [File, null] as PropType<File | null>,
+    type: File,
     default: null,
+  },
+  images: {
+    type: Array as PropType<File[]>,
+    default: () => [],
   },
   size: {
     type: String,
@@ -212,10 +216,10 @@ const props = defineProps({
 })
 
 const $q = useQuasar()
-const { image, multiple } = toRefs(props)
+const { image, images, multiple } = toRefs(props)
 const { formatFileToBase64 } = useImage()
 
-const imagePreview = ref<File | string | null>(image.value)
+const imagePreview = ref<string>('')
 const imagesPreview = ref<{ src: string, index: number }[]>([])
 const selectedFiles = ref<File[]>([])
 const isLoading = ref(false)
@@ -226,24 +230,16 @@ const isMobile = $q.platform.is.mobile
 const previewDialogSrc = ref<string | null>(null)
 const dragIndex = ref<number | null>(null)
 
-// Lazy-load dialog to avoid TS default export issues and reduce initial bundle
-const ImagePreviewDialog = defineAsyncComponent(() => import('src/components/Dialogs/ImagePreviewDialog.vue'))
-
-// Computed property for image source
-const imageSrc = computed<string | null>(() => {
-  if (typeof imagePreview.value === 'string') {
-    return imagePreview.value
-  }
-  return null
-})
+// Import dialog component statically
+import { ImagePreviewDialog } from 'src/components/Dialogs'
 
 const hasImages = computed(() => {
-  return multiple.value ? imagesPreview.value.length > 0 : !!imageSrc.value
+  return multiple.value ? imagesPreview.value.length > 0 : !!imagePreview.value
 })
 
 // ---------- Methods ---------- //
 function zoomImage(src?: string) {
-  previewDialogSrc.value = src || imageSrc.value
+  previewDialogSrc.value = src || imagePreview.value
   dialog.value = true
 }
 
@@ -252,7 +248,7 @@ function clear() {
     imagesPreview.value = []
     selectedFiles.value = []
   } else {
-    imagePreview.value = null
+    imagePreview.value = ''
   }
   emit('clear')
 }
@@ -280,7 +276,7 @@ async function onChangeImage(input: File | File[]) {
       const files = Array.isArray(input) ? input : [input]
       const results = await Promise.all(files.map((f) => compressAndPrepare(f)))
       const valid = results.filter((r): r is { file: File; base64: string } => !!r)
-      imagesPreview.value.push(...valid.map((v, index) => ({ src: v.base64, index })))
+      imagesPreview.value.push(...valid.map((v, index) => ({ src: v.base64, index: imagesPreview.value.length + index })))
       selectedFiles.value.push(...valid.map((v) => v.file))
       emit('on-change', selectedFiles.value)
     } else {
@@ -371,13 +367,16 @@ function onDrop(dropIndex: number) {
   emit('on-change', selectedFiles.value)
 }
 
-watch(image, async (newValue) => {
-  if (!newValue) return
-  if (typeof newValue === 'string') {
-    imagePreview.value = newValue
-  } else {
-    imagePreview.value = await formatFileToBase64(newValue)
-  }
+watch(image, async (newValue, oldValue) => {
+  if (!newValue || newValue === oldValue) return
+  imagePreview.value = await formatFileToBase64(newValue)
+}, {
+  immediate: true
+})
+
+watch(images, async (newValue, oldValue) => {
+  if (!newValue || newValue === oldValue) return
+  imagesPreview.value = await Promise.all(newValue.map(async (v, index) => ({ src: await formatFileToBase64(v), index })))
 }, {
   immediate: true
 })
