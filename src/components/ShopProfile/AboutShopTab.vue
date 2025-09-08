@@ -105,9 +105,7 @@
       header-class="expansion-header"
       class="bg-block border-radius-lg full-width"
     >
-      <div class="q-py-md">
-        <WorkingHoursEditor v-model="weeklyHours" />
-      </div>
+      <WorkingHoursEditor v-model="weeklyHours" />
     </q-expansion-item>
 
     <!-- Links -->
@@ -256,7 +254,7 @@ defineExpose({
 
 :deep(.working-hours) {
   .days-row {
-    padding: 0 16px;
+    padding: 16px;
   }
 }
 </style>

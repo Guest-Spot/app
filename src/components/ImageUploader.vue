@@ -11,7 +11,7 @@
       <div v-if="multiple" class="image-list q-pa-xs">
         <VueDraggableNext
           handle=".image-item__move"
-          class="flex no-wrap q-gap-md"
+          class="flex no-wrap q-gap-sm"
           :list="imagesPreview"
           :drag="false"
           @contextmenu.prevent
