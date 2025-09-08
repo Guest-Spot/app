@@ -14,7 +14,7 @@
       />
 
       <q-toolbar-title v-if="isProfilePage" class="header-title">
-        Welcome, <span class="text-primary">{{ profile?.fullname }}</span>
+        Welcome, <span class="text-primary">{{ user?.email }}</span>
       </q-toolbar-title>
       <q-toolbar-title v-else class="header-title">
         {{ pageTitle }}
@@ -46,7 +46,7 @@ defineOptions({
 
 const route = useRoute();
 const router = useRouter();
-const { logout, profile } = useUser();
+const { logout, user } = useUser();
 
 // Check if current page is a profile page
 const isProfilePage = computed(() => {

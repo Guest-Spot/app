@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia';
 import type { User } from '@supabase/supabase-js';
-import type { IProfile } from 'src/interfaces/user';
 
 interface IState {
   isAuthenticated: boolean;
   user: User | null;
-  profile: IProfile | null;
   isShop: boolean;
   isArtist: boolean;
   isGuest: boolean;
@@ -18,7 +16,6 @@ export const useUserStore = defineStore('user', {
     isShop: false,
     isArtist: false,
     isGuest: false,
-    profile: null,
   }),
 
   getters: {
@@ -27,7 +24,6 @@ export const useUserStore = defineStore('user', {
     getIsShop: (state) => state.isShop,
     getIsArtist: (state) => state.isArtist,
     getIsGuest: (state) => state.isGuest,
-    getProfile: (state) => state.profile,
   },
 
   actions: {
@@ -45,9 +41,6 @@ export const useUserStore = defineStore('user', {
     },
     setIsGuest(isGuest: boolean) {
       this.isGuest = isGuest;
-    },
-    setProfile(profileData: IProfile | null) {
-      this.profile = profileData;
     },
   },
 });

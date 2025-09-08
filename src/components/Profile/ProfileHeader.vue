@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-between items-center q-gap-md">
-    <div class="text-h6">Welcome, <span class="text-primary">{{ profile?.fullname }}</span></div>
+    <div class="text-h6">Welcome, <span class="text-primary">{{ user?.email }}</span></div>
     <q-btn
       text-color="negative"
       icon="settings"
@@ -44,7 +44,7 @@ import { useQuasar } from 'quasar';
 
 const router = useRouter();
 const $q = useQuasar();
-const { logout, profile } = useUser();
+const { logout, user } = useUser();
 
 const handleLogout = () => {
   $q.dialog({
