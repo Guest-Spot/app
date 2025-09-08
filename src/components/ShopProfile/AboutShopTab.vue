@@ -103,55 +103,10 @@
       icon="schedule"
       label="Working Hours"
       header-class="expansion-header"
-      class="bg-block border-radius-lg"
+      class="bg-block border-radius-lg full-width"
     >
-      <div class="info-section">
-        <div class="hours-container">
-          <div class="hours-group">
-            <label class="input-label">Start</label>
-            <q-input
-              v-model="workingHours.start"
-              outlined
-              dense
-              rounded
-              readonly
-              class="custom-input time-input"
-              @click="startTimeDialog = true"
-            >
-              <template v-slot:append>
-                <q-icon name="schedule" class="cursor-pointer" @click="startTimeDialog = true" />
-              </template>
-            </q-input>
-            <TimePickerDialog
-              v-model="startTimeDialog"
-              :time="workingHours.start"
-              title="Выберите время начала"
-              @confirm="onStartTimeConfirm"
-            />
-          </div>
-          <div class="hours-group">
-            <label class="input-label">End</label>
-            <q-input
-              v-model="workingHours.end"
-              outlined
-              dense
-              rounded
-              readonly
-              class="custom-input time-input"
-              @click="endTimeDialog = true"
-            >
-              <template v-slot:append>
-                <q-icon name="schedule" class="cursor-pointer" @click="endTimeDialog = true" />
-              </template>
-            </q-input>
-            <TimePickerDialog
-              v-model="endTimeDialog"
-              :time="workingHours.end"
-              title="Выберите время окончания"
-              @confirm="onEndTimeConfirm"
-            />
-          </div>
-        </div>
+      <div class="q-py-md">
+        <WorkingHoursEditor v-model="weeklyHours" />
       </div>
     </q-expansion-item>
 
@@ -220,8 +175,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { TimePickerDialog } from '../Dialogs';
+import WorkingHoursEditor from 'src/components/ShopProfile/WorkingHoursEditor.vue';
 import { ImageUploader, ThemeSettings } from 'src/components';
+import type { IOpeningTimes } from 'src/interfaces/shop';
 
 // Form data
 const shopData = ref({
@@ -235,28 +191,13 @@ const shopData = ref({
   instagram: '',
 });
 
-const workingHours = ref({
-  start: '08:00',
-  end: '23:30'
-});
-
-const startTimeDialog = ref(false);
-const endTimeDialog = ref(false);
-
-const onStartTimeConfirm = (time: string) => {
-  workingHours.value.start = time;
-};
-
-const onEndTimeConfirm = (time: string) => {
-  workingHours.value.end = time;
-};
+const weeklyHours = ref<IOpeningTimes[]>([]);
 
 const saveChanges = () => {
   // TODO: Implement save functionality
   const shopDataToSave = {
     ...shopData.value,
-    workingHoursStart: workingHours.value.start,
-    workingHoursEnd: workingHours.value.end
+    weeklyHours: weeklyHours.value
   };
   console.log('Saving changes...', shopDataToSave);
 };
@@ -264,7 +205,7 @@ const saveChanges = () => {
 // Expose data for parent component
 defineExpose({
   shopData,
-  workingHours
+  weeklyHours
 });
 </script>
 
@@ -311,5 +252,11 @@ defineExpose({
 .save-section {
   margin-top: 20px;
   text-align: center;
+}
+
+:deep(.working-hours) {
+  .days-row {
+    padding: 0 16px;
+  }
 }
 </style>
