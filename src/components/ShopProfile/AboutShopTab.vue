@@ -1,7 +1,11 @@
 <template>
   <div class="about-shop-tab flex column q-gap-md">
     <!-- Banner Image Section -->
-    <ImageUploader />
+    <ImageUploader
+      placeholder="Upload images"
+      multiple
+      placeholderIcon="photo_library"
+    />
 
     <!-- Basic Information -->
     <q-expansion-item
@@ -12,12 +16,12 @@
     >
       <div class="info-section">
         <div class="input-group">
-          <label class="input-label">Title</label>
+          <label class="input-label">Name</label>
           <q-input
             outlined
             dense
             rounded
-            placeholder="Enter shop title"
+            placeholder="Enter shop name"
             class="custom-input"
             v-model="shopData.name"
           />
@@ -32,6 +36,8 @@
             placeholder="Enter shop description"
             class="custom-input"
             v-model="shopData.description"
+            maxlength="200"
+            counter
           />
         </div>
       </div>
@@ -46,14 +52,25 @@
     >
       <div class="info-section">
         <div class="input-group">
-          <label class="input-label">Location</label>
+          <label class="input-label">City</label>
           <q-input
             outlined
             dense
             rounded
-            placeholder="Enter shop location"
+            placeholder="Enter shop city"
             class="custom-input"
-            v-model="shopData.location"
+            v-model="shopData.city"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Address</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter shop address"
+            class="custom-input"
+            v-model="shopData.address"
           />
         </div>
         <div class="input-group">
@@ -138,28 +155,6 @@
       </div>
     </q-expansion-item>
 
-    <!-- Additional Info -->
-    <q-expansion-item
-      icon="add_circle"
-      label="Additional Info"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Date Opened</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter opening date"
-            class="custom-input"
-            v-model="shopData.dateOpened"
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-
     <!-- Links -->
     <q-expansion-item
       icon="link"
@@ -177,6 +172,28 @@
             placeholder="Enter Instagram link"
             class="custom-input"
             v-model="shopData.instagram"
+          />
+        </div>
+      </div>
+    </q-expansion-item>
+
+    <!-- Additional Info -->
+    <q-expansion-item
+      icon="add_circle"
+      label="Additional Info"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
+        <div class="input-group">
+          <label class="input-label">Date Opened</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter opening date"
+            class="custom-input"
+            v-model="shopData.dateOpened"
           />
         </div>
       </div>
@@ -210,7 +227,8 @@ import { ImageUploader, ThemeSettings } from 'src/components';
 const shopData = ref({
   name: '',
   description: '',
-  location: '',
+  city: '',
+  address: '',
   phone: '',
   email: '',
   dateOpened: '',

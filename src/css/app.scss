@@ -12,7 +12,7 @@
   --text-secondary: #{$text-secondary};
   --border-light: #{$border-light};
   --text-dark: #{$text-dark};
-  --bg-block-rgb: 38, 33, 26;
+  --bg-block-rgb: 255, 255, 255;
   --border-radius-xs: 4px;
   --border-radius-sm: 8px;
   --border-radius-md: 16px;
@@ -39,6 +39,10 @@
   --teal-accent-rgb: 0, 150, 136;
   --pink-accent-rgb: 233, 30, 99;
   --indigo-accent-rgb: 63, 81, 181;
+}
+
+.body--dark {
+  --bg-block-rgb: 44, 44, 44;
 }
 
 body.q-ios-padding .q-dialog__inner {
@@ -125,7 +129,7 @@ a {
 }
 
 .bg-block {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(var(--bg-block-rgb), 0.6);
   backdrop-filter: blur(10px);
   box-shadow: var(--box-shadow);
 }
@@ -169,8 +173,11 @@ a {
   border: 1px solid var(--shadow-light);
 }
 
-.body--dark {
-  .bg-block {
-    background: rgba(44, 44, 44, 0.6);
-  }
+.q-field--outlined.q-field--rounded .q-field__control {
+  border-radius: var(--border-radius-md);
+}
+
+.q-field--dark .q-field__control:before,
+.q-field--dark .q-field__control:hover:before {
+  border-color: rgba(255, 255, 255, 0.2);
 }

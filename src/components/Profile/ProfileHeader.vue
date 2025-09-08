@@ -8,6 +8,7 @@
       unelevated
       @click="handleLogout"
       class="bg-block"
+      size="sm"
     />
   </div>
 </template>
