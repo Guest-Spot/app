@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="dialogModel" maximized>
-    <q-card class="full-width full-height image-preview-dialog">
+    <q-card class="full-width full-height image-preview-dialog flex column justify-between">
       <!-- Header -->
       <q-card-section class="row items-center dialog-header bg-block">
         <div class="text-h6">{{ 'Image Preview' }}</div>
@@ -124,6 +124,7 @@ watch(dialogModel, (newValue) => {
   .image-container {
     padding: 0;
     overflow: hidden;
+    flex: 1;
 
     .preview-image {
       cursor: pointer;
