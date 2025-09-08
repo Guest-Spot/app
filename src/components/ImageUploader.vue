@@ -9,37 +9,56 @@
     <template v-if="hasImages">
       <!-- Multiple images preview -->
       <div v-if="multiple" class="image-list q-pa-xs">
-        <div
-          v-for="(src, idx) in imagesSrc"
-          :key="idx"
-          class="image-item border-radius-md"
-          :class="{ 'image-item--primary': idx === 0 }"
-          @click="zoomImage(src)"
-          draggable="true"
-          @dragstart="onDragStart(idx)"
-          @dragover.prevent
-          @drop="onDrop(idx)"
-          @dragend="onDragEnd"
+        <VueDraggableNext
+          handle=".image-item__move"
+          class="flex no-wrap q-gap-md"
+          :list="imagesPreview"
+          :drag="false"
+          @contextmenu.prevent
         >
-          <q-img
-            :src="src"
-            height="100%"
-            width="100%"
-            fit="cover"
-            spinner-size="md"
-            spinner-color="grey"
-            class="absolute-top-left full-width full-height"
-          />
-          <q-btn
-            round
-            dense
-            size="sm"
-            icon="close"
-            class="image-item__remove bg-block"
-            text-color="negative"
-            @click.stop="removeAt(idx)"
-          />
-        </div>
+          <div
+            v-for="(element, index) in imagesPreview"
+            :key="index"
+            class="image-item border-radius-md"
+            @click="zoomImage(element.src)"
+            draggable="true"
+            @dragstart="onDragStart(element.index)"
+            @dragover.prevent
+            @drop="onDrop(element.index)"
+            @dragend="onDragEnd"
+          >
+            <q-img
+              :src="element.src"
+              height="100%"
+              width="100%"
+              fit="cover"
+              spinner-size="md"
+              spinner-color="grey"
+              class="absolute-top-left full-width full-height"
+            />
+            <div class="full-height flex column justify-between items-end q-gap-sm q-pa-sm">
+              <q-btn
+                round
+                dense
+                size="sm"
+                icon="close"
+                class="image-item__remove bg-block"
+                text-color="negative"
+                @click.stop="removeAt(element.index)"
+              />
+              <q-btn
+                round
+                dense
+                size="sm"
+                icon="drag_indicator"
+                class="image-item__move bg-block"
+                @click.stop
+              >
+                <q-tooltip class="bg-block border-radius-md text-body2">Drag to reorder</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+        </VueDraggableNext>
         <div
           class="image-item__add border-radius-md cursor-pointer"
           v-ripple
@@ -147,6 +166,7 @@ import imageCompression from 'browser-image-compression'
 import useImage from '../modules/useImage'
 import { useQuasar, type ValidationRule } from 'quasar'
 import { ref, toRefs, watch, computed, defineAsyncComponent, type PropType } from 'vue'
+import { VueDraggableNext } from 'vue-draggable-next'
 
 const MAX_SIZE = 4096
 
@@ -196,7 +216,7 @@ const { image, multiple } = toRefs(props)
 const { formatFileToBase64 } = useImage()
 
 const imagePreview = ref<File | string | null>(image.value)
-const imagesPreview = ref<string[]>([])
+const imagesPreview = ref<{ src: string, index: number }[]>([])
 const selectedFiles = ref<File[]>([])
 const isLoading = ref(false)
 const dialog = ref(false)
@@ -216,8 +236,6 @@ const imageSrc = computed<string | null>(() => {
   }
   return null
 })
-
-const imagesSrc = computed(() => imagesPreview.value)
 
 const hasImages = computed(() => {
   return multiple.value ? imagesPreview.value.length > 0 : !!imageSrc.value
@@ -262,7 +280,7 @@ async function onChangeImage(input: File | File[]) {
       const files = Array.isArray(input) ? input : [input]
       const results = await Promise.all(files.map((f) => compressAndPrepare(f)))
       const valid = results.filter((r): r is { file: File; base64: string } => !!r)
-      imagesPreview.value.push(...valid.map((v) => v.base64))
+      imagesPreview.value.push(...valid.map((v, index) => ({ src: v.base64, index })))
       selectedFiles.value.push(...valid.map((v) => v.file))
       emit('on-change', selectedFiles.value)
     } else {
@@ -475,16 +493,13 @@ watch(image, async (newValue) => {
     flex: 0 0 200px;
     height: 100%;
     overflow: hidden;
-  }
 
-  .image-item--primary {
-    border: 2px solid var(--q-primary);
+    &:first-child {
+      border: 2px solid var(--q-primary);
+    }
   }
 
   .image-item__remove {
-    position: absolute;
-    top: 6px;
-    right: 6px;
     z-index: 2;
   }
 
