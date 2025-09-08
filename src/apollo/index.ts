@@ -8,10 +8,7 @@ export /* async */ function getClientOptions(
   /* {app, router, ...} */ options?: Partial<BootFileParams>
 ) {
   const httpLink = createHttpLink({
-    uri:
-      process.env.API_URL ||
-      // Change to your graphql endpoint.
-      '/graphql',
+    uri: `${process.env.API_URL}/graphql`,
   })
 
   return <ApolloClientOptions<unknown>>Object.assign(
