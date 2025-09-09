@@ -26,8 +26,8 @@ export const authLink = setContext((_, { headers }) => {
  * Refresh Token Mutation
  */
 const REFRESH_TOKEN_MUTATION = `
-  mutation RefreshToken($refreshToken: String!) {
-    refreshToken(refreshToken: $refreshToken) {
+  mutation RefreshToken($input: RefreshTokenInput!) {
+    refreshToken(input: $input) {
       jwt
       refreshToken
     }
@@ -41,38 +41,45 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
   const { getStoredTokens, storeTokens, clearTokens } = useTokens();
   const userStore = useUserStore();
 
+  /**
+   * Common function to handle token refresh and retry operation
+   */
+  function handleTokenRefreshAndRetry(logMessage: string) {
+    console.log(logMessage);
+
+    return fromPromise(
+      refreshTokens()
+        .then((newTokens) => {
+          if (newTokens) {
+            // Update the operation context with new token
+            const oldHeaders = operation.getContext().headers;
+            operation.setContext({
+              headers: {
+                ...oldHeaders,
+                Authorization: `Bearer ${newTokens.accessToken}`,
+              },
+            });
+            // Retry the operation
+            return forward(operation);
+          } else {
+            // Refresh failed, logout user
+            handleLogout();
+            throw new Error('Authentication failed');
+          }
+        })
+        .catch((refreshError) => {
+          console.error('Token refresh failed:', refreshError);
+          handleLogout();
+          throw refreshError;
+        })
+    ).flatMap(() => forward(operation));
+  }
+
   // Handle GraphQL errors
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
       if (error.extensions?.code === 'UNAUTHENTICATED' || error.message.includes('401')) {
-        console.log('Unauthenticated error detected, attempting token refresh...');
-
-        return fromPromise(
-          refreshTokens()
-            .then((newTokens) => {
-              if (newTokens) {
-                // Update the operation context with new token
-                const oldHeaders = operation.getContext().headers;
-                operation.setContext({
-                  headers: {
-                    ...oldHeaders,
-                    Authorization: `Bearer ${newTokens.accessToken}`,
-                  },
-                });
-                // Retry the operation
-                return forward(operation);
-              } else {
-                // Refresh failed, logout user
-                handleLogout();
-                throw new Error('Authentication failed');
-              }
-            })
-            .catch((refreshError) => {
-              console.error('Token refresh failed:', refreshError);
-              handleLogout();
-              throw refreshError;
-            })
-        ).flatMap(() => forward(operation));
+        return handleTokenRefreshAndRetry('Unauthenticated error detected, attempting token refresh...');
       }
     }
   }
@@ -80,32 +87,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
   // Handle network errors (401, 403, etc.)
   if (networkError && 'statusCode' in networkError) {
     if (networkError.statusCode === 401) {
-      console.log('401 Network error, attempting token refresh...');
-
-      return fromPromise(
-        refreshTokens()
-          .then((newTokens) => {
-            if (newTokens) {
-              // Retry the operation with new token
-              const oldHeaders = operation.getContext().headers;
-              operation.setContext({
-                headers: {
-                  ...oldHeaders,
-                  Authorization: `Bearer ${newTokens.accessToken}`,
-                },
-              });
-              return forward(operation);
-            } else {
-              handleLogout();
-              throw new Error('Authentication failed');
-            }
-          })
-          .catch((refreshError) => {
-            console.error('Token refresh failed:', refreshError);
-            handleLogout();
-            throw refreshError;
-          })
-      ).flatMap(() => forward(operation));
+      return handleTokenRefreshAndRetry('401 Network error, attempting token refresh...');
     }
   }
 
@@ -127,7 +109,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
         },
         body: JSON.stringify({
           query: REFRESH_TOKEN_MUTATION,
-          variables: { refreshToken: tokens.refreshToken },
+          variables: { input: { refreshToken: tokens.refreshToken }},
         }),
       });
 
