@@ -10,6 +10,7 @@ import {
 } from 'src/interfaces/user';
 import { useTokens } from 'src/modules/useTokens';
 import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
+import gql from 'graphql-tag';
 
 /**
  * User Management Module
@@ -17,7 +18,7 @@ import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user
  */
 const useUser = () => {
   const userStore = useUserStore();
-  const { storeTokens, clearTokens, isAuthenticated: hasTokens, getStoredTokens } = useTokens();
+  const { storeTokens, clearTokens, getStoredTokens } = useTokens();
 
   // Computed getters
   const user = computed(() => userStore.getUser);
@@ -30,7 +31,7 @@ const useUser = () => {
 
   // GraphQL composables
   const { mutate: loginMutation } = useMutation<ILoginResponse>(LOGIN_MUTATION);
-  const { mutate: logoutMutation } = useMutation(LOGOUT_MUTATION);
+  const { mutate: logoutMutation } = useMutation(gql(LOGOUT_MUTATION));
   /**
    * Login user with email and password
    */
@@ -97,35 +98,12 @@ const useUser = () => {
         throw new Error('Failed to fetch user data');
       }
     } catch (error) {
-      console.error('Fetch me error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to fetch user'
       };
     } finally {
       userStore.setIsLoading(false);
-    }
-  };
-
-  /**
-   * Restore user session from stored tokens
-   */
-  const restoreSession = async (): Promise<void> => {
-    try {
-      if (!hasTokens()) {
-        console.log('No tokens found, user not authenticated');
-        return;
-      }
-
-      // Try to fetch fresh user data
-      const { success } = await fetchMe();
-      if (!success) {
-        console.log('Failed to restore session, tokens may be invalid');
-        void logout();
-      }
-    } catch (error) {
-      console.error('Session restore error:', error);
-      void logout();
     }
   };
 
@@ -150,16 +128,10 @@ const useUser = () => {
   const logout = async (): Promise<void> => {
     try {
       await logoutMutation({ input: { refreshToken: getStoredTokens()?.refreshToken } });
-
-      // Clear tokens
-      clearTokens();
-
-      // Clear store
-      userStore.logout();
-
       console.log('User logged out successfully');
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
       // Force clear even if error occurs
       clearTokens();
       userStore.logout();
@@ -180,7 +152,6 @@ const useUser = () => {
     login,
     logout,
     fetchMe,
-    restoreSession,
   };
 };
 

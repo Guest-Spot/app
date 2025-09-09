@@ -4,7 +4,7 @@ import { onError } from '@apollo/client/link/error';
 import { createHttpLink } from '@apollo/client/link/http';
 import { useTokens } from 'src/modules/useTokens';
 import { useUserStore } from 'src/stores/user';
-import { REFRESH_TOKEN_MUTATION } from './types/user';
+import { REFRESH_TOKEN_MUTATION, LOGOUT_MUTATION } from './types/user';
 
 const GRAPHQL_URL = `${process.env.API_URL}/graphql`;
 
@@ -12,13 +12,13 @@ const GRAPHQL_URL = `${process.env.API_URL}/graphql`;
  * Auth Link - adds JWT token to requests
  */
 export const authLink = setContext((_, { headers }) => {
-  const { getValidAccessToken } = useTokens();
-  const token = getValidAccessToken();
+  const { getStoredTokens } = useTokens();
+  const tokens = getStoredTokens();
 
   return {
     headers: {
       ...headers,
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(tokens?.accessToken && { Authorization: `Bearer ${tokens.accessToken}` }),
     },
   };
 });
@@ -51,14 +51,11 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
             // Retry the operation
             return forward(operation);
           } else {
-            // Refresh failed, logout user
-            handleLogout();
             throw new Error('Authentication failed');
           }
         })
         .catch((refreshError) => {
-          console.error('Token refresh failed:', refreshError);
-          handleLogout();
+          void handleLogout();
           throw refreshError;
         })
     ).flatMap(() => forward(operation));
@@ -128,11 +125,30 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
   /**
    * Handle logout when token refresh fails
    */
-  function handleLogout(): void {
+  async function handleLogout(): Promise<void> {
+    const tokens = getStoredTokens();
+    if (!tokens?.refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await fetch(GRAPHQL_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: LOGOUT_MUTATION,
+        variables: { input: { refreshToken: tokens.refreshToken }},
+      }),
+    });
+
+    const result = await response.json();
+    if (result.errors || !result.data?.logoutWithRefresh) {
+      throw new Error('Logout failed');
+    }
+
     clearTokens();
     userStore.logout();
-    // Optional: redirect to login page
-    // router.push('/auth/login');
   }
 });
 

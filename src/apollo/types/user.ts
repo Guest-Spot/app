@@ -22,7 +22,8 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
-export const LOGOUT_MUTATION = gql`
+// IMPORTANT: DO NOT use gql for this mutation, it will used in the error link
+export const LOGOUT_MUTATION = `
   mutation LogoutWithRefresh($input: RefreshTokenInput!) {
     logoutWithRefresh(input: $input)
   }

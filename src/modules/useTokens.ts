@@ -17,8 +17,7 @@ export const useTokens = () => {
   const decodeJWT = (token: string): Record<string, unknown> | null => {
     try {
       return jwtDecode(token);
-    } catch (error) {
-      console.error('Failed to decode JWT:', error);
+    } catch {
       return null;
     }
   };
@@ -27,12 +26,16 @@ export const useTokens = () => {
    * Check if token is expired (with 30s buffer)
    */
   const isTokenExpired = (token: string): boolean => {
-    const payload = decodeJWT(token);
-    if (!payload || typeof payload.exp !== 'number') return true;
+    try {
+      const payload = decodeJWT(token);
+      if (!payload || typeof payload.exp !== 'number') return true;
 
-    const currentTime = Math.floor(Date.now() / 1000);
-    const bufferTime = 30; // 30 seconds buffer
-    return payload.exp <= (currentTime + bufferTime);
+      const currentTime = Math.floor(Date.now() / 1000);
+      const bufferTime = 30; // 30 seconds buffer
+      return payload.exp <= (currentTime + bufferTime);
+    } catch {
+      return true;
+    }
   };
 
   /**
@@ -58,8 +61,6 @@ export const useTokens = () => {
       localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
     } catch (error) {
       console.error('Failed to store tokens:', error);
-      // Clear any potentially corrupted tokens
-      clearTokens();
     }
   };
 
@@ -69,42 +70,14 @@ export const useTokens = () => {
    */
   const getStoredTokens = (): IJWTTokens | null => {
     try {
-      const accessToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-
-      if (!accessToken || !refreshToken) return null;
-
-      // Validate that stored tokens are properly formatted JWTs
-      try {
-        jwtDecode(accessToken);
-        jwtDecode(refreshToken);
-      } catch {
-        console.warn('Stored tokens are corrupted, clearing them');
-        clearTokens();
-        return null;
-      }
+      const accessToken = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY) || '';
 
       return { accessToken, refreshToken };
     } catch (error) {
       console.error('Failed to retrieve tokens:', error);
       return null;
     }
-  };
-
-  /**
-   * Get valid access token (refresh if needed)
-   */
-  const getValidAccessToken = (): string | null => {
-    const tokens = getStoredTokens();
-    if (!tokens) return null;
-
-    // If access token is still valid, return it
-    if (!isTokenExpired(tokens.accessToken)) {
-      return tokens.accessToken;
-    }
-
-    // Access token expired, need refresh (handled by Apollo interceptor)
-    return null;
   };
 
   /**
@@ -136,7 +109,6 @@ export const useTokens = () => {
   return {
     storeTokens,
     getStoredTokens,
-    getValidAccessToken,
     clearTokens,
     isAuthenticated,
     isTokenExpired,
