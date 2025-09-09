@@ -1,3 +1,4 @@
+import { jwtDecode } from 'jwt-decode';
 import { type IJWTTokens, type IAccessTokenPayload } from 'src/interfaces/user';
 
 const TOKEN_STORAGE_KEY = 'guestspot_tokens';
@@ -11,23 +12,11 @@ export const useTokens = () => {
 
   /**
    * Decode JWT payload without verification (for client-side info only)
+   * Uses jwt-decode library for better reliability and security
    */
   const decodeJWT = (token: string): IAccessTokenPayload | null => {
     try {
-      const parts = token.split('.');
-      if (parts.length !== 3) return null;
-
-      const base64Url = parts[1];
-      if (!base64Url) return null;
-
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
+      return jwtDecode<IAccessTokenPayload>(token);
     } catch (error) {
       console.error('Failed to decode JWT:', error);
       return null;
@@ -48,18 +37,35 @@ export const useTokens = () => {
 
   /**
    * Store tokens securely in localStorage
+   * Validates tokens before storing them
    */
   const storeTokens = (tokens: IJWTTokens): void => {
     try {
+      // Validate tokens before storing
+      if (!tokens.accessToken || !tokens.refreshToken) {
+        throw new Error('Invalid tokens: accessToken and refreshToken are required');
+      }
+
+      // Validate that tokens are properly formatted JWTs
+      const accessPayload = jwtDecode(tokens.accessToken);
+      const refreshPayload = jwtDecode(tokens.refreshToken);
+
+      if (!accessPayload || !refreshPayload) {
+        throw new Error('Invalid JWT tokens');
+      }
+
       localStorage.setItem(TOKEN_STORAGE_KEY, tokens.accessToken);
       localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
     } catch (error) {
       console.error('Failed to store tokens:', error);
+      // Clear any potentially corrupted tokens
+      clearTokens();
     }
   };
 
   /**
    * Retrieve tokens from storage
+   * Validates tokens before returning them
    */
   const getStoredTokens = (): IJWTTokens | null => {
     try {
@@ -67,6 +73,16 @@ export const useTokens = () => {
       const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
 
       if (!accessToken || !refreshToken) return null;
+
+      // Validate that stored tokens are properly formatted JWTs
+      try {
+        jwtDecode(accessToken);
+        jwtDecode(refreshToken);
+      } catch {
+        console.warn('Stored tokens are corrupted, clearing them');
+        clearTokens();
+        return null;
+      }
 
       return { accessToken, refreshToken };
     } catch (error) {
@@ -115,10 +131,15 @@ export const useTokens = () => {
 
   /**
    * Check if user is authenticated (has valid tokens)
+   * Now checks if refresh token is also not expired
    */
   const isAuthenticated = (): boolean => {
     const tokens = getStoredTokens();
-    return tokens !== null;
+    if (!tokens) return false;
+
+    // Check if refresh token is not expired
+    // If refresh token is expired, user needs to login again
+    return !isTokenExpired(tokens.refreshToken);
   };
 
   return {

@@ -5,6 +5,8 @@ import { createHttpLink } from '@apollo/client/link/http';
 import { useTokens } from 'src/modules/useTokens';
 import { useUserStore } from 'src/stores/user';
 
+const GRAPHQL_URL = `${process.env.API_URL}/graphql`;
+
 /**
  * Auth Link - adds JWT token to requests
  */
@@ -118,7 +120,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
       }
 
       // Create a simple HTTP request for token refresh (without Apollo to avoid circular dependency)
-      const response = await fetch(`${process.env.API_URL}/graphql`, {
+      const response = await fetch(GRAPHQL_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +169,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
  * HTTP Link for GraphQL endpoint
  */
 export const httpLink = createHttpLink({
-  uri: `${process.env.API_URL}/graphql`,
+  uri: GRAPHQL_URL,
 });
 
 /**
