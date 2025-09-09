@@ -1,22 +1,43 @@
 import type { ApolloClientOptions } from '@apollo/client/core'
-import { createHttpLink } from '@apollo/client/link/http/index.js'
 import { InMemoryCache } from '@apollo/client/cache/index.js'
 import type { BootFileParams } from '@quasar/app-vite'
+import { apolloLinkChain } from './links'
 
 export /* async */ function getClientOptions(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   /* {app, router, ...} */ options?: Partial<BootFileParams>
 ) {
-  const httpLink = createHttpLink({
-    uri: `${process.env.API_URL}/graphql`,
-  })
-
   return <ApolloClientOptions<unknown>>Object.assign(
     // General options.
     <ApolloClientOptions<unknown>>{
-      link: httpLink,
+      link: apolloLinkChain,
 
-      cache: new InMemoryCache(),
+      cache: new InMemoryCache({
+        // Optimize cache policies for auth data
+        typePolicies: {
+          User: {
+            fields: {
+              id: {
+                merge: false,
+              },
+            },
+          },
+        },
+      }),
+
+      // Default options for better error handling
+      defaultOptions: {
+        watchQuery: {
+          errorPolicy: 'all',
+          notifyOnNetworkStatusChange: true,
+        },
+        query: {
+          errorPolicy: 'all',
+        },
+        mutate: {
+          errorPolicy: 'all',
+        },
+      },
     },
 
     // Specific Quasar mode options.

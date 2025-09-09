@@ -1,125 +1,277 @@
 import { useUserStore } from 'src/stores/user';
 import { computed } from 'vue';
-import { createClient, type User } from '@supabase/supabase-js';
-import { type IProfile, UserType } from 'src/interfaces/user';
-import { API_URL, API_KEY } from 'src/config/constants'
+import { useMutation, useLazyQuery } from '@vue/apollo-composable';
+import { gql } from '@apollo/client/core';
+import {
+  type IUser,
+  type ILoginResponse,
+  type IMeResponse,
+  type IJWTTokens,
+  UserType
+} from 'src/interfaces/user';
+import { useTokens } from 'src/modules/useTokens';
 
+// GraphQL Queries and Mutations
+const LOGIN_MUTATION = gql`
+  mutation Login($input: UsersPermissionsLoginInput!) {
+    login(input: $input) {
+      jwt
+      refreshToken
+      user {
+        id
+        email
+        username
+        confirmed
+        blocked
+        profile {
+          id
+          type
+          fullname
+          created_at
+        }
+      }
+    }
+  }
+`;
+
+const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      email
+      username
+      confirmed
+      blocked
+      profile {
+        id
+        type
+        fullname
+        created_at
+      }
+    }
+  }
+`;
+
+const REFRESH_TOKEN_MUTATION = gql`
+  mutation RefreshToken($refreshToken: String!) {
+    refreshToken(refreshToken: $refreshToken) {
+      jwt
+      refreshToken
+    }
+  }
+`;
+
+/**
+ * User Management Module
+ * Handles authentication, user data and JWT tokens through GraphQL
+ */
 const useUser = () => {
   const userStore = useUserStore();
-  const supabase = createClient(API_URL as string, API_KEY as string);
+  const { storeTokens, clearTokens, isAuthenticated: hasTokens, getCurrentUserInfo } = useTokens();
 
+  // Computed getters
   const user = computed(() => userStore.getUser);
   const profile = computed(() => userStore.getProfile);
   const isShop = computed(() => userStore.getIsShop);
   const isArtist = computed(() => userStore.getIsArtist);
   const isGuest = computed(() => userStore.getIsGuest);
   const isAuthenticated = computed(() => userStore.getIsAuthenticated);
+  const isLoading = computed(() => userStore.getIsLoading);
 
-  const fetchProfile = async (userId: string): Promise<{ data: IProfile | null, error: Error | null }> => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, type, created_at, fullname')
-      .eq('id', userId)
-      .single();
+  // GraphQL composables
+  const { mutate: loginMutation } = useMutation<ILoginResponse>(LOGIN_MUTATION);
+  const { mutate: refreshTokenMutation } = useMutation(REFRESH_TOKEN_MUTATION);
 
-    if (error) {
-      console.error(error);
-      return { data: null, error: error as Error };
+  /**
+   * Login user with email and password
+   */
+  const login = async (
+    identifier: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      userStore.setIsLoading(true);
+
+      const result = await loginMutation({
+        input: {
+          identifier,
+          password,
+        },
+      });
+
+      if (!result?.data?.login) {
+        throw new Error('Login failed: No data received');
+      }
+
+      const { jwt, refreshToken, user: userData } = result.data.login;
+
+      // Store tokens
+      const tokens: IJWTTokens = {
+        accessToken: jwt,
+        refreshToken,
+      };
+      storeTokens(tokens);
+
+      // Update store
+      updateUserState(userData);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Login failed'
+      };
+    } finally {
+      userStore.setIsLoading(false);
     }
-
-    return { data, error: null };
   };
 
-  const fetchUser = async (): Promise<{ data: User | null, error: Error | null }> => {
-    const { data, error: userErr } = await supabase.auth.getUser();
-    if (userErr) {
-      console.error(userErr);
-      return { data: null, error: userErr as Error };
-    }
+  /**
+   * Fetch current user from API
+   */
+  const fetchMe = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      userStore.setIsLoading(true);
 
-    return { data: data.user, error: null }
+      // Use Apollo query with current context (token will be added by authLink)
+      const { result, load } = useLazyQuery<IMeResponse>(ME_QUERY, {}, {
+        fetchPolicy: 'network-only', // Always fetch fresh data
+      });
+
+      await load();
+
+      if (result.value?.me) {
+        updateUserState(result.value.me);
+        return { success: true };
+      } else {
+        throw new Error('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Fetch me error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch user'
+      };
+    } finally {
+      userStore.setIsLoading(false);
+    }
   };
 
-  const fetchUserAndProfile = async (): Promise<void> => {
-    const { data: user, error: userErr } = await fetchUser();
-    if (userErr) {
-      console.error(userErr);
-      return;
+  /**
+   * Restore user session from stored tokens
+   */
+  const restoreSession = async (): Promise<void> => {
+    try {
+      if (!hasTokens()) {
+        console.log('No tokens found, user not authenticated');
+        return;
+      }
+
+      const userInfo = getCurrentUserInfo();
+      if (!userInfo) {
+        console.log('Invalid token format, clearing tokens');
+        logout();
+        return;
+      }
+
+      // Try to fetch fresh user data
+      const { success } = await fetchMe();
+      if (!success) {
+        console.log('Failed to restore session, tokens may be invalid');
+        logout();
+      }
+    } catch (error) {
+      console.error('Session restore error:', error);
+      logout();
     }
+  };
 
-    if (!user?.id) {
-      console.error('User ID is not found');
-      return;
-    }
-
-    const { data: profile, error: profileErr } = await fetchProfile(user.id);
-
-    if (profileErr) {
-      console.error(profileErr);
-      return;
-    }
-
-    userStore.setUser(user);
+  /**
+   * Update user state in store
+   */
+  const updateUserState = (userData: IUser): void => {
+    userStore.setUser(userData);
     userStore.setIsAuthenticated(true);
-    userStore.setIsShop(profile?.type === UserType.Shop);
-    userStore.setIsArtist(profile?.type === UserType.Artist);
-    userStore.setIsGuest(profile?.type === UserType.Guest);
-    userStore.setProfile(profile);
+
+    if (userData.profile) {
+      userStore.setProfile(userData.profile);
+      userStore.setIsShop(userData.profile.type === UserType.Shop);
+      userStore.setIsArtist(userData.profile.type === UserType.Artist);
+      userStore.setIsGuest(userData.profile.type === UserType.Guest);
+    }
   };
 
-  const login = async (login: string, password: string) => {
-    const { data, error: signInErr } = await supabase.auth.signInWithPassword({
-      email: login,
-      password: password,
-    });
+  /**
+   * Logout user and clear all data
+   */
+  const logout = (): void => {
+    try {
+      // Clear tokens
+      clearTokens();
 
-    if (signInErr) {
-      console.error('Error logging in:', signInErr);
-      return;
+      // Clear store
+      userStore.logout();
+
+      console.log('User logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force clear even if error occurs
+      clearTokens();
+      userStore.logout();
     }
-
-    if (!data.user || !data.session) {
-      console.error(signInErr);
-      return;
-    }
-
-    const { data: profile, error: profileErr } = await fetchProfile(data.user.id);
-
-    if (profileErr) {
-      console.error(profileErr);
-      return;
-    }
-
-    userStore.setUser(data.user);
-    userStore.setIsAuthenticated(true);
-    userStore.setIsShop(profile?.type === UserType.Shop);
-    userStore.setIsArtist(profile?.type === UserType.Artist);
-    userStore.setIsGuest(profile?.type === UserType.Guest);
-    userStore.setProfile(profile);
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut({ scope: 'global' });
-    userStore.setUser(null);
-    userStore.setIsAuthenticated(false);
-    userStore.setProfile(null);
-    userStore.setIsShop(false);
-    userStore.setIsArtist(false);
-    userStore.setIsGuest(false);
+  /**
+   * Refresh authentication tokens
+   */
+  const refreshTokens = async (): Promise<{ success: boolean; tokens?: IJWTTokens }> => {
+    try {
+      const { getStoredTokens } = useTokens();
+      const currentTokens = getStoredTokens();
+
+      if (!currentTokens?.refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const result = await refreshTokenMutation({
+        refreshToken: currentTokens.refreshToken,
+      });
+
+      if (!result?.data?.refreshToken) {
+        throw new Error('Token refresh failed');
+      }
+
+      const newTokens: IJWTTokens = {
+        accessToken: result.data.refreshToken.jwt,
+        refreshToken: result.data.refreshToken.refreshToken,
+      };
+
+      storeTokens(newTokens);
+      return { success: true, tokens: newTokens };
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      logout();
+      return { success: false };
+    }
   };
 
   return {
+    // State
     user,
     profile,
     isShop,
     isArtist,
     isGuest,
     isAuthenticated,
+    isLoading,
+
+    // Actions
     login,
     logout,
-    fetchUser,
-    fetchProfile,
-    fetchUserAndProfile,
+    fetchMe,
+    restoreSession,
+    refreshTokens,
   };
 };
 
