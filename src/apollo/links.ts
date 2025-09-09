@@ -4,6 +4,7 @@ import { onError } from '@apollo/client/link/error';
 import { createHttpLink } from '@apollo/client/link/http';
 import { useTokens } from 'src/modules/useTokens';
 import { useUserStore } from 'src/stores/user';
+import { REFRESH_TOKEN_MUTATION } from './types/user';
 
 const GRAPHQL_URL = `${process.env.API_URL}/graphql`;
 
@@ -21,18 +22,6 @@ export const authLink = setContext((_, { headers }) => {
     },
   };
 });
-
-/**
- * Refresh Token Mutation
- */
-const REFRESH_TOKEN_MUTATION = `
-  mutation RefreshToken($input: RefreshTokenInput!) {
-    refreshToken(input: $input) {
-      jwt
-      refreshToken
-    }
-  }
-`;
 
 /**
  * Error Link - handles 401 errors and token refresh

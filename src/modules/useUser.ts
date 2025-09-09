@@ -1,7 +1,6 @@
 import { useUserStore } from 'src/stores/user';
 import { computed } from 'vue';
 import { useMutation, useLazyQuery } from '@vue/apollo-composable';
-import { gql } from '@apollo/client/core';
 import {
   type IUser,
   type ILoginResponse,
@@ -10,38 +9,7 @@ import {
   UserType
 } from 'src/interfaces/user';
 import { useTokens } from 'src/modules/useTokens';
-
-// GraphQL Queries and Mutations
-const LOGIN_MUTATION = gql`
-  mutation LoginWithRefresh($input: LoginInput!) {
-    loginWithRefresh(input: $input) {
-      jwt
-      refreshToken
-      user {
-        id
-        email
-      }
-    }
-  }
-`;
-
-const ME_QUERY = gql`
-  query Me {
-    me {
-      id
-      email
-    }
-  }
-`;
-
-const REFRESH_TOKEN_MUTATION = gql`
-  mutation RefreshToken($input: RefreshTokenInput!) {
-    refreshToken(input: $input) {
-      jwt
-      refreshToken
-    }
-  }
-`;
+import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
 
 /**
  * User Management Module
@@ -49,7 +17,7 @@ const REFRESH_TOKEN_MUTATION = gql`
  */
 const useUser = () => {
   const userStore = useUserStore();
-  const { storeTokens, clearTokens, isAuthenticated: hasTokens } = useTokens();
+  const { storeTokens, clearTokens, isAuthenticated: hasTokens, getStoredTokens } = useTokens();
 
   // Computed getters
   const user = computed(() => userStore.getUser);
@@ -62,8 +30,7 @@ const useUser = () => {
 
   // GraphQL composables
   const { mutate: loginMutation } = useMutation<ILoginResponse>(LOGIN_MUTATION);
-  const { mutate: refreshTokenMutation } = useMutation(REFRESH_TOKEN_MUTATION);
-
+  const { mutate: logoutMutation } = useMutation(LOGOUT_MUTATION);
   /**
    * Login user with email and password
    */
@@ -154,11 +121,11 @@ const useUser = () => {
       const { success } = await fetchMe();
       if (!success) {
         console.log('Failed to restore session, tokens may be invalid');
-        logout();
+        void logout();
       }
     } catch (error) {
       console.error('Session restore error:', error);
-      logout();
+      void logout();
     }
   };
 
@@ -180,8 +147,10 @@ const useUser = () => {
   /**
    * Logout user and clear all data
    */
-  const logout = (): void => {
+  const logout = async (): Promise<void> => {
     try {
+      await logoutMutation({ input: { refreshToken: getStoredTokens()?.refreshToken } });
+
       // Clear tokens
       clearTokens();
 
@@ -194,40 +163,6 @@ const useUser = () => {
       // Force clear even if error occurs
       clearTokens();
       userStore.logout();
-    }
-  };
-
-  /**
-   * Refresh authentication tokens
-   */
-  const refreshTokens = async (): Promise<{ success: boolean; tokens?: IJWTTokens }> => {
-    try {
-      const { getStoredTokens } = useTokens();
-      const currentTokens = getStoredTokens();
-
-      if (!currentTokens?.refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const result = await refreshTokenMutation({
-        refreshToken: currentTokens.refreshToken,
-      });
-
-      if (!result?.data?.refreshToken) {
-        throw new Error('Token refresh failed');
-      }
-
-      const newTokens: IJWTTokens = {
-        accessToken: result.data.refreshToken.jwt,
-        refreshToken: result.data.refreshToken.refreshToken,
-      };
-
-      storeTokens(newTokens);
-      return { success: true, tokens: newTokens };
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      logout();
-      return { success: false };
     }
   };
 
@@ -246,7 +181,6 @@ const useUser = () => {
     logout,
     fetchMe,
     restoreSession,
-    refreshTokens,
   };
 };
 
