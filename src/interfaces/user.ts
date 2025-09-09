@@ -27,7 +27,7 @@ export interface IAccessTokenPayload {
 
 // GraphQL Auth responses
 export interface ILoginResponse {
-  login: {
+  loginWithRefresh: {
     jwt: string;
     refreshToken: string;
     user: IUser;

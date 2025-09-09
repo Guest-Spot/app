@@ -13,22 +13,13 @@ import { useTokens } from 'src/modules/useTokens';
 
 // GraphQL Queries and Mutations
 const LOGIN_MUTATION = gql`
-  mutation Login($input: UsersPermissionsLoginInput!) {
-    login(input: $input) {
+  mutation LoginWithRefresh($input: LoginInput!) {
+    loginWithRefresh(input: $input) {
       jwt
       refreshToken
       user {
         id
         email
-        username
-        confirmed
-        blocked
-        profile {
-          id
-          type
-          fullname
-          created_at
-        }
       }
     }
   }
@@ -39,22 +30,13 @@ const ME_QUERY = gql`
     me {
       id
       email
-      username
-      confirmed
-      blocked
-      profile {
-        id
-        type
-        fullname
-        created_at
-      }
     }
   }
 `;
 
 const REFRESH_TOKEN_MUTATION = gql`
-  mutation RefreshToken($refreshToken: String!) {
-    refreshToken(refreshToken: $refreshToken) {
+  mutation RefreshToken($input: RefreshTokenInput!) {
+    refreshToken(input: $input) {
       jwt
       refreshToken
     }
@@ -99,11 +81,11 @@ const useUser = () => {
         },
       });
 
-      if (!result?.data?.login) {
+      if (!result?.data?.loginWithRefresh) {
         throw new Error('Login failed: No data received');
       }
 
-      const { jwt, refreshToken, user: userData } = result.data.login;
+      const { jwt, refreshToken, user: userData } = result.data.loginWithRefresh;
 
       // Store tokens
       const tokens: IJWTTokens = {

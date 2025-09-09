@@ -112,9 +112,9 @@ const handleLogin = async () => {
   loading.value = true;
 
   try {
-    await login(form.value.login, form.value.password);
+    const result = await login(form.value.login, form.value.password);
 
-    if (isAuthenticated.value) {
+    if (result.success && isAuthenticated.value) {
       $q.notify({
         type: 'primary',
         message: 'Login successful!',
@@ -135,14 +135,14 @@ const handleLogin = async () => {
         void router.push('/profile');
       }, 500);
     } else {
-      throw new Error('Invalid credentials');
+      throw new Error(result.error || 'Invalid credentials');
     }
 
   } catch (error) {
     console.error('Login error:', error);
     $q.notify({
       type: 'negative',
-      message: 'Invalid login credentials',
+      message: error instanceof Error ? error.message : 'Invalid login credentials',
       position: 'top',
       timeout: 1500,
       color: 'negative',
