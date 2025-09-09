@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia';
-import type { IUser, IProfile, IAuthState } from 'src/interfaces/user';
+import type { IUser, IAuthState } from 'src/interfaces/user';
+import type { IShop } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
 
 export const useUserStore = defineStore('user', {
-  state: (): IAuthState => ({
+  state: (): IAuthState<IShop | IArtist> => ({
     user: null,
     profile: null,
     isAuthenticated: false,
@@ -22,26 +24,20 @@ export const useUserStore = defineStore('user', {
     getIsArtist: (state) => state.isArtist,
     getIsGuest: (state) => state.isGuest,
     getTokens: (state) => state.tokens,
-
-    // Derived getters
-    getUserEmail: (state) => state.user?.email || '',
-    getUserId: (state) => state.user?.id || '',
-    getFullName: (state) => state.profile?.fullname || '',
-    getUserType: (state) => state.profile?.type || null,
   },
 
   actions: {
     /**
      * Set user data
      */
-    setUser(userData: IUser | null) {
+    setUser(userData: IUser<IShop | IArtist> | null) {
       this.user = userData;
     },
 
     /**
      * Set user profile
      */
-    setProfile(profileData: IProfile | null) {
+    setProfile(profileData: IShop | IArtist | null) {
       this.profile = profileData;
     },
 

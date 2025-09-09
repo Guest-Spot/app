@@ -14,7 +14,7 @@
       />
 
       <q-toolbar-title v-if="isProfilePage" class="header-title">
-        Welcome, <span class="text-primary">{{ profile?.fullname }}</span>
+        Welcome, <span class="text-primary">{{ profile?.name }}</span>
       </q-toolbar-title>
       <q-toolbar-title v-else class="header-title">
         {{ pageTitle }}

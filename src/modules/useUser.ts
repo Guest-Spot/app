@@ -8,6 +8,8 @@ import {
   type IJWTTokens,
   UserType
 } from 'src/interfaces/user';
+import type { IShop } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
 import { useTokens } from 'src/modules/useTokens';
 import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
 import gql from 'graphql-tag';
@@ -30,7 +32,7 @@ const useUser = () => {
   const isLoading = computed(() => userStore.getIsLoading);
 
   // GraphQL composables
-  const { mutate: loginMutation } = useMutation<ILoginResponse>(LOGIN_MUTATION);
+  const { mutate: loginMutation } = useMutation<ILoginResponse<IShop | IArtist>>(LOGIN_MUTATION);
   const { mutate: logoutMutation } = useMutation(gql(LOGOUT_MUTATION));
   /**
    * Login user with email and password
@@ -85,7 +87,7 @@ const useUser = () => {
       userStore.setIsLoading(true);
 
       // Use Apollo query with current context (token will be added by authLink)
-      const { result, load } = useLazyQuery<IMeResponse>(ME_QUERY, {}, {
+      const { result, load } = useLazyQuery<IMeResponse<IShop | IArtist>>(ME_QUERY, {}, {
         fetchPolicy: 'network-only', // Always fetch fresh data
       });
 
@@ -110,15 +112,14 @@ const useUser = () => {
   /**
    * Update user state in store
    */
-  const updateUserState = (userData: IUser): void => {
+  const updateUserState = (userData: IUser<IShop | IArtist>): void => {
     userStore.setUser(userData);
     userStore.setIsAuthenticated(true);
 
-    if (userData.profile) {
-      userStore.setProfile(userData.profile);
-      userStore.setIsShop(userData.profile.type === UserType.Shop);
-      userStore.setIsArtist(userData.profile.type === UserType.Artist);
-      userStore.setIsGuest(userData.profile.type === UserType.Guest);
+    if (userData.type) {
+      userStore.setIsShop(userData.type === UserType.Shop);
+      userStore.setIsArtist(userData.type === UserType.Artist);
+      userStore.setIsGuest(userData.type === UserType.Guest);
     }
   };
 

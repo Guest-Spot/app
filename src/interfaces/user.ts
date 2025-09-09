@@ -7,8 +7,7 @@ export enum UserType {
 export interface IProfile {
   id: string;
   created_at: string;
-  type: UserType;
-  fullname: string;
+  name: string;
 }
 
 // JWT Token interfaces
@@ -17,50 +16,37 @@ export interface IJWTTokens {
   refreshToken: string;
 }
 
-export interface IAccessTokenPayload {
-  id: string;
-  email: string;
-  type: UserType;
-  iat: number;
-  exp: number;
-}
-
 // GraphQL Auth responses
-export interface ILoginResponse {
+export interface ILoginResponse<Profile> {
   loginWithRefresh: {
     jwt: string;
     refreshToken: string;
-    user: IUser;
+    user: IUser<Profile>;
   };
 }
 
-export interface IMeResponse {
-  me: IUser;
-}
-
-export interface IRefreshTokenResponse {
-  refreshToken: {
-    jwt: string;
-    refreshToken: string;
-  };
+export interface IMeResponse<Profile> {
+  me: IUser<Profile>;
 }
 
 // Enhanced User interface for GraphQL
-export interface IUser {
+export interface IUser<T> {
   id: string;
+  uuid: string;
   email: string;
   username?: string;
   confirmed: boolean;
   blocked: boolean;
-  profile?: IProfile;
+  type: UserType;
+  profile: T;
 }
 
 // Auth state interface
-export interface IAuthState {
+export interface IAuthState<Profile> {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: IUser | null;
-  profile: IProfile | null;
+  user: IUser<Profile> | null;
+  profile: Profile | null;
   tokens: IJWTTokens | null;
   isShop: boolean;
   isArtist: boolean;
