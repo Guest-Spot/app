@@ -49,7 +49,7 @@ const REFRESH_TOKEN_MUTATION = gql`
  */
 const useUser = () => {
   const userStore = useUserStore();
-  const { storeTokens, clearTokens, isAuthenticated: hasTokens, getCurrentUserInfo } = useTokens();
+  const { storeTokens, clearTokens, isAuthenticated: hasTokens } = useTokens();
 
   // Computed getters
   const user = computed(() => userStore.getUser);
@@ -147,13 +147,6 @@ const useUser = () => {
     try {
       if (!hasTokens()) {
         console.log('No tokens found, user not authenticated');
-        return;
-      }
-
-      const userInfo = getCurrentUserInfo();
-      if (!userInfo) {
-        console.log('Invalid token format, clearing tokens');
-        logout();
         return;
       }
 

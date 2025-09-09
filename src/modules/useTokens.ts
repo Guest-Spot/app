@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
-import { type IJWTTokens, type IAccessTokenPayload } from 'src/interfaces/user';
+import { type IJWTTokens } from 'src/interfaces/user';
 
 const TOKEN_STORAGE_KEY = 'guestspot_tokens';
 const REFRESH_TOKEN_KEY = 'guestspot_refresh';
@@ -14,9 +14,9 @@ export const useTokens = () => {
    * Decode JWT payload without verification (for client-side info only)
    * Uses jwt-decode library for better reliability and security
    */
-  const decodeJWT = (token: string): IAccessTokenPayload | null => {
+  const decodeJWT = (token: string): Record<string, unknown> | null => {
     try {
-      return jwtDecode<IAccessTokenPayload>(token);
+      return jwtDecode(token);
     } catch (error) {
       console.error('Failed to decode JWT:', error);
       return null;
@@ -28,7 +28,7 @@ export const useTokens = () => {
    */
   const isTokenExpired = (token: string): boolean => {
     const payload = decodeJWT(token);
-    if (!payload || !payload.exp) return true;
+    if (!payload || typeof payload.exp !== 'number') return true;
 
     const currentTime = Math.floor(Date.now() / 1000);
     const bufferTime = 30; // 30 seconds buffer
@@ -119,15 +119,6 @@ export const useTokens = () => {
     }
   };
 
-  /**
-   * Get user info from current access token
-   */
-  const getCurrentUserInfo = (): IAccessTokenPayload | null => {
-    const tokens = getStoredTokens();
-    if (!tokens) return null;
-
-    return decodeJWT(tokens.accessToken);
-  };
 
   /**
    * Check if user is authenticated (has valid tokens)
@@ -147,7 +138,6 @@ export const useTokens = () => {
     getStoredTokens,
     getValidAccessToken,
     clearTokens,
-    getCurrentUserInfo,
     isAuthenticated,
     isTokenExpired,
     decodeJWT,
