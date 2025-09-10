@@ -16,7 +16,7 @@ export enum LinkType {
 }
 
 
-export enum OpeningTimesDays {
+export enum OpeningHoursDays {
   mon = 'Monday',
   tue = 'Tuesday',
   wed = 'Wednesday',
@@ -26,7 +26,7 @@ export enum OpeningTimesDays {
   sun = 'Sunday',
 }
 
-export enum OpeningTimesIndexDays {
+export enum OpeningHoursIndexDays {
   mon = 1,
   tue = 2,
   wed = 3,

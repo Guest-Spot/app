@@ -67,7 +67,7 @@
 import { computed, reactive, watch } from 'vue';
 import { TimePickerDialog } from 'src/components/Dialogs';
 import type { IOpeningHours } from 'src/interfaces/shop';
-import { OpeningTimesDays } from 'src/interfaces/enums';
+import { OpeningHoursDays } from 'src/interfaces/enums';
 
 
 
@@ -83,13 +83,13 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const defaultHours: IOpeningHours[] = [
-  { day: OpeningTimesDays.mon, start: '', end: '' },
-  { day: OpeningTimesDays.tue, start: '', end: '' },
-  { day: OpeningTimesDays.wed, start: '', end: '' },
-  { day: OpeningTimesDays.thu, start: '', end: '' },
-  { day: OpeningTimesDays.fri, start: '', end: '' },
-  { day: OpeningTimesDays.sat, start: '', end: '' },
-  { day: OpeningTimesDays.sun, start: '', end: '' }
+  { day: OpeningHoursDays.mon, start: '', end: '' },
+  { day: OpeningHoursDays.tue, start: '', end: '' },
+  { day: OpeningHoursDays.wed, start: '', end: '' },
+  { day: OpeningHoursDays.thu, start: '', end: '' },
+  { day: OpeningHoursDays.fri, start: '', end: '' },
+  { day: OpeningHoursDays.sat, start: '', end: '' },
+  { day: OpeningHoursDays.sun, start: '', end: '' }
 ];
 
 // Local reactive copy to allow editing

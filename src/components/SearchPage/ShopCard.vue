@@ -22,7 +22,7 @@
         </div>
         <div class="shop-hours text-grey-6">
           <q-icon name="schedule" size="16px" />
-          <span>{{ openingTimeText }}</span>
+          <span>{{ openingHourText }}</span>
         </div>
       </div>
     </div>
@@ -35,7 +35,7 @@ import { useFavorites } from 'src/modules/useFavorites';
 import useDate from 'src/modules/useDate';
 import type { IShop } from 'src/interfaces/shop';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
-import { OpeningTimesIndexDays } from 'src/interfaces/enums';
+import { OpeningHoursIndexDays } from 'src/interfaces/enums';
 
 interface Props {
   shop: IShop;
@@ -55,11 +55,11 @@ const { formatTime } = useDate();
 const isFavorite = computed(() => isShopFavorite(props.shop.documentId));
 const shopPictures = computed(() => props.shop.pictures.map(picture => picture.url));
 
-const openingTimeText = computed(() => {
+const openingHourText = computed(() => {
   const dayIndex = new Date().getDay();
-  const todayKey = Object.entries(OpeningTimesIndexDays).find(
+  const todayKey = Object.entries(OpeningHoursIndexDays).find(
     ([, value]) => Number(value) === dayIndex
-  )?.[0] as keyof typeof OpeningTimesIndexDays | undefined;
+  )?.[0] as keyof typeof OpeningHoursIndexDays | undefined;
   const todayTime = props.shop.openingHours?.find(time => time.day === todayKey);
   if (todayTime?.start && todayTime?.end) {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
