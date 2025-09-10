@@ -4,7 +4,7 @@
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm">
           <q-img
-            :src="artist?.avatar"
+            :src="artist?.avatar?.url"
             fit="cover"
             spinner-color="dark"
             spinner-size="16px"

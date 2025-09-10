@@ -1,15 +1,26 @@
+import type { LinkType } from 'src/interfaces/enums';
+
 export interface IArtist {
   documentId: string;
-  created_at: string;
+  createdAt: string;
+  updatedAt: string;
   name: string;
-  bio: string;
-  username: string;
+  description: string;
   phone?: string;
   email?: string;
-  avatar?: string;
   experience?: number;
-  city?: string;
-  address?: string;
   status?: string;
-  instagram?: string;
+  avatar?: {
+    url: string;
+  }
+  links?: {
+    type: LinkType;
+    value: string;
+  }[];
+  location?: {
+    city: string;
+    address: string;
+    latitude: string;
+    longitude: string;
+  }
 }

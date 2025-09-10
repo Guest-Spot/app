@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center q-gap-md full-width">
       <q-avatar size="80px" class="bg-block">
         <q-img
-          :src="artist.avatar || 'https://via.placeholder.com/80x80'"
+          :src="artist.avatar?.url || 'https://via.placeholder.com/80x80'"
           :ratio="0.85"
           class="avatar-img"
           spinner-size="24px"
@@ -14,7 +14,7 @@
         <div class="artist-info">
           <div class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
-            <span>{{ artist.city }} {{ artist.address }}</span>
+            <span>{{ artist.location?.city }} {{ artist.location?.address }}</span>
           </div>
           <div class="artist-experience text-grey-6">
             <q-icon name="work" size="14px" />

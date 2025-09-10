@@ -28,8 +28,8 @@
           <!-- Avatar -->
           <q-avatar size="150px" class="profile-avatar bg-block">
             <q-img
-              v-if="artistData.avatar"
-              :src="artistData.avatar"
+              v-if="artistData.avatar?.url"
+              :src="artistData.avatar?.url"
               :ratio="1"
               spinner-color="dark"
               spinner-size="32px"
@@ -151,15 +151,23 @@ const setActiveTab = (tab: ITab) => {
 // Artist data from Supabase
 const artistData = ref<IArtist>({
   documentId: '',
-  created_at: '',
-  username: '',
+  createdAt: '',
+  updatedAt: '',
   name: '',
   status: '',
-  bio: '',
-  avatar: '',
+  description: '',
+  avatar: {
+    url: '',
+  },
   phone: '',
   email: '',
-  instagram: ''
+  links: [],
+  location: {
+    city: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+  },
 });
 
 // Portfolio data
@@ -175,15 +183,23 @@ const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId))
 const toggleFavorite = () => {
   toggleArtistFavorite({
     documentId: artistData.value.documentId,
-    created_at: artistData.value.created_at,
+    createdAt: artistData.value.createdAt,
+    updatedAt: artistData.value.updatedAt,
     name: artistData.value.name,
-    bio: artistData.value.bio,
-    username: artistData.value.username,
+    description: artistData.value.description,
     status: artistData.value.status || '',
-    avatar: artistData.value.avatar || '',
+    avatar: artistData.value.avatar || {
+      url: '',
+    },
     phone: artistData.value.phone || '',
     email: artistData.value.email || '',
-    instagram: artistData.value.instagram || ''
+    links: artistData.value.links || [],
+    location: artistData.value.location || {
+      city: '',
+      address: '',
+      latitude: '',
+      longitude: '',
+    },
   });
 };
 

@@ -197,7 +197,9 @@ onMounted(() => {
       artist: {
         documentId: '2',
         name: 'John Doe',
-        avatar: 'artists/artist1.jpeg',
+        avatar: {
+          url: 'artists/artist1.jpeg',
+        },
         experience: 10,
       },
     },
@@ -218,7 +220,9 @@ onMounted(() => {
       artist: {
         documentId: '4',
         name: 'John Doe',
-        avatar: 'artists/artist2.jpg',
+        avatar: {
+          url: 'artists/artist2.jpg',
+        },
         experience: 3,
       },
     },
@@ -239,7 +243,9 @@ onMounted(() => {
       artist: {
         documentId: '4',
         name: 'John Doe',
-        avatar: 'artists/artist3.jpg',
+        avatar: {
+          url: 'artists/artist3.jpg',
+        },
         experience: 3,
       },
     },
@@ -260,7 +266,9 @@ onMounted(() => {
       artist: {
         documentId: '6',
         name: 'John Doe',
-        avatar: 'artists/artist4.jpg',
+        avatar: {
+          url: 'artists/artist4.jpg',
+        },
         experience: 5,
       },
     },
