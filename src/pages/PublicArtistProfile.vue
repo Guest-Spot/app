@@ -29,7 +29,7 @@
           <q-avatar size="150px" class="profile-avatar bg-block">
             <q-img
               v-if="artistData.avatar?.url"
-              :src="artistData.avatar?.url"
+              :src="`${API_URL}${artistData.avatar?.url}`"
               :ratio="1"
               spinner-color="dark"
               spinner-size="32px"
@@ -40,7 +40,6 @@
           <div class="flex column items-center full-width">
             <template v-if="artistData.name || artistData.status">
               <span class="full-name text-h6">{{ artistData.name }}</span>
-              <span class="status text-body2 text-grey-6">{{ artistData.status }}</span>
             </template>
             <template v-else>
               <q-skeleton type="text" width="50%" height="20px" />
@@ -115,6 +114,7 @@ import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
 import { CreateBookingDialog } from 'src/components/Dialogs';
 import type { IArtist } from 'src/interfaces/artist';
+import { API_URL } from 'src/config/constants';
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const { fetchArtistByDocumentId, findArtistByDocumentIdInStore } = useArtists();

@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { useArtistsStore } from "src/stores/artists";
-import type { IArtist } from "src/interfaces/artist";
+import type { IGraphQLArtistsResult, IGraphQLArtistResult } from "src/interfaces/artist";
 import type { IFilters } from 'src/interfaces/filters';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { ARTISTS_QUERY, ARTIST_QUERY } from 'src/apollo/types/artist';
@@ -14,7 +14,7 @@ const useArtists = () => {
   const fetchArtists = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
     isLoading.value = true;
     try {
-      const { result, load, error } = useLazyQuery<IArtist[]>(ARTISTS_QUERY, { filters, params });
+      const { result, load, error } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY, { filters, params });
       await load();
 
       if (error.value) {
@@ -22,7 +22,7 @@ const useArtists = () => {
         return;
       }
 
-      artistsStore.setArtists(result.value || []);
+      artistsStore.setArtists(result.value?.artists || []);
     } catch (error) {
       console.error('Error fetching artists:', error);
     } finally {
@@ -33,7 +33,7 @@ const useArtists = () => {
   const fetchArtistByDocumentId = async (documentId: string) => {
     isLoading.value = true;
     try {
-      const { result, load, error } = useLazyQuery<IArtist>(ARTIST_QUERY, { documentId });
+      const { result, load, error } = useLazyQuery<IGraphQLArtistResult>(ARTIST_QUERY, { documentId });
       await load();
 
       if (error.value) {
@@ -41,7 +41,7 @@ const useArtists = () => {
         return null;
       }
 
-      return result.value;
+      return result.value?.artist;
     } catch (error) {
       console.error('Error fetching artist by documentId:', error);
       return null;

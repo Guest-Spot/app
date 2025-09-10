@@ -69,36 +69,48 @@ const isLoading = ref(false);
 const trips = ref<ITrip[]>([
   {
     documentId: '1',
-    title: 'Go to New York',
-    location: 'New York, NY',
+    name: 'Go to New York',
+    location: {
+      city: 'New York',
+      address: 'New York, NY',
+      latitude: '40.7128',
+      longitude: '-74.0060'
+    },
     date: '2024-01-15',
     startTime: '20:00',
     endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
-    status: '',
-    artistDocumentId: '1'
+    ownerDocumentId: '1'
   },
   {
     documentId: '2',
-    title: 'Go to Los Angeles',
-    location: 'Los Angeles, CA',
+    name: 'Go to  Los Angeles',
+    location: {
+      city: 'Los Angeles',
+      address: 'Los Angeles, CA',
+      latitude: '34.0522',
+      longitude: '-118.2437'
+    },
     date: '2024-02-20',
     startTime: '19:30',
     endTime: '21:45',
     description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
-    status: '',
-    artistDocumentId: '2'
+    ownerDocumentId: '2'
   },
   {
     documentId: '3',
-    title: 'Go to Miami',
-    location: 'Miami, FL',
+    name: 'Go to Miami',
+    location: {
+      city: 'Miami',
+      address: 'Miami, FL',
+      latitude: '25.7617',
+      longitude: '-80.1918'
+    },
     date: '2024-01-30',
     startTime: '23:00',
     endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
-    status: '',
-    artistDocumentId: '3'
+    ownerDocumentId: '3'
   }
 ]);
 
@@ -107,28 +119,36 @@ const showTripDialog = ref(false);
 const isEditingTrip = ref(false);
 const currentTrip = ref<ITrip>({
   documentId: '',
-  location: '',
+  location: {
+    city: '',
+    address: '',
+    latitude: '',
+    longitude: ''
+  },
   date: '',
   startTime: '',
   endTime: '',
   description: '',
-  title: '',
-  status: '',
-  artistDocumentId: '4'
+  name: '',
+  ownerDocumentId: '4'
 });
 
 const addNewTrip = () => {
   isEditingTrip.value = false;
   currentTrip.value = {
     documentId: '',
-    location: '',
+    location: {
+      city: '',
+      address: '',
+      latitude: '',
+      longitude: ''
+    },
     date: '',
     startTime: '',
     endTime: '',
     description: '',
-    title: '',
-    status: '',
-    artistDocumentId: ''
+    name: '',
+    ownerDocumentId: ''
   };
   showTripDialog.value = true;
 };

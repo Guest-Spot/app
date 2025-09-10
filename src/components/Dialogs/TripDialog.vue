@@ -21,11 +21,11 @@
         <div class="input-group">
           <label class="input-label">Location</label>
           <q-input
-            v-model="formData.location"
+            v-model="formData.location.city"
             outlined
             dense
             rounded
-            placeholder="Enter trip location"
+            placeholder="Enter trip city"
             class="custom-input"
           />
         </div>

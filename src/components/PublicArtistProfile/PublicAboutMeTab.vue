@@ -24,10 +24,6 @@ const basicInformation = computed(() => ([
     value: props.artistData.name || '',
   },
   {
-    label: 'Status',
-    value: props.artistData.status || '',
-  },
-  {
     label: 'Bio',
     value: props.artistData.description || '',
   },

@@ -28,3 +28,7 @@ export interface IArtist {
 export interface IGraphQLArtistsResult {
   artists: IArtist[];
 }
+
+export interface IGraphQLArtistResult {
+  artist: IArtist;
+}

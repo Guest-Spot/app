@@ -3,7 +3,7 @@
     <div class="trip-header bg-block q-pa-md">
       <div class="trip-location">
         <q-icon name="train" color="primary" size="20px" />
-        <span class="location-text">{{ trip.title }}</span>
+        <span class="location-text">{{ trip.name }}</span>
       </div>
       <div class="trip-actions">
         <q-btn
@@ -27,7 +27,7 @@
         <div class="info-row">
           <q-icon name="location_on" color="grey-6" size="20px" />
           <span class="info-label">Location:</span>
-          <span class="info-value text-grey-6">{{ trip.location }}</span>
+          <span class="info-value text-grey-6">{{ trip.location.city }} {{ trip.location.address }}</span>
         </div>
         <div class="info-row">
           <q-icon name="event" color="grey-6" size="20px" />
