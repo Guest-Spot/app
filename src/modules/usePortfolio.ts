@@ -8,27 +8,27 @@ const usePortfolio = () => {
   const isLoading = ref(false);
   const portfolioItems = ref<IPortfolio[]>([]);
 
-  const fetchPortfolioByOwnerUuid = async (ownerUuid: string) => {
+  const fetchPortfolioByOwnerDocumentId = async (ownerDocumentId: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke(`portfolio/${ownerUuid}`);
+      const { data, error } = await supabase.functions.invoke(`portfolio/${ownerDocumentId}`);
 
       if (error) {
-        console.error('Error fetching portfolio by owner UUID:', error);
+        console.error('Error fetching portfolio by owner documentId:', error);
         return [];
       }
 
       portfolioItems.value = data || [];
       return data;
     } catch (error) {
-      console.error('Error fetching portfolio by owner UUID:', error);
+      console.error('Error fetching portfolio by owner documentId:', error);
       return [];
     } finally {
       isLoading.value = false;
     }
   };
 
-  const createPortfolioItem = async (portfolioItem: Omit<IPortfolio, 'uuid'>) => {
+  const createPortfolioItem = async (portfolioItem: Omit<IPortfolio, 'documentId'>) => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
@@ -50,13 +50,13 @@ const usePortfolio = () => {
     }
   };
 
-  const updatePortfolioItem = async (uuid: string, updates: Partial<IPortfolio>) => {
+  const updatePortfolioItem = async (documentId: string, updates: Partial<IPortfolio>) => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
         .from('portfolio')
         .update(updates)
-        .eq('uuid', uuid)
+        .eq('documentId', documentId)
         .select();
 
       if (error) {
@@ -73,13 +73,13 @@ const usePortfolio = () => {
     }
   };
 
-  const deletePortfolioItem = async (uuid: string) => {
+  const deletePortfolioItem = async (documentId: string) => {
     isLoading.value = true;
     try {
       const { error } = await supabase
         .from('portfolio')
         .delete()
-        .eq('uuid', uuid);
+        .eq('documentId', documentId);
 
       if (error) {
         console.error('Error deleting portfolio item:', error);
@@ -98,7 +98,7 @@ const usePortfolio = () => {
   return {
     portfolioItems,
     isLoading,
-    fetchPortfolioByOwnerUuid,
+    fetchPortfolioByOwnerDocumentId,
     createPortfolioItem,
     updatePortfolioItem,
     deletePortfolioItem

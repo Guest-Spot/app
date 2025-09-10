@@ -26,7 +26,7 @@
         <div v-else class="bookings-grid">
           <BookingCard
             v-for="booking in sentBookings"
-            :key="booking.uuid"
+            :key="booking.documentId"
             :booking="booking"
             @cancel="cancelBooking"
           />
@@ -44,7 +44,7 @@
         <div v-else class="bookings-grid">
           <BookingCard
             v-for="booking in receivedBookings"
-            :key="booking.uuid"
+            :key="booking.documentId"
             :booking="booking"
             @accept="acceptBooking"
             @reject="rejectBooking"
@@ -98,8 +98,8 @@ const setActiveTab = (t: ITab) => {
   activeFilterTab.value = t;
 };
 
-const acceptBooking = (bookingUuid: string) => {
-  const booking = bookings.value.find(b => b.uuid === bookingUuid);
+const acceptBooking = (bookingDocumentId: string) => {
+  const booking = bookings.value.find(b => b.documentId === bookingDocumentId);
   if (booking) {
     booking.status = 'accepted';
     booking.updatedAt = new Date().toISOString();
@@ -119,8 +119,8 @@ const acceptBooking = (bookingUuid: string) => {
   }
 };
 
-const rejectBooking = (bookingUuid: string) => {
-  const booking = bookings.value.find(b => b.uuid === bookingUuid);
+const rejectBooking = (bookingDocumentId: string) => {
+  const booking = bookings.value.find(b => b.documentId === bookingDocumentId);
   if (booking) {
     booking.status = 'rejected';
     booking.updatedAt = new Date().toISOString();
@@ -140,7 +140,7 @@ const rejectBooking = (bookingUuid: string) => {
   }
 };
 
-const cancelBooking = (bookingUuid: string) => {
+const cancelBooking = (bookingDocumentId: string) => {
   $q.dialog({
     title: 'Cancel Booking',
     message: 'Are you sure you want to cancel this booking request?',
@@ -155,7 +155,7 @@ const cancelBooking = (bookingUuid: string) => {
       label: 'Yes, Cancel'
     }
   }).onOk(() => {
-    const booking = bookings.value.find(b => b.uuid === bookingUuid);
+    const booking = bookings.value.find(b => b.documentId === bookingDocumentId);
     if (booking) {
       booking.status = 'cancelled';
       booking.updatedAt = new Date().toISOString();
@@ -181,11 +181,11 @@ onMounted(() => {
   // Mock data for demonstration
   bookings.value = [
     {
-      uuid: '1',
+      documentId: '1',
       title: 'Tattoo Session Request',
       description: 'I would like to visit your shop and ...',
-      shopUuid: '1',
-      artistUuid: '2',
+      shopDocumentId: '1',
+      artistDocumentId: '2',
       location: '123 Main St, Anytown, USA',
       startTime: '10:00',
       endTime: '14:00',
@@ -195,18 +195,18 @@ onMounted(() => {
       updatedAt: '2024-01-20T10:00:00Z',
       type: 'shop-to-artist',
       artist: {
-        uuid: '2',
+        documentId: '2',
         name: 'John Doe',
         avatar: 'artists/artist1.jpeg',
         experience: 10,
       },
     },
     {
-      uuid: '2',
+      documentId: '2',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
-      shopUuid: '3',
-      artistUuid: '1',
+      shopDocumentId: '3',
+      artistDocumentId: '1',
       location: '123 Main St, Anytown, USA',
       startTime: '09:00',
       endTime: '17:00',
@@ -216,18 +216,18 @@ onMounted(() => {
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
       artist: {
-        uuid: '4',
+        documentId: '4',
         name: 'John Doe',
         avatar: 'artists/artist2.jpg',
         experience: 3,
       },
     },
     {
-      uuid: '3',
+      documentId: '3',
       title: 'Tattoo Session',
       description: 'Looking for a skilled artist for a custom tattoo design',
-      shopUuid: '3',
-      artistUuid: '1',
+      shopDocumentId: '3',
+      artistDocumentId: '1',
       location: '123 Main St, Anytown, USA',
       startTime: '09:00',
       endTime: '17:00',
@@ -237,18 +237,18 @@ onMounted(() => {
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
       artist: {
-        uuid: '4',
+        documentId: '4',
         name: 'John Doe',
         avatar: 'artists/artist3.jpg',
         experience: 3,
       },
     },
     {
-      uuid: '4',
+      documentId: '4',
       title: 'Art Commission',
       description: 'Need artwork for shop decoration',
-      shopUuid: '3',
-      artistUuid: '1',
+      shopDocumentId: '3',
+      artistDocumentId: '1',
       location: '123 Main St, Anytown, USA',
       startTime: '09:00',
       endTime: '17:00',
@@ -258,7 +258,7 @@ onMounted(() => {
       updatedAt: '2024-01-19T09:00:00Z',
       type: 'artist-to-shop',
       artist: {
-        uuid: '6',
+        documentId: '6',
         name: 'John Doe',
         avatar: 'artists/artist4.jpg',
         experience: 5,

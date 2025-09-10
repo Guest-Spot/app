@@ -4,6 +4,8 @@ import type { IShop } from "src/interfaces/shop";
 import { createClient } from '@supabase/supabase-js';
 import type { IFilters } from 'src/interfaces/filters';
 import { API_URL, API_KEY } from "src/config/constants";
+import { SHOPS_QUERY, SHOP_QUERY } from 'src/apollo/types/shop';
+import { useLazyQuery } from '@vue/apollo-composable';
 
 const useShops = () => {
   const supabase = createClient(API_URL as string, API_KEY as string);
@@ -12,37 +14,23 @@ const useShops = () => {
 
   const shops = computed(() => shopsStore.getShops);
 
-      const fetchShops = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
+  const fetchShops = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
+    const { result, load, error } = useLazyQuery<IShop[]>(SHOPS_QUERY);
     isLoading.value = true;
     try {
-      let query = supabase
-        .from('shops_with_opening_times')
-        .select('*');
-
-      if (params?.sort) {
-        query = query.order(params.sort.column, { ascending: params.sort.direction === 'asc' });
-      }
-
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value && value !== null && value !== undefined) {
-            if (key === 'name') {
-              query = query.ilike(key, `%${value}%`);
-            } else {
-              query = query.eq(key, value);
-            }
-          }
-        });
-      }
-
-      const { data, error } = await query;
+      await load(null, {
+        variables: {
+          filters,
+          sort: params?.sort ? [params.sort.column] : undefined,
+        },
+      });
 
       if (error) {
         console.error('Error fetching shops:', error);
         return;
       }
 
-      shopsStore.setShops(data || []);
+      shopsStore.setShops(result.value || []);
     } catch (error) {
       console.error('Error fetching shops:', error);
     } finally {
@@ -50,19 +38,24 @@ const useShops = () => {
     }
   };
 
-  const fetchShopByUuid = async (uuid: string) => {
+  const fetchShopByDocumentId = async (documentId: string) => {
+    const { result, load, error } = useLazyQuery<IShop>(SHOP_QUERY);
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke(`shop/${uuid}`);
+      await load(null, {
+        variables: {
+          documentId,
+        },
+      });
 
       if (error) {
-        console.error('Error fetching shop by UUID:', error);
+        console.error('Error fetching shop by documentId:', error);
         return null;
       }
 
-      return data;
+      return result.value;
     } catch (error) {
-      console.error('Error fetching shop by UUID:', error);
+      console.error('Error fetching shop by documentId:', error);
       return null;
     } finally {
       isLoading.value = false;
@@ -92,13 +85,13 @@ const useShops = () => {
     }
   };
 
-  const updateShop = async (id: number, updates: Partial<IShop>) => {
+  const updateShop = async (documentId: string, updates: Partial<IShop>) => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
         .from('shops')
         .update(updates)
-        .eq('id', id)
+        .eq('documentId', documentId)
         .select();
 
       if (error) {
@@ -116,13 +109,13 @@ const useShops = () => {
     }
   };
 
-  const deleteShop = async (id: number) => {
+  const deleteShop = async (documentId: string) => {
     isLoading.value = true;
     try {
       const { error } = await supabase
         .from('shops')
         .delete()
-        .eq('id', id);
+        .eq('documentId', documentId);
 
       if (error) {
         console.error('Error deleting shop:', error);
@@ -139,10 +132,10 @@ const useShops = () => {
     }
   };
 
-  const fetchShopArtists = async (shopUuid: string) => {
+  const fetchShopArtists = async (shopDocumentId: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke(`shopArtists/${shopUuid}`);
+      const { data, error } = await supabase.functions.invoke(`shopArtists/${shopDocumentId}`);
 
       if (error) {
         console.error('Error fetching shop artists:', error);
@@ -158,20 +151,20 @@ const useShops = () => {
     }
   };
 
-  const findShopByUuidInStore = (uuid: string) => {
-    return shops.value.find(shop => shop.uuid === uuid);
+  const findShopByDocumentIdInStore = (documentId: string) => {
+    return shops.value.find(shop => shop.documentId === documentId);
   };
 
   return {
     shops,
     isLoading,
     fetchShops,
-    fetchShopByUuid,
+    fetchShopByDocumentId,
     fetchShopArtists,
     createShop,
     updateShop,
     deleteShop,
-    findShopByUuidInStore
+    findShopByDocumentIdInStore
   };
 };
 

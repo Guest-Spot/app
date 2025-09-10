@@ -57,28 +57,28 @@ import PortfolioCard from 'src/components/PortfolioCard.vue';
 // Mock portfolio data
 const portfolioItems = ref<IPortfolio[]>([
   {
-    uuid: '1',
+    documentId: '1',
     title: 'Live Performance at Club XYZ',
     description: 'Amazing night performing my latest hits to a sold-out crowd.',
     pictures: ['examples/example1.jpg'],
     tags: ['Live', 'Performance', 'Club'],
-    ownerUuid: '1'
+    ownerDocumentId: '1'
   },
   {
-    uuid: '2',
+    documentId: '2',
     title: 'Studio Recording Session',
     description: 'Recording my new single with professional sound engineers.',
     pictures: ['examples/example2.jpeg'],
     tags: ['Studio', 'Recording', 'Single'],
-    ownerUuid: '1'
+    ownerDocumentId: '1'
   },
   {
-    uuid: '3',
+    documentId: '3',
     title: 'Music Festival Appearance',
     description: 'Performing at the biggest music festival in the city.',
     pictures: ['examples/example3.jpg'],
     tags: ['Festival', 'Live', 'Music'],
-    ownerUuid: '1'
+    ownerDocumentId: '1'
   }
 ]);
 

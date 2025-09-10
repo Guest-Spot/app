@@ -1,5 +1,5 @@
 export interface ITrip {
-  uuid: string;
+  documentId: string;
   location: string;
   date: string;
   startTime: string;
@@ -7,11 +7,11 @@ export interface ITrip {
   title: string;
   description: string;
   status: string;
-  artistUuid: string;
+  artistDocumentId: string;
 }
 
 export interface ITripForm {
-  uuid: string;
+  documentId: string;
   location: string;
   date: string;
   startTime: string;

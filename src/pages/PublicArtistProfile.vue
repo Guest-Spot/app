@@ -70,7 +70,7 @@
           use-query
           send-initial-tab
           @setActiveTab="setActiveTab"
-          :disable="!artistData.uuid"
+          :disable="!artistData.documentId"
         />
       </div>
 
@@ -93,7 +93,7 @@
     <CreateBookingDialog
       v-model="showBookingDialog"
       :shop-id="0"
-      :artist-id="artistData.uuid"
+      :artist-id="artistData.documentId"
       type="artist-to-shop"
       @submit="handleBookingSubmit"
     />
@@ -117,9 +117,9 @@ import { CreateBookingDialog } from 'src/components/Dialogs';
 import type { IArtist } from 'src/interfaces/artist';
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
-const { fetchArtistByUuid, findArtistByUuidInStore } = useArtists();
-const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
-const { fetchTripsByArtistUuid, isLoading: isLoadingTrips } = useTrips();
+const { fetchArtistByDocumentId, findArtistByDocumentIdInStore } = useArtists();
+const { fetchPortfolioByOwnerDocumentId, isLoading: isLoadingPortfolio } = usePortfolio();
+const { fetchTripsByArtistDocumentId, isLoading: isLoadingTrips } = useTrips();
 const route = useRoute();
 
 const TAB_ABOUT = 'about';
@@ -150,7 +150,7 @@ const setActiveTab = (tab: ITab) => {
 
 // Artist data from Supabase
 const artistData = ref<IArtist>({
-  uuid: '',
+  documentId: '',
   created_at: '',
   username: '',
   name: '',
@@ -169,12 +169,12 @@ const portfolioItems = ref<IPortfolio[]>([]);
 const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
-const isFavorite = computed(() => isArtistFavorite(artistData.value.uuid));
+const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 
 // Methods
 const toggleFavorite = () => {
   toggleArtistFavorite({
-    uuid: artistData.value.uuid,
+    documentId: artistData.value.documentId,
     created_at: artistData.value.created_at,
     name: artistData.value.name,
     bio: artistData.value.bio,
@@ -201,13 +201,13 @@ const handleBookingSubmit = (data: Partial<IBooking>) => {
 
 // Function to load artist data
 const loadArtistData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const artistInStore = findArtistByUuidInStore(uuid);
+  const documentId = route.params.documentId as string;
+  if (documentId) {
+    const artistInStore = findArtistByDocumentIdInStore(documentId);
     if (artistInStore) {
       artistData.value = artistInStore;
     } else {
-      const data = await fetchArtistByUuid(uuid);
+      const data = await fetchArtistByDocumentId(documentId);
       if (data) {
         artistData.value = data;
       }
@@ -217,9 +217,9 @@ const loadArtistData = async () => {
 
 // Function to load portfolio data
 const loadPortfolioData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const data = await fetchPortfolioByOwnerUuid(uuid);
+  const documentId = route.params.documentId as string;
+  if (documentId) {
+    const data = await fetchPortfolioByOwnerDocumentId(documentId);
     if (data && data.length > 0) {
       portfolioItems.value = data;
     }
@@ -228,9 +228,9 @@ const loadPortfolioData = async () => {
 
 // Function to load trips data
 const loadTripsData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const data = await fetchTripsByArtistUuid(uuid);
+  const documentId = route.params.documentId as string;
+  if (documentId) {
+    const data = await fetchTripsByArtistDocumentId(documentId);
     if (data && data.length > 0) {
       trips.value = data;
     }

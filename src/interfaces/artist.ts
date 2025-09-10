@@ -1,5 +1,5 @@
 export interface IArtist {
-  uuid: string;
+  documentId: string;
   created_at: string;
   name: string;
   bio: string;

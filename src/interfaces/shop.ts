@@ -5,7 +5,7 @@ export interface IOpeningTimes {
 }
 
 export interface IShop {
-  uuid: string;
+  documentId: string;
   username: string;
   name: string;
   city: string;

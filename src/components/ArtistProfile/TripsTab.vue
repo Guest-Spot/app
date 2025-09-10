@@ -68,7 +68,7 @@ const isLoading = ref(false);
 // Mock trips data
 const trips = ref<ITrip[]>([
   {
-    uuid: '1',
+    documentId: '1',
     title: 'Go to New York',
     location: 'New York, NY',
     date: '2024-01-15',
@@ -76,10 +76,10 @@ const trips = ref<ITrip[]>([
     endTime: '22:30',
     description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
     status: '',
-    artistUuid: '1'
+    artistDocumentId: '1'
   },
   {
-    uuid: '2',
+    documentId: '2',
     title: 'Go to Los Angeles',
     location: 'Los Angeles, CA',
     date: '2024-02-20',
@@ -87,10 +87,10 @@ const trips = ref<ITrip[]>([
     endTime: '21:45',
     description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
     status: '',
-    artistUuid: '2'
+    artistDocumentId: '2'
   },
   {
-    uuid: '3',
+    documentId: '3',
     title: 'Go to Miami',
     location: 'Miami, FL',
     date: '2024-01-30',
@@ -98,7 +98,7 @@ const trips = ref<ITrip[]>([
     endTime: '01:30',
     description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
     status: '',
-    artistUuid: '3'
+    artistDocumentId: '3'
   }
 ]);
 
@@ -106,7 +106,7 @@ const trips = ref<ITrip[]>([
 const showTripDialog = ref(false);
 const isEditingTrip = ref(false);
 const currentTrip = ref<ITrip>({
-  uuid: '',
+  documentId: '',
   location: '',
   date: '',
   startTime: '',
@@ -114,13 +114,13 @@ const currentTrip = ref<ITrip>({
   description: '',
   title: '',
   status: '',
-  artistUuid: '4'
+  artistDocumentId: '4'
 });
 
 const addNewTrip = () => {
   isEditingTrip.value = false;
   currentTrip.value = {
-    uuid: '',
+    documentId: '',
     location: '',
     date: '',
     startTime: '',
@@ -128,7 +128,7 @@ const addNewTrip = () => {
     description: '',
     title: '',
     status: '',
-    artistUuid: ''
+    artistDocumentId: ''
   };
   showTripDialog.value = true;
 };

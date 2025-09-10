@@ -56,7 +56,7 @@
                 text-color="primary"
                 unelevated
                 rounded
-                :disable="!shopData.uuid"
+                :disable="!shopData.documentId"
                 @click="openBookingDialog"
               >
                 <span class="text-body2">Booking request</span>
@@ -76,7 +76,7 @@
            :activeTab="activeTab"
            send-initial-tab
            @setActiveTab="setActiveTab"
-           :disable="!shopData.uuid"
+           :disable="!shopData.documentId"
          />
        </div>
 
@@ -107,7 +107,7 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-uuid="shopData.uuid"
+      :shop-documentId="shopData.documentId"
       type="shop-to-artist"
       @submit="handleBookingSubmit"
     />
@@ -133,8 +133,8 @@ import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue'
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
-const { fetchShopByUuid, fetchShopArtists, isLoading, findShopByUuidInStore } = useShops();
-const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
+const { fetchShopByDocumentId, fetchShopArtists, isLoading, findShopByDocumentIdInStore } = useShops();
+const { fetchPortfolioByOwnerDocumentId, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
 
 const TAB_ABOUT = 'about';
@@ -143,7 +143,7 @@ const TAB_PORTFOLIO = 'portfolio';
 
 // Shop data from Supabase
 const shopData = ref<IShop>({
-  uuid: '',
+  documentId: '',
   username: '',
   city: '',
   address: '',
@@ -165,7 +165,7 @@ const artists = ref<IArtist[]>([]);
 const portfolioItems = ref<IPortfolio[]>([]);
 
 // Computed properties for favorites
-const isFavorite = computed(() => isShopFavorite(shopData.value.uuid));
+const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -208,13 +208,13 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
 
 // Fetch shop data from store or supabase
 const loadShopData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const shopInStore = findShopByUuidInStore(uuid);
+  const documentId = route.params.documentId as string;
+  if (documentId) {
+    const shopInStore = findShopByDocumentIdInStore(documentId);
     if (shopInStore) {
       shopData.value = shopInStore;
     } else {
-      const data = await fetchShopByUuid(uuid);
+      const data = await fetchShopByDocumentId(documentId);
       if (data) {
         shopData.value = data;
       }
@@ -224,8 +224,8 @@ const loadShopData = async () => {
 
 // Fetch portfolio data
 const loadPortfolioData = async () => {
-  const uuid = route.params.id as string;
-  const data = await fetchPortfolioByOwnerUuid(uuid);
+  const documentId = route.params.documentId as string;
+  const data = await fetchPortfolioByOwnerDocumentId(documentId);
   if (data && data.length > 0) {
     portfolioItems.value = data;
   }
@@ -233,9 +233,9 @@ const loadPortfolioData = async () => {
 
 // Fetch shop artists data
 const loadShopArtistsData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const data = await fetchShopArtists(uuid);
+  const documentId = route.params.documentId as string;
+  if (documentId) {
+    const data = await fetchShopArtists(documentId);
     if (data && data.length > 0) {
       artists.value = data;
     }

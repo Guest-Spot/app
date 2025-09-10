@@ -43,7 +43,7 @@ interface Props {
 
 interface Emits {
   (e: 'click', shop: IShop): void;
-  (e: 'favorite', shopUuid: string): void;
+  (e: 'favorite', shopDocumentId: string): void;
 }
 
 const props = defineProps<Props>();
@@ -52,7 +52,7 @@ const emit = defineEmits<Emits>();
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const { formatTime } = useDate();
 
-const isFavorite = computed(() => isShopFavorite(props.shop.uuid));
+const isFavorite = computed(() => isShopFavorite(props.shop.documentId));
 
 const openingTimeText = computed(() => {
   const dayIndex = new Date().getDay();
@@ -68,7 +68,7 @@ const openingTimeText = computed(() => {
 
 const toggleFavorite = () => {
   const shopData = {
-    uuid: props.shop.uuid,
+    documentId: props.shop.documentId,
     username: props.shop.username,
     name: props.shop.name,
     city: props.shop.city,
@@ -86,7 +86,7 @@ const toggleFavorite = () => {
     ...(props.shop.instagram && { instagram: props.shop.instagram })
   };
   toggleShopFavorite(shopData);
-  emit('favorite', props.shop.uuid);
+  emit('favorite', props.shop.documentId);
 };
 </script>
 

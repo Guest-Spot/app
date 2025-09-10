@@ -61,14 +61,14 @@
           rounded
           flat
           class="bg-block full-width"
-          @click="$emit('reject', uuid)"
+          @click="$emit('reject', documentId)"
         />
         <q-btn
           label="Accept"
           color="primary"
           rounded
           class="full-width"
-          @click="$emit('accept', uuid)"
+          @click="$emit('accept', documentId)"
         />
       </div>
 
@@ -80,7 +80,7 @@
         rounded
         flat
         class="bg-block full-width"
-        @click="$emit('cancel', uuid)"
+        @click="$emit('cancel', documentId)"
       />
 
       <!-- View details for other statuses -->
@@ -88,7 +88,7 @@
         v-else
         label="View Artist"
         rounded
-        :to="`/artist/${artist?.uuid}`"
+        :to="`/artist/${artist?.documentId}`"
         flat
         class="bg-block full-width"
       />
@@ -109,9 +109,9 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'accept', uuid: string): void;
-  (e: 'reject', uuid: string): void;
-  (e: 'cancel', uuid: string): void;
+  (e: 'accept', documentId: string): void;
+  (e: 'reject', documentId: string): void;
+  (e: 'cancel', documentId: string): void;
 }
 
 const props = defineProps<Props>();
@@ -119,7 +119,7 @@ defineEmits<Emits>();
 
 // Computed properties
 const {
-  uuid,
+  documentId,
   title,
   description,
   startTime,

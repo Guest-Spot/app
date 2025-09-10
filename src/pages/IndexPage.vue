@@ -48,7 +48,7 @@
           <div v-else-if="shops.length" class="flex column q-gap-md">
             <ShopCard
               v-for="shop in shops"
-              :key="shop.uuid"
+              :key="shop.documentId"
               :shop="shop"
               @click="selectShop"
             />
@@ -73,7 +73,7 @@
           <div v-else-if="artists.length" class="flex column q-gap-md">
             <ArtistCard
               v-for="artist in artists"
-              :key="artist.uuid"
+              :key="artist.documentId"
               :artist="artist"
               @click="selectArtist"
             />
@@ -141,11 +141,11 @@ const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 
 const selectShop = (shop: IShop) => {
-  void router.push(`/shop/${shop.uuid}`);
+  void router.push(`/shop/${shop.documentId}`);
 };
 
 const selectArtist = (artist: IArtist) => {
-  void router.push(`/artist/${artist.uuid}`);
+  void router.push(`/artist/${artist.documentId}`);
 };
 
 const fetchShopsAndArtists = (filters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {

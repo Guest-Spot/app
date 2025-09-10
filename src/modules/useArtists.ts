@@ -46,19 +46,19 @@ const useArtists = () => {
     }
   };
 
-  const fetchArtistByUuid = async (uuid: string) => {
+  const fetchArtistByDocumentId = async (documentId: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke(`artist/${uuid}`);
+      const { data, error } = await supabase.functions.invoke(`artist/${documentId}`);
 
       if (error) {
-        console.error('Error fetching artist by UUID:', error);
+        console.error('Error fetching artist by documentId:', error);
         return null;
       }
 
       return data;
     } catch (error) {
-      console.error('Error fetching artist by UUID:', error);
+      console.error('Error fetching artist by documentId:', error);
       return null;
     } finally {
       isLoading.value = false;
@@ -88,13 +88,13 @@ const useArtists = () => {
     }
   };
 
-  const updateArtist = async (uuid: string, updates: Partial<IArtist>) => {
+  const updateArtist = async (documentId: string, updates: Partial<IArtist>) => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
         .from('artists')
         .update(updates)
-        .eq('uuid', uuid)
+        .eq('documentId', documentId)
         .select();
 
       if (error) {
@@ -112,13 +112,13 @@ const useArtists = () => {
     }
   };
 
-  const deleteArtist = async (uuid: string) => {
+  const deleteArtist = async (documentId: string) => {
     isLoading.value = true;
     try {
       const { error } = await supabase
         .from('artists')
         .delete()
-        .eq('uuid', uuid);
+        .eq('documentId', documentId);
 
       if (error) {
         console.error('Error deleting artist:', error);
@@ -135,19 +135,19 @@ const useArtists = () => {
     }
   };
 
-  const findArtistByUuidInStore = (uuid: string) => {
-    return artists.value.find(artist => artist.uuid === uuid);
+  const findArtistByDocumentIdInStore = (documentId: string) => {
+    return artists.value.find(artist => artist.documentId === documentId);
   };
 
   return {
     artists,
     isLoading,
     fetchArtists,
-    fetchArtistByUuid,
+    fetchArtistByDocumentId,
     createArtist,
     updateArtist,
     deleteArtist,
-    findArtistByUuidInStore
+    findArtistByDocumentIdInStore
   };
 };
 

@@ -56,7 +56,7 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/artist/:id',
+    path: '/artist/:documentId',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
@@ -67,7 +67,7 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/shop/:id',
+    path: '/shop/:documentId',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {

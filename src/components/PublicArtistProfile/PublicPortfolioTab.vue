@@ -14,7 +14,7 @@
     <div class="portfolio-grid" v-else-if="portfolioItems.length">
       <PortfolioCard
         v-for="item in portfolioItems"
-        :key="item.uuid"
+        :key="item.documentId"
         :work="item"
       />
     </div>

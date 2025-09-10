@@ -32,7 +32,7 @@ export interface IMeResponse<Profile> {
 // Enhanced User interface for GraphQL
 export interface IUser<T> {
   id: string;
-  uuid: string;
+  documentId: string;
   email: string;
   username?: string;
   confirmed: boolean;

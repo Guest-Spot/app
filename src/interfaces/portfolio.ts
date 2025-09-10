@@ -1,10 +1,10 @@
 export interface IPortfolio {
-  uuid: string;
+  documentId: string;
   title: string;
   description: string;
   pictures: string[];
   tags: string[];
-  ownerUuid: string;
+  ownerDocumentId: string;
 }
 
 

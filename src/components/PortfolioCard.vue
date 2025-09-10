@@ -12,7 +12,7 @@
         color="dark"
         icon="edit"
         size="sm"
-        @click="$emit('edit', work.uuid)"
+        @click="$emit('edit', work.documentId)"
       />
     </div>
     <div class="portfolio-details">
@@ -41,7 +41,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'edit', uuid: string): void;
+  (e: 'edit', documentId: string): void;
 }
 
 defineProps<Props>();

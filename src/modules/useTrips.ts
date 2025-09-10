@@ -8,27 +8,27 @@ const useTrips = () => {
   const isLoading = ref(false);
   const trips = ref<ITrip[]>([]);
 
-  const fetchTripsByArtistUuid = async (artistUuid: string) => {
+  const fetchTripsByArtistDocumentId = async (artistDocumentId: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke(`artistTrips/${artistUuid}`);
+      const { data, error } = await supabase.functions.invoke(`artistTrips/${artistDocumentId}`);
 
       if (error) {
-        console.error('Error fetching trips by artist UUID:', error);
+        console.error('Error fetching trips by artist documentId:', error);
         return [];
       }
 
       trips.value = data || [];
       return data;
     } catch (error) {
-      console.error('Error fetching trips by artist UUID:', error);
+      console.error('Error fetching trips by artist documentId:', error);
       return [];
     } finally {
       isLoading.value = false;
     }
   };
 
-  const createTrip = async (trip: Omit<ITrip, 'uuid'>) => {
+  const createTrip = async (trip: Omit<ITrip, 'documentId'>) => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
@@ -50,13 +50,13 @@ const useTrips = () => {
     }
   };
 
-  const updateTrip = async (uuid: string, updates: Partial<ITrip>) => {
+  const updateTrip = async (documentId: string, updates: Partial<ITrip>) => {
     isLoading.value = true;
     try {
       const { data, error } = await supabase
         .from('trips')
         .update(updates)
-        .eq('uuid', uuid)
+        .eq('documentId', documentId)
         .select();
 
       if (error) {
@@ -73,13 +73,13 @@ const useTrips = () => {
     }
   };
 
-  const deleteTrip = async (uuid: string) => {
+  const deleteTrip = async (documentId: string) => {
     isLoading.value = true;
     try {
       const { error } = await supabase
         .from('trips')
         .delete()
-        .eq('uuid', uuid);
+        .eq('documentId', documentId);
 
       if (error) {
         console.error('Error deleting trip:', error);
@@ -98,7 +98,7 @@ const useTrips = () => {
   return {
     trips,
     isLoading,
-    fetchTripsByArtistUuid,
+    fetchTripsByArtistDocumentId,
     createTrip,
     updateTrip,
     deleteTrip
