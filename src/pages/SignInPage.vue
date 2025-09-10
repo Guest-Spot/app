@@ -27,7 +27,7 @@
                 rounded
                 size="lg"
                 :rules="[val => !!val || 'Email is required']"
-                class="full-width custom-input"
+                class="full-width"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
@@ -46,7 +46,7 @@
                 rounded
                 size="lg"
                 :rules="[val => !!val || 'Password is required', val => val.length >= 3 || 'Password must be at least 3 characters']"
-                class="full-width custom-input"
+                class="full-width"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
