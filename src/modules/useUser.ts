@@ -114,6 +114,7 @@ const useUser = () => {
    */
   const updateUserState = (userData: IUser<IShop | IArtist>): void => {
     userStore.setUser(userData);
+    userStore.setProfile(userData.profile);
     userStore.setIsAuthenticated(true);
 
     if (userData.type) {
