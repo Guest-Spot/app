@@ -9,8 +9,8 @@ export interface IShop {
   username: string;
   name: string;
   city: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   address: string;
   description: string;
   pictures: string[];
@@ -19,5 +19,6 @@ export interface IShop {
   dateOpened?: string;
   openingTimes?: IOpeningTimes[];
   pricing?: string;
+  website?: string;
   instagram?: string;
 };

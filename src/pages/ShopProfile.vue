@@ -21,12 +21,8 @@
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
-        <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <AboutShopTab />
-        </div>
-        <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <ShopArtistsTab />
-        </div>
+        <AboutShopTab v-if="activeTab.tab === TAB_ABOUT" class="tab-content" />
+        <ShopArtistsTab v-if="activeTab.tab === TAB_ARTISTS" class="tab-content" />
       </div>
     </div>
   </q-page>
@@ -78,6 +74,7 @@ const setActiveTab = (tab: ITab) => {
 }
 
 .tab-content {
+  width: 100%;
   min-height: 400px;
 }
 

@@ -16,8 +16,8 @@
     <div class="q-my-auto full-width">
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <q-form @submit="handleLogin" class="login-form">
-            <div class="input-group">
+          <q-form @submit="handleLogin" class="flex column items-start q-gap-sm full-width">
+            <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Enter your login</label>
               <q-input
                 v-model="form.login"
@@ -36,7 +36,7 @@
               </q-input>
             </div>
 
-            <div class="input-group">
+            <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Enter your password</label>
               <q-input
                 v-model="form.password"
@@ -65,7 +65,7 @@
               </q-input>
             </div>
 
-            <div class="button-group q-mt-md">
+            <div class="button-group full-width q-mt-sm">
               <q-btn
                 type="submit"
                 class="login-btn bg-block full-width"
@@ -168,7 +168,6 @@ const handleLogin = async () => {
   font-weight: 400;
   line-height: 1.57;
   letter-spacing: 0.8px;
-  margin-bottom: 4px;
 }
 
 .button-group {

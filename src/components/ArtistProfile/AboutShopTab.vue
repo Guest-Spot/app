@@ -108,7 +108,7 @@
             <TimePickerDialog
               v-model="startTimeDialog"
               :time="workingHours.start"
-              title="Выберите время начала"
+              title="Select start time"
               @confirm="onStartTimeConfirm"
             />
           </div>
@@ -130,7 +130,7 @@
             <TimePickerDialog
               v-model="endTimeDialog"
               :time="workingHours.end"
-              title="Выберите время окончания"
+              title="Select end time"
               @confirm="onEndTimeConfirm"
             />
           </div>

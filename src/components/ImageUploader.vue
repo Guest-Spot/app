@@ -6,11 +6,81 @@
       'image-uploader--circle': circle,
     }"
   >
-    <template v-if="imageSrc">
-      <div class="image-preview-wrapper border-radius-md">
+    <template v-if="hasImages">
+      <!-- Multiple images preview -->
+      <div v-if="multiple" class="image-list q-pa-xs">
+        <VueDraggableNext
+          handle=".image-item__move"
+          class="flex no-wrap q-gap-sm"
+          :list="imagesPreview"
+          :drag="false"
+          @contextmenu.prevent
+        >
+          <div
+            v-for="(element, index) in imagesPreview"
+            :key="index"
+            class="image-item border-radius-md"
+            @click="zoomImage(element.src)"
+            draggable="true"
+            @dragstart="onDragStart(element.index)"
+            @dragover.prevent
+            @drop="onDrop(element.index)"
+            @dragend="onDragEnd"
+          >
+            <q-img
+              :src="element.src"
+              height="100%"
+              width="100%"
+              fit="cover"
+              spinner-size="md"
+              spinner-color="grey"
+              class="absolute-top-left full-width full-height"
+            />
+            <div class="full-height flex column justify-between items-end q-gap-sm q-pa-sm">
+              <q-btn
+                round
+                dense
+                size="sm"
+                icon="delete_forever"
+                class="image-item__remove bg-block"
+                text-color="negative"
+                @click.stop="removeAt(element.index)"
+              />
+              <q-btn
+                round
+                dense
+                size="sm"
+                icon="drag_indicator"
+                class="image-item__move bg-block"
+                @click.stop
+              >
+                <q-tooltip class="bg-block border-radius-md text-body2">Drag to reorder</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+        </VueDraggableNext>
+        <div
+          class="image-item__add border-radius-md cursor-pointer"
+          v-ripple
+          @click.stop="openGallery"
+        >
+          <q-icon name="add_photo_alternate" size="24px" color="grey-6" />
+          <input
+            ref="galleryInput"
+            type="file"
+            accept="image/*"
+            :multiple="multiple"
+            @change="onGallerySelected"
+            style="display: none;"
+          />
+        </div>
+      </div>
+
+      <!-- Single image preview -->
+      <div v-else class="image-preview-wrapper border-radius-md">
         <q-img
-          :src="imageSrc"
-          @click="zoomImage"
+          :src="imagePreview || undefined"
+          @click="zoomImage(imagePreview || '')"
           height="100%"
           fit="cover"
           spinner-size="md"
@@ -31,10 +101,12 @@
           :hint="hint || undefined"
           :rules="rules"
           @update:model-value="onChangeImage"
+          :multiple="multiple"
+          accept="image/*"
         >
           <span class="flex column items-center justify-center full-width full-height">
-            <q-icon name="image" size="48px" color="grey-6" />
-            <p class="text-grey-6 q-mt-sm">Upload image</p>
+            <q-icon :name="placeholderIcon" size="48px" color="grey-6" />
+            <p class="text-grey-6 q-mt-sm">{{ placeholder }}</p>
           </span>
         </q-file>
       </div>
@@ -63,7 +135,7 @@
     </template>
 
     <div
-      v-if="imageSrc"
+      v-if="hasImages && !multiple"
       class="flex column absolute-bottom-right q-mr-md q-mb-md"
     >
       <q-btn
@@ -78,10 +150,7 @@
     </div>
 
     <!-- Dialog -->
-    <ImagePreviewDialog
-      v-model="dialog"
-      :image-src="imageSrc"
-    />
+    <ImagePreviewDialog v-model="dialog" :image-src="previewDialogSrc" />
 
     <!-- Loader -->
     <q-inner-loading
@@ -95,15 +164,9 @@
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
 import useImage from '../modules/useImage'
-import ImagePreviewDialog from 'src/components/Dialogs/ImagePreviewDialog.vue'
 import { useQuasar, type ValidationRule } from 'quasar'
-import {
-  ref,
-  toRefs,
-  watch,
-  computed,
-  type PropType
-} from 'vue'
+import { ref, toRefs, watch, computed, type PropType } from 'vue'
+import { VueDraggableNext } from 'vue-draggable-next'
 
 const MAX_SIZE = 4096
 
@@ -111,12 +174,16 @@ defineOptions({
   name: 'ImageUploader',
 })
 
-const emit = defineEmits(['on-change', 'clear'])
+const emit = defineEmits(['clear', 'on-change'])
 
 const props = defineProps({
   image: {
-    type: [File, null] as PropType<File | null>,
+    type: File,
     default: null,
+  },
+  images: {
+    type: Array as PropType<File[]>,
+    default: () => [],
   },
   size: {
     type: String,
@@ -133,55 +200,96 @@ const props = defineProps({
   rules: {
     type: Array as PropType<ValidationRule[]>,
     default: () => []
-  }
+  },
+  placeholder: {
+    type: String,
+    default: 'Upload image',
+  },
+  placeholderIcon: {
+    type: String,
+    default: 'image',
+  },
+  multiple: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const $q = useQuasar()
-const { image } = toRefs(props)
-const {
-  formatFileToBase64
-} = useImage()
+const { image, images, multiple } = toRefs(props)
+const { formatFileToBase64 } = useImage()
 
-const imagePreview = ref<File | string | null>(image.value)
+const imagePreview = ref<string>('')
+const imagesPreview = ref<{ src: string, index: number }[]>([])
+const selectedFiles = ref<File[]>([])
 const isLoading = ref(false)
 const dialog = ref(false)
 const cameraInput = ref<HTMLInputElement | null>(null)
+const galleryInput = ref<HTMLInputElement | null>(null)
 const isMobile = $q.platform.is.mobile
+const previewDialogSrc = ref<string | null>(null)
+const dragIndex = ref<number | null>(null)
 
-// Computed property for image source
-const imageSrc = computed(() => {
-  if (typeof imagePreview.value === 'string') {
-    return imagePreview.value
-  }
-  return null
+// Import dialog component statically
+import { ImagePreviewDialog } from 'src/components/Dialogs'
+
+const hasImages = computed(() => {
+  return multiple.value ? imagesPreview.value.length > 0 : !!imagePreview.value
 })
 
 // ---------- Methods ---------- //
-function zoomImage() {
+function zoomImage(src?: string) {
+  previewDialogSrc.value = src || imagePreview.value
   dialog.value = true
 }
 
 function clear() {
-  imagePreview.value = null
+  if (multiple.value) {
+    imagesPreview.value = []
+    selectedFiles.value = []
+  } else {
+    imagePreview.value = ''
+  }
   emit('clear')
 }
 
-async function onChangeImage(image: File) {
-  isLoading.value = true
+async function compressAndPrepare(file: File) {
   const options = {
     maxSizeMB: 0.3,
     maxWidthOrHeight: 1024,
-    useWebWorker: true
+    useWebWorker: true,
   }
+  const compressedImage = await imageCompression(file, options)
+  const fileSize = compressedImage.size / 1000
+  if (fileSize >= MAX_SIZE) {
+    console.error('File size is too large')
+    return null
+  }
+  const base64 = await formatFileToBase64(compressedImage)
+  return { file: compressedImage, base64 }
+}
+
+async function onChangeImage(input: File | File[]) {
+  isLoading.value = true
   try {
-    const compressedImage = await imageCompression(image, options)
-    const fileSize = (compressedImage.size / 1000)
-    if (fileSize >= MAX_SIZE) {
-      console.error('File size is too large')
-      return
+    if (multiple.value) {
+      const files = Array.isArray(input) ? input : [input]
+      const results = await Promise.all(files.map((f) => compressAndPrepare(f)))
+      const valid = results.filter((r): r is { file: File; base64: string } => !!r)
+      imagesPreview.value.push(...valid.map((v, index) => ({ src: v.base64, index: imagesPreview.value.length + index })))
+      selectedFiles.value.push(...valid.map((v) => v.file))
+      emit('on-change', selectedFiles.value)
+    } else {
+      const file = Array.isArray(input) ? input[0] : input
+      if (!file) {
+        isLoading.value = false
+        return
+      }
+      const result = await compressAndPrepare(file)
+      if (!result) return
+      imagePreview.value = result.base64
+      emit('on-change', result.file)
     }
-    imagePreview.value = await formatFileToBase64(compressedImage)
-    emit('on-change', compressedImage)
   } catch (error) {
     console.error(error)
   } finally {
@@ -195,22 +303,80 @@ function openCamera() {
   }
 }
 
+function openGallery() {
+  galleryInput.value?.click()
+}
+
 async function onCameraSelected(event: Event) {
-  const fileList = (event.target as HTMLInputElement)?.files
-  const file = fileList && fileList[0]
-  if (file) {
+  const fileList = (event.target as HTMLInputElement | null)?.files
+  if (!fileList || fileList.length === 0) return
+  if (multiple.value) {
+    await onChangeImage(Array.from(fileList))
+  } else {
+    const file = fileList.item(0)
+    if (!file) return
     await onChangeImage(file)
   }
   (event.target as HTMLInputElement).value = ''
 }
 
-watch(image, async (newValue) => {
-  if (!newValue) return
-  if (typeof newValue === 'string') {
-    imagePreview.value = newValue
+async function onGallerySelected(event: Event) {
+  const fileList = (event.target as HTMLInputElement | null)?.files
+  if (!fileList || fileList.length === 0) return
+  if (multiple.value) {
+    await onChangeImage(Array.from(fileList))
   } else {
-    imagePreview.value = await formatFileToBase64(newValue)
+    const file = fileList.item(0)
+    if (!file) return
+    await onChangeImage(file)
   }
+  (event.target as HTMLInputElement).value = ''
+}
+
+function removeAt(index: number) {
+  if (!multiple.value) return
+  imagesPreview.value.splice(index, 1)
+  selectedFiles.value.splice(index, 1)
+  emit('on-change', selectedFiles.value)
+}
+
+function onDragStart(index: number) {
+  if (!multiple.value) return
+  dragIndex.value = index
+}
+
+function onDragEnd() {
+  dragIndex.value = null
+}
+
+function onDrop(dropIndex: number) {
+  if (!multiple.value) return
+  if (dragIndex.value === null || dragIndex.value === dropIndex) return
+
+  const from = dragIndex.value
+  const to = dropIndex
+
+  const move = (arr: unknown[], fromIdx: number, toIdx: number) => {
+    const item = arr.splice(fromIdx, 1)[0]
+    arr.splice(toIdx, 0, item)
+  }
+
+  move(imagesPreview.value, from, to)
+  move(selectedFiles.value, from, to)
+  dragIndex.value = null
+  emit('on-change', selectedFiles.value)
+}
+
+watch(image, async (newValue, oldValue) => {
+  if (!newValue || newValue === oldValue) return
+  imagePreview.value = await formatFileToBase64(newValue)
+}, {
+  immediate: true
+})
+
+watch(images, async (newValue, oldValue) => {
+  if (!newValue || newValue === oldValue) return
+  imagesPreview.value = await Promise.all(newValue.map(async (v, index) => ({ src: await formatFileToBase64(v), index })))
 }, {
   immediate: true
 })
@@ -220,7 +386,6 @@ watch(image, async (newValue) => {
 .image-uploader {
   width: 100%;
   height: 210px;
-  overflow: hidden;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -309,6 +474,44 @@ watch(image, async (newValue) => {
       transition: opacity 0.3s ease;
       pointer-events: none;
     }
+  }
+
+  .image-list {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: var(--border-radius-lg);
+  }
+
+  .image-item {
+    position: relative;
+    flex: 0 0 200px;
+    height: 100%;
+    overflow: hidden;
+
+    &:first-child {
+      border: 2px solid var(--q-primary);
+    }
+  }
+
+  .image-item__remove {
+    z-index: 2;
+  }
+
+  .image-item__add {
+    width: 100%;
+    min-width: 100px;
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-md);
+    border: 2px dashed rgba(var(--bg-block-rgb), 1);
   }
 }
 

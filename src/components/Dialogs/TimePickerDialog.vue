@@ -25,17 +25,29 @@
         />
       </q-card-section>
       <q-card-actions class="dialog-actions bg-block">
+        <div class="left-actions flex q-gap-sm">
+          <q-btn
+            round
+            class="bg-block"
+            unelevated
+            icon="delete"
+            text-color="negative"
+            @click="clearTime"
+          />
+          <q-btn
+            round
+            class="bg-block"
+            icon="close"
+            unelevated
+            text-color="grey-6"
+            @click="closeDialog"
+          />
+        </div>
         <q-btn
-          label="Отмена"
-          rounded
-          class="bg-block"
-          unelevated
-          @click="closeDialog"
-        />
-        <q-btn
-          label="Готово"
+          label="Apply"
           rounded
           color="primary"
+          class="q-btn-min-width"
           @click="confirmTime"
         />
       </q-card-actions>
@@ -77,6 +89,10 @@ watch(() => props.time, (newValue) => {
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
+
+const clearTime = () => {
+  timeValue.value = '';
+};
 
 const closeDialog = () => {
   isVisible.value = false;
@@ -121,7 +137,7 @@ const confirmTime = () => {
     padding: 16px 20px 32px;
     justify-content: space-between;
 
-    .q-btn {
+    .q-btn-min-width {
       min-width: 100px;
       font-weight: 600;
     }

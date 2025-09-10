@@ -3,12 +3,33 @@
     <div class="text-h6">Welcome, <span class="text-primary">{{ profile?.name }}</span></div>
     <q-btn
       text-color="negative"
-      icon="logout"
+      icon="settings"
       round
       unelevated
-      @click="handleLogout"
       class="bg-block"
-    />
+      size="sm"
+    >
+      <q-menu style="width: 150px;">
+        <q-list>
+          <q-item v-close-popup clickable>
+            <q-item-section>
+              <div class="flex items-center no-wrap q-gap-sm">
+                <q-icon name="public" size="18px" />
+                <q-item-label>Public profile</q-item-label>
+              </div>
+            </q-item-section>
+          </q-item>
+          <q-item clickable @click="handleLogout" v-close-popup>
+            <q-item-section>
+              <div class="flex items-center q-gap-sm text-negative">
+                <q-icon name="logout" size="18px" />
+                <q-item-label>Logout</q-item-label>
+              </div>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-btn>
   </div>
 </template>
 

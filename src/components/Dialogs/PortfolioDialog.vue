@@ -47,8 +47,7 @@
         <div class="input-group">
           <label class="input-label">Image</label>
           <ImageUploader
-            :image="formData.imageFile || null"
-            multiple
+            v-bind="formData.imageFile ? { image: formData.imageFile } : {}"
             @on-change="onImageChange"
             @clear="onImageClear"
           />
@@ -111,7 +110,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import ImageUploader from 'src/components/ImageUploader.vue';
+import { ImageUploader } from 'src/components';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 
 defineOptions({
