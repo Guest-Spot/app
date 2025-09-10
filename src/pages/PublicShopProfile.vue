@@ -259,8 +259,8 @@ onErrorShop((error) => {
 
 // Handle shop artists query result
 onResultShopArtists((result) => {
-  if (result.data?.shop?.artists) {
-    artists.value = result.data.shop.artists;
+  if (result.data?.shopArtists) {
+    artists.value = result.data.shopArtists;
   }
 });
 
@@ -280,7 +280,9 @@ onErrorPortfolio((error) => {
 });
 
 onBeforeMount(() => {
-  void loadShopData();
+  setTimeout(() => {
+    void loadShopData();
+  }, 1000);
   void loadPortfolio(null, { documentId: route.params.documentId as string });
   void loadShopArtists(null, { documentId: route.params.documentId as string });
 });

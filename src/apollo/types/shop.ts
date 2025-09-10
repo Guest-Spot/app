@@ -68,31 +68,29 @@ export const SHOP_QUERY = gql`
 
 export const SHOP_ARTISTS_QUERY = gql`
   query ShopArtists($documentId: ID!) {
-    shop(documentId: $documentId) {
-      artists {
-        documentId
-        name
-        description
-        experience
-        avatar {
-          url
-        }
-        links {
-          type
-          value
-        }
-        location {
-          city
-          address
-          latitude
-          longitude
-        }
-        phone
-        email
-        createdAt
-        updatedAt
-        publishedAt
+    shopArtists(documentId: $documentId) {
+      documentId
+      name
+      description
+      experience
+      avatar {
+        url
       }
+      links {
+        type
+        value
+      }
+      location {
+        city
+        address
+        latitude
+        longitude
+      }
+      phone
+      email
+      createdAt
+      updatedAt
+      publishedAt
     }
   }
 `;

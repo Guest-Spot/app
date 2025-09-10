@@ -40,7 +40,5 @@ export interface IGraphQLShopResult {
 }
 
 export interface IGraphQLShopArtistsResult {
-  shop: {
-    artists: IArtist[];
-  }
+  shopArtists: IArtist[];
 }
