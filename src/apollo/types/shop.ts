@@ -71,6 +71,24 @@ export const SHOP_ARTISTS_QUERY = gql`
     shop(documentId: $documentId) {
       artists {
         documentId
+        name
+        description
+        experience
+        avatar {
+          url
+        }
+        links {
+          type
+          value
+        }
+        location {
+          city
+          address
+          latitude
+          longitude
+        }
+        phone
+        email
         createdAt
         updatedAt
         publishedAt

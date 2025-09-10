@@ -66,7 +66,7 @@ const useShops = () => {
         return [];
       }
 
-      return result.value?.artists || [];
+      return result.value?.shop?.artists || [];
     } catch (error) {
       console.error('Error fetching shop artists:', error);
       return [];
