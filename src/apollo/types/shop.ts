@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from "@apollo/client/core";
 
 export const SHOPS_QUERY = gql`
   query Shops($filters: ShopFiltersInput, $sort: [String]) {
@@ -59,6 +59,19 @@ export const SHOP_QUERY = gql`
       createdAt
       updatedAt
       publishedAt
+    }
+  }
+`;
+
+export const SHOP_ARTISTS_QUERY = gql`
+  query ShopArtists($documentId: ID!) {
+    shop(documentId: $documentId) {
+      artists {
+        documentId
+        createdAt
+        updatedAt
+        publishedAt
+      }
     }
   }
 `;

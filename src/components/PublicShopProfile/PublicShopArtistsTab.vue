@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ArtistCard } from '../SearchPage/index';
 import { useRouter } from 'vue-router';
-import type { IArtist } from '../../interfaces/artist';
+import type { IArtist } from 'src/interfaces/artist';
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResult from 'src/components/NoResult.vue';
 

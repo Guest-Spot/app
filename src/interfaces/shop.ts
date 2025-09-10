@@ -1,3 +1,5 @@
+import type { IArtist } from 'src/interfaces/artist';
+
 export interface IOpeningTimes {
   day: string;
   start: string;
@@ -22,3 +24,7 @@ export interface IShop {
   website?: string;
   instagram?: string;
 };
+
+export interface IShopArtist {
+  artists: IArtist[];
+}

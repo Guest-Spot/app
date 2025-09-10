@@ -1,14 +1,12 @@
-import { computed, ref } from "vue";
-import { useShopsStore } from "src/stores/shops";
-import type { IShop } from "src/interfaces/shop";
-import { createClient } from '@supabase/supabase-js';
+import { computed, ref } from 'vue';
+import { useShopsStore } from 'src/stores/shops';
+import type { IShop, IShopArtist } from 'src/interfaces/shop';
 import type { IFilters } from 'src/interfaces/filters';
-import { API_URL, API_KEY } from "src/config/constants";
-import { SHOPS_QUERY, SHOP_QUERY } from 'src/apollo/types/shop';
+import { SHOPS_QUERY, SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { useLazyQuery } from '@vue/apollo-composable';
+import type { IArtist } from 'src/interfaces/artist';
 
 const useShops = () => {
-  const supabase = createClient(API_URL as string, API_KEY as string);
   const shopsStore = useShopsStore();
   const isLoading = ref(false);
 
@@ -62,87 +60,22 @@ const useShops = () => {
     }
   };
 
-  const createShop = async (shop: Omit<IShop, 'id'>) => {
+  const fetchShopArtists = async (shopDocumentId: string): Promise<IArtist[]> => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase
-        .from('shops')
-        .insert([shop])
-        .select();
-
-      if (error) {
-        console.error('Error creating shop:', error);
-        return null;
-      }
-
-      await fetchShops();
-      return data?.[0];
-    } catch (error) {
-      console.error('Error creating shop:', error);
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const updateShop = async (documentId: string, updates: Partial<IShop>) => {
-    isLoading.value = true;
-    try {
-      const { data, error } = await supabase
-        .from('shops')
-        .update(updates)
-        .eq('documentId', documentId)
-        .select();
-
-      if (error) {
-        console.error('Error updating shop:', error);
-        return null;
-      }
-
-      await fetchShops();
-      return data?.[0];
-    } catch (error) {
-      console.error('Error updating shop:', error);
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const deleteShop = async (documentId: string) => {
-    isLoading.value = true;
-    try {
-      const { error } = await supabase
-        .from('shops')
-        .delete()
-        .eq('documentId', documentId);
-
-      if (error) {
-        console.error('Error deleting shop:', error);
-        return false;
-      }
-
-      await fetchShops();
-      return true;
-    } catch (error) {
-      console.error('Error deleting shop:', error);
-      return false;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const fetchShopArtists = async (shopDocumentId: string) => {
-    isLoading.value = true;
-    try {
-      const { data, error } = await supabase.functions.invoke(`shopArtists/${shopDocumentId}`);
+      const { result, load, error } = useLazyQuery<IShopArtist>(SHOP_ARTISTS_QUERY);
+      await load(null, {
+        variables: {
+          documentId: shopDocumentId,
+        },
+      });
 
       if (error) {
         console.error('Error fetching shop artists:', error);
         return [];
       }
-
-      return data || [];
+      console.log('result.value', result.value);
+      return result.value?.artists || [];
     } catch (error) {
       console.error('Error fetching shop artists:', error);
       return [];
@@ -161,9 +94,6 @@ const useShops = () => {
     fetchShops,
     fetchShopByDocumentId,
     fetchShopArtists,
-    createShop,
-    updateShop,
-    deleteShop,
     findShopByDocumentIdInStore
   };
 };
