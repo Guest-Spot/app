@@ -2,6 +2,7 @@ import { computed, ref } from "vue";
 import { useCitiesStore } from "src/stores/cities";
 import { useLazyQuery } from '@vue/apollo-composable';
 import { CITIES_QUERY } from 'src/apollo/types/city';
+import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 
 const useCities = () => {
   const citiesStore = useCitiesStore();
@@ -12,7 +13,7 @@ const useCities = () => {
   const fetchCities = async () => {
     isLoading.value = true;
     try {
-      const { result, load, error } = useLazyQuery<string[]>(CITIES_QUERY);
+      const { result, load, error } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
       await load();
 
       if (error.value) {
@@ -20,8 +21,8 @@ const useCities = () => {
         return [];
       }
 
-      citiesStore.setCities(result.value || []);
-      return result.value;
+      citiesStore.setCities(result.value?.cities || []);
+      return result.value?.cities || [];
     } catch (error) {
       console.error('Error fetching cities:', error);
       return [];
