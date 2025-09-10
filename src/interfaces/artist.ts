@@ -24,3 +24,7 @@ export interface IArtist {
     longitude: string;
   }
 }
+
+export interface IGraphQLArtistsResult {
+  artists: IArtist[];
+}

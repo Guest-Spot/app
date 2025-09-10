@@ -1,3 +1,15 @@
 export interface IFilters {
-  city: string | null;
+  name?: string | null;
+  city?: string | null;
+}
+
+export interface IGraphQLFilters {
+  name?: {
+    contains: string | null;
+  };
+  location?: {
+    city?: {
+      containsi: string | null;
+    };
+  };
 }

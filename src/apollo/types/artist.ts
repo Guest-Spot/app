@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client/core";
 
 export const ARTISTS_QUERY = gql`
-  query Artists($filters: Filters, $params: Params) {
-    artists(filters: $filters, params: $params) {
+  query Artists($filters: ArtistFiltersInput, $sort: [String]) {
+    artists(filters: $filters, sort: $sort) {
       documentId
       name
       description

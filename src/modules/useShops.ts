@@ -5,35 +5,32 @@ import type { IFilters } from 'src/interfaces/filters';
 import { SHOPS_QUERY, SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { useLazyQuery } from '@vue/apollo-composable';
 import type { IArtist } from 'src/interfaces/artist';
+import useHelpers from 'src/modules/useHelpers';
 
 const useShops = () => {
   const shopsStore = useShopsStore();
+  const { convertFiltersToGraphQLFilters } = useHelpers();
+
+  const {
+    load: loadShops,
+    refetch: refetchShops,
+    loading: isLoadingShops,
+    onResult: onResultShops,
+    onError: onErrorShops,
+  } = useLazyQuery<IGraphQLShopsResult>(SHOPS_QUERY);
+
   const isLoading = ref(false);
 
   const shops = computed(() => shopsStore.getShops);
 
-  const fetchShops = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
-    isLoading.value = true;
-    try {
-      const { result, load, error } = useLazyQuery<IGraphQLShopsResult>(SHOPS_QUERY);
-      await load(null, {
-        variables: {
-          filters,
-          sort: params?.sort ? [params.sort.column] : undefined,
-        },
-      });
-
-      if (error.value) {
-        console.error('Error fetching shops:', error.value);
-        return;
-      }
-
-      shopsStore.setShops(result.value?.shops || []);
-    } catch (error) {
-      console.error('Error fetching shops:', error);
-    } finally {
-      isLoading.value = false;
-    }
+  const fetchShops = (filters?: IFilters, params?: { sort?: string[] }) => {
+    const graphQLFilters = convertFiltersToGraphQLFilters(filters || {});
+    void loadShops(null, {
+      variables: {
+        filters: graphQLFilters,
+        sort: params?.sort ? params.sort : undefined,
+      },
+    });
   };
 
   const fetchShopByDocumentId = async (documentId: string) => {
@@ -88,10 +85,20 @@ const useShops = () => {
     return shops.value.find(shop => shop.documentId === documentId);
   };
 
+  onResultShops((result) => {
+    shopsStore.setShops(result.data?.shops || []);
+  });
+
+  onErrorShops((error) => {
+    console.error('Error fetching shops:', error);
+  });
+
   return {
     shops,
     isLoading,
+    isLoadingShops,
     fetchShops,
+    refetchShops,
     fetchShopByDocumentId,
     fetchShopArtists,
     findShopByDocumentIdInStore

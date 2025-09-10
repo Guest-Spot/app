@@ -1,5 +1,5 @@
 import { ApolloClient /*, createHttpLink */ } from '@apollo/client/core'
-import { ApolloClients } from '@vue/apollo-composable'
+import { ApolloClients, provideApolloClient } from '@vue/apollo-composable'
 import { boot } from 'quasar/wrappers'
 import { getClientOptions } from 'src/apollo'
 
@@ -26,6 +26,8 @@ export default boot(
       // clientA,
       // clientB,
     }
+
+    provideApolloClient(apolloClient)
 
     app.provide(ApolloClients, apolloClients)
   }
