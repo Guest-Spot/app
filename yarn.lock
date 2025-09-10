@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@apollo/client@^3.0.0", "@apollo/client@^3.4.13", "@apollo/client@^3.8.6":
+"@apollo/client@^3.8.6":
   version "3.14.0"
   resolved "https://registry.npmjs.org/@apollo/client/-/client-3.14.0.tgz"
   integrity sha512-0YQKKRIxiMlIou+SekQqdCo0ZTHxOcES+K8vKB53cIDpwABNR0P0yRzPgsbgcj3zRJniD93S/ontsnZsCLZrxQ==
@@ -3032,7 +3032,7 @@ graphql-tag@^2.12.6:
   dependencies:
     tslib "^2.1.0"
 
-"graphql@^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0", "graphql@^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^15.0.0 || ^16.0.0", graphql@^16.8.1, graphql@>=15:
+graphql@^16.8.1:
   version "16.11.0"
   resolved "https://registry.npmjs.org/graphql/-/graphql-16.11.0.tgz"
   integrity sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw==
@@ -3942,7 +3942,7 @@ optimism@^0.18.0:
     "@wry/trie" "^0.5.0"
     tslib "^2.3.0"
 
-optionator@^0.9.3, optionator@^0.9.4:
+optionator@^0.9.3:
   version "0.9.4"
   resolved "https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz"
   integrity sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==
@@ -4245,7 +4245,7 @@ qs@6.13.0:
   dependencies:
     side-channel "^1.0.6"
 
-quasar@^2.0.0, quasar@^2.16.0:
+quasar@^2.16.0:
   version "2.18.2"
   resolved "https://registry.npmjs.org/quasar/-/quasar-2.18.2.tgz"
   integrity sha512-SeSAamH4vgYH9alLTdVL2o1fTTwz7VZnS2+gvIwt6qsH3ndrn/tQW64sWE78VSvrHlWINYbXESVF/cvWEuTYxg==
@@ -4296,6 +4296,15 @@ react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
+
+readable-stream@3, readable-stream@^3.4.0:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.2.tgz#56a9b36ea965c00c5a93ef31eb111a0f11056967"
+  integrity sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==
+  dependencies:
+    inherits "^2.0.3"
+    string_decoder "^1.1.1"
+    util-deprecate "^1.0.1"
 
 readable-stream@^2.0.5:
   version "2.3.8"
@@ -5302,6 +5311,11 @@ vue-demi@^0.14.6:
   resolved "https://registry.npmjs.org/vue-demi/-/vue-demi-0.14.10.tgz"
   integrity sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==
 
+vue-draggable-next@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/vue-draggable-next/-/vue-draggable-next-2.3.0.tgz#ba83154f60b8a3c24059c18b8060b72200a4c673"
+  integrity sha512-ymbY0UIwfSdg0iDN/iyNNwUrTqZ/6KbPryzsvTNXBLuDCuOBdNijSK8yynNtmiSj6RapTPQfjLGQdJrZkzBd2w==
+
 vue-eslint-parser@^10.2.0:
   version "10.2.0"
   resolved "https://registry.npmjs.org/vue-eslint-parser/-/vue-eslint-parser-10.2.0.tgz"
@@ -5351,7 +5365,12 @@ vue-tsc@^2.0.29:
     "@volar/typescript" "2.4.15"
     "@vue/language-core" "2.2.12"
 
-"vue@^2.6.0 || ^3.1.0", "vue@^2.7.0 || ^3.5.11", vue@^3.0.0, "vue@^3.0.0-0 || ^2.6.0", vue@^3.2.0, vue@^3.2.25, vue@^3.2.29, vue@^3.4.18, vue@^3.5.0, vue@3.5.19:
+vue3-carousel@^0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/vue3-carousel/-/vue3-carousel-0.16.0.tgz#2b15a2ed83082eb3b91d3375d637c6d90d82d8d2"
+  integrity sha512-IKRKtvHP8gNDRHSzINXwFbJ/Zy2HS+Gv2lXPnAEop6pxsvB17+fz2WQlNZ6ytilLkM5DOu/jXPoDQi/xy17bjg==
+
+vue@^3.4.18:
   version "3.5.19"
   resolved "https://registry.npmjs.org/vue/-/vue-3.5.19.tgz"
   integrity sha512-ZRh0HTmw6KChRYWgN8Ox/wi7VhpuGlvMPrHjIsdRbzKNgECFLzy+dKL5z9yGaBSjCpmcfJCbh3I1tNSRmBz2tg==
