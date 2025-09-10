@@ -103,8 +103,6 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import useArtists from 'src/modules/useArtists';
-import usePortfolio from 'src/modules/usePortfolio';
-import useTrips from 'src/modules/useTrips';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
@@ -113,40 +111,41 @@ import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
 import { CreateBookingDialog } from 'src/components/Dialogs';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IArtist, IGraphQLArtistResult } from 'src/interfaces/artist';
+import { ARTIST_QUERY } from 'src/apollo/types/artist';
+import { useLazyQuery } from '@vue/apollo-composable';
 import { API_URL } from 'src/config/constants';
+import type { IGraphQLTripsResult } from 'src/interfaces/trip';
+import { TRIPS_QUERY } from 'src/apollo/types/trip';
+import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
+import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
+
+
+const {
+  load: loadArtist,
+  onError: onErrorArtist,
+  onResult: onResultArtist,
+} = useLazyQuery<IGraphQLArtistResult>(ARTIST_QUERY);
+const {
+  load: loadTrips,
+  onError: onErrorTrips,
+  onResult: onResultTrips,
+  loading: isLoadingTrips,
+} = useLazyQuery<IGraphQLTripsResult>(TRIPS_QUERY);
+const {
+  load: loadPortfolio,
+  onError: onErrorPortfolio,
+  onResult: onResultPortfolio,
+  loading: isLoadingPortfolio,
+} = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
-const { fetchArtistByDocumentId, findArtistByDocumentIdInStore } = useArtists();
-const { fetchPortfolioByOwnerDocumentId, isLoading: isLoadingPortfolio } = usePortfolio();
-const { fetchTripsByArtistDocumentId, isLoading: isLoadingTrips } = useTrips();
+const { findArtistByDocumentIdInStore } = useArtists();
 const route = useRoute();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';
-
-const TABS: ITab[] = [
-  {
-    label: 'About artist',
-    tab: TAB_ABOUT
-  },
-  {
-    label: 'Portfolio',
-    tab: TAB_PORTFOLIO
-  },
-  {
-    label: 'Trips',
-    tab: TAB_TRIPS
-  }
-];
-
-// Tab management
-const activeTab = ref<ITab>(TABS[0]!);
-
-const setActiveTab = (tab: ITab) => {
-  activeTab.value = tab;
-};
 
 // Artist data from Supabase
 const artistData = ref<IArtist>({
@@ -178,6 +177,31 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
+
+
+const TABS = computed<ITab[]>(() => [
+  {
+    label: 'About artist',
+    tab: TAB_ABOUT
+  },
+  {
+    label: 'Portfolio',
+    tab: TAB_PORTFOLIO,
+    count: portfolioItems.value.length
+  },
+  {
+    label: 'Trips',
+    tab: TAB_TRIPS,
+    count: trips.value.length
+  }
+]);
+
+// Tab management
+const activeTab = ref<ITab>(TABS.value[0]!);
+
+const setActiveTab = (tab: ITab) => {
+  activeTab.value = tab;
+};
 
 // Methods
 const toggleFavorite = () => {
@@ -216,42 +240,65 @@ const handleBookingSubmit = (data: Partial<IBooking>) => {
 };
 
 // Function to load artist data
-const loadArtistData = async () => {
+const loadArtistData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
     const artistInStore = findArtistByDocumentIdInStore(documentId);
     if (artistInStore) {
       artistData.value = artistInStore;
     } else {
-      const data = await fetchArtistByDocumentId(documentId);
-      if (data) {
-        artistData.value = data;
-      }
+      void loadArtist(null, { documentId });
     }
   }
 };
 
 // Function to load portfolio data
-const loadPortfolioData = async () => {
+const loadPortfolioData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
-    const data = await fetchPortfolioByOwnerDocumentId(documentId);
-    if (data && data.length > 0) {
-      portfolioItems.value = data;
-    }
+    void loadPortfolio(null, {
+      ownerDocumentId: documentId,
+    });
   }
 };
 
 // Function to load trips data
-const loadTripsData = async () => {
+const loadTripsData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
-    const data = await fetchTripsByArtistDocumentId(documentId);
-    if (data && data.length > 0) {
-      trips.value = data;
-    }
+    void loadTrips(null, { documentId });
   }
 };
+
+onResultArtist((result) => {
+  if (result.data?.artist) {
+    artistData.value = result.data.artist;
+  }
+});
+
+onErrorArtist((error) => {
+  console.error('Error fetching artist:', error);
+});
+
+onResultTrips((result) => {
+  if (result.data?.trips) {
+    trips.value = result.data.trips;
+  }
+});
+
+onErrorTrips((error) => {
+  console.error('Error fetching trips:', error);
+});
+
+onResultPortfolio((result) => {
+  if (result.data?.portfolios) {
+    portfolioItems.value = result.data.portfolios;
+  }
+});
+
+onErrorPortfolio((error) => {
+  console.error('Error fetching portfolio:', error);
+});
 
 // Load all data on component mount
 onBeforeMount(() => {

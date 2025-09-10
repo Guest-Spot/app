@@ -2,7 +2,7 @@
   <div class="portfolio-item bg-block border-radius-md">
     <div class="portfolio-carousel q-z-1">
       <ImageCarousel
-        :pictures="work.pictures"
+        :pictures="pictures"
         height="200px"
       />
     </div>
@@ -20,9 +20,9 @@
       <p class="portfolio-description text-grey-6">{{ work.description }}</p>
       <div class="portfolio-tags">
         <q-chip
-          v-for="tag in work.tags"
-          :key="tag"
-          :label="tag"
+          v-for="(tag, index) in work.tags"
+          :key="`tag-${index}`"
+          :label="tag.name"
           size="sm"
           class="portfolio-tag bg-block"
         />
@@ -32,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { ImageCarousel } from 'src/components';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 
@@ -44,8 +45,10 @@ interface Emits {
   (e: 'edit', documentId: string): void;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 defineEmits<Emits>();
+
+const pictures = computed(() => props.work.pictures.map((picture) => picture.url));
 
 // Make component available for import
 defineExpose({});

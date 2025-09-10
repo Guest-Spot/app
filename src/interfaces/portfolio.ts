@@ -2,8 +2,12 @@ export interface IPortfolio {
   documentId: string;
   title: string;
   description: string;
-  pictures: string[];
-  tags: string[];
+  pictures: {
+    url: string;
+  }[];
+  tags: {
+    name: string;
+  }[];
   ownerDocumentId: string;
 }
 
@@ -16,7 +20,10 @@ export interface IPortfolioForm {
   tags: string[];
 }
 
+export interface IGraphQLPortfoliosResult {
+  portfolios: IPortfolio[];
+}
+
 export interface IGraphQLPortfolioResult {
   portfolio: IPortfolio[];
 }
-

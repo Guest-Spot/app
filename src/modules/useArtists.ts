@@ -1,12 +1,13 @@
 import { computed, ref } from "vue";
 import { useArtistsStore } from "src/stores/artists";
-import type { IGraphQLArtistsResult, IGraphQLArtistResult } from "src/interfaces/artist";
+import type { IGraphQLArtistsResult } from "src/interfaces/artist";
 import type { IFilters } from 'src/interfaces/filters';
 import { useLazyQuery } from '@vue/apollo-composable';
-import { ARTISTS_QUERY, ARTIST_QUERY } from 'src/apollo/types/artist';
+import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 
 const useArtists = () => {
   const artistsStore = useArtistsStore();
+
   const isLoading = ref(false);
 
   const artists = computed(() => artistsStore.getArtists);
@@ -30,26 +31,6 @@ const useArtists = () => {
     }
   };
 
-  const fetchArtistByDocumentId = async (documentId: string) => {
-    isLoading.value = true;
-    try {
-      const { result, load, error } = useLazyQuery<IGraphQLArtistResult>(ARTIST_QUERY, { documentId });
-      await load();
-
-      if (error.value) {
-        console.error('Error fetching artist by documentId:', error.value);
-        return null;
-      }
-
-      return result.value?.artist;
-    } catch (error) {
-      console.error('Error fetching artist by documentId:', error);
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
   const findArtistByDocumentIdInStore = (documentId: string) => {
     return artists.value.find(artist => artist.documentId === documentId);
   };
@@ -58,7 +39,6 @@ const useArtists = () => {
     artists,
     isLoading,
     fetchArtists,
-    fetchArtistByDocumentId,
     findArtistByDocumentIdInStore
   };
 };

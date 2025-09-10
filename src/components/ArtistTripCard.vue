@@ -27,7 +27,7 @@
         <div class="info-row">
           <q-icon name="location_on" color="grey-6" size="20px" />
           <span class="info-label">Location:</span>
-          <span class="info-value text-grey-6">{{ trip.location.city }} {{ trip.location.address }}</span>
+          <span class="info-value text-grey-6">{{ trip.location.city }}, {{ trip.location.address }}</span>
         </div>
         <div class="info-row">
           <q-icon name="event" color="grey-6" size="20px" />
