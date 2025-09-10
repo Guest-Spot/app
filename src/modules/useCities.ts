@@ -1,10 +1,9 @@
 import { computed, ref } from "vue";
 import { useCitiesStore } from "src/stores/cities";
-import { createClient } from '@supabase/supabase-js';
-import { API_URL, API_KEY } from 'src/config/constants';
+import { useLazyQuery } from '@vue/apollo-composable';
+import { CITIES_QUERY } from 'src/apollo/types/city';
 
 const useCities = () => {
-  const supabase = createClient(API_URL as string, API_KEY as string);
   const citiesStore = useCitiesStore();
   const isLoading = ref(false);
 
@@ -13,17 +12,16 @@ const useCities = () => {
   const fetchCities = async () => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase
-        .from('cities_view')
-        .select('name');
+      const { result, load, error } = useLazyQuery<string[]>(CITIES_QUERY);
+      await load();
 
       if (error) {
         console.error('Error fetching cities:', error);
         return [];
       }
 
-      citiesStore.setCities(data.map((city: { name: string }) => city.name) || []);
-      return data;
+      citiesStore.setCities(result.value || []);
+      return result.value;
     } catch (error) {
       console.error('Error fetching cities:', error);
       return [];
