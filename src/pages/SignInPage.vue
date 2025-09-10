@@ -99,7 +99,7 @@ import useUser from 'src/modules/useUser';
 
 const router = useRouter();
 const $q = useQuasar();
-const { login, isAuthenticated } = useUser();
+const { login, isAuthenticated, fetchMe } = useUser();
 
 const loading = ref(false);
 const showPassword = ref(false);
@@ -115,6 +115,7 @@ const handleLogin = async () => {
     const result = await login(form.value.login, form.value.password);
 
     if (result.success && isAuthenticated.value) {
+      await fetchMe();
       $q.notify({
         type: 'primary',
         message: 'Login successful!',
