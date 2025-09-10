@@ -15,7 +15,7 @@ const useCities = () => {
       const { result, load, error } = useLazyQuery<string[]>(CITIES_QUERY);
       await load();
 
-      if (error) {
+      if (error.value) {
         console.error('Error fetching cities:', error);
         return [];
       }

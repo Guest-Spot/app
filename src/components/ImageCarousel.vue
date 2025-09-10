@@ -8,7 +8,7 @@
       <Slide v-for="(picture, index) in pictures" :key="`key-${picture}-${index}`">
         <div class="carousel-slide">
           <q-img
-            :src="picture"
+            :src="`${API_URL}${picture}`"
             :ratio="16/9"
             class="carousel-img"
             spinner-color="dark"
@@ -40,6 +40,7 @@
 import { computed } from 'vue';
 import 'vue3-carousel/carousel.css';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';
+import { API_URL } from 'src/config/constants';
 
 interface Props {
   pictures?: string[];

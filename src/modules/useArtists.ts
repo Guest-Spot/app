@@ -13,12 +13,12 @@ const useArtists = () => {
 
   const fetchArtists = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
     isLoading.value = true;
-    const { result, load, error } = useLazyQuery<IArtist[]>(ARTISTS_QUERY, { filters, params });
     try {
+      const { result, load, error } = useLazyQuery<IArtist[]>(ARTISTS_QUERY, { filters, params });
       await load();
 
-      if (error) {
-        console.error('Error fetching artists:', error);
+      if (error.value) {
+        console.error('Error fetching artists:', error.value);
         return;
       }
 
@@ -32,12 +32,12 @@ const useArtists = () => {
 
   const fetchArtistByDocumentId = async (documentId: string) => {
     isLoading.value = true;
-    const { result, load, error } = useLazyQuery<IArtist>(ARTIST_QUERY, { documentId });
     try {
+      const { result, load, error } = useLazyQuery<IArtist>(ARTIST_QUERY, { documentId });
       await load();
 
-      if (error) {
-        console.error('Error fetching artist by documentId:', error);
+      if (error.value) {
+        console.error('Error fetching artist by documentId:', error.value);
         return null;
       }
 

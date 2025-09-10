@@ -31,6 +31,14 @@ export interface IShop {
   }[];
 };
 
-export interface IShopArtist {
+export interface IGraphQLShopsResult {
+  shops: IShop[];
+}
+
+export interface IGraphQLShopResult {
+  shop: IShop;
+}
+
+export interface IGraphQLShopArtistsResult {
   artists: IArtist[];
 }

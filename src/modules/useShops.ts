@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
 import { useShopsStore } from 'src/stores/shops';
-import type { IShop, IShopArtist } from 'src/interfaces/shop';
+import type { IGraphQLShopsResult, IGraphQLShopResult, IGraphQLShopArtistsResult } from 'src/interfaces/shop';
 import type { IFilters } from 'src/interfaces/filters';
 import { SHOPS_QUERY, SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -13,9 +13,9 @@ const useShops = () => {
   const shops = computed(() => shopsStore.getShops);
 
   const fetchShops = async (filters?: IFilters, params?: { sort?: { column: string; direction: 'asc' | 'desc' } }) => {
-    const { result, load, error } = useLazyQuery<IShop[]>(SHOPS_QUERY);
     isLoading.value = true;
     try {
+      const { result, load, error } = useLazyQuery<IGraphQLShopsResult>(SHOPS_QUERY);
       await load(null, {
         variables: {
           filters,
@@ -23,12 +23,12 @@ const useShops = () => {
         },
       });
 
-      if (error) {
-        console.error('Error fetching shops:', error);
+      if (error.value) {
+        console.error('Error fetching shops:', error.value);
         return;
       }
 
-      shopsStore.setShops(result.value || []);
+      shopsStore.setShops(result.value?.shops || []);
     } catch (error) {
       console.error('Error fetching shops:', error);
     } finally {
@@ -37,21 +37,21 @@ const useShops = () => {
   };
 
   const fetchShopByDocumentId = async (documentId: string) => {
-    const { result, load, error } = useLazyQuery<IShop>(SHOP_QUERY);
     isLoading.value = true;
     try {
+      const { result, load, error } = useLazyQuery<IGraphQLShopResult>(SHOP_QUERY);
       await load(null, {
         variables: {
           documentId,
         },
       });
 
-      if (error) {
-        console.error('Error fetching shop by documentId:', error);
+      if (error.value) {
+        console.error('Error fetching shop by documentId:', error.value);
         return null;
       }
 
-      return result.value;
+      return result.value?.shop;
     } catch (error) {
       console.error('Error fetching shop by documentId:', error);
       return null;
@@ -63,18 +63,18 @@ const useShops = () => {
   const fetchShopArtists = async (shopDocumentId: string): Promise<IArtist[]> => {
     isLoading.value = true;
     try {
-      const { result, load, error } = useLazyQuery<IShopArtist>(SHOP_ARTISTS_QUERY);
+      const { result, load, error } = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
       await load(null, {
         variables: {
           documentId: shopDocumentId,
         },
       });
 
-      if (error) {
-        console.error('Error fetching shop artists:', error);
+      if (error.value) {
+        console.error('Error fetching shop artists:', error.value);
         return [];
       }
-      console.log('result.value', result.value);
+
       return result.value?.artists || [];
     } catch (error) {
       console.error('Error fetching shop artists:', error);
