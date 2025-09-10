@@ -21,6 +21,7 @@ export const ARTISTS_QUERY = gql`
         longitude
       }
       phone
+      email
       createdAt
       updatedAt
     }
@@ -48,6 +49,7 @@ export const ARTIST_QUERY = gql`
       longitude
     }
     phone
+    email
     createdAt
     updatedAt
     publishedAt

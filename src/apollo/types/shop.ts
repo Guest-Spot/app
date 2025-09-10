@@ -3,12 +3,14 @@ import { gql } from "@apollo/client/core";
 export const SHOPS_QUERY = gql`
   query Shops($filters: ShopFiltersInput, $sort: [String]) {
     shops(filters: $filters, sort: $sort) {
+      documentId
       name
       description
       pictures {
         url
       }
       phone
+      email
       links {
         type
         value
@@ -41,6 +43,7 @@ export const SHOP_QUERY = gql`
         url
       }
       phone
+      email
       links {
         type
         value

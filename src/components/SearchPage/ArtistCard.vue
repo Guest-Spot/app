@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center q-gap-md full-width">
       <q-avatar size="80px" class="bg-block">
         <q-img
-          :src="artist.avatar?.url || 'https://via.placeholder.com/80x80'"
+          :src="`${API_URL}${artist.avatar?.url}`"
           :ratio="0.85"
           class="avatar-img"
           spinner-size="24px"
@@ -42,8 +42,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useFavorites } from '../../modules/useFavorites';
-import type { IArtist } from '../../interfaces/artist';
+import { useFavorites } from 'src/modules/useFavorites';
+import type { IArtist } from 'src/interfaces/artist';
+import { API_URL } from 'src/config/constants';
 
 interface Props {
   artist: IArtist;

@@ -15,3 +15,8 @@ export interface IPortfolioForm {
   imageFile: File | null;
   tags: string[];
 }
+
+export interface IGraphQLPortfolioResult {
+  portfolio: IPortfolio[];
+}
+

@@ -1,25 +1,25 @@
 import { ref } from "vue";
-import type { IPortfolio } from "src/interfaces/portfolio";
-import { createClient } from '@supabase/supabase-js';
-import { API_URL, API_KEY } from 'src/config/constants';
+import type { IGraphQLPortfolioResult } from "src/interfaces/portfolio";
+import { PORTFOLIO_QUERY } from 'src/apollo/types/portfolio';
+import { useLazyQuery } from '@vue/apollo-composable';
 
 const usePortfolio = () => {
-  const supabase = createClient(API_URL as string, API_KEY as string);
   const isLoading = ref(false);
-  const portfolioItems = ref<IPortfolio[]>([]);
+  const { result, load, error } = useLazyQuery<IGraphQLPortfolioResult>(PORTFOLIO_QUERY);
 
   const fetchPortfolioByOwnerDocumentId = async (ownerDocumentId: string) => {
     isLoading.value = true;
     try {
-      const { data, error } = await supabase.functions.invoke(`portfolio/${ownerDocumentId}`);
+      await load(null, {
+        documentId: ownerDocumentId,
+      });
 
       if (error) {
         console.error('Error fetching portfolio by owner documentId:', error);
         return [];
       }
 
-      portfolioItems.value = data || [];
-      return data;
+      return result.value?.portfolio || [];
     } catch (error) {
       console.error('Error fetching portfolio by owner documentId:', error);
       return [];
@@ -28,80 +28,9 @@ const usePortfolio = () => {
     }
   };
 
-  const createPortfolioItem = async (portfolioItem: Omit<IPortfolio, 'documentId'>) => {
-    isLoading.value = true;
-    try {
-      const { data, error } = await supabase
-        .from('portfolio')
-        .insert([portfolioItem])
-        .select();
-
-      if (error) {
-        console.error('Error creating portfolio item:', error);
-        return null;
-      }
-
-      return data?.[0];
-    } catch (error) {
-      console.error('Error creating portfolio item:', error);
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const updatePortfolioItem = async (documentId: string, updates: Partial<IPortfolio>) => {
-    isLoading.value = true;
-    try {
-      const { data, error } = await supabase
-        .from('portfolio')
-        .update(updates)
-        .eq('documentId', documentId)
-        .select();
-
-      if (error) {
-        console.error('Error updating portfolio item:', error);
-        return null;
-      }
-
-      return data?.[0];
-    } catch (error) {
-      console.error('Error updating portfolio item:', error);
-      return null;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const deletePortfolioItem = async (documentId: string) => {
-    isLoading.value = true;
-    try {
-      const { error } = await supabase
-        .from('portfolio')
-        .delete()
-        .eq('documentId', documentId);
-
-      if (error) {
-        console.error('Error deleting portfolio item:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error deleting portfolio item:', error);
-      return false;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
   return {
-    portfolioItems,
     isLoading,
     fetchPortfolioByOwnerDocumentId,
-    createPortfolioItem,
-    updatePortfolioItem,
-    deletePortfolioItem
   };
 };
 
