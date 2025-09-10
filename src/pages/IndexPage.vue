@@ -183,16 +183,16 @@ watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, 
   });
 });
 
-onResultShops((result) => {
-  shopsStore.setShops(result.data?.shops || []);
+onResultShops(({ data, loading }) => {
+  if (!loading) shopsStore.setShops(data?.shops || []);
 });
 
 onErrorShops((error) => {
   console.error('Error fetching shops:', error);
 });
 
-onResultArtists((result) => {
-  artistsStore.setArtists(result.data?.artists || []);
+onResultArtists(({ data, loading }) => {
+  if (!loading) artistsStore.setArtists(data?.artists || []);
 });
 
 onErrorArtists((error) => {
