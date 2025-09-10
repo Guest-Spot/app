@@ -32,11 +32,11 @@ const { formatTime } = useDate();
 const contacts = computed(() => ([
   {
     label: 'City',
-    value: props.shopData.location.city || '',
+    value: props.shopData.location?.city || '',
   },
   {
     label: 'Address',
-    value: props.shopData.location.address || '',
+    value: props.shopData.location?.address || '',
   },
   {
     label: 'Phone',

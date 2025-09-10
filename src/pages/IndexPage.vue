@@ -121,7 +121,6 @@ interface SortSettings {
 const route = useRoute();
 const router = useRouter();
 
-// const { artists, fetchArtists, isLoading: isLoadingArtists } = useArtists();
 const { fetchCities } = useCities();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const shopsStore = useShopsStore();

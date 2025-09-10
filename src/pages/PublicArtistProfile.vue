@@ -102,7 +102,6 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import useArtists from 'src/modules/useArtists';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
@@ -119,7 +118,7 @@ import type { IGraphQLTripsResult } from 'src/interfaces/trip';
 import { TRIPS_QUERY } from 'src/apollo/types/trip';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
-
+import { useArtistsStore } from 'src/stores/artists';
 
 const {
   load: loadArtist,
@@ -140,8 +139,8 @@ const {
 } = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
-const { findArtistByDocumentIdInStore } = useArtists();
 const route = useRoute();
+const artistsStore = useArtistsStore();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -243,7 +242,7 @@ const handleBookingSubmit = (data: Partial<IBooking>) => {
 const loadArtistData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
-    const artistInStore = findArtistByDocumentIdInStore(documentId);
+    const artistInStore = artistsStore.getArtists.find(artist => artist.documentId === documentId);
     if (artistInStore) {
       artistData.value = artistInStore;
     } else {

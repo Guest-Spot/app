@@ -86,13 +86,13 @@
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
           <PublicAboutShopTab
             :shop-data="shopData"
-            :loading="isLoading"
+            :loading="isLoadingShop"
           />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
           <PublicShopArtistsTab
             :artists="artists"
-            :loading="isLoading"
+            :loading="isLoadingShopArtists"
           />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
@@ -118,24 +118,47 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IBooking } from 'src/interfaces/booking';
-import type { IShop } from 'src/interfaces/shop';
+import type { IShop, IGraphQLShopResult, IGraphQLShopArtistsResult } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
-import type { IPortfolio } from 'src/interfaces/portfolio';
+import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
 import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useFavorites } from 'src/modules/useFavorites';
-import useShops from 'src/modules/useShops';
-import usePortfolio from 'src/modules/usePortfolio';
 import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
+import { useLazyQuery } from '@vue/apollo-composable';
+import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
+import { SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
+import { useShopsStore } from 'src/stores/shops';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
-const { fetchShopByDocumentId, fetchShopArtists, isLoading, findShopByDocumentIdInStore } = useShops();
-const { fetchPortfolioByOwnerDocumentId, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
+const shopsStore = useShopsStore();
+
+// Apollo queries
+const {
+  load: loadShop,
+  onError: onErrorShop,
+  onResult: onResultShop,
+  loading: isLoadingShop,
+} = useLazyQuery<IGraphQLShopResult>(SHOP_QUERY);
+
+const {
+  load: loadShopArtists,
+  onError: onErrorShopArtists,
+  onResult: onResultShopArtists,
+  loading: isLoadingShopArtists,
+} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+
+const {
+  load: loadPortfolio,
+  onError: onErrorPortfolio,
+  onResult: onResultPortfolio,
+  loading: isLoadingPortfolio,
+} = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -169,7 +192,7 @@ const portfolioItems = ref<IPortfolio[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
-const shopPictures = computed(() => shopData.value.pictures.map(picture => picture.url));
+const shopPictures = computed(() => shopData.value?.pictures?.map(picture => picture.url));
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -210,46 +233,56 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
   showBookingDialog.value = false;
 };
 
-// Fetch shop data from store or supabase
-const loadShopData = async () => {
+// Fetch shop data from store or via Apollo
+const loadShopData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
-    const shopInStore = findShopByDocumentIdInStore(documentId);
+    const shopInStore = shopsStore.getShops.find(shop => shop.documentId === documentId);
     if (shopInStore) {
       shopData.value = shopInStore;
     } else {
-      const data = await fetchShopByDocumentId(documentId);
-      if (data) {
-        shopData.value = data;
-      }
+      void loadShop(null, { documentId });
     }
   }
 };
 
-// Fetch portfolio data
-const loadPortfolioData = async () => {
-  const documentId = route.params.documentId as string;
-  const data = await fetchPortfolioByOwnerDocumentId(documentId);
-  if (data && data.length > 0) {
-    portfolioItems.value = data;
+// Handle shop query result
+onResultShop((result) => {
+  if (result.data?.shop) {
+    shopData.value = result.data.shop;
   }
-};
+});
 
-// Fetch shop artists data
-const loadShopArtistsData = async () => {
-  const documentId = route.params.documentId as string;
-  if (documentId) {
-    const data = await fetchShopArtists(documentId);
-    if (data && data.length > 0) {
-      artists.value = data;
-    }
+onErrorShop((error) => {
+  console.error('Error fetching shop:', error);
+});
+
+// Handle shop artists query result
+onResultShopArtists((result) => {
+  if (result.data?.shop?.artists) {
+    artists.value = result.data.shop.artists;
   }
-};
+});
+
+onErrorShopArtists((error) => {
+  console.error('Error fetching shop artists:', error);
+});
+
+
+onResultPortfolio((result) => {
+  if (result.data?.portfolios) {
+    portfolioItems.value = result.data.portfolios;
+  }
+});
+
+onErrorPortfolio((error) => {
+  console.error('Error fetching portfolio:', error);
+});
 
 onBeforeMount(() => {
   void loadShopData();
-  void loadPortfolioData();
-  void loadShopArtistsData();
+  void loadPortfolio(null, { documentId: route.params.documentId as string });
+  void loadShopArtists(null, { documentId: route.params.documentId as string });
 });
 </script>
 
