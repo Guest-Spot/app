@@ -175,11 +175,11 @@ const selectArtist = (artist: IArtist) => {
 watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, newSortSettings]) => {
   void refetchShops({
     filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
-    sort: newSortSettings.sortBy ? [newSortSettings.sortBy] : undefined,
+    sort: newSortSettings.sortBy ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`] : undefined,
   });
   void refetchArtists({
     filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
-    sort: newSortSettings.sortBy ? [newSortSettings.sortBy] : undefined,
+    sort: newSortSettings.sortBy ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`] : undefined,
   });
 });
 
@@ -202,11 +202,11 @@ onErrorArtists((error) => {
 onBeforeMount(() => {
   void loadShops(null, {
     filters: convertFiltersToGraphQLFilters({ ...activeFilters.value, name: searchQuery.value || null }),
-    sort: sortSettings.value.sortBy ? [sortSettings.value.sortBy] : undefined,
+    sort: sortSettings.value.sortBy ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`] : undefined,
   });
   void loadArtists(null, {
     filters: convertFiltersToGraphQLFilters({ ...activeFilters.value, name: searchQuery.value || null }),
-    sort: sortSettings.value.sortBy ? [sortSettings.value.sortBy] : undefined,
+    sort: sortSettings.value.sortBy ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`] : undefined,
   });
   void fetchCities();
 });
