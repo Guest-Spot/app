@@ -24,6 +24,7 @@ const useUser = () => {
 
   // Computed getters
   const user = computed(() => userStore.getUser);
+  const profile = computed(() => userStore.getProfile);
   const isShop = computed(() => userStore.getIsShop);
   const isArtist = computed(() => userStore.getIsArtist);
   const isGuest = computed(() => userStore.getIsGuest);
@@ -142,6 +143,7 @@ const useUser = () => {
   return {
     // State
     user,
+    profile,
     isShop,
     isArtist,
     isGuest,
