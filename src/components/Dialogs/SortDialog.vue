@@ -132,16 +132,11 @@ const saveSortToUrl = (sortBy: string, sortDirection: string) => {
 };
 
 const selectSortOption = (value: string) => {
-  if (sortBy.value === value) {
-    // Toggle direction if same option is selected
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    // Set new sort option
+  if (sortBy.value !== value) {
     sortBy.value = value;
   }
-
+  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
   saveSortToUrl(sortBy.value || '', sortDirection.value);
-
   emit('update:sortValue', {
     sortBy: sortBy.value,
     sortDirection: sortDirection.value

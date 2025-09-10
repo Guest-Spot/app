@@ -100,16 +100,18 @@ import NoResult from 'src/components/NoResult.vue';
 import LoadingState from 'src/components/LoadingState.vue';
 import SearchHeader from 'src/components/SearchPage/SearchHeader.vue';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
-import useCities from 'src/modules/useCities';
 import type { IFilters } from 'src/interfaces/filters';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { SHOPS_QUERY } from 'src/apollo/types/shop';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
+import { CITIES_QUERY } from 'src/apollo/types/city';
 import type { IGraphQLShopsResult } from 'src/interfaces/shop';
 import useHelpers from 'src/modules/useHelpers';
 import { useShopsStore } from 'src/stores/shops';
 import { useArtistsStore } from 'src/stores/artists';
+import { useCitiesStore } from 'src/stores/cities';
 import type { IGraphQLArtistsResult } from 'src/interfaces/artist';
+import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 
 // Sort settings
 interface SortSettings {
@@ -121,10 +123,10 @@ interface SortSettings {
 const route = useRoute();
 const router = useRouter();
 
-const { fetchCities } = useCities();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const shopsStore = useShopsStore();
 const artistsStore = useArtistsStore();
+const citiesStore = useCitiesStore();
 
 const {
   load: loadShops,
@@ -141,6 +143,12 @@ const {
   onResult: onResultArtists,
   onError: onErrorArtists,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+
+const {
+  load: loadCities,
+  onResult: onResultCities,
+  onError: onErrorCities,
+} = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
@@ -198,6 +206,14 @@ onErrorArtists((error) => {
   console.error('Error fetching artists:', error);
 });
 
+onResultCities(({ data, loading }) => {
+  if (!loading) citiesStore.setCities(data?.cities || []);
+});
+
+onErrorCities((error) => {
+  console.error('Error fetching cities:', error);
+});
+
 onBeforeMount(() => {
   void loadShops(null, {
     filters: convertFiltersToGraphQLFilters({ ...activeFilters.value, name: searchQuery.value || null }),
@@ -207,6 +223,6 @@ onBeforeMount(() => {
     filters: convertFiltersToGraphQLFilters({ ...activeFilters.value, name: searchQuery.value || null }),
     sort: sortSettings.value.sortBy ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`] : undefined,
   });
-  void fetchCities();
+  void loadCities();
 });
 </script>

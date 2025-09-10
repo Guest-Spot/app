@@ -63,10 +63,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, type PropType } from 'vue';
-import useCities from 'src/modules/useCities';
+import { ref, watch, type PropType, computed } from 'vue';
 import type { IFilters } from 'src/interfaces/filters';
 import { useRouter, useRoute } from 'vue-router';
+import { useCitiesStore } from 'src/stores/cities';
 
 const props = defineProps({
   modelValue: {
@@ -81,10 +81,11 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'update:filterValue', 'clearFilters']);
 
-const { cities } = useCities();
-
+const citiesStore = useCitiesStore();
 const router = useRouter();
 const route = useRoute();
+
+const cities = computed(() => citiesStore.getCities);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
