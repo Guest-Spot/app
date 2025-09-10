@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 
 export const PORTFOLIO_QUERY = gql`
-  query Portfolio($documentId: String!) {
+  query Portfolio($documentId: ID!) {
     portfolio(documentId: $documentId) {
       documentId
       title

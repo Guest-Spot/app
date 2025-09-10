@@ -26,10 +26,8 @@ const useShops = () => {
   const fetchShops = (filters?: IFilters, params?: { sort?: string[] }) => {
     const graphQLFilters = convertFiltersToGraphQLFilters(filters || {});
     void loadShops(null, {
-      variables: {
-        filters: graphQLFilters,
-        sort: params?.sort ? params.sort : undefined,
-      },
+      filters: graphQLFilters,
+      sort: params?.sort ? params.sort : undefined,
     });
   };
 
@@ -38,9 +36,7 @@ const useShops = () => {
     try {
       const { result, load, error } = useLazyQuery<IGraphQLShopResult>(SHOP_QUERY);
       await load(null, {
-        variables: {
-          documentId,
-        },
+        documentId,
       });
 
       if (error.value) {
@@ -62,9 +58,7 @@ const useShops = () => {
     try {
       const { result, load, error } = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
       await load(null, {
-        variables: {
-          documentId: shopDocumentId,
-        },
+        documentId: shopDocumentId,
       });
 
       if (error.value) {
