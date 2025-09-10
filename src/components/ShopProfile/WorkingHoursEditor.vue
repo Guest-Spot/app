@@ -66,23 +66,23 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
 import { TimePickerDialog } from 'src/components/Dialogs';
-import type { IOpeningTimes } from 'src/interfaces/shop';
+import type { IOpeningHours } from 'src/interfaces/shop';
 import { OpeningTimesDays } from 'src/interfaces/enums';
 
 
 
 interface Props {
-  modelValue: IOpeningTimes[] | [];
+  modelValue: IOpeningHours[] | [];
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: IOpeningTimes[]): void;
+  (e: 'update:modelValue', value: IOpeningHours[]): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const defaultHours: IOpeningTimes[] = [
+const defaultHours: IOpeningHours[] = [
   { day: OpeningTimesDays.mon, start: '', end: '' },
   { day: OpeningTimesDays.tue, start: '', end: '' },
   { day: OpeningTimesDays.wed, start: '', end: '' },
@@ -93,7 +93,7 @@ const defaultHours: IOpeningTimes[] = [
 ];
 
 // Local reactive copy to allow editing
-const localHours = reactive<IOpeningTimes[]>(props.modelValue?.length ? [...props.modelValue] : [...defaultHours]);
+const localHours = reactive<IOpeningHours[]>(props.modelValue?.length ? [...props.modelValue] : [...defaultHours]);
 
 // Dialog visibility per day
 const dialogs = reactive(

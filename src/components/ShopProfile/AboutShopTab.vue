@@ -198,7 +198,7 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent } from 'vue';
 import { ImageUploader, ThemeSettings } from 'src/components';
-import type { IOpeningTimes } from 'src/interfaces/shop';
+import type { IOpeningHours } from 'src/interfaces/shop';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
@@ -213,14 +213,14 @@ const shopData = ref({
   email: '',
   dateOpened: '',
   instagram: '',
-  openingTimes: [] as IOpeningTimes[],
+  openingTimes: [] as IOpeningHours[],
   website: '',
 });
 
 // Computed property for opening times to handle v-model
 const openingTimesModel = computed({
   get: () => shopData.value.openingTimes || [],
-  set: (value: IOpeningTimes[]) => {
+  set: (value: IOpeningHours[]) => {
     shopData.value.openingTimes = value;
   }
 });

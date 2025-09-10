@@ -1,6 +1,7 @@
 import type { IArtist } from 'src/interfaces/artist';
+import type { LinkType } from 'src/interfaces/enums';
 
-export interface IOpeningTimes {
+export interface IOpeningHours {
   day: string;
   start: string;
   end: string;
@@ -8,21 +9,26 @@ export interface IOpeningTimes {
 
 export interface IShop {
   documentId: string;
-  username: string;
+  createdAt: string;
+  updatedAt: string;
   name: string;
-  city: string;
-  lat?: number;
-  lng?: number;
-  address: string;
+  location: {
+    city: string;
+    address: string;
+    latitude: string;
+    longitude: string;
+  };
   description: string;
-  pictures: string[];
+  pictures: {
+    url: string;
+  }[];
   phone?: string;
   email?: string;
-  dateOpened?: string;
-  openingTimes?: IOpeningTimes[];
-  pricing?: string;
-  website?: string;
-  instagram?: string;
+  openingHours?: IOpeningHours[];
+  links?: {
+    type: LinkType;
+    value: string;
+  }[];
 };
 
 export interface IShopArtist {

@@ -198,7 +198,7 @@ onMounted(() => {
       shop: {
         documentId: '1',
         name: 'Tattoo Studio',
-        pictures: ['shops/shop1.jpg'],
+        pictures: [{ url: 'shops/shop1.jpg' }],
       },
     },
     {
@@ -218,7 +218,7 @@ onMounted(() => {
       shop: {
         documentId: '3',
         name: 'Art Gallery',
-        pictures: ['shops/shop2.jpg'],
+        pictures: [{ url: 'shops/shop2.jpg' }],
       },
     },
     {
@@ -238,7 +238,7 @@ onMounted(() => {
       shop: {
         documentId: '3',
         name: 'Art Gallery',
-        pictures: ['shops/shop3.webp'],
+        pictures: [{ url: 'shops/shop3.webp' }],
       },
     },
     {
@@ -258,7 +258,7 @@ onMounted(() => {
       shop: {
         documentId: '5',
         name: 'Tattoo Studio',
-        pictures: ['shops/shop4.jpg'],
+        pictures: [{ url: 'shops/shop4.jpg' }],
       },
     },
   ];

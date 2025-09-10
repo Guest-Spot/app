@@ -5,7 +5,7 @@
         <q-img
           v-if="shop?.pictures?.[0]"
           class="full-width"
-          :src="shop.pictures[0]"
+          :src="shop.pictures[0].url"
           fit="cover"
           spinner-color="dark"
           spinner-size="16px"

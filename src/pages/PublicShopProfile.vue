@@ -29,8 +29,8 @@
         <!-- Pictures Carousel or Avatar -->
         <div class="profile-carousel">
           <ImageCarousel
-            v-if="shopData.pictures && shopData.pictures.length > 0"
-            :pictures="shopData.pictures"
+            v-if="shopPictures && shopPictures.length > 0"
+            :pictures="shopPictures"
             height="300px"
           />
           <q-skeleton v-else height="300px" square />
@@ -144,18 +144,21 @@ const TAB_PORTFOLIO = 'portfolio';
 // Shop data from Supabase
 const shopData = ref<IShop>({
   documentId: '',
-  username: '',
-  city: '',
-  address: '',
+  createdAt: '',
+  updatedAt: '',
+  location: {
+    city: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+  },
   description: '',
   name: '',
   phone: '',
   email: '',
-  dateOpened: '',
-  instagram: '',
+  openingHours: [],
+  links: [],
   pictures: [],
-  lat: 0,
-  lng: 0,
 });
 
 // Artists data
@@ -166,6 +169,7 @@ const portfolioItems = ref<IPortfolio[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
+const shopPictures = computed(() => shopData.value.pictures.map(picture => picture.url));
 
 const TABS = computed<ITab[]>(() => [
   {

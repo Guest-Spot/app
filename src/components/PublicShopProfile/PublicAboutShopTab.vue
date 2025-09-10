@@ -9,7 +9,6 @@
       class="opening-times-card"
     />
     <InfoCard title="Contacts" icon="location_on" :data="contacts" />
-    <InfoCard title="Additional Info" icon="add_circle" :data="additionalInfo" />
     <InfoCard title="Links" icon="link" :data="links" />
   </div>
 </template>
@@ -17,7 +16,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType, OpeningTimesDays } from 'src/interfaces/enums';
+import { InfoItemType, LinkType, OpeningTimesDays } from 'src/interfaces/enums';
 import type { IShop } from 'src/interfaces/shop';
 import useDate from 'src/modules/useDate';
 
@@ -28,16 +27,16 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { formatTime, formatDate } = useDate();
+const { formatTime } = useDate();
 
 const contacts = computed(() => ([
   {
     label: 'City',
-    value: props.shopData.city || '',
+    value: props.shopData.location.city || '',
   },
   {
     label: 'Address',
-    value: props.shopData.address || '',
+    value: props.shopData.location.address || '',
   },
   {
     label: 'Phone',
@@ -52,7 +51,7 @@ const contacts = computed(() => ([
 ]));
 
 const workingHours = computed(() => {
-  const times = [...(props.shopData.openingTimes || [])];
+  const times = [...(props.shopData.openingHours || [])];
   times.sort((a, b) => {
     const dayA = a.day as keyof typeof OpeningTimesDays;
     const dayB = b.day as keyof typeof OpeningTimesDays;
@@ -68,17 +67,10 @@ const workingHours = computed(() => {
   }));
 });
 
-const additionalInfo = computed(() => ([
-  {
-    label: 'Date Opened',
-    value: formatDate(props.shopData.dateOpened || '') || '',
-  },
-]));
-
 const links = computed(() => ([
   {
     label: 'Instagram',
-    value: props.shopData.instagram || '',
+    value: props.shopData.links?.find(link => link.type === LinkType.Instagram)?.value || '',
     type: InfoItemType.Link,
   }
 ].filter(link => !!link.value)));

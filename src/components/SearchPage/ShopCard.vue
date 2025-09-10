@@ -1,7 +1,7 @@
 <template>
   <div class="shop-card bg-block border-radius-md" @click="$emit('click', shop)">
     <div class="shop-image">
-      <ImageCarousel :pictures="shop.pictures" />
+      <ImageCarousel :pictures="shopPictures" />
     </div>
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
@@ -18,7 +18,7 @@
       <div class="shop-info">
         <div class="shop-location text-grey-6">
           <q-icon name="location_on" size="16px" />
-          <span>{{ shop.city }} {{ shop.address }}</span>
+          <span>{{ shop.location.city }} {{ shop.location.address }}</span>
         </div>
         <div class="shop-hours text-grey-6">
           <q-icon name="schedule" size="16px" />
@@ -53,13 +53,14 @@ const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const { formatTime } = useDate();
 
 const isFavorite = computed(() => isShopFavorite(props.shop.documentId));
+const shopPictures = computed(() => props.shop.pictures.map(picture => picture.url));
 
 const openingTimeText = computed(() => {
   const dayIndex = new Date().getDay();
   const todayKey = Object.entries(OpeningTimesIndexDays).find(
     ([, value]) => Number(value) === dayIndex
   )?.[0] as keyof typeof OpeningTimesIndexDays | undefined;
-  const todayTime = props.shop.openingTimes?.find(time => time.day === todayKey);
+  const todayTime = props.shop.openingHours?.find(time => time.day === todayKey);
   if (todayTime?.start && todayTime?.end) {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
   }
@@ -69,21 +70,16 @@ const openingTimeText = computed(() => {
 const toggleFavorite = () => {
   const shopData = {
     documentId: props.shop.documentId,
-    username: props.shop.username,
+    createdAt: props.shop.createdAt,
+    updatedAt: props.shop.updatedAt,
     name: props.shop.name,
-    city: props.shop.city,
-    address: props.shop.address,
+    location: props.shop.location,
     description: props.shop.description,
     pictures: props.shop.pictures,
-    lat: props.shop.lat || 0,
-    lng: props.shop.lng || 0,
     ...(props.shop.phone && { phone: props.shop.phone }),
     ...(props.shop.email && { email: props.shop.email }),
-    ...(props.shop.dateOpened && { dateOpened: props.shop.dateOpened }),
-    ...(props.shop.openingTimes && { openingTimes: props.shop.openingTimes }),
-    ...(props.shop.pricing && { pricing: props.shop.pricing }),
-    ...(props.shop.website && { website: props.shop.website }),
-    ...(props.shop.instagram && { instagram: props.shop.instagram })
+    ...(props.shop.openingHours && { openingHours: props.shop.openingHours }),
+    ...(props.shop.links && { links: props.shop.links }),
   };
   toggleShopFavorite(shopData);
   emit('favorite', props.shop.documentId);
