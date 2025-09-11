@@ -151,7 +151,6 @@ const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
 
-// Shop data from Supabase
 const shopData = ref<IShop>({
   documentId: '',
   createdAt: '',

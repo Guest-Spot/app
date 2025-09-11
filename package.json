@@ -46,7 +46,6 @@
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@quasar/extras": "^1.16.4",
-    "@supabase/supabase-js": "^2.56.1",
     "@vue/apollo-composable": "^4.0.0",
     "axios": "^1.2.1",
     "browser-image-compression": "^2.0.2",

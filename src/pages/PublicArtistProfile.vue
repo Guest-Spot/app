@@ -143,7 +143,6 @@ const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';
 
-// Artist data from Supabase
 const artistData = ref<IArtist>({
   documentId: '',
   createdAt: '',

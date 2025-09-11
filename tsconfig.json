@@ -1,4 +1,3 @@
 {
-  "extends": "./.quasar/tsconfig.json",
-  "exclude": ["supabase"]
+  "extends": "./.quasar/tsconfig.json"
 }
