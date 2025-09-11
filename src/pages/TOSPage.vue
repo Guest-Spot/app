@@ -24,33 +24,39 @@ import { ref } from 'vue';
 const tosSections = ref([
   {
     heading: '1. Acceptance of Terms',
-    content: 'By accessing and using GuestSpot, you accept and agree to be bound by the terms and provision of this agreement.'
+    content:
+      'By accessing and using GuestSpot, you accept and agree to be bound by the terms and provision of this agreement.',
   },
   {
     heading: '2. Use License',
-    content: 'Permission is granted to temporarily download one copy of the materials on GuestSpot\'s website for personal, non-commercial transitory viewing only.'
+    content:
+      "Permission is granted to temporarily download one copy of the materials on GuestSpot's website for personal, non-commercial transitory viewing only.",
   },
   {
     heading: '3. Disclaimer',
-    content: 'The materials on GuestSpot\'s website are provided on an \'as is\' basis. GuestSpot makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.'
+    content:
+      "The materials on GuestSpot's website are provided on an 'as is' basis. GuestSpot makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.",
   },
   {
     heading: '4. Limitations',
-    content: 'In no event shall GuestSpot or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on GuestSpot\'s website.'
+    content:
+      "In no event shall GuestSpot or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on GuestSpot's website.",
   },
   {
     heading: '5. Revisions and Errata',
-    content: 'The materials appearing on GuestSpot\'s website could include technical, typographical, or photographic errors. GuestSpot does not warrant that any of the materials on its website are accurate, complete or current.'
+    content:
+      "The materials appearing on GuestSpot's website could include technical, typographical, or photographic errors. GuestSpot does not warrant that any of the materials on its website are accurate, complete or current.",
   },
   {
     heading: '6. Links',
-    content: 'GuestSpot has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by GuestSpot of the site.'
-  }
+    content:
+      'GuestSpot has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by GuestSpot of the site.',
+  },
 ]);
 
 // Terms of Service page component
 defineOptions({
-  name: 'TOSPage'
+  name: 'TOSPage',
 });
 </script>
 

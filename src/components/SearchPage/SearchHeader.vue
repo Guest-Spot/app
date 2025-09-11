@@ -1,9 +1,6 @@
 <template>
   <div class="search-header">
-    <ListHeader
-      :title="title"
-      class="q-mb-md"
-    >
+    <ListHeader :title="title" class="q-mb-md">
       <div class="flex q-gap-sm">
         <q-btn
           icon="search"
@@ -55,5 +52,4 @@ defineEmits<Emits>();
 defineProps<Props>();
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

@@ -13,7 +13,9 @@ const LIGHT_THEME = 'light';
 const useTheme = () => {
   const themeStore = useThemeStore();
 
-  const accentColor = computed<string>(() => themeStore.getAccentColor || COLORS.DEFAULT_ACCENT_COLOR);
+  const accentColor = computed<string>(
+    () => themeStore.getAccentColor || COLORS.DEFAULT_ACCENT_COLOR,
+  );
   const isDark = computed<boolean>(() => themeStore.getIsDark);
 
   const setAccentColor = (color: string) => {
@@ -43,14 +45,14 @@ const useTheme = () => {
       setAccentColor(savedAccentColor);
       themeStore.setAccentColor(savedAccentColor);
     }
-  }
+  };
 
   return {
     accentColor,
     isDark,
     setAccentColor,
     init,
-    setDarkTheme
+    setDarkTheme,
   };
 };
 

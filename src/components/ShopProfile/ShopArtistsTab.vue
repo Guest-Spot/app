@@ -18,7 +18,7 @@
       <div class="artists-grid" v-if="artists.length">
         <ArtistCard
           v-for="artist in artists"
-          :key="artist.uuid"
+          :key="artist.documentId"
           :artist="artist"
           @click="handleArtistClick"
           @favorite="handleFavoriteToggle"
@@ -42,10 +42,7 @@
     </div>
 
     <!-- Invite Artist Dialog -->
-    <ArtistInviteDialog
-      v-model="showAddArtistDialog"
-      :shop-id="shopId"
-    />
+    <ArtistInviteDialog v-model="showAddArtistDialog" :shop-id="shopId" />
   </div>
 </template>
 
@@ -58,27 +55,39 @@ import type { IArtist } from 'src/interfaces/artist';
 // Artists data
 const artists = ref<IArtist[]>([
   {
-    uuid: '1',
-    created_at: '2021-01-01',
-    username: 'john_doe',
+    documentId: '1',
+    createdAt: '2021-01-01',
+    updatedAt: '2021-01-01',
     name: 'John Doe',
-    bio: 'Experienced tattoo artist specializing in traditional American style tattoos.',
-    avatar: 'artists/artist1.jpeg',
-    city: 'San Francisco, CA',
-    address: '123 Main St, San Francisco, CA',
-    experience: 8
+    description: 'Experienced tattoo artist specializing in traditional American style tattoos.',
+    avatar: {
+      url: 'artists/artist1.jpeg',
+    },
+    location: {
+      city: 'San Francisco, CA',
+      address: '123 Main St, San Francisco, CA',
+      latitude: '37.7749',
+      longitude: '-122.4194',
+    },
+    experience: 8,
   },
   {
-    uuid: '2',
-    created_at: '2021-01-02',
-    username: 'jane_smith',
+    documentId: '2',
+    createdAt: '2021-01-02',
+    updatedAt: '2021-01-02',
     name: 'Jane Smith',
-    bio: 'Creative artist known for beautiful watercolor style tattoos.',
-    avatar: 'artists/artist2.jpg',
-    city: 'New York, NY',
-    address: '456 Main St, New York, NY',
-    experience: 5
-  }
+    description: 'Creative artist known for beautiful watercolor style tattoos.',
+    avatar: {
+      url: 'artists/artist2.jpg',
+    },
+    location: {
+      city: 'New York, NY',
+      address: '456 Main St, New York, NY',
+      latitude: '40.7128',
+      longitude: '-74.0060',
+    },
+    experience: 5,
+  },
 ]);
 
 // Dialog state
@@ -92,14 +101,14 @@ const handleArtistClick = (artist: IArtist) => {
   console.log('Artist clicked:', artist);
 };
 
-const handleFavoriteToggle = (artistUuid: string) => {
+const handleFavoriteToggle = (artistDocumentId: string) => {
   // Handle favorite toggle - could update local state or make API call
-  console.log('Favorite toggled for artist:', artistUuid);
+  console.log('Favorite toggled for artist:', artistDocumentId);
 };
 
 // Expose data for parent component
 defineExpose({
-  artists
+  artists,
 });
 </script>
 
@@ -139,6 +148,4 @@ defineExpose({
 .empty-description {
   margin: 0 0 24px 0;
 }
-
-
 </style>

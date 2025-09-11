@@ -1,12 +1,15 @@
 export interface IPortfolio {
-  uuid: string;
+  documentId: string;
   title: string;
   description: string;
-  pictures: string[];
-  tags: string[];
-  ownerUuid: string;
+  pictures: {
+    url: string;
+  }[];
+  tags: {
+    name: string;
+  }[];
+  ownerDocumentId: string;
 }
-
 
 export interface IPortfolioForm {
   title: string;
@@ -14,4 +17,12 @@ export interface IPortfolioForm {
   imageUrl: string;
   imageFile: File | null;
   tags: string[];
+}
+
+export interface IGraphQLPortfoliosResult {
+  portfolios: IPortfolio[];
+}
+
+export interface IGraphQLPortfolioResult {
+  portfolio: IPortfolio[];
 }

@@ -1,8 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" position="bottom">
     <q-card class="trip-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">{{ title }}</div>
@@ -21,11 +18,11 @@
         <div class="input-group">
           <label class="input-label">Location</label>
           <q-input
-            v-model="formData.location"
+            v-model="formData.location.city"
             outlined
             dense
             rounded
-            placeholder="Enter trip location"
+            placeholder="Enter trip city"
             class="custom-input"
           />
         </div>
@@ -46,12 +43,7 @@
             <template #append>
               <q-icon name="event" class="cursor-pointer" @click.stop="dateProxy?.show()" />
             </template>
-            <q-popup-proxy
-              ref="dateProxy"
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
+            <q-popup-proxy ref="dateProxy" cover transition-show="scale" transition-hide="scale">
               <q-date
                 v-model="formData.date"
                 mask="YYYY-MM-DD"
@@ -77,7 +69,11 @@
               @click.stop="startTimeProxy?.show()"
             >
               <template #append>
-                <q-icon name="schedule" class="cursor-pointer" @click.stop="startTimeProxy?.show()" />
+                <q-icon
+                  name="schedule"
+                  class="cursor-pointer"
+                  @click.stop="startTimeProxy?.show()"
+                />
               </template>
               <q-popup-proxy
                 ref="startTimeProxy"
@@ -191,7 +187,7 @@ interface Props {
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
   (e: 'confirm', trip: ITripForm): void;
-  (e: 'delete', tripUuid: string): void;
+  (e: 'delete', tripDocumentId: string): void;
 }
 
 const props = defineProps<Props>();
@@ -205,14 +201,20 @@ const endTimeProxy = ref();
 const dateProxy = ref();
 
 // Watch for external changes to modelValue
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
 // Watch for external changes to trip
-watch(() => props.trip, (newValue) => {
-  formData.value = { ...newValue };
-});
+watch(
+  () => props.trip,
+  (newValue) => {
+    formData.value = { ...newValue };
+  },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -237,22 +239,21 @@ const deleteTrip = () => {
     cancel: {
       color: 'grey-9',
       rounded: true,
-      title: 'Cancel'
+      title: 'Cancel',
     },
     ok: {
       color: 'negative',
       rounded: true,
-      label: 'Delete'
-    }
+      label: 'Delete',
+    },
   }).onOk(() => {
-    emit('delete', formData.value.uuid);
+    emit('delete', formData.value.documentId);
     isVisible.value = false;
   });
 };
 
 // Computed property for title
-const title = computed(() => props.isEditing ? 'Edit Trip' : 'Add New Trip');
-
+const title = computed(() => (props.isEditing ? 'Edit Trip' : 'Add New Trip'));
 </script>
 
 <style scoped lang="scss">

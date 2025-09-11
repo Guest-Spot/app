@@ -12,23 +12,23 @@
   --text-secondary: #{$text-secondary};
   --border-light: #{$border-light};
   --text-dark: #{$text-dark};
-  --bg-block-rgb: 38, 33, 26;
+  --bg-block-rgb: 255, 255, 255;
   --border-radius-xs: 4px;
   --border-radius-sm: 8px;
   --border-radius-md: 16px;
   --border-radius-lg: 24px;
   --border-radius-xl: 32px;
-  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
   // Accend Colors
-  --red-accent: #FF3D00;
-  --blue-accent: #1976D2;
-  --green-accent: #4CAF50;
-  --orange-accent: #FF9800;
-  --purple-accent: #9C27B0;
+  --red-accent: #ff3d00;
+  --blue-accent: #1976d2;
+  --green-accent: #4caf50;
+  --orange-accent: #ff9800;
+  --purple-accent: #9c27b0;
   --teal-accent: #009688;
-  --pink-accent: #E91E63;
-  --indigo-accent: #3F51B5;
+  --pink-accent: #e91e63;
+  --indigo-accent: #3f51b5;
 
   // Accent RGB Colors
   --red-accent-rgb: 255, 61, 0;
@@ -39,6 +39,10 @@
   --teal-accent-rgb: 0, 150, 136;
   --pink-accent-rgb: 233, 30, 99;
   --indigo-accent-rgb: 63, 81, 181;
+}
+
+.body--dark {
+  --bg-block-rgb: 44, 44, 44;
 }
 
 body.q-ios-padding .q-dialog__inner {
@@ -58,19 +62,16 @@ a {
   overflow: auto;
 }
 
-*::-webkit-scrollbar-track
-{
+*::-webkit-scrollbar-track {
   display: none;
 }
 
-*::-webkit-scrollbar
-{
+*::-webkit-scrollbar {
   display: none;
 }
 
-*::-webkit-scrollbar-thumb
-{
-	display: none;
+*::-webkit-scrollbar-thumb {
+  display: none;
 }
 
 .q-z-1 {
@@ -125,7 +126,7 @@ a {
 }
 
 .bg-block {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(var(--bg-block-rgb), 0.6);
   backdrop-filter: blur(10px);
   box-shadow: var(--box-shadow);
 }
@@ -143,11 +144,13 @@ a {
   overflow: hidden;
 }
 
-.q-notification__badge--top-left, .q-notification__badge--bottom-left {
+.q-notification__badge--top-left,
+.q-notification__badge--bottom-left {
   left: 0;
 }
 
-.q-notification__badge--top-left, .q-notification__badge--top-right {
+.q-notification__badge--top-left,
+.q-notification__badge--top-right {
   top: 14px;
 }
 
@@ -169,8 +172,11 @@ a {
   border: 1px solid var(--shadow-light);
 }
 
-.body--dark {
-  .bg-block {
-    background: rgba(44, 44, 44, 0.6);
-  }
+.q-textarea.q-field--outlined.q-field--rounded .q-field__control {
+  border-radius: var(--border-radius-md);
+}
+
+.q-field--dark .q-field__control:before,
+.q-field--dark .q-field__control:hover:before {
+  border-color: rgba(255, 255, 255, 0.2);
 }

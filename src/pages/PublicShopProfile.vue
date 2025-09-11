@@ -3,12 +3,7 @@
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
-      <q-btn
-        round
-        flat
-        @click="$router.back()"
-        class="bg-block absolute-top-left q-z-2 back-btn"
-      >
+      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
@@ -25,12 +20,11 @@
       </q-btn>
 
       <div class="profile-info-container flex column">
-
         <!-- Pictures Carousel or Avatar -->
         <div class="profile-carousel">
           <ImageCarousel
-            v-if="shopData.pictures && shopData.pictures.length > 0"
-            :pictures="shopData.pictures"
+            v-if="shopPictures && shopPictures.length > 0"
+            :pictures="shopPictures"
             height="300px"
           />
           <q-skeleton v-else height="300px" square />
@@ -42,7 +36,9 @@
             <div class="flex column items-center full-width">
               <template v-if="shopData.name || shopData.description">
                 <span class="full-name text-h6">{{ shopData.name }}</span>
-                <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
+                <span class="status text-body2 text-center text-grey-6">{{
+                  shopData.description
+                }}</span>
               </template>
               <template v-else>
                 <q-skeleton type="text" width="50%" height="20px" />
@@ -56,7 +52,7 @@
                 text-color="primary"
                 unelevated
                 rounded
-                :disable="!shopData.uuid"
+                :disable="!shopData.documentId"
                 @click="openBookingDialog"
               >
                 <span class="text-body2">Booking request</span>
@@ -70,36 +66,27 @@
 
     <div class="container">
       <!-- Navigation Tabs -->
-       <div class="full-width flex justify-center">
-         <TabsComp
-           :tabs="TABS"
-           :activeTab="activeTab"
-           send-initial-tab
-           @setActiveTab="setActiveTab"
-           :disable="!shopData.uuid"
-         />
-       </div>
+      <div class="full-width flex justify-center">
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          send-initial-tab
+          @setActiveTab="setActiveTab"
+          :disable="!shopData.documentId"
+        />
+      </div>
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutShopTab
-            :shop-data="shopData"
-            :loading="isLoading"
-          />
+          <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <PublicShopArtistsTab
-            :artists="artists"
-            :loading="isLoading"
-          />
+          <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-          <PublicShopPortfolioTab
-            :portfolio-items="portfolioItems"
-            :loading="isLoadingPortfolio"
-          />
+          <PublicShopPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
         </div>
       </div>
     </div>
@@ -107,7 +94,7 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-uuid="shopData.uuid"
+      :shop-documentId="shopData.documentId"
       type="shop-to-artist"
       @submit="handleBookingSubmit"
     />
@@ -117,45 +104,70 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import type { IArtist } from 'src/interfaces/artist';
 import type { IBooking } from 'src/interfaces/booking';
-import type { IShop } from 'src/interfaces/shop';
-import type { IPortfolio } from 'src/interfaces/portfolio';
+import type { IShop, IGraphQLShopResult, IGraphQLShopArtistsResult } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
+import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
 import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopPortfolioTab.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useFavorites } from 'src/modules/useFavorites';
-import useShops from 'src/modules/useShops';
-import usePortfolio from 'src/modules/usePortfolio';
 import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
+import { useLazyQuery } from '@vue/apollo-composable';
+import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
+import { SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
+import { useShopsStore } from 'src/stores/shops';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
-const { fetchShopByUuid, fetchShopArtists, isLoading, findShopByUuidInStore } = useShops();
-const { fetchPortfolioByOwnerUuid, isLoading: isLoadingPortfolio } = usePortfolio();
 const route = useRoute();
+const shopsStore = useShopsStore();
+
+// Apollo queries
+const {
+  load: loadShop,
+  onError: onErrorShop,
+  onResult: onResultShop,
+  loading: isLoadingShop,
+} = useLazyQuery<IGraphQLShopResult>(SHOP_QUERY);
+
+const {
+  load: loadShopArtists,
+  onError: onErrorShopArtists,
+  onResult: onResultShopArtists,
+  loading: isLoadingShopArtists,
+} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+
+const {
+  load: loadPortfolio,
+  onError: onErrorPortfolio,
+  onResult: onResultPortfolio,
+  loading: isLoadingPortfolio,
+} = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
 
-// Shop data from Supabase
 const shopData = ref<IShop>({
-  uuid: '',
-  username: '',
-  city: '',
-  address: '',
+  documentId: '',
+  createdAt: '',
+  updatedAt: '',
+  location: {
+    city: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+  },
   description: '',
   name: '',
   phone: '',
   email: '',
-  dateOpened: '',
-  instagram: '',
+  openingHours: [],
+  links: [],
   pictures: [],
-  lat: 0,
-  lng: 0,
 });
 
 // Artists data
@@ -165,23 +177,24 @@ const artists = ref<IArtist[]>([]);
 const portfolioItems = ref<IPortfolio[]>([]);
 
 // Computed properties for favorites
-const isFavorite = computed(() => isShopFavorite(shopData.value.uuid));
+const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
+const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
 
 const TABS = computed<ITab[]>(() => [
   {
     label: 'About shop',
-    tab: TAB_ABOUT
+    tab: TAB_ABOUT,
   },
   {
     label: 'Artists',
     tab: TAB_ARTISTS,
-    count: artists.value.length
+    count: artists.value.length,
   },
   {
     label: 'Portfolio',
     tab: TAB_PORTFOLIO,
-    count: portfolioItems.value.length
-  }
+    count: portfolioItems.value.length,
+  },
 ]);
 
 const showBookingDialog = ref(false);
@@ -206,46 +219,57 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
   showBookingDialog.value = false;
 };
 
-// Fetch shop data from store or supabase
-const loadShopData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const shopInStore = findShopByUuidInStore(uuid);
+// Fetch shop data from store or via Apollo
+const loadShopData = () => {
+  const documentId = route.params.documentId as string;
+  if (documentId) {
+    const shopInStore = shopsStore.getShops.find((shop) => shop.documentId === documentId);
     if (shopInStore) {
       shopData.value = shopInStore;
     } else {
-      const data = await fetchShopByUuid(uuid);
-      if (data) {
-        shopData.value = data;
-      }
+      void loadShop(null, { documentId });
     }
   }
 };
 
-// Fetch portfolio data
-const loadPortfolioData = async () => {
-  const uuid = route.params.id as string;
-  const data = await fetchPortfolioByOwnerUuid(uuid);
-  if (data && data.length > 0) {
-    portfolioItems.value = data;
+// Handle shop query result
+onResultShop((result) => {
+  if (result.data?.shop) {
+    shopData.value = result.data.shop;
   }
-};
+});
 
-// Fetch shop artists data
-const loadShopArtistsData = async () => {
-  const uuid = route.params.id as string;
-  if (uuid) {
-    const data = await fetchShopArtists(uuid);
-    if (data && data.length > 0) {
-      artists.value = data;
-    }
+onErrorShop((error) => {
+  console.error('Error fetching shop:', error);
+});
+
+// Handle shop artists query result
+onResultShopArtists((result) => {
+  if (result.data?.shopArtists) {
+    artists.value = result.data.shopArtists;
   }
-};
+});
+
+onErrorShopArtists((error) => {
+  console.error('Error fetching shop artists:', error);
+});
+
+onResultPortfolio((result) => {
+  if (result.data?.portfolios) {
+    portfolioItems.value = result.data.portfolios;
+  }
+});
+
+onErrorPortfolio((error) => {
+  console.error('Error fetching portfolio:', error);
+});
 
 onBeforeMount(() => {
-  void loadShopData();
-  void loadPortfolioData();
-  void loadShopArtistsData();
+  setTimeout(() => {
+    void loadShopData();
+  }, 1000);
+  void loadPortfolio(null, { documentId: route.params.documentId as string });
+  void loadShopArtists(null, { documentId: route.params.documentId as string });
 });
 </script>
 

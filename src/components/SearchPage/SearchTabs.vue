@@ -20,12 +20,12 @@ const TAB_ARTISTS = 'artists';
 const TABS: ITab[] = [
   {
     label: 'Shops',
-    tab: TAB_SHOPS
+    tab: TAB_SHOPS,
   },
   {
     label: 'Artists',
-    tab: TAB_ARTISTS
-  }
+    tab: TAB_ARTISTS,
+  },
 ];
 
 interface Props {
@@ -40,7 +40,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const activeTab = computed(() => {
-  return TABS.find(tab => tab.tab === props.modelValue) || TABS[0]!;
+  return TABS.find((tab) => tab.tab === props.modelValue) || TABS[0]!;
 });
 
 const handleTabChange = (tab: ITab) => {

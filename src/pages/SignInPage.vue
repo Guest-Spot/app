@@ -1,13 +1,7 @@
 <template>
   <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
-      <q-btn
-        round
-        unelevated
-        text-color="grey-6"
-        @click="$router.back()"
-        class="bg-block"
-      >
+      <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
       <h2 class="text-h5 q-my-none">Sign in to <span class="text-primary">your account</span></h2>
@@ -16,8 +10,8 @@
     <div class="q-my-auto full-width">
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <q-form @submit="handleLogin" class="login-form">
-            <div class="input-group">
+          <q-form @submit="handleLogin" class="flex column items-start q-gap-sm full-width">
+            <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Enter your login</label>
               <q-input
                 v-model="form.login"
@@ -26,8 +20,8 @@
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Email is required']"
-                class="full-width custom-input"
+                :rules="[(val) => !!val || 'Email is required']"
+                class="full-width"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
@@ -36,7 +30,7 @@
               </q-input>
             </div>
 
-            <div class="input-group">
+            <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Enter your password</label>
               <q-input
                 v-model="form.password"
@@ -45,8 +39,11 @@
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Password is required', val => val.length >= 3 || 'Password must be at least 3 characters']"
-                class="full-width custom-input"
+                :rules="[
+                  (val) => !!val || 'Password is required',
+                  (val) => val.length >= 3 || 'Password must be at least 3 characters',
+                ]"
+                class="full-width"
                 bg-color="transparent"
               >
                 <template v-slot:prepend>
@@ -65,7 +62,7 @@
               </q-input>
             </div>
 
-            <div class="button-group q-mt-md">
+            <div class="button-group full-width q-mt-sm">
               <q-btn
                 type="submit"
                 class="login-btn bg-block full-width"
@@ -99,22 +96,23 @@ import useUser from 'src/modules/useUser';
 
 const router = useRouter();
 const $q = useQuasar();
-const { login, isAuthenticated } = useUser();
+const { login, isAuthenticated, fetchMe } = useUser();
 
 const loading = ref(false);
 const showPassword = ref(false);
 const form = ref({
   login: '',
-  password: ''
+  password: '',
 });
 
 const handleLogin = async () => {
   loading.value = true;
 
   try {
-    await login(form.value.login, form.value.password);
+    const result = await login(form.value.login, form.value.password);
 
-    if (isAuthenticated.value) {
+    if (result.success && isAuthenticated.value) {
+      await fetchMe();
       $q.notify({
         type: 'primary',
         message: 'Login successful!',
@@ -126,8 +124,8 @@ const handleLogin = async () => {
           {
             icon: 'close',
             color: 'white',
-          }
-        ]
+          },
+        ],
       });
 
       // Redirect to artist profile
@@ -135,14 +133,13 @@ const handleLogin = async () => {
         void router.push('/profile');
       }, 500);
     } else {
-      throw new Error('Invalid credentials');
+      throw new Error(result.error || 'Invalid credentials');
     }
-
   } catch (error) {
     console.error('Login error:', error);
     $q.notify({
       type: 'negative',
-      message: 'Invalid login credentials',
+      message: error instanceof Error ? error.message : 'Invalid login credentials',
       position: 'top',
       timeout: 1500,
       color: 'negative',
@@ -151,8 +148,8 @@ const handleLogin = async () => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
   } finally {
     loading.value = false;
@@ -168,7 +165,6 @@ const handleLogin = async () => {
   font-weight: 400;
   line-height: 1.57;
   letter-spacing: 0.8px;
-  margin-bottom: 4px;
 }
 
 .button-group {

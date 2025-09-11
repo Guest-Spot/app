@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType } from 'src/interfaces/enums';
+import { InfoItemType, LinkType } from 'src/interfaces/enums';
 import type { IArtist } from 'src/interfaces/artist';
 
 interface Props {
@@ -18,33 +18,25 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const basicInformation = computed(() => ([
-  {
-    label: 'Username',
-    value: props.artistData.username || '',
-  },
+const basicInformation = computed(() => [
   {
     label: 'name',
     value: props.artistData.name || '',
   },
   {
-    label: 'Status',
-    value: props.artistData.status || '',
-  },
-  {
     label: 'Bio',
-    value: props.artistData.bio || '',
+    value: props.artistData.description || '',
   },
-]));
+]);
 
-const contacts = computed(() => ([
+const contacts = computed(() => [
   {
     label: 'City',
-    value: props.artistData.city || '',
+    value: props.artistData.location?.city || '',
   },
   {
     label: 'Address',
-    value: props.artistData.address || '',
+    value: props.artistData.location?.address || '',
   },
   {
     label: 'Phone',
@@ -56,13 +48,13 @@ const contacts = computed(() => ([
     value: props.artistData.email || '',
     type: InfoItemType.Email,
   },
-]));
+]);
 
-const links = computed(() => ([
+const links = computed(() => [
   {
     label: 'Instagram',
-    value: props.artistData.instagram || '',
+    value: props.artistData.links?.find((link) => link.type === LinkType.Instagram)?.value || '',
     type: InfoItemType.Link,
   },
-]));
+]);
 </script>

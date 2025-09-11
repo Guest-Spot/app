@@ -29,12 +29,7 @@
             :style="{ backgroundColor: color.value }"
             @click="setAccentColor(color.value)"
           >
-            <q-icon
-              v-if="accentColor === color.value"
-              name="check"
-              color="white"
-              size="sm"
-            />
+            <q-icon v-if="accentColor === color.value" name="check" color="white" size="sm" />
           </div>
         </div>
       </div>
@@ -56,15 +51,15 @@ const DARK_TAB = 'dark';
 const themeTabs: ITab[] = [
   {
     label: 'Light',
-    tab: LIGHT_TAB
+    tab: LIGHT_TAB,
   },
   {
     label: 'Dark',
-    tab: DARK_TAB
-  }
-]
+    tab: DARK_TAB,
+  },
+];
 
-const activeThemeTab = ref<ITab>(themeTabs[0]!)
+const activeThemeTab = ref<ITab>(themeTabs[0]!);
 
 // Predefined accent colors
 const accentColors = [
@@ -91,7 +86,7 @@ const setActiveTab = (t: ITab) => {
 
 onMounted(() => {
   if (isDark.value) {
-    activeThemeTab.value = themeTabs.find(t => t.tab === DARK_TAB)!;
+    activeThemeTab.value = themeTabs.find((t) => t.tab === DARK_TAB)!;
   }
 });
 </script>

@@ -1,4 +1,4 @@
 export interface IShopsArtists {
-  shopUuid: string;
-  artistUuid: string;
+  shopDocumentId: string;
+  artistDocumentId: string;
 }

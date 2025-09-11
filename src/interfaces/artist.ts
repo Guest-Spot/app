@@ -1,15 +1,34 @@
+import type { LinkType } from 'src/interfaces/enums';
+
 export interface IArtist {
-  uuid: string;
-  created_at: string;
+  documentId: string;
+  createdAt: string;
+  updatedAt: string;
   name: string;
-  bio: string;
-  username: string;
+  description: string;
   phone?: string;
   email?: string;
-  avatar?: string;
   experience?: number;
-  city?: string;
-  address?: string;
   status?: string;
-  instagram?: string;
+  avatar?: {
+    url: string;
+  };
+  links?: {
+    type: LinkType;
+    value: string;
+  }[];
+  location?: {
+    city: string;
+    address: string;
+    latitude: string;
+    longitude: string;
+  };
+}
+
+export interface IGraphQLArtistsResult {
+  artists: IArtist[];
+}
+
+export interface IGraphQLArtistResult {
+  artist: IArtist;
 }

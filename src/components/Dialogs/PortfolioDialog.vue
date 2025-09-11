@@ -1,8 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" position="bottom">
     <q-card class="portfolio-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">{{ title }}</div>
@@ -47,8 +44,7 @@
         <div class="input-group">
           <label class="input-label">Image</label>
           <ImageUploader
-            :image="formData.imageFile || null"
-            multiple
+            v-bind="formData.imageFile ? { image: formData.imageFile } : {}"
             @on-change="onImageChange"
             @clear="onImageClear"
           />
@@ -66,14 +62,7 @@
             @keyup.enter="addTag"
           >
             <template v-slot:append>
-              <q-btn
-                round
-                dense
-                icon="add"
-                color="dark"
-                size="sm"
-                @click="addTag"
-              />
+              <q-btn round dense icon="add" color="dark" size="sm" @click="addTag" />
             </template>
           </q-input>
           <div class="tags-container">
@@ -91,19 +80,8 @@
       </q-card-section>
 
       <q-card-actions class="dialog-actions bg-block">
-        <q-btn
-          label="Cancel"
-          rounded
-          unelevated
-          class="bg-block"
-          @click="closeDialog"
-        />
-        <q-btn
-          :label="isEditing ? 'Save' : 'Add'"
-          rounded
-          color="primary"
-          @click="confirmWork"
-        />
+        <q-btn label="Cancel" rounded unelevated class="bg-block" @click="closeDialog" />
+        <q-btn :label="isEditing ? 'Save' : 'Add'" rounded color="primary" @click="confirmWork" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -111,7 +89,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import ImageUploader from 'src/components/ImageUploader.vue';
+import { ImageUploader } from 'src/components';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 
 defineOptions({
@@ -137,14 +115,20 @@ const formData = ref<IPortfolioForm>({ ...props.work });
 const newTag = ref('');
 
 // Watch for external changes to modelValue
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
 // Watch for external changes to work
-watch(() => props.work, (newValue) => {
-  formData.value = { ...newValue };
-});
+watch(
+  () => props.work,
+  (newValue) => {
+    formData.value = { ...newValue };
+  },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -186,8 +170,7 @@ const removeTag = (index: number) => {
 };
 
 // Computed property for title
-const title = computed(() => props.isEditing ? 'Edit Portfolio Work' : 'Add New Work');
-
+const title = computed(() => (props.isEditing ? 'Edit Portfolio Work' : 'Add New Work'));
 </script>
 
 <style scoped lang="scss">

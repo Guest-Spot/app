@@ -1,9 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    no-route-dismiss
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" no-route-dismiss position="bottom">
     <q-card class="filter-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">Filters</div>
@@ -47,12 +43,7 @@
           unelevated
           class="bg-block"
         />
-        <q-btn
-          rounded
-          unelevated
-          color="primary"
-          @click="applyFilters"
-        >
+        <q-btn rounded unelevated color="primary" @click="applyFilters">
           <div class="q-px-md">
             <span class="text-body2">Apply</span>
           </div>
@@ -63,28 +54,29 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, type PropType } from 'vue';
-import useCities from 'src/modules/useCities';
+import { ref, watch, type PropType, computed } from 'vue';
 import type { IFilters } from 'src/interfaces/filters';
 import { useRouter, useRoute } from 'vue-router';
+import { useCitiesStore } from 'src/stores/cities';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    required: true
+    required: true,
   },
   filterValue: {
     type: Object as PropType<IFilters>,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'update:filterValue', 'clearFilters']);
 
-const { cities } = useCities();
-
+const citiesStore = useCitiesStore();
 const router = useRouter();
 const route = useRoute();
+
+const cities = computed(() => citiesStore.getCities);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -93,13 +85,20 @@ const isVisible = ref(props.modelValue);
 const filters = ref<IFilters>({ ...props.filterValue });
 
 // Watch for props changes
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
-watch(() => props.filterValue, (newValue) => {
-  filters.value = { ...newValue };
-}, { deep: true });
+watch(
+  () => props.filterValue,
+  (newValue) => {
+    filters.value = { ...newValue };
+  },
+  { deep: true },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -107,7 +106,7 @@ watch(isVisible, (newValue) => {
 });
 
 const onChangeFilters = () => {
-  void router.replace({ query: { ...route.query, ...filters.value }});
+  void router.replace({ query: { ...route.query, ...filters.value } });
   emit('update:filterValue', filters.value);
 };
 
@@ -119,7 +118,7 @@ const clearFilters = () => {
   filters.value = {
     city: null,
   };
-  void router.replace({ query: { ...route.query, ...filters.value }});
+  void router.replace({ query: { ...route.query, ...filters.value } });
   emit('update:filterValue', filters.value);
 };
 

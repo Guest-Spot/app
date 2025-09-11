@@ -12,11 +12,7 @@
 
     <!-- Portfolio Items -->
     <div class="portfolio-grid" v-else-if="portfolioItems.length">
-      <PortfolioCard
-        v-for="item in portfolioItems"
-        :key="item.uuid"
-        :work="item"
-      />
+      <PortfolioCard v-for="item in portfolioItems" :key="item.documentId" :work="item" />
     </div>
 
     <!-- Empty State -->

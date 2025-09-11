@@ -5,8 +5,17 @@ export enum InfoItemType {
   Email = 'email',
 }
 
+export enum LinkType {
+  Instagram = 'instagram',
+  Telegram = 'telegram',
+  Whatsapp = 'whatsapp',
+  Facebook = 'facebook',
+  Tiktok = 'tiktok',
+  Site = 'site',
+  Other = 'other',
+}
 
-export enum OpeningTimesDays {
+export enum OpeningHoursDays {
   mon = 'Monday',
   tue = 'Tuesday',
   wed = 'Wednesday',
@@ -16,12 +25,12 @@ export enum OpeningTimesDays {
   sun = 'Sunday',
 }
 
-export enum OpeningTimesIndexDays {
+export enum OpeningHoursIndexDays {
   mon = 1,
   tue = 2,
   wed = 3,
   thu = 4,
   fri = 5,
   sat = 6,
-  sun = 7
+  sun = 7,
 }

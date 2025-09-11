@@ -1,53 +1,96 @@
 import { defineStore } from 'pinia';
-import type { User } from '@supabase/supabase-js';
-import type { IProfile } from 'src/interfaces/user';
-
-interface IState {
-  isAuthenticated: boolean;
-  user: User | null;
-  profile: IProfile | null;
-  isShop: boolean;
-  isArtist: boolean;
-  isGuest: boolean;
-}
+import type { IUser, IAuthState } from 'src/interfaces/user';
+import type { IShop } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
 
 export const useUserStore = defineStore('user', {
-  state: (): IState => ({
+  state: (): IAuthState<IShop | IArtist> => ({
     user: null,
+    profile: null,
     isAuthenticated: false,
+    isLoading: false,
     isShop: false,
     isArtist: false,
     isGuest: false,
-    profile: null,
+    tokens: null,
   }),
 
   getters: {
     getUser: (state) => state.user,
+    getProfile: (state) => state.profile,
     getIsAuthenticated: (state) => state.isAuthenticated,
+    getIsLoading: (state) => state.isLoading,
     getIsShop: (state) => state.isShop,
     getIsArtist: (state) => state.isArtist,
     getIsGuest: (state) => state.isGuest,
-    getProfile: (state) => state.profile,
+    getTokens: (state) => state.tokens,
   },
 
   actions: {
-    setUser(userData: User | null) {
+    /**
+     * Set user data
+     */
+    setUser(userData: IUser<IShop | IArtist> | null) {
       this.user = userData;
     },
+
+    /**
+     * Set user profile
+     */
+    setProfile(profileData: IShop | IArtist | null) {
+      this.profile = profileData;
+    },
+
+    /**
+     * Set authentication status
+     */
     setIsAuthenticated(isAuthenticated: boolean) {
       this.isAuthenticated = isAuthenticated;
     },
+
+    /**
+     * Set loading state
+     */
+    setIsLoading(isLoading: boolean) {
+      this.isLoading = isLoading;
+    },
+
+    /**
+     * Set user type flags
+     */
     setIsShop(isShop: boolean) {
       this.isShop = isShop;
     },
+
     setIsArtist(isArtist: boolean) {
       this.isArtist = isArtist;
     },
+
     setIsGuest(isGuest: boolean) {
       this.isGuest = isGuest;
     },
-    setProfile(profileData: IProfile | null) {
-      this.profile = profileData;
+
+    /**
+     * Complete logout - clear all user data
+     */
+    logout() {
+      this.user = null;
+      this.profile = null;
+      this.isAuthenticated = false;
+      this.isLoading = false;
+      this.isShop = false;
+      this.isArtist = false;
+      this.isGuest = false;
+      this.tokens = null;
+    },
+
+    /**
+     * Reset user type flags
+     */
+    resetUserTypes() {
+      this.isShop = false;
+      this.isArtist = false;
+      this.isGuest = false;
     },
   },
 });

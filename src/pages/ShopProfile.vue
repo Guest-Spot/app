@@ -17,16 +17,11 @@
     </div>
 
     <div class="container">
-
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
-        <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <AboutShopTab />
-        </div>
-        <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <ShopArtistsTab />
-        </div>
+        <AboutShopTab v-if="activeTab.tab === TAB_ABOUT" class="tab-content" />
+        <ShopArtistsTab v-if="activeTab.tab === TAB_ARTISTS" class="tab-content" />
       </div>
     </div>
   </q-page>
@@ -45,12 +40,12 @@ const TAB_ARTISTS = 'artists';
 const TABS: ITab[] = [
   {
     label: 'About shop',
-    tab: TAB_ABOUT
+    tab: TAB_ABOUT,
   },
   {
     label: 'Shop Artists',
-    tab: TAB_ARTISTS
-  }
+    tab: TAB_ARTISTS,
+  },
 ];
 
 // Tab management
@@ -78,6 +73,7 @@ const setActiveTab = (tab: ITab) => {
 }
 
 .tab-content {
+  width: 100%;
   min-height: 400px;
 }
 

@@ -3,23 +3,12 @@
     <!-- Portfolio Header -->
     <div class="portfolio-header bg-block border-radius-lg">
       <h3 class="text-subtitle1 text-bold q-my-none">My Portfolio ({{ portfolioItems.length }})</h3>
-      <q-btn
-        color="primary"
-        icon="add"
-        size="sm"
-        @click="addNewWork"
-        round
-        unelevated
-      />
+      <q-btn color="primary" icon="add" size="sm" @click="addNewWork" round unelevated />
     </div>
 
     <!-- Portfolio Items -->
     <div class="portfolio-grid">
-      <PortfolioCard
-        v-for="(work, index) in portfolioItems"
-        :key="index"
-        :work="work"
-      />
+      <PortfolioCard v-for="(work, index) in portfolioItems" :key="index" :work="work" />
     </div>
 
     <!-- Empty State -->
@@ -57,29 +46,29 @@ import PortfolioCard from 'src/components/PortfolioCard.vue';
 // Mock portfolio data
 const portfolioItems = ref<IPortfolio[]>([
   {
-    uuid: '1',
+    documentId: '1',
     title: 'Live Performance at Club XYZ',
     description: 'Amazing night performing my latest hits to a sold-out crowd.',
-    pictures: ['examples/example1.jpg'],
-    tags: ['Live', 'Performance', 'Club'],
-    ownerUuid: '1'
+    pictures: [{ url: 'examples/example1.jpg' }],
+    tags: [{ name: 'Live' }, { name: 'Performance' }, { name: 'Club' }],
+    ownerDocumentId: '1',
   },
   {
-    uuid: '2',
+    documentId: '2',
     title: 'Studio Recording Session',
     description: 'Recording my new single with professional sound engineers.',
-    pictures: ['examples/example2.jpeg'],
-    tags: ['Studio', 'Recording', 'Single'],
-    ownerUuid: '1'
+    pictures: [{ url: 'examples/example2.jpeg' }],
+    tags: [{ name: 'Studio' }, { name: 'Recording' }, { name: 'Single' }],
+    ownerDocumentId: '1',
   },
   {
-    uuid: '3',
+    documentId: '3',
     title: 'Music Festival Appearance',
     description: 'Performing at the biggest music festival in the city.',
-    pictures: ['examples/example3.jpg'],
-    tags: ['Festival', 'Live', 'Music'],
-    ownerUuid: '1'
-  }
+    pictures: [{ url: 'examples/example3.jpg' }],
+    tags: [{ name: 'Festival' }, { name: 'Live' }, { name: 'Music' }],
+    ownerDocumentId: '1',
+  },
 ]);
 
 // Dialog state
@@ -90,7 +79,7 @@ const currentWork = ref<IPortfolioForm>({
   description: '',
   imageUrl: '',
   imageFile: null,
-  tags: []
+  tags: [],
 });
 
 const addNewWork = () => {
@@ -100,7 +89,7 @@ const addNewWork = () => {
     description: '',
     imageUrl: '',
     imageFile: null,
-    tags: []
+    tags: [],
   };
   showDialog.value = true;
 };
@@ -111,7 +100,7 @@ const handleWorkConfirm = (work: IPortfolioForm) => {
 
 // Expose data for parent component
 defineExpose({
-  portfolioItems
+  portfolioItems,
 });
 </script>
 

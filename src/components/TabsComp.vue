@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="tabs-comp flex q-gap-sm justify-start no-wrap"
-  >
+  <div class="tabs-comp flex q-gap-sm justify-start no-wrap">
     <q-btn
       v-for="t in tabs"
       :key="`tab-${t.tab}-${t.label}`"
@@ -11,13 +9,15 @@
       :class="{
         'bg-grey-4': currentActiveTab.tab !== t.tab && !$q.dark.isActive,
         'bg-grey-9': currentActiveTab.tab !== t.tab && $q.dark.isActive,
-        'bg-primary text-white': currentActiveTab.tab === t.tab
+        'bg-primary text-white': currentActiveTab.tab === t.tab,
       }"
       @click="handleTabClick(t)"
       v-bind="$attrs"
     >
       <span class="tabs-comp-label">{{ t.label }}</span>
-      <q-badge v-if="t.count" rounded class="tabs-comp-counter text-bold q-ml-xs">{{ t.count }}</q-badge>
+      <q-badge v-if="t.count" rounded class="tabs-comp-counter text-bold q-ml-xs">{{
+        t.count
+      }}</q-badge>
     </q-btn>
   </div>
 </template>
@@ -28,7 +28,7 @@ import { type ITab } from 'src/interfaces/tabs';
 import { useRouter, useRoute } from 'vue-router';
 
 defineOptions({
-  name: 'TabsComp'
+  name: 'TabsComp',
 });
 
 const props = defineProps<{
@@ -57,7 +57,7 @@ const handleTabClick = (tab: ITab) => {
 const getActiveTab = () => {
   const tab = router.currentRoute.value.query.tab;
   if (tab) {
-    return props.tabs.find(t => t.tab === tab) || props.tabs[0]!;
+    return props.tabs.find((t) => t.tab === tab) || props.tabs[0]!;
   }
   return props.tabs[0]!;
 };

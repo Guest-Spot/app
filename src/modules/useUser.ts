@@ -1,125 +1,163 @@
 import { useUserStore } from 'src/stores/user';
 import { computed } from 'vue';
-import { createClient, type User } from '@supabase/supabase-js';
-import { type IProfile, UserType } from 'src/interfaces/user';
-import { API_URL, API_KEY } from 'src/config/constants'
+import { useMutation, useLazyQuery } from '@vue/apollo-composable';
+import {
+  type IUser,
+  type ILoginResponse,
+  type IMeResponse,
+  type IJWTTokens,
+  UserType,
+} from 'src/interfaces/user';
+import type { IShop } from 'src/interfaces/shop';
+import type { IArtist } from 'src/interfaces/artist';
+import { useTokens } from 'src/modules/useTokens';
+import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
+import gql from 'graphql-tag';
 
+/**
+ * User Management Module
+ * Handles authentication, user data and JWT tokens through GraphQL
+ */
 const useUser = () => {
   const userStore = useUserStore();
-  const supabase = createClient(API_URL as string, API_KEY as string);
+  const { storeTokens, clearTokens, getStoredTokens } = useTokens();
 
+  // Computed getters
   const user = computed(() => userStore.getUser);
   const profile = computed(() => userStore.getProfile);
   const isShop = computed(() => userStore.getIsShop);
   const isArtist = computed(() => userStore.getIsArtist);
   const isGuest = computed(() => userStore.getIsGuest);
   const isAuthenticated = computed(() => userStore.getIsAuthenticated);
+  const isLoading = computed(() => userStore.getIsLoading);
 
-  const fetchProfile = async (userId: string): Promise<{ data: IProfile | null, error: Error | null }> => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, type, created_at, fullname')
-      .eq('id', userId)
-      .single();
+  // GraphQL composables
+  const { mutate: loginMutation } = useMutation<ILoginResponse<IShop | IArtist>>(LOGIN_MUTATION);
+  const { mutate: logoutMutation } = useMutation(gql(LOGOUT_MUTATION));
+  /**
+   * Login user with email and password
+   */
+  const login = async (
+    identifier: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      userStore.setIsLoading(true);
 
-    if (error) {
-      console.error(error);
-      return { data: null, error: error as Error };
+      const result = await loginMutation({
+        input: {
+          identifier,
+          password,
+        },
+      });
+
+      if (!result?.data?.loginWithRefresh) {
+        throw new Error('Login failed: No data received');
+      }
+
+      const { jwt, refreshToken, user: userData } = result.data.loginWithRefresh;
+
+      // Store tokens
+      const tokens: IJWTTokens = {
+        accessToken: jwt,
+        refreshToken,
+      };
+      storeTokens(tokens);
+
+      // Update store
+      updateUserState(userData);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Login failed',
+      };
+    } finally {
+      userStore.setIsLoading(false);
     }
-
-    return { data, error: null };
   };
 
-  const fetchUser = async (): Promise<{ data: User | null, error: Error | null }> => {
-    const { data, error: userErr } = await supabase.auth.getUser();
-    if (userErr) {
-      console.error(userErr);
-      return { data: null, error: userErr as Error };
-    }
+  /**
+   * Fetch current user from API
+   */
+  const fetchMe = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      userStore.setIsLoading(true);
 
-    return { data: data.user, error: null }
+      // Use Apollo query with current context (token will be added by authLink)
+      const { result, load } = useLazyQuery<IMeResponse<IShop | IArtist>>(
+        ME_QUERY,
+        {},
+        {
+          fetchPolicy: 'network-only', // Always fetch fresh data
+        },
+      );
+
+      await load();
+
+      if (result.value?.me) {
+        updateUserState(result.value.me);
+        return { success: true };
+      } else {
+        throw new Error('Failed to fetch user data');
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch user',
+      };
+    } finally {
+      userStore.setIsLoading(false);
+    }
   };
 
-  const fetchUserAndProfile = async (): Promise<void> => {
-    const { data: user, error: userErr } = await fetchUser();
-    if (userErr) {
-      console.error(userErr);
-      return;
-    }
-
-    if (!user?.id) {
-      console.error('User ID is not found');
-      return;
-    }
-
-    const { data: profile, error: profileErr } = await fetchProfile(user.id);
-
-    if (profileErr) {
-      console.error(profileErr);
-      return;
-    }
-
-    userStore.setUser(user);
+  /**
+   * Update user state in store
+   */
+  const updateUserState = (userData: IUser<IShop | IArtist>): void => {
+    userStore.setUser(userData);
+    userStore.setProfile(userData.profile);
     userStore.setIsAuthenticated(true);
-    userStore.setIsShop(profile?.type === UserType.Shop);
-    userStore.setIsArtist(profile?.type === UserType.Artist);
-    userStore.setIsGuest(profile?.type === UserType.Guest);
-    userStore.setProfile(profile);
+
+    if (userData.type) {
+      userStore.setIsShop(userData.type === UserType.Shop);
+      userStore.setIsArtist(userData.type === UserType.Artist);
+      userStore.setIsGuest(userData.type === UserType.Guest);
+    }
   };
 
-  const login = async (login: string, password: string) => {
-    const { data, error: signInErr } = await supabase.auth.signInWithPassword({
-      email: login,
-      password: password,
-    });
-
-    if (signInErr) {
-      console.error('Error logging in:', signInErr);
-      return;
+  /**
+   * Logout user and clear all data
+   */
+  const logout = async (): Promise<void> => {
+    try {
+      await logoutMutation({ input: { refreshToken: getStoredTokens()?.refreshToken } });
+      console.log('User logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Force clear even if error occurs
+      clearTokens();
+      userStore.logout();
     }
-
-    if (!data.user || !data.session) {
-      console.error(signInErr);
-      return;
-    }
-
-    const { data: profile, error: profileErr } = await fetchProfile(data.user.id);
-
-    if (profileErr) {
-      console.error(profileErr);
-      return;
-    }
-
-    userStore.setUser(data.user);
-    userStore.setIsAuthenticated(true);
-    userStore.setIsShop(profile?.type === UserType.Shop);
-    userStore.setIsArtist(profile?.type === UserType.Artist);
-    userStore.setIsGuest(profile?.type === UserType.Guest);
-    userStore.setProfile(profile);
-  };
-
-  const logout = async () => {
-    await supabase.auth.signOut({ scope: 'global' });
-    userStore.setUser(null);
-    userStore.setIsAuthenticated(false);
-    userStore.setProfile(null);
-    userStore.setIsShop(false);
-    userStore.setIsArtist(false);
-    userStore.setIsGuest(false);
   };
 
   return {
+    // State
     user,
     profile,
     isShop,
     isArtist,
     isGuest,
     isAuthenticated,
+    isLoading,
+
+    // Actions
     login,
     logout,
-    fetchUser,
-    fetchProfile,
-    fetchUserAndProfile,
+    fetchMe,
   };
 };
 

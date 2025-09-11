@@ -13,7 +13,7 @@
           <div v-if="favoriteShops.length" class="flex column q-gap-md">
             <ShopCard
               v-for="shop in favoriteShops"
-              :key="shop.uuid"
+              :key="shop.documentId"
               :shop="shop"
               @click="selectShop"
               @favorite="toggleFavorite"
@@ -36,7 +36,7 @@
           <div v-if="favoriteArtists.length" class="flex column q-gap-md">
             <ArtistCard
               v-for="artist in favoriteArtists"
-              :key="artist.uuid"
+              :key="artist.documentId"
               :artist="artist"
               @click="selectArtist"
               @favorite="toggleFavorite"
@@ -70,27 +70,23 @@ import NoResult from 'src/components/NoResult.vue';
 const activeTab = ref(TAB_SHOPS);
 
 // Use favorites composable
-const {
-  favoriteShops,
-  favoriteArtists,
-} = useFavorites();
+const { favoriteShops, favoriteArtists } = useFavorites();
 
 const router = useRouter();
 
 // Methods
 const selectShop = (shop: IShop) => {
-  void router.push(`/shop/${shop.uuid}`);
+  void router.push(`/shop/${shop.documentId}`);
 };
 
 const selectArtist = (artist: IArtist) => {
-  void router.push(`/artist/${artist.uuid}`);
+  void router.push(`/artist/${artist.documentId}`);
 };
 
-const toggleFavorite = (shopUuid: string) => {
-  console.log('Toggle favorite for ID:', shopUuid);
+const toggleFavorite = (shopDocumentId: string) => {
+  console.log('Toggle favorite for ID:', shopDocumentId);
   // Toggle favorite status is handled by the card components
 };
-
 </script>
 
 <style scoped lang="scss">

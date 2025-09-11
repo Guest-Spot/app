@@ -18,7 +18,10 @@ const useDate = () => {
     return `${hours12}:${minutes} ${period}`;
   };
 
-  const formatDate = (date: string | Date, { useUsFormat = true }: { useUsFormat?: boolean } = {}): string => {
+  const formatDate = (
+    date: string | Date,
+    { useUsFormat = true }: { useUsFormat?: boolean } = {},
+  ): string => {
     if (!date) return '';
 
     const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -35,7 +38,7 @@ const useDate = () => {
 
   return {
     formatTime,
-    formatDate
+    formatDate,
   };
 };
 

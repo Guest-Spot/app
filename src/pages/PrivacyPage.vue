@@ -24,41 +24,49 @@ import { ref } from 'vue';
 const privacySections = ref([
   {
     heading: 'Information We Collect',
-    content: 'We collect information you provide directly to us, such as when you create an account, make a purchase, or contact us for support.'
+    content:
+      'We collect information you provide directly to us, such as when you create an account, make a purchase, or contact us for support.',
   },
   {
     heading: 'How We Use Your Information',
-    content: 'We use the information we collect to provide, maintain, and improve our services, to process transactions, and to communicate with you.'
+    content:
+      'We use the information we collect to provide, maintain, and improve our services, to process transactions, and to communicate with you.',
   },
   {
     heading: 'Information Sharing',
-    content: 'We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this privacy policy.'
+    content:
+      'We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this privacy policy.',
   },
   {
     heading: 'Data Security',
-    content: 'We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.'
+    content:
+      'We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.',
   },
   {
     heading: 'Your Rights',
-    content: 'You have the right to access, update, or delete your personal information. You can also opt out of certain communications from us.'
+    content:
+      'You have the right to access, update, or delete your personal information. You can also opt out of certain communications from us.',
   },
   {
     heading: 'Cookies and Tracking',
-    content: 'We use cookies and similar tracking technologies to enhance your experience on our website and to analyze how our services are used.'
+    content:
+      'We use cookies and similar tracking technologies to enhance your experience on our website and to analyze how our services are used.',
   },
   {
     heading: 'Third-Party Services',
-    content: 'Our website may contain links to third-party websites or services. We are not responsible for the privacy practices of these third parties.'
+    content:
+      'Our website may contain links to third-party websites or services. We are not responsible for the privacy practices of these third parties.',
   },
   {
     heading: 'Changes to This Policy',
-    content: 'We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.'
-  }
+    content:
+      'We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.',
+  },
 ]);
 
 // Privacy Policy page component
 defineOptions({
-  name: 'PrivacyPage'
+  name: 'PrivacyPage',
 });
 </script>
 

@@ -8,8 +8,8 @@
       <Slide v-for="(picture, index) in pictures" :key="`key-${picture}-${index}`">
         <div class="carousel-slide">
           <q-img
-            :src="picture"
-            :ratio="16/9"
+            :src="`${API_URL}${picture}`"
+            :ratio="16 / 9"
             class="carousel-img"
             spinner-color="dark"
             spinner-size="32px"
@@ -27,7 +27,7 @@
     <div v-else class="fallback-container">
       <q-img
         :src="fallbackImage"
-        :ratio="16/9"
+        :ratio="16 / 9"
         class="carousel-img"
         spinner-color="dark"
         spinner-size="32px"
@@ -40,6 +40,7 @@
 import { computed } from 'vue';
 import 'vue3-carousel/carousel.css';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';
+import { API_URL } from 'src/config/constants';
 
 interface Props {
   pictures?: string[];
@@ -50,14 +51,14 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   pictures: () => [],
   height: '200px',
-  fallbackImage: 'https://via.placeholder.com/300x200'
+  fallbackImage: 'https://via.placeholder.com/300x200',
 });
 
 const carouselConfig = computed(() => ({
   itemsToShow: 1,
   wrapAround: true,
   snapAlign: 'center' as const,
-  transition: 500
+  transition: 500,
 }));
 </script>
 

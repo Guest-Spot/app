@@ -1,7 +1,13 @@
 <template>
   <div class="about-shop-tab flex column q-gap-md">
     <!-- Banner Image Section -->
-    <ImageUploader />
+    <ImageUploader
+      :images="shopData.pictures || []"
+      @on-change="shopData.pictures = $event"
+      placeholder="Upload images"
+      multiple
+      placeholderIcon="photo_library"
+    />
 
     <!-- Basic Information -->
     <q-expansion-item
@@ -12,14 +18,15 @@
     >
       <div class="info-section">
         <div class="input-group">
-          <label class="input-label">Title</label>
+          <label class="input-label">Name</label>
           <q-input
             outlined
             dense
             rounded
-            placeholder="Enter shop title"
+            placeholder="Enter shop name"
             class="custom-input"
             v-model="shopData.name"
+            clearable
           />
         </div>
         <div class="input-group">
@@ -32,6 +39,9 @@
             placeholder="Enter shop description"
             class="custom-input"
             v-model="shopData.description"
+            maxlength="200"
+            counter
+            clearable
           />
         </div>
       </div>
@@ -46,14 +56,27 @@
     >
       <div class="info-section">
         <div class="input-group">
-          <label class="input-label">Location</label>
+          <label class="input-label">City</label>
           <q-input
             outlined
             dense
             rounded
-            placeholder="Enter shop location"
+            placeholder="Enter shop city"
             class="custom-input"
-            v-model="shopData.location"
+            v-model="shopData.city"
+            clearable
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Address</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter shop address"
+            clearable
+            class="custom-input"
+            v-model="shopData.address"
           />
         </div>
         <div class="input-group">
@@ -62,8 +85,10 @@
             outlined
             dense
             rounded
+            mask="(###) ### - ####"
             placeholder="Enter phone number"
             class="custom-input"
+            clearable
             v-model="shopData.phone"
           />
         </div>
@@ -73,6 +98,8 @@
             outlined
             dense
             rounded
+            type="email"
+            clearable
             placeholder="Enter email address"
             class="custom-input"
             v-model="shopData.email"
@@ -86,54 +113,42 @@
       icon="schedule"
       label="Working Hours"
       header-class="expansion-header"
+      class="bg-block border-radius-lg full-width"
+    >
+      <WorkingHoursEditor v-model="openingTimesModel" />
+    </q-expansion-item>
+
+    <!-- Links -->
+    <q-expansion-item
+      icon="link"
+      label="Links"
+      header-class="expansion-header"
       class="bg-block border-radius-lg"
     >
       <div class="info-section">
-        <div class="hours-container">
-          <div class="hours-group">
-            <label class="input-label">Start</label>
-            <q-input
-              v-model="workingHours.start"
-              outlined
-              dense
-              rounded
-              readonly
-              class="custom-input time-input"
-              @click="startTimeDialog = true"
-            >
-              <template v-slot:append>
-                <q-icon name="schedule" class="cursor-pointer" @click="startTimeDialog = true" />
-              </template>
-            </q-input>
-            <TimePickerDialog
-              v-model="startTimeDialog"
-              :time="workingHours.start"
-              title="Выберите время начала"
-              @confirm="onStartTimeConfirm"
-            />
-          </div>
-          <div class="hours-group">
-            <label class="input-label">End</label>
-            <q-input
-              v-model="workingHours.end"
-              outlined
-              dense
-              rounded
-              readonly
-              class="custom-input time-input"
-              @click="endTimeDialog = true"
-            >
-              <template v-slot:append>
-                <q-icon name="schedule" class="cursor-pointer" @click="endTimeDialog = true" />
-              </template>
-            </q-input>
-            <TimePickerDialog
-              v-model="endTimeDialog"
-              :time="workingHours.end"
-              title="Выберите время окончания"
-              @confirm="onEndTimeConfirm"
-            />
-          </div>
+        <div class="input-group">
+          <label class="input-label">Website</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter Website link"
+            class="custom-input"
+            v-model="shopData.website"
+            clearable
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Instagram</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter Instagram link"
+            class="custom-input"
+            v-model="shopData.instagram"
+            clearable
+          />
         </div>
       </div>
     </q-expansion-item>
@@ -155,28 +170,7 @@
             placeholder="Enter opening date"
             class="custom-input"
             v-model="shopData.dateOpened"
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-
-    <!-- Links -->
-    <q-expansion-item
-      icon="link"
-      label="Links"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Instagram</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Instagram link"
-            class="custom-input"
-            v-model="shopData.instagram"
+            clearable
           />
         </div>
       </div>
@@ -187,13 +181,7 @@
 
     <!-- Save Button -->
     <div class="save-section">
-      <q-btn
-        class="full-width bg-block"
-        @click="saveChanges"
-        rounded
-        size="lg"
-        unelevated
-      >
+      <q-btn class="full-width bg-block" @click="saveChanges" rounded size="lg" unelevated>
         <q-icon name="save" size="18px" />
         <span class="q-ml-sm text-subtitle1">Save changes</span>
       </q-btn>
@@ -202,51 +190,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { TimePickerDialog } from '../Dialogs';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import { ImageUploader, ThemeSettings } from 'src/components';
+import type { IOpeningHours } from 'src/interfaces/shop';
+
+const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
 // Form data
 const shopData = ref({
+  pictures: [] as File[],
   name: '',
   description: '',
-  location: '',
+  city: '',
+  address: '',
   phone: '',
   email: '',
   dateOpened: '',
   instagram: '',
+  openingTimes: [] as IOpeningHours[],
+  website: '',
 });
 
-const workingHours = ref({
-  start: '08:00',
-  end: '23:30'
+// Computed property for opening times to handle v-model
+const openingTimesModel = computed({
+  get: () => shopData.value.openingTimes || [],
+  set: (value: IOpeningHours[]) => {
+    shopData.value.openingTimes = value;
+  },
 });
-
-const startTimeDialog = ref(false);
-const endTimeDialog = ref(false);
-
-const onStartTimeConfirm = (time: string) => {
-  workingHours.value.start = time;
-};
-
-const onEndTimeConfirm = (time: string) => {
-  workingHours.value.end = time;
-};
 
 const saveChanges = () => {
-  // TODO: Implement save functionality
-  const shopDataToSave = {
-    ...shopData.value,
-    workingHoursStart: workingHours.value.start,
-    workingHoursEnd: workingHours.value.end
-  };
-  console.log('Saving changes...', shopDataToSave);
+  console.log('Saving changes...', shopData.value);
 };
 
 // Expose data for parent component
 defineExpose({
   shopData,
-  workingHours
 });
 </script>
 
@@ -293,5 +272,11 @@ defineExpose({
 .save-section {
   margin-top: 20px;
   text-align: center;
+}
+
+:deep(.working-hours) {
+  .days-row {
+    padding: 16px;
+  }
 }
 </style>

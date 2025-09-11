@@ -1,11 +1,14 @@
 <template>
-  <div class="booking-card bg-block border-radius-md" :class="{ sent: isSent, received: isReceived }">
+  <div
+    class="booking-card bg-block border-radius-md"
+    :class="{ sent: isSent, received: isReceived }"
+  >
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
           v-if="shop?.pictures?.[0]"
           class="full-width"
-          :src="shop.pictures[0]"
+          :src="shop.pictures[0].url"
           fit="cover"
           spinner-color="dark"
           spinner-size="16px"
@@ -58,14 +61,14 @@
           color="negative"
           rounded
           flat
-          @click="$emit('reject', uuid)"
+          @click="$emit('reject', documentId)"
           class="bg-block full-width"
         />
         <q-btn
           label="Accept"
           color="primary"
           rounded
-          @click="$emit('accept', uuid)"
+          @click="$emit('accept', documentId)"
           class="full-width"
         />
       </div>
@@ -77,7 +80,7 @@
         color="negative"
         flat
         rounded
-        @click="$emit('cancel', uuid)"
+        @click="$emit('cancel', documentId)"
         class="bg-block full-width"
       />
 
@@ -86,7 +89,7 @@
         v-else
         label="View Shop"
         rounded
-        :to="`/shop/${shop?.uuid}`"
+        :to="`/shop/${shop?.documentId}`"
         flat
         class="bg-block full-width"
       />
@@ -103,27 +106,17 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'accept', uuid: string): void;
-  (e: 'reject', uuid: string): void;
-  (e: 'cancel', uuid: string): void;
+  (e: 'accept', documentId: string): void;
+  (e: 'reject', documentId: string): void;
+  (e: 'cancel', documentId: string): void;
 }
 
 const props = defineProps<Props>();
 defineEmits<Emits>();
 
 // Computed properties
-const {
-  uuid,
-  title,
-  description,
-  startTime,
-  endTime,
-  date,
-  status,
-  shop,
-  location,
-  type,
-} = props.booking;
+const { documentId, title, description, startTime, endTime, date, status, shop, location, type } =
+  props.booking;
 
 const isReceived = computed(() => type === 'shop-to-artist');
 const isSent = computed(() => type === 'artist-to-shop');
@@ -133,7 +126,7 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -143,7 +136,7 @@ const getStatusLabel = (status: IBooking['status']) => {
     accepted: 'Accepted',
     rejected: 'Rejected',
     cancelled: 'Cancelled',
-    completed: 'Completed'
+    completed: 'Completed',
   };
   return statusMap[status];
 };
@@ -231,7 +224,9 @@ const getStatusLabel = (status: IBooking['status']) => {
       line-height: 1.5;
     }
 
-    .date-info, .time-info, .location-info {
+    .date-info,
+    .time-info,
+    .location-info {
       display: flex;
       align-items: center;
       gap: 8px;

@@ -28,14 +28,7 @@
             </template>
           </q-input>
         </div>
-        <q-btn
-          icon="close"
-          flat
-          round
-          dense
-          class="q-ml-sm bg-block"
-          @click="closeSearch"
-        />
+        <q-btn icon="close" flat round dense class="q-ml-sm bg-block" @click="closeSearch" />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -66,13 +59,19 @@ const isVisible = ref(props.modelValue);
 const searchQuery = ref(props.query);
 
 // Watch for props changes
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
-watch(() => props.query, (newValue) => {
-  searchQuery.value = newValue;
-});
+watch(
+  () => props.query,
+  (newValue) => {
+    searchQuery.value = newValue;
+  },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -82,7 +81,7 @@ watch(isVisible, (newValue) => {
 function handleSearch() {
   const trimmedQuery = searchQuery.value?.trim() || '';
   emit('update:query', trimmedQuery);
-  void router.replace({ query: { ...route.query, search: trimmedQuery }});
+  void router.replace({ query: { ...route.query, search: trimmedQuery } });
 }
 
 function closeSearch() {

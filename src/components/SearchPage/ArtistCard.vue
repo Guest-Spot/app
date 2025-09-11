@@ -1,9 +1,12 @@
 <template>
-  <div class="artist-card flex column q-gap-md bg-block border-radius-md q-pa-md" @click="navigateToProfile">
+  <div
+    class="artist-card flex column q-gap-md bg-block border-radius-md q-pa-md"
+    @click="navigateToProfile"
+  >
     <div class="flex justify-between items-center q-gap-md full-width">
       <q-avatar size="80px" class="bg-block">
         <q-img
-          :src="artist.avatar || 'https://via.placeholder.com/80x80'"
+          :src="`${API_URL}${artist.avatar?.url}`"
           :ratio="0.85"
           class="avatar-img"
           spinner-size="24px"
@@ -14,7 +17,7 @@
         <div class="artist-info">
           <div class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
-            <span>{{ artist.city }} {{ artist.address }}</span>
+            <span>{{ artist.location?.city }} {{ artist.location?.address }}</span>
           </div>
           <div class="artist-experience text-grey-6">
             <q-icon name="work" size="14px" />
@@ -42,8 +45,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useFavorites } from '../../modules/useFavorites';
-import type { IArtist } from '../../interfaces/artist';
+import { useFavorites } from 'src/modules/useFavorites';
+import type { IArtist } from 'src/interfaces/artist';
+import { API_URL } from 'src/config/constants';
 
 interface Props {
   artist: IArtist;
@@ -51,7 +55,7 @@ interface Props {
 
 interface Emits {
   (e: 'click', artist: IArtist): void;
-  (e: 'favorite', artistUuid: string): void;
+  (e: 'favorite', artistDocumentId: string): void;
 }
 
 const props = defineProps<Props>();
@@ -60,15 +64,15 @@ const router = useRouter();
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 
-const isFavorite = computed(() => isArtistFavorite(props.artist.uuid));
+const isFavorite = computed(() => isArtistFavorite(props.artist.documentId));
 
 const toggleFavorite = () => {
   toggleArtistFavorite(props.artist);
-  emit('favorite', props.artist.uuid);
+  emit('favorite', props.artist.documentId);
 };
 
 const navigateToProfile = () => {
-  void router.push(`/artist/${props.artist.uuid}`);
+  void router.push(`/artist/${props.artist.documentId}`);
   emit('click', props.artist);
 };
 </script>

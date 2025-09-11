@@ -5,11 +5,11 @@ type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'comple
 type BookingType = 'shop-to-artist' | 'artist-to-shop';
 
 export interface IBooking {
-  uuid: string;
+  documentId: string;
   title: string;
   description: string;
-  shopUuid: string;
-  artistUuid: string;
+  shopDocumentId: string;
+  artistDocumentId: string;
   startTime: string;
   endTime: string;
   date: string;

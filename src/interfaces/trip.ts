@@ -1,20 +1,31 @@
 export interface ITrip {
-  uuid: string;
-  location: string;
+  documentId: string;
+  location: {
+    city: string;
+    address: string;
+    latitude: string;
+    longitude: string;
+  };
   date: string;
   startTime: string;
   endTime: string;
-  title: string;
+  name: string;
   description: string;
-  status: string;
-  artistUuid: string;
+  ownerDocumentId: string;
 }
 
 export interface ITripForm {
-  uuid: string;
-  location: string;
+  documentId: string;
+  location: {
+    city: string;
+    address: string;
+  };
   date: string;
   startTime: string;
   endTime: string;
   description: string;
+}
+
+export interface IGraphQLTripsResult {
+  trips: ITrip[];
 }
