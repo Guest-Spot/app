@@ -6,7 +6,7 @@
     <q-btn text-color="negative" icon="settings" round unelevated class="bg-block" size="sm">
       <q-menu style="width: 150px">
         <q-list>
-          <q-item v-close-popup clickable>
+          <q-item v-close-popup clickable @click="handlePublicProfile">
             <q-item-section>
               <div class="flex items-center no-wrap q-gap-sm">
                 <q-icon name="public" size="18px" />
@@ -44,6 +44,8 @@ defineProps({
   },
 });
 
+const emit = defineEmits(['openPublicProfile']);
+
 const router = useRouter();
 const $q = useQuasar();
 const { logout } = useUser();
@@ -66,5 +68,9 @@ const handleLogout = () => {
     void logout();
     void router.push('/');
   });
+};
+
+const handlePublicProfile = () => {
+  emit('openPublicProfile');
 };
 </script>

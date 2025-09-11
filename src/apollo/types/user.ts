@@ -7,6 +7,7 @@ export const ME_QUERY = gql`
       email
       type
       profile {
+        documentId
         name
         pictures {
           url
