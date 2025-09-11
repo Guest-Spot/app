@@ -212,7 +212,6 @@ const $q = useQuasar();
 const { image, images, multiple } = toRefs(props);
 const { formatFileToBase64 } = useImage();
 
-// Функция для проверки, является ли значение URL строкой
 const isUrlString = (value: unknown): value is string => {
   return typeof value === 'string';
 };
@@ -255,7 +254,6 @@ function clear() {
 type PreparedImage = { file: File; base64: string } | { file: string; base64: string } | null;
 
 async function compressAndPrepare(file: File | string): Promise<PreparedImage> {
-  // Если передан URL, возвращаем его напрямую
   if (isUrlString(file)) {
     return { file, base64: file };
   }
@@ -281,10 +279,15 @@ async function onChangeImage(input: File | File[] | string | string[]) {
       const files = Array.isArray(input) ? input : [input];
       const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
       const valid = results.filter((r): r is { file: File; base64: string } | { file: string; base64: string } => !!r);
-      imagesPreview.value.push(
-        ...valid.map((v, index) => ({ src: v.base64, index: imagesPreview.value.length + index })),
-      );
-      selectedFiles.value.push(...valid.map((v) => v.file));
+
+      const newPreviews = valid.map((v, index) => ({
+        src: v.base64,
+        index: imagesPreview.value.length + index
+      }));
+
+      imagesPreview.value = [...imagesPreview.value, ...newPreviews];
+      selectedFiles.value = [...selectedFiles.value, ...valid.map((v) => v.file)];
+
       emit('on-change', selectedFiles.value);
     } else {
       const file = Array.isArray(input) ? input[0] : input;
@@ -379,10 +382,8 @@ watch(
   async (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
     if (isUrlString(newValue)) {
-      // Если передан URL, используем его напрямую
       imagePreview.value = newValue;
     } else if (newValue instanceof File) {
-      // Если передан File объект, конвертируем в base64
       imagePreview.value = await formatFileToBase64(newValue);
     }
   },
@@ -396,9 +397,8 @@ watch(
   async (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
     imagesPreview.value = await Promise.all(
-      newValue.map(async (v, index) => {
-        // Проверяем, является ли элемент URL строкой или File объектом
-        const src = isUrlString(v) ? v : await formatFileToBase64(v);
+      [...imagesPreview.value, ...newValue].map(async (v, index) => {
+        const src = isUrlString(v) ? v : await formatFileToBase64(v as File);
         return { src, index };
       }),
     );
