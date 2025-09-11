@@ -57,7 +57,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
         .catch((refreshError) => {
           void handleLogout();
           throw refreshError;
-        })
+        }),
     ).flatMap(() => forward(operation));
   }
 
@@ -65,7 +65,9 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
       if (error.extensions?.code === 'UNAUTHENTICATED' || error.message.includes('401')) {
-        return handleTokenRefreshAndRetry('Unauthenticated error detected, attempting token refresh...');
+        return handleTokenRefreshAndRetry(
+          'Unauthenticated error detected, attempting token refresh...',
+        );
       }
     }
   }
@@ -95,7 +97,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
         },
         body: JSON.stringify({
           query: REFRESH_TOKEN_MUTATION,
-          variables: { input: { refreshToken: tokens.refreshToken }},
+          variables: { input: { refreshToken: tokens.refreshToken } },
         }),
       });
 
@@ -115,7 +117,6 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
 
       console.log('Tokens refreshed successfully');
       return newTokens;
-
     } catch (error) {
       console.error('Error refreshing tokens:', error);
       return null;
@@ -138,7 +139,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
       },
       body: JSON.stringify({
         query: LOGOUT_MUTATION,
-        variables: { input: { refreshToken: tokens.refreshToken }},
+        variables: { input: { refreshToken: tokens.refreshToken } },
       }),
     });
 
@@ -162,8 +163,4 @@ export const httpLink = createHttpLink({
 /**
  * Combined Apollo Link chain
  */
-export const apolloLinkChain = ApolloLink.from([
-  errorLink,
-  authLink,
-  httpLink,
-]);
+export const apolloLinkChain = ApolloLink.from([errorLink, authLink, httpLink]);

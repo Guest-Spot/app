@@ -21,14 +21,14 @@
   --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
   // Accend Colors
-  --red-accent: #FF3D00;
-  --blue-accent: #1976D2;
-  --green-accent: #4CAF50;
-  --orange-accent: #FF9800;
-  --purple-accent: #9C27B0;
+  --red-accent: #ff3d00;
+  --blue-accent: #1976d2;
+  --green-accent: #4caf50;
+  --orange-accent: #ff9800;
+  --purple-accent: #9c27b0;
   --teal-accent: #009688;
-  --pink-accent: #E91E63;
-  --indigo-accent: #3F51B5;
+  --pink-accent: #e91e63;
+  --indigo-accent: #3f51b5;
 
   // Accent RGB Colors
   --red-accent-rgb: 255, 61, 0;
@@ -62,19 +62,16 @@ a {
   overflow: auto;
 }
 
-*::-webkit-scrollbar-track
-{
+*::-webkit-scrollbar-track {
   display: none;
 }
 
-*::-webkit-scrollbar
-{
+*::-webkit-scrollbar {
   display: none;
 }
 
-*::-webkit-scrollbar-thumb
-{
-	display: none;
+*::-webkit-scrollbar-thumb {
+  display: none;
 }
 
 .q-z-1 {
@@ -147,11 +144,13 @@ a {
   overflow: hidden;
 }
 
-.q-notification__badge--top-left, .q-notification__badge--bottom-left {
+.q-notification__badge--top-left,
+.q-notification__badge--bottom-left {
   left: 0;
 }
 
-.q-notification__badge--top-left, .q-notification__badge--top-right {
+.q-notification__badge--top-left,
+.q-notification__badge--top-right {
   top: 14px;
 }
 

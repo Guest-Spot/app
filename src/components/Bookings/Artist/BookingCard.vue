@@ -1,5 +1,8 @@
 <template>
-  <div class="booking-card bg-block border-radius-md" :class="{ sent: isSent, received: isReceived }">
+  <div
+    class="booking-card bg-block border-radius-md"
+    :class="{ sent: isSent, received: isReceived }"
+  >
     <div class="card-header">
       <div class="shop-info flex column full-width relative-position">
         <q-img
@@ -112,18 +115,8 @@ const props = defineProps<Props>();
 defineEmits<Emits>();
 
 // Computed properties
-const {
-  documentId,
-  title,
-  description,
-  startTime,
-  endTime,
-  date,
-  status,
-  shop,
-  location,
-  type,
-} = props.booking;
+const { documentId, title, description, startTime, endTime, date, status, shop, location, type } =
+  props.booking;
 
 const isReceived = computed(() => type === 'shop-to-artist');
 const isSent = computed(() => type === 'artist-to-shop');
@@ -133,7 +126,7 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -143,7 +136,7 @@ const getStatusLabel = (status: IBooking['status']) => {
     accepted: 'Accepted',
     rejected: 'Rejected',
     cancelled: 'Cancelled',
-    completed: 'Completed'
+    completed: 'Completed',
   };
   return statusMap[status];
 };
@@ -231,7 +224,9 @@ const getStatusLabel = (status: IBooking['status']) => {
       line-height: 1.5;
     }
 
-    .date-info, .time-info, .location-info {
+    .date-info,
+    .time-info,
+    .location-info {
       display: flex;
       align-items: center;
       gap: 8px;

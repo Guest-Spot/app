@@ -1,5 +1,5 @@
-import { defineStore } from "pinia";
-import type { IShop } from "src/interfaces/shop";
+import { defineStore } from 'pinia';
+import type { IShop } from 'src/interfaces/shop';
 
 export const useShopsStore = defineStore('shops', {
   state: () => ({

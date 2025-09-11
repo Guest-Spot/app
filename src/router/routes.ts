@@ -5,9 +5,7 @@ const routes: RouteRecordRaw[] = [
     path: '/sign-in',
     component: () => import('layouts/AuthLayout.vue'),
     meta: { title: 'Sign In' },
-    children: [
-      { path: '', component: () => import('pages/SignInPage.vue') },
-    ],
+    children: [{ path: '', component: () => import('pages/SignInPage.vue') }],
   },
   {
     path: '/',
@@ -16,42 +14,42 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: () => import('pages/IndexPage.vue'),
-        meta: { title: 'Search Page' }
+        meta: { title: 'Search Page' },
       },
       {
         path: 'bookmarks',
         component: () => import('pages/BookmarksPage.vue'),
-        meta: { title: 'Bookmarks' }
+        meta: { title: 'Bookmarks' },
       },
       {
         path: 'trips-bookings',
         component: () => import('pages/TripsBookingsPage.vue'),
-        meta: { title: 'My Trips & Bookings', requiresAuth: true }
+        meta: { title: 'My Trips & Bookings', requiresAuth: true },
       },
       {
         path: 'bookings',
         component: () => import('pages/BookingsPage.vue'),
-        meta: { title: 'Shop Bookings', requiresAuth: true }
+        meta: { title: 'Shop Bookings', requiresAuth: true },
       },
       {
         path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
-        meta: { title: 'My Profile', requiresAuth: true }
+        meta: { title: 'My Profile', requiresAuth: true },
       },
       {
         path: 'faq',
         component: () => import('pages/FAQPage.vue'),
-        meta: { title: 'FAQ' }
+        meta: { title: 'FAQ' },
       },
       {
         path: 'tos',
         component: () => import('pages/TOSPage.vue'),
-        meta: { title: 'Terms of Service' }
+        meta: { title: 'Terms of Service' },
       },
       {
         path: 'privacy',
         component: () => import('pages/PrivacyPage.vue'),
-        meta: { title: 'Privacy Policy' }
+        meta: { title: 'Privacy Policy' },
       },
     ],
   },
@@ -62,7 +60,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: () => import('pages/PublicArtistProfile.vue'),
-        meta: { title: 'Artist Profile', hasBack: true }
+        meta: { title: 'Artist Profile', hasBack: true },
       },
     ],
   },
@@ -73,7 +71,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: () => import('pages/PublicShopProfile.vue'),
-        meta: { title: 'Shop Profile', hasBack: true }
+        meta: { title: 'Shop Profile', hasBack: true },
       },
     ],
   },
@@ -87,7 +85,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: () => import('pages/ErrorNotFound.vue'),
-        meta: { title: 'Page Not Found' }
+        meta: { title: 'Page Not Found' },
       },
     ],
   },

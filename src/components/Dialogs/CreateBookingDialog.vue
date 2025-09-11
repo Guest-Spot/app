@@ -1,8 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" position="bottom">
     <q-card class="create-booking-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">Create Booking Request</div>
@@ -28,7 +25,7 @@
               rounded
               placeholder="Enter booking title"
               class="custom-input"
-              :rules="[val => !!val || 'Title is required']"
+              :rules="[(val) => !!val || 'Title is required']"
             />
           </div>
           <div class="input-group">
@@ -43,7 +40,7 @@
               class="custom-input"
               rows="3"
               required
-              :rules="[val => !!val || 'Description is required']"
+              :rules="[(val) => !!val || 'Description is required']"
             />
           </div>
           <div class="input-group">
@@ -58,18 +55,13 @@
               mask="####-##-##"
               fill-mask
               readonly
-              :rules="[val => !!val || 'Date is required']"
+              :rules="[(val) => !!val || 'Date is required']"
               @click.stop="dateProxy?.show()"
             >
               <template #append>
                 <q-icon name="event" class="cursor-pointer" @click.stop="dateProxy?.show()" />
               </template>
-              <q-popup-proxy
-                ref="dateProxy"
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
+              <q-popup-proxy ref="dateProxy" cover transition-show="scale" transition-hide="scale">
                 <q-date
                   v-model="bookingData.date"
                   mask="YYYY-MM-DD"
@@ -93,11 +85,15 @@
                 fill-mask
                 readonly
                 required
-                :rules="[val => !!val || 'Start time is required']"
+                :rules="[(val) => !!val || 'Start time is required']"
                 @click.stop="startTimeProxy?.show()"
               >
                 <template #append>
-                  <q-icon name="schedule" class="cursor-pointer" @click.stop="startTimeProxy?.show()" />
+                  <q-icon
+                    name="schedule"
+                    class="cursor-pointer"
+                    @click.stop="startTimeProxy?.show()"
+                  />
                 </template>
                 <q-popup-proxy
                   ref="startTimeProxy"
@@ -128,11 +124,15 @@
                 fill-mask
                 readonly
                 required
-                :rules="[val => !!val || 'End time is required']"
+                :rules="[(val) => !!val || 'End time is required']"
                 @click.stop="endTimeProxy?.show()"
               >
                 <template #append>
-                  <q-icon name="schedule" class="cursor-pointer" @click.stop="endTimeProxy?.show()" />
+                  <q-icon
+                    name="schedule"
+                    class="cursor-pointer"
+                    @click.stop="endTimeProxy?.show()"
+                  />
                 </template>
                 <q-popup-proxy
                   ref="endTimeProxy"
@@ -155,19 +155,8 @@
       </q-card-section>
 
       <q-card-actions class="dialog-actions bg-block">
-        <q-btn
-          label="Cancel"
-          rounded
-          unelevated
-          class="bg-block"
-          @click="closeDialog"
-        />
-        <q-btn
-          rounded
-          color="primary"
-          @click="onSubmit"
-          :loading="isSubmitting"
-        >
+        <q-btn label="Cancel" rounded unelevated class="bg-block" @click="closeDialog" />
+        <q-btn rounded color="primary" @click="onSubmit" :loading="isSubmitting">
           <div class="q-px-md">
             <span class="text-body2">Send Request</span>
             <q-icon name="send" size="16px" color="white" class="q-ml-sm" />
@@ -216,16 +205,19 @@ const bookingData = ref<Partial<IBooking>>({
   shopDocumentId: props.shopDocumentId || '',
   artistDocumentId: props.artistDocumentId || '',
   status: 'pending',
-  type: props.type
+  type: props.type,
 });
 
 // Watch for external changes to modelValue
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-  if (newValue) {
-    resetForm();
-  }
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+    if (newValue) {
+      resetForm();
+    }
+  },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -241,7 +233,7 @@ const resetForm = () => {
     endTime: '',
     shopDocumentId: props.shopDocumentId || '',
     artistDocumentId: props.artistDocumentId || '',
-    status: 'pending'
+    status: 'pending',
   };
 };
 
@@ -257,8 +249,13 @@ const onSubmit = () => {
     void formRef.value?.validate?.();
 
     // Validate required fields
-    if (!bookingData.value.title || !bookingData.value.description ||
-        !bookingData.value.date || !bookingData.value.startTime || !bookingData.value.endTime) {
+    if (
+      !bookingData.value.title ||
+      !bookingData.value.description ||
+      !bookingData.value.date ||
+      !bookingData.value.startTime ||
+      !bookingData.value.endTime
+    ) {
       $q.notify({
         type: 'negative',
         message: 'Please fill in all required fields',
@@ -267,8 +264,8 @@ const onSubmit = () => {
           {
             icon: 'close',
             color: 'white',
-          }
-        ]
+          },
+        ],
       });
       return;
     }
@@ -283,8 +280,8 @@ const onSubmit = () => {
           {
             icon: 'close',
             color: 'white',
-          }
-        ]
+          },
+        ],
       });
       return;
     }
@@ -293,7 +290,7 @@ const onSubmit = () => {
     emit('submit', {
       ...bookingData.value,
       shopDocumentId: props.shopDocumentId || '',
-      artistDocumentId: props.artistDocumentId || ''
+      artistDocumentId: props.artistDocumentId || '',
     });
 
     // Show success message
@@ -306,8 +303,8 @@ const onSubmit = () => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
 
     closeDialog();
@@ -320,8 +317,8 @@ const onSubmit = () => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
     console.log('Error:', error);
   } finally {

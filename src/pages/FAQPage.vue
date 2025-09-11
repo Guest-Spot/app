@@ -24,29 +24,31 @@ import { ref } from 'vue';
 const faqs = ref([
   {
     question: 'What is GuestSpot?',
-    answer: 'GuestSpot is a platform that helps you manage and organize your guest-related activities.'
+    answer:
+      'GuestSpot is a platform that helps you manage and organize your guest-related activities.',
   },
   {
     question: 'How do I get started?',
-    answer: 'Simply create an account and start exploring the features available in our platform.'
+    answer: 'Simply create an account and start exploring the features available in our platform.',
   },
   {
     question: 'Is GuestSpot free to use?',
-    answer: 'We offer both free and premium plans. Check our pricing page for more details.'
+    answer: 'We offer both free and premium plans. Check our pricing page for more details.',
   },
   {
     question: 'How can I contact support?',
-    answer: 'You can reach our support team through the contact form or email us directly at support@guestspot.com.'
+    answer:
+      'You can reach our support team through the contact form or email us directly at support@guestspot.com.',
   },
   {
     question: 'Can I cancel my subscription anytime?',
-    answer: 'Yes, you can cancel your subscription at any time from your account settings.'
-  }
+    answer: 'Yes, you can cancel your subscription at any time from your account settings.',
+  },
 ]);
 
 // FAQ page component
 defineOptions({
-  name: 'FAQPage'
+  name: 'FAQPage',
 });
 </script>
 

@@ -35,7 +35,7 @@ import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
 import BookingsList from 'src/components/Bookings/Artist/BookingsList.vue';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
-import SingInToContinue from 'src/components/SingInToContinue.vue'
+import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
 
 const TAB_TRIPS = 'trips';
@@ -44,12 +44,12 @@ const TAB_BOOKINGS = 'bookings';
 const TABS: ITab[] = [
   {
     label: 'Trips',
-    tab: TAB_TRIPS
+    tab: TAB_TRIPS,
   },
   {
     label: 'Bookings',
-    tab: TAB_BOOKINGS
-  }
+    tab: TAB_BOOKINGS,
+  },
 ];
 
 const { isAuthenticated } = useUser();

@@ -26,7 +26,7 @@ import { useRoute } from 'vue-router';
 
 // Footer component with navigation icons
 defineOptions({
-  name: 'TheFooter'
+  name: 'TheFooter',
 });
 
 const route = useRoute();
@@ -37,27 +37,27 @@ const LINKS = computed(() => [
     icon: 'search',
     label: 'Search',
     path: '/',
-    isActive: route.path === '/'
+    isActive: route.path === '/',
   },
   {
     icon: 'bookmark',
     label: 'Bookmarks',
     path: '/bookmarks',
-    isActive: route.path === '/bookmarks'
+    isActive: route.path === '/bookmarks',
   },
   {
     icon: userStore.isShop ? 'event_note' : 'event',
     label: 'Bookings',
     path: userStore.isShop ? '/bookings' : '/trips-bookings',
-    isActive: route.path === '/bookings' || route.path === '/trips-bookings'
+    isActive: route.path === '/bookings' || route.path === '/trips-bookings',
   },
   {
     icon: 'person',
     label: 'Profile',
     path: '/profile',
-    isActive: route.path === '/profile'
-  }
-])
+    isActive: route.path === '/profile',
+  },
+]);
 </script>
 
 <style scoped lang="scss">

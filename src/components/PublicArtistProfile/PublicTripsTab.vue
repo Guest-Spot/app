@@ -12,11 +12,7 @@
 
     <!-- Trips List -->
     <div class="trips-list" v-else-if="trips.length">
-      <ArtistTripCard
-        v-for="(trip, index) in trips"
-        :key="`trip-${index}`"
-        :trip="trip"
-      />
+      <ArtistTripCard v-for="(trip, index) in trips" :key="`trip-${index}`" :trip="trip" />
     </div>
 
     <!-- Empty State -->

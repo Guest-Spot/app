@@ -12,7 +12,7 @@ export interface IArtist {
   status?: string;
   avatar?: {
     url: string;
-  }
+  };
   links?: {
     type: LinkType;
     value: string;
@@ -22,7 +22,7 @@ export interface IArtist {
     address: string;
     latitude: string;
     longitude: string;
-  }
+  };
 }
 
 export interface IGraphQLArtistsResult {

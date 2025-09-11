@@ -11,7 +11,6 @@ export interface IPortfolio {
   ownerDocumentId: string;
 }
 
-
 export interface IPortfolioForm {
   title: string;
   description: string;

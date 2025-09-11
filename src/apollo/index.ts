@@ -1,11 +1,11 @@
-import type { ApolloClientOptions } from '@apollo/client/core'
-import { InMemoryCache } from '@apollo/client/cache/index.js'
-import type { BootFileParams } from '@quasar/app-vite'
-import { apolloLinkChain } from './links'
+import type { ApolloClientOptions } from '@apollo/client/core';
+import { InMemoryCache } from '@apollo/client/cache/index.js';
+import type { BootFileParams } from '@quasar/app-vite';
+import { apolloLinkChain } from './links';
 
 export /* async */ function getClientOptions(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  /* {app, router, ...} */ options?: Partial<BootFileParams>
+  /* {app, router, ...} */ options?: Partial<BootFileParams>,
 ) {
   return <ApolloClientOptions<unknown>>Object.assign(
     // General options.
@@ -100,6 +100,6 @@ export /* async */ function getClientOptions(
       ? {
           ssrForceFetchDelay: 100,
         }
-      : {}
-  )
+      : {},
+  );
 }

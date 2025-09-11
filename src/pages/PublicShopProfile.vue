@@ -3,12 +3,7 @@
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
-      <q-btn
-        round
-        flat
-        @click="$router.back()"
-        class="bg-block absolute-top-left q-z-2 back-btn"
-      >
+      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
@@ -25,7 +20,6 @@
       </q-btn>
 
       <div class="profile-info-container flex column">
-
         <!-- Pictures Carousel or Avatar -->
         <div class="profile-carousel">
           <ImageCarousel
@@ -42,7 +36,9 @@
             <div class="flex column items-center full-width">
               <template v-if="shopData.name || shopData.description">
                 <span class="full-name text-h6">{{ shopData.name }}</span>
-                <span class="status text-body2 text-center text-grey-6">{{ shopData.description }}</span>
+                <span class="status text-body2 text-center text-grey-6">{{
+                  shopData.description
+                }}</span>
               </template>
               <template v-else>
                 <q-skeleton type="text" width="50%" height="20px" />
@@ -70,36 +66,27 @@
 
     <div class="container">
       <!-- Navigation Tabs -->
-       <div class="full-width flex justify-center">
-         <TabsComp
-           :tabs="TABS"
-           :activeTab="activeTab"
-           send-initial-tab
-           @setActiveTab="setActiveTab"
-           :disable="!shopData.documentId"
-         />
-       </div>
+      <div class="full-width flex justify-center">
+        <TabsComp
+          :tabs="TABS"
+          :activeTab="activeTab"
+          send-initial-tab
+          @setActiveTab="setActiveTab"
+          :disable="!shopData.documentId"
+        />
+      </div>
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutShopTab
-            :shop-data="shopData"
-            :loading="isLoadingShop"
-          />
+          <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <PublicShopArtistsTab
-            :artists="artists"
-            :loading="isLoadingShopArtists"
-          />
+          <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-          <PublicShopPortfolioTab
-            :portfolio-items="portfolioItems"
-            :loading="isLoadingPortfolio"
-          />
+          <PublicShopPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
         </div>
       </div>
     </div>
@@ -192,23 +179,23 @@ const portfolioItems = ref<IPortfolio[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
-const shopPictures = computed(() => shopData.value?.pictures?.map(picture => picture.url));
+const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
 
 const TABS = computed<ITab[]>(() => [
   {
     label: 'About shop',
-    tab: TAB_ABOUT
+    tab: TAB_ABOUT,
   },
   {
     label: 'Artists',
     tab: TAB_ARTISTS,
-    count: artists.value.length
+    count: artists.value.length,
   },
   {
     label: 'Portfolio',
     tab: TAB_PORTFOLIO,
-    count: portfolioItems.value.length
-  }
+    count: portfolioItems.value.length,
+  },
 ]);
 
 const showBookingDialog = ref(false);
@@ -237,7 +224,7 @@ const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
 const loadShopData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
-    const shopInStore = shopsStore.getShops.find(shop => shop.documentId === documentId);
+    const shopInStore = shopsStore.getShops.find((shop) => shop.documentId === documentId);
     if (shopInStore) {
       shopData.value = shopInStore;
     } else {
@@ -267,7 +254,6 @@ onResultShopArtists((result) => {
 onErrorShopArtists((error) => {
   console.error('Error fetching shop artists:', error);
 });
-
 
 onResultPortfolio((result) => {
   if (result.data?.portfolios) {

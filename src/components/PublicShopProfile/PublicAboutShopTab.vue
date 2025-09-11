@@ -29,7 +29,7 @@ const props = defineProps<Props>();
 
 const { formatTime } = useDate();
 
-const contacts = computed(() => ([
+const contacts = computed(() => [
   {
     label: 'City',
     value: props.shopData.location?.city || '',
@@ -48,7 +48,7 @@ const contacts = computed(() => ([
     value: props.shopData.email || '',
     type: InfoItemType.Email,
   },
-]));
+]);
 
 const workingHours = computed(() => {
   const times = [...(props.shopData.openingHours || [])];
@@ -60,22 +60,24 @@ const workingHours = computed(() => {
     return orderA - orderB;
   });
 
-  return times.map(time => ({
+  return times.map((time) => ({
     label: OpeningHoursDays[time.day as keyof typeof OpeningHoursDays],
-    value: (time.start && time.end) ? `${formatTime(time.start)} - ${formatTime(time.end)}` : 'Closed',
+    value:
+      time.start && time.end ? `${formatTime(time.start)} - ${formatTime(time.end)}` : 'Closed',
     className: time.start && time.end ? '' : 'opening-times--closed',
   }));
 });
 
-const links = computed(() => ([
-  {
-    label: 'Instagram',
-    value: props.shopData.links?.find(link => link.type === LinkType.Instagram)?.value || '',
-    type: InfoItemType.Link,
-  }
-].filter(link => !!link.value)));
+const links = computed(() =>
+  [
+    {
+      label: 'Instagram',
+      value: props.shopData.links?.find((link) => link.type === LinkType.Instagram)?.value || '',
+      type: InfoItemType.Link,
+    },
+  ].filter((link) => !!link.value),
+);
 </script>
-
 
 <style scoped lang="scss">
 .opening-times-card {
@@ -90,7 +92,8 @@ const links = computed(() => ([
       opacity: 0.6;
     }
 
-    &:nth-child(6), &:nth-child(7) {
+    &:nth-child(6),
+    &:nth-child(7) {
       .info-label {
         opacity: 0.6;
       }

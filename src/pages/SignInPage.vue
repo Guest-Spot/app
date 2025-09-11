@@ -1,13 +1,7 @@
 <template>
   <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
-      <q-btn
-        round
-        unelevated
-        text-color="grey-6"
-        @click="$router.back()"
-        class="bg-block"
-      >
+      <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
       <h2 class="text-h5 q-my-none">Sign in to <span class="text-primary">your account</span></h2>
@@ -26,7 +20,7 @@
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Email is required']"
+                :rules="[(val) => !!val || 'Email is required']"
                 class="full-width"
                 bg-color="transparent"
               >
@@ -45,7 +39,10 @@
                 outlined
                 rounded
                 size="lg"
-                :rules="[val => !!val || 'Password is required', val => val.length >= 3 || 'Password must be at least 3 characters']"
+                :rules="[
+                  (val) => !!val || 'Password is required',
+                  (val) => val.length >= 3 || 'Password must be at least 3 characters',
+                ]"
                 class="full-width"
                 bg-color="transparent"
               >
@@ -105,7 +102,7 @@ const loading = ref(false);
 const showPassword = ref(false);
 const form = ref({
   login: '',
-  password: ''
+  password: '',
 });
 
 const handleLogin = async () => {
@@ -127,8 +124,8 @@ const handleLogin = async () => {
           {
             icon: 'close',
             color: 'white',
-          }
-        ]
+          },
+        ],
       });
 
       // Redirect to artist profile
@@ -138,7 +135,6 @@ const handleLogin = async () => {
     } else {
       throw new Error(result.error || 'Invalid credentials');
     }
-
   } catch (error) {
     console.error('Login error:', error);
     $q.notify({
@@ -152,8 +148,8 @@ const handleLogin = async () => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
   } finally {
     loading.value = false;

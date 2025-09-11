@@ -18,7 +18,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const basicInformation = computed(() => ([
+const basicInformation = computed(() => [
   {
     label: 'name',
     value: props.artistData.name || '',
@@ -27,9 +27,9 @@ const basicInformation = computed(() => ([
     label: 'Bio',
     value: props.artistData.description || '',
   },
-]));
+]);
 
-const contacts = computed(() => ([
+const contacts = computed(() => [
   {
     label: 'City',
     value: props.artistData.location?.city || '',
@@ -48,13 +48,13 @@ const contacts = computed(() => ([
     value: props.artistData.email || '',
     type: InfoItemType.Email,
   },
-]));
+]);
 
-const links = computed(() => ([
+const links = computed(() => [
   {
     label: 'Instagram',
-    value: props.artistData.links?.find(link => link.type === LinkType.Instagram)?.value || '',
+    value: props.artistData.links?.find((link) => link.type === LinkType.Instagram)?.value || '',
     type: InfoItemType.Link,
   },
-]));
+]);
 </script>

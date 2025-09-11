@@ -70,10 +70,7 @@ import NoResult from 'src/components/NoResult.vue';
 const activeTab = ref(TAB_SHOPS);
 
 // Use favorites composable
-const {
-  favoriteShops,
-  favoriteArtists,
-} = useFavorites();
+const { favoriteShops, favoriteArtists } = useFavorites();
 
 const router = useRouter();
 
@@ -90,7 +87,6 @@ const toggleFavorite = (shopDocumentId: string) => {
   console.log('Toggle favorite for ID:', shopDocumentId);
   // Toggle favorite status is handled by the card components
 };
-
 </script>
 
 <style scoped lang="scss">

@@ -1,9 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    no-route-dismiss
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" no-route-dismiss position="bottom">
     <q-card class="sort-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">Sort By</div>
@@ -57,12 +53,7 @@
           class="bg-block min-width"
           @click="clearSort"
         />
-        <q-btn
-          rounded
-          color="primary"
-          class="min-width"
-          @click="applySort"
-        >
+        <q-btn rounded color="primary" class="min-width" @click="applySort">
           <div class="q-px-md">
             <span class="text-body2">Apply</span>
           </div>
@@ -105,19 +96,24 @@ const sortBy = ref<string | null>(props.sortValue.sortBy);
 const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
-const sortOptions = [
-  { label: 'Name: A to Z', value: 'name' }
-];
+const sortOptions = [{ label: 'Name: A to Z', value: 'name' }];
 
 // Watch for props changes
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
-watch(() => props.sortValue, (newValue) => {
-  sortBy.value = newValue.sortBy;
-  sortDirection.value = newValue.sortDirection;
-}, { deep: true });
+watch(
+  () => props.sortValue,
+  (newValue) => {
+    sortBy.value = newValue.sortBy;
+    sortDirection.value = newValue.sortDirection;
+  },
+  { deep: true },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -128,7 +124,7 @@ const saveSortToUrl = (sortBy: string, sortDirection: string) => {
   const queryParams = {
     ...(sortBy && sortDirection ? { sort: `${sortBy}:${sortDirection}` } : { sort: null }),
   };
-  void router.replace({ query: { ...route.query, ...queryParams }});
+  void router.replace({ query: { ...route.query, ...queryParams } });
 };
 
 const selectSortOption = (value: string) => {
@@ -139,7 +135,7 @@ const selectSortOption = (value: string) => {
   saveSortToUrl(sortBy.value || '', sortDirection.value);
   emit('update:sortValue', {
     sortBy: sortBy.value,
-    sortDirection: sortDirection.value
+    sortDirection: sortDirection.value,
   });
 };
 
@@ -157,7 +153,7 @@ const clearSort = () => {
   saveSortToUrl(sortBy.value || '', sortDirection.value);
   emit('update:sortValue', {
     sortBy: sortBy.value,
-    sortDirection: sortDirection.value
+    sortDirection: sortDirection.value,
   });
 };
 </script>

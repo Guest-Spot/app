@@ -1,15 +1,10 @@
 <template>
   <div class="flex justify-between items-center q-gap-md">
-    <div class="text-h6">Welcome, <span class="text-primary">{{ profile?.name }}</span></div>
-    <q-btn
-      text-color="negative"
-      icon="settings"
-      round
-      unelevated
-      class="bg-block"
-      size="sm"
-    >
-      <q-menu style="width: 150px;">
+    <div class="text-h6">
+      Welcome, <span class="text-primary">{{ profile?.name }}</span>
+    </div>
+    <q-btn text-color="negative" icon="settings" round unelevated class="bg-block" size="sm">
+      <q-menu style="width: 150px">
         <q-list>
           <q-item v-close-popup clickable>
             <q-item-section>
@@ -35,7 +30,7 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'ProfileHeader'
+  name: 'ProfileHeader',
 });
 
 import { useRouter } from 'vue-router';
@@ -53,13 +48,13 @@ const handleLogout = () => {
     cancel: {
       color: 'grey-9',
       rounded: true,
-      label: 'Cancel'
+      label: 'Cancel',
     },
     ok: {
       color: 'primary',
       rounded: true,
-      label: 'Logout'
-    }
+      label: 'Logout',
+    },
   }).onOk(() => {
     void logout();
     void router.push('/');

@@ -27,7 +27,7 @@
             spinner-size="lg"
             spinner-color="dark"
             class="full-width full-height preview-image"
-            :class="{ 'zoomed': isZoomed }"
+            :class="{ zoomed: isZoomed }"
             @click="toggleZoom"
           />
           <div v-else class="text-grey-6 text-center">
@@ -64,53 +64,53 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue';
 
 defineOptions({
   name: 'ImagePreviewDialog',
 });
 
 interface Props {
-  modelValue: boolean
-  imageSrc?: string | null
+  modelValue: boolean;
+  imageSrc?: string | null;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void
+  (e: 'update:modelValue', value: boolean): void;
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
 
-const isZoomed = ref(false)
+const isZoomed = ref(false);
 
 const dialogModel = computed({
   get: () => props.modelValue,
-  set: (value: boolean) => emit('update:modelValue', value)
-})
+  set: (value: boolean) => emit('update:modelValue', value),
+});
 
 // Methods
 function toggleZoom() {
-  isZoomed.value = !isZoomed.value
+  isZoomed.value = !isZoomed.value;
 }
 
 function downloadImage() {
-  if (!props.imageSrc) return
+  if (!props.imageSrc) return;
 
-  const link = document.createElement('a')
-  link.href = props.imageSrc
-  link.download = `image-${Date.now()}.png`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  const link = document.createElement('a');
+  link.href = props.imageSrc;
+  link.download = `image-${Date.now()}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 // Reset zoom when dialog closes
 watch(dialogModel, (newValue) => {
   if (!newValue) {
-    isZoomed.value = false
+    isZoomed.value = false;
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

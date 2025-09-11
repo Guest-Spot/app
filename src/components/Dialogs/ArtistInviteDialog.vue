@@ -1,8 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" position="bottom">
     <q-card class="artist-invite-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">{{ title }}</div>
@@ -29,12 +26,7 @@
               readonly
               class="custom-input link-input"
             />
-            <q-btn
-              round
-              dense
-              class="bg-block"
-              @click="copyLink"
-            >
+            <q-btn round dense class="bg-block" @click="copyLink">
               <q-icon name="content_copy" size="18px" />
             </q-btn>
           </div>
@@ -76,9 +68,12 @@ const inviteLink = computed(() => {
 });
 
 // Watch for external changes to modelValue
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
@@ -107,8 +102,8 @@ const copyLink = async () => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
 
     // Reset button state after delay
@@ -116,7 +111,6 @@ const copyLink = async () => {
       copyIcon.value = 'content_copy';
       copyButtonColor.value = 'dark';
     }, 2000);
-
   } catch {
     // Fallback for older browsers
     const textArea = document.createElement('textarea');
@@ -138,8 +132,8 @@ const copyLink = async () => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
 
     setTimeout(() => {

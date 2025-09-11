@@ -17,7 +17,6 @@
     </div>
 
     <div class="container">
-
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
@@ -41,12 +40,12 @@ const TAB_ARTISTS = 'artists';
 const TABS: ITab[] = [
   {
     label: 'About shop',
-    tab: TAB_ABOUT
+    tab: TAB_ABOUT,
   },
   {
     label: 'Shop Artists',
-    tab: TAB_ARTISTS
-  }
+    tab: TAB_ARTISTS,
+  },
 ];
 
 // Tab management

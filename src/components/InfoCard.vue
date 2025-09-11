@@ -6,12 +6,21 @@
       <h3 class="card-title text-subtitle1">{{ title }}</h3>
     </div>
     <div class="card-content">
-      <div class="info-row" v-for="item in data" :key="`${item.label}-${item.value}`" :class="item.className">
+      <div
+        class="info-row"
+        v-for="item in data"
+        :key="`${item.label}-${item.value}`"
+        :class="item.className"
+      >
         <span class="info-label">{{ item.label }}:</span>
         <a v-if="item.type === InfoItemType.Phone" target="_blank" :href="`tel:${item.value}`">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
-        <a v-else-if="item.type === InfoItemType.Email" target="_blank" :href="`mailto:${item.value}`">
+        <a
+          v-else-if="item.type === InfoItemType.Email"
+          target="_blank"
+          :href="`mailto:${item.value}`"
+        >
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
         <a v-else-if="item.type === InfoItemType.Link" target="_blank" :href="item.value">
@@ -65,8 +74,8 @@ const showToast = () => {
       {
         icon: 'close',
         color: 'white',
-      }
-    ]
+      },
+    ],
   });
 };
 
@@ -75,7 +84,6 @@ const copyLink = (value: string) => {
   showToast();
 };
 </script>
-
 
 <style scoped lang="scss">
 .info-card {

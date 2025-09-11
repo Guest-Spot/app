@@ -74,24 +74,19 @@ const RECEIVED_TAB = 'received';
 
 // Computed properties
 const sentBookings = computed(() => {
-  return bookings.value.filter(booking =>
-    booking.type === 'artist-to-shop'
-  );
+  return bookings.value.filter((booking) => booking.type === 'artist-to-shop');
 });
 
 const receivedBookings = computed(() => {
-  return bookings.value.filter(booking =>
-    booking.type === 'shop-to-artist'
-  );
+  return bookings.value.filter((booking) => booking.type === 'shop-to-artist');
 });
 
 const filterTabs = computed<ITab[]>(() => [
   { label: 'Sent', tab: SENT_TAB, count: sentBookings.value.length },
-  { label: 'Received', tab: RECEIVED_TAB, count: receivedBookings.value.length }
+  { label: 'Received', tab: RECEIVED_TAB, count: receivedBookings.value.length },
 ]);
 
 const activeFilterTab = ref<ITab>(filterTabs.value[0]!);
-
 
 // Methods
 const setActiveTab = (t: ITab) => {
@@ -99,7 +94,7 @@ const setActiveTab = (t: ITab) => {
 };
 
 const acceptBooking = (bookingDocumentId: string) => {
-  const booking = bookings.value.find(b => b.documentId === bookingDocumentId);
+  const booking = bookings.value.find((b) => b.documentId === bookingDocumentId);
   if (booking) {
     booking.status = 'accepted';
     booking.updatedAt = new Date().toISOString();
@@ -113,14 +108,14 @@ const acceptBooking = (bookingDocumentId: string) => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
   }
 };
 
 const rejectBooking = (bookingDocumentId: string) => {
-  const booking = bookings.value.find(b => b.documentId === bookingDocumentId);
+  const booking = bookings.value.find((b) => b.documentId === bookingDocumentId);
   if (booking) {
     booking.status = 'rejected';
     booking.updatedAt = new Date().toISOString();
@@ -134,8 +129,8 @@ const rejectBooking = (bookingDocumentId: string) => {
         {
           icon: 'close',
           color: 'white',
-        }
-      ]
+        },
+      ],
     });
   }
 };
@@ -147,15 +142,15 @@ const cancelBooking = (bookingDocumentId: string) => {
     cancel: {
       color: 'grey-9',
       rounded: true,
-      label: 'No, Keep It'
+      label: 'No, Keep It',
     },
     ok: {
       color: 'negative',
       rounded: true,
-      label: 'Yes, Cancel'
-    }
+      label: 'Yes, Cancel',
+    },
   }).onOk(() => {
-    const booking = bookings.value.find(b => b.documentId === bookingDocumentId);
+    const booking = bookings.value.find((b) => b.documentId === bookingDocumentId);
     if (booking) {
       booking.status = 'cancelled';
       booking.updatedAt = new Date().toISOString();
@@ -169,8 +164,8 @@ const cancelBooking = (bookingDocumentId: string) => {
           {
             icon: 'close',
             color: 'white',
-          }
-        ]
+          },
+        ],
       });
     }
   });

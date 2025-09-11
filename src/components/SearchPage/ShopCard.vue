@@ -53,14 +53,14 @@ const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const { formatTime } = useDate();
 
 const isFavorite = computed(() => isShopFavorite(props.shop.documentId));
-const shopPictures = computed(() => props.shop.pictures.map(picture => picture.url));
+const shopPictures = computed(() => props.shop.pictures.map((picture) => picture.url));
 
 const openingHourText = computed(() => {
   const dayIndex = new Date().getDay();
   const todayKey = Object.entries(OpeningHoursIndexDays).find(
-    ([, value]) => Number(value) === dayIndex
+    ([, value]) => Number(value) === dayIndex,
   )?.[0] as keyof typeof OpeningHoursIndexDays | undefined;
-  const todayTime = props.shop.openingHours?.find(time => time.day === todayKey);
+  const todayTime = props.shop.openingHours?.find((time) => time.day === todayKey);
   if (todayTime?.start && todayTime?.end) {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
   }

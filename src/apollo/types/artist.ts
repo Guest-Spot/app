@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client/core";
+import { gql } from '@apollo/client/core';
 
 export const ARTISTS_QUERY = gql`
   query Artists($filters: ArtistFiltersInput, $sort: [String]) {

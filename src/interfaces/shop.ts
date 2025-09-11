@@ -29,7 +29,7 @@ export interface IShop {
     type: LinkType;
     value: string;
   }[];
-};
+}
 
 export interface IGraphQLShopsResult {
   shops: IShop[];

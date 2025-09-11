@@ -41,7 +41,7 @@ import useUser from 'src/modules/useUser';
 
 // Export component for TypeScript
 defineOptions({
-  name: 'TheHeader'
+  name: 'TheHeader',
 });
 
 const route = useRoute();
@@ -51,7 +51,7 @@ const { logout, profile } = useUser();
 // Check if current page is a profile page
 const isProfilePage = computed(() => {
   const profileRoutes = ['/profile', '/artist-profile'];
-  return profileRoutes.some(profileRoute => profileRoute === route.path);
+  return profileRoutes.some((profileRoute) => profileRoute === route.path);
 });
 
 // Get page title based on current route

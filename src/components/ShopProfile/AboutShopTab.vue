@@ -181,13 +181,7 @@
 
     <!-- Save Button -->
     <div class="save-section">
-      <q-btn
-        class="full-width bg-block"
-        @click="saveChanges"
-        rounded
-        size="lg"
-        unelevated
-      >
+      <q-btn class="full-width bg-block" @click="saveChanges" rounded size="lg" unelevated>
         <q-icon name="save" size="18px" />
         <span class="q-ml-sm text-subtitle1">Save changes</span>
       </q-btn>
@@ -222,7 +216,7 @@ const openingTimesModel = computed({
   get: () => shopData.value.openingTimes || [],
   set: (value: IOpeningHours[]) => {
     shopData.value.openingTimes = value;
-  }
+  },
 });
 
 const saveChanges = () => {

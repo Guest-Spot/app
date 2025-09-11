@@ -3,7 +3,9 @@
     <!-- Portfolio Section -->
     <div class="portfolio-section">
       <div class="section-header q-mb-md bg-block border-radius-md">
-        <h3 class="text-subtitle1 text-bold q-my-none">Shop Portfolio ({{ portfolioItems.length }})</h3>
+        <h3 class="text-subtitle1 text-bold q-my-none">
+          Shop Portfolio ({{ portfolioItems.length }})
+        </h3>
       </div>
 
       <LoadingState
@@ -16,11 +18,7 @@
 
       <!-- Portfolio Grid -->
       <div class="portfolio-grid" v-else-if="portfolioItems.length">
-        <PortfolioCard
-          v-for="item in portfolioItems"
-          :key="item.documentId"
-          :work="item"
-        />
+        <PortfolioCard v-for="item in portfolioItems" :key="item.documentId" :work="item" />
       </div>
 
       <!-- Empty State -->

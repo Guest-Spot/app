@@ -43,12 +43,12 @@ const TAB_PORTFOLIO = 'portfolio';
 const TABS: ITab[] = [
   {
     label: 'About me',
-    tab: TAB_ABOUT
+    tab: TAB_ABOUT,
   },
   {
     label: 'Portfolio',
-    tab: TAB_PORTFOLIO
-  }
+    tab: TAB_PORTFOLIO,
+  },
 ];
 
 // Tab management

@@ -1,8 +1,5 @@
 <template>
-  <q-dialog
-    v-model="isVisible"
-    position="bottom"
-  >
+  <q-dialog v-model="isVisible" position="bottom">
     <q-card class="time-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">{{ title }}</div>
@@ -17,12 +14,7 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <q-time
-          v-model="timeValue"
-          format24h
-          unelevated
-          class="full-width bg-block"
-        />
+        <q-time v-model="timeValue" format24h unelevated class="full-width bg-block" />
       </q-card-section>
       <q-card-actions class="dialog-actions bg-block">
         <div class="left-actions flex q-gap-sm">
@@ -43,13 +35,7 @@
             @click="closeDialog"
           />
         </div>
-        <q-btn
-          label="Apply"
-          rounded
-          color="primary"
-          class="q-btn-min-width"
-          @click="confirmTime"
-        />
+        <q-btn label="Apply" rounded color="primary" class="q-btn-min-width" @click="confirmTime" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -76,14 +62,20 @@ const isVisible = ref(props.modelValue);
 const timeValue = ref(props.time);
 
 // Watch for external changes to modelValue
-watch(() => props.modelValue, (newValue) => {
-  isVisible.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    isVisible.value = newValue;
+  },
+);
 
 // Watch for external changes to time
-watch(() => props.time, (newValue) => {
-  timeValue.value = newValue;
-});
+watch(
+  () => props.time,
+  (newValue) => {
+    timeValue.value = newValue;
+  },
+);
 
 // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {

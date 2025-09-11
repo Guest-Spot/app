@@ -2,14 +2,7 @@
   <div class="trips-tab flex column q-gap-md">
     <!-- Trips Header -->
     <ListHeader :title="`Artist Trips (${trips.length})`">
-      <q-btn
-        color="primary"
-        icon="add"
-        size="sm"
-        @click="addNewTrip"
-        round
-        unelevated
-      />
+      <q-btn color="primary" icon="add" size="sm" @click="addNewTrip" round unelevated />
     </ListHeader>
 
     <!-- Loading State -->
@@ -74,13 +67,14 @@ const trips = ref<ITrip[]>([
       city: 'New York',
       address: 'New York, NY',
       latitude: '40.7128',
-      longitude: '-74.0060'
+      longitude: '-74.0060',
     },
     date: '2024-01-15',
     startTime: '20:00',
     endTime: '22:30',
-    description: 'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
-    ownerDocumentId: '1'
+    description:
+      'Amazing performance at one of the most iconic venues in the world. The crowd was incredible and the energy was electric.',
+    ownerDocumentId: '1',
   },
   {
     documentId: '2',
@@ -89,13 +83,14 @@ const trips = ref<ITrip[]>([
       city: 'Los Angeles',
       address: 'Los Angeles, CA',
       latitude: '34.0522',
-      longitude: '-118.2437'
+      longitude: '-118.2437',
     },
     date: '2024-02-20',
     startTime: '19:30',
     endTime: '21:45',
-    description: 'Excited to perform at this legendary outdoor amphitheater. It\'s going to be an unforgettable experience.',
-    ownerDocumentId: '2'
+    description:
+      "Excited to perform at this legendary outdoor amphitheater. It's going to be an unforgettable experience.",
+    ownerDocumentId: '2',
   },
   {
     documentId: '3',
@@ -104,14 +99,15 @@ const trips = ref<ITrip[]>([
       city: 'Miami',
       address: 'Miami, FL',
       latitude: '25.7617',
-      longitude: '-80.1918'
+      longitude: '-80.1918',
     },
     date: '2024-01-30',
     startTime: '23:00',
     endTime: '01:30',
-    description: 'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
-    ownerDocumentId: '3'
-  }
+    description:
+      'Great club show with an intimate crowd. The sound system was perfect and the atmosphere was amazing.',
+    ownerDocumentId: '3',
+  },
 ]);
 
 // Dialog state
@@ -123,14 +119,14 @@ const currentTrip = ref<ITrip>({
     city: '',
     address: '',
     latitude: '',
-    longitude: ''
+    longitude: '',
   },
   date: '',
   startTime: '',
   endTime: '',
   description: '',
   name: '',
-  ownerDocumentId: '4'
+  ownerDocumentId: '4',
 });
 
 const addNewTrip = () => {
@@ -141,14 +137,14 @@ const addNewTrip = () => {
       city: '',
       address: '',
       latitude: '',
-      longitude: ''
+      longitude: '',
     },
     date: '',
     startTime: '',
     endTime: '',
     description: '',
     name: '',
-    ownerDocumentId: ''
+    ownerDocumentId: '',
   };
   showTripDialog.value = true;
 };
@@ -165,7 +161,7 @@ const handleTripConfirm = (trip: ITripForm) => {
 
 // Expose data for parent component
 defineExpose({
-  trips
+  trips,
 });
 </script>
 
@@ -182,7 +178,6 @@ defineExpose({
   flex-direction: column;
   gap: 16px;
 }
-
 
 .trip-photos {
   padding-top: 20px;

@@ -2,12 +2,7 @@
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
       <!-- Back Button -->
-      <q-btn
-        round
-        flat
-        @click="$router.back()"
-        class="bg-block absolute-top-left q-z-2 back-btn"
-      >
+      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
@@ -24,7 +19,9 @@
       </q-btn>
       <!-- Profile Header Section -->
       <div class="profile-header q-mb-md">
-        <div class="profile-info-container flex column items-center q-gap-md full-width q-pb-md q-mt-xl">
+        <div
+          class="profile-info-container flex column items-center q-gap-md full-width q-pb-md q-mt-xl"
+        >
           <!-- Avatar -->
           <q-avatar size="150px" class="profile-avatar bg-block">
             <q-img
@@ -177,22 +174,21 @@ const trips = ref<ITrip[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 
-
 const TABS = computed<ITab[]>(() => [
   {
     label: 'About artist',
-    tab: TAB_ABOUT
+    tab: TAB_ABOUT,
   },
   {
     label: 'Portfolio',
     tab: TAB_PORTFOLIO,
-    count: portfolioItems.value.length
+    count: portfolioItems.value.length,
   },
   {
     label: 'Trips',
     tab: TAB_TRIPS,
-    count: trips.value.length
-  }
+    count: trips.value.length,
+  },
 ]);
 
 // Tab management
@@ -242,7 +238,9 @@ const handleBookingSubmit = (data: Partial<IBooking>) => {
 const loadArtistData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
-    const artistInStore = artistsStore.getArtists.find(artist => artist.documentId === documentId);
+    const artistInStore = artistsStore.getArtists.find(
+      (artist) => artist.documentId === documentId,
+    );
     if (artistInStore) {
       artistData.value = artistInStore;
     } else {
@@ -327,7 +325,6 @@ onBeforeMount(() => {
     top: 70px;
   }
 }
-
 
 .profile-header {
   text-align: center;

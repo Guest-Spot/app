@@ -6,20 +6,20 @@ export default function useImage() {
    */
   const formatFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
       reader.onload = () => {
         if (typeof reader.result === 'string') {
-          resolve(reader.result)
+          resolve(reader.result);
         } else {
-          reject(new Error('Failed to convert file to base64'))
+          reject(new Error('Failed to convert file to base64'));
         }
-      }
-      reader.onerror = () => reject(new Error(reader.error?.message || 'Failed to read file'))
-    })
-  }
+      };
+      reader.onerror = () => reject(new Error(reader.error?.message || 'Failed to read file'));
+    });
+  };
 
   return {
-    formatFileToBase64
-  }
+    formatFileToBase64,
+  };
 }

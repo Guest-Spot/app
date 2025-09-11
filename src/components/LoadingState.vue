@@ -1,10 +1,6 @@
 <template>
   <div class="flex column items-center q-gap-md bg-block border-radius-md q-pa-lg">
-    <q-spinner
-      :name="spinnerName"
-      size="32px"
-      color="primary"
-    />
+    <q-spinner :name="spinnerName" size="32px" color="primary" />
     <div class="flex column items-center">
       <h3 class="loading-title">{{ title }}</h3>
       <p class="loading-description text-grey-6 text-center">{{ description }}</p>

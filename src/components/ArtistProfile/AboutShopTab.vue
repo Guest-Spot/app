@@ -214,7 +214,7 @@ const shopData = ref({
 
 const workingHours = ref({
   start: '08:00',
-  end: '23:30'
+  end: '23:30',
 });
 
 const startTimeDialog = ref(false);
@@ -233,7 +233,7 @@ const saveChanges = () => {
   const shopDataToSave = {
     ...shopData.value,
     workingHoursStart: workingHours.value.start,
-    workingHoursEnd: workingHours.value.end
+    workingHoursEnd: workingHours.value.end,
   };
   console.log('Saving changes...', shopDataToSave);
 };
@@ -241,7 +241,7 @@ const saveChanges = () => {
 // Expose data for parent component
 defineExpose({
   shopData,
-  workingHours
+  workingHours,
 });
 </script>
 

@@ -1,5 +1,8 @@
 <template>
-  <div class="artist-card flex column q-gap-md bg-block border-radius-md q-pa-md" @click="navigateToProfile">
+  <div
+    class="artist-card flex column q-gap-md bg-block border-radius-md q-pa-md"
+    @click="navigateToProfile"
+  >
     <div class="flex justify-between items-center q-gap-md full-width">
       <q-avatar size="80px" class="bg-block">
         <q-img

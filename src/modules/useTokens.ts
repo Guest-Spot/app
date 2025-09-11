@@ -9,7 +9,6 @@ const REFRESH_TOKEN_KEY = 'guestspot_refresh';
  * Provides secure storage, validation and management of JWT tokens
  */
 export const useTokens = () => {
-
   /**
    * Decode JWT payload without verification (for client-side info only)
    * Uses jwt-decode library for better reliability and security
@@ -32,7 +31,7 @@ export const useTokens = () => {
 
       const currentTime = Math.floor(Date.now() / 1000);
       const bufferTime = 30; // 30 seconds buffer
-      return payload.exp <= (currentTime + bufferTime);
+      return payload.exp <= currentTime + bufferTime;
     } catch {
       return true;
     }
@@ -91,7 +90,6 @@ export const useTokens = () => {
       console.error('Failed to clear tokens:', error);
     }
   };
-
 
   /**
    * Check if user is authenticated (has valid tokens)

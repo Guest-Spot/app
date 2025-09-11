@@ -2,9 +2,7 @@
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <!-- Navigation Tabs -->
     <div class="container">
-      <SearchTabs
-        v-model="activeTab"
-      />
+      <SearchTabs v-model="activeTab" />
     </div>
 
     <div class="container">
@@ -19,20 +17,11 @@
       />
 
       <!-- Dialogs -->
-      <SearchDialog
-        v-model="showSearchDialog"
-        v-model:query="searchQuery"
-      />
+      <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" />
 
-      <FilterDialog
-        v-model="showFilterDialog"
-        v-model:filterValue="activeFilters"
-      />
+      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" />
 
-      <SortDialog
-        v-model="showSortDialog"
-        v-model:sortValue="sortSettings"
-      />
+      <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" />
 
       <!-- Main Content Area -->
       <div class="main-content flex column q-gap-md">
@@ -163,10 +152,12 @@ const activeFilters = ref<IFilters>({
 
 const sortSettings = ref<SortSettings>({
   sortBy: route.query.sort?.toString().split(':')[0] as string | null,
-  sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc'
+  sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc',
 });
 
-const hasActiveFilters = computed(() => Object.values(activeFilters.value).some(filter => !!filter));
+const hasActiveFilters = computed(() =>
+  Object.values(activeFilters.value).some((filter) => !!filter),
+);
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 const shops = computed(() => shopsStore.getShops);
 const artists = computed(() => artistsStore.getArtists);
@@ -179,16 +170,23 @@ const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.documentId}`);
 };
 
-watch([activeFilters, searchQuery, sortSettings], ([newFilters, newSearchQuery, newSortSettings]) => {
-  void refetchShops({
-    filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
-    sort: newSortSettings.sortBy ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`] : undefined,
-  });
-  void refetchArtists({
-    filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
-    sort: newSortSettings.sortBy ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`] : undefined,
-  });
-});
+watch(
+  [activeFilters, searchQuery, sortSettings],
+  ([newFilters, newSearchQuery, newSortSettings]) => {
+    void refetchShops({
+      filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
+      sort: newSortSettings.sortBy
+        ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`]
+        : undefined,
+    });
+    void refetchArtists({
+      filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
+      sort: newSortSettings.sortBy
+        ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`]
+        : undefined,
+    });
+  },
+);
 
 onResultShops(({ data, loading }) => {
   if (!loading) shopsStore.setShops(data?.shops || []);
@@ -216,12 +214,22 @@ onErrorCities((error) => {
 
 onBeforeMount(() => {
   void loadShops(null, {
-    filters: convertFiltersToGraphQLFilters({ ...activeFilters.value, name: searchQuery.value || null }),
-    sort: sortSettings.value.sortBy ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`] : undefined,
+    filters: convertFiltersToGraphQLFilters({
+      ...activeFilters.value,
+      name: searchQuery.value || null,
+    }),
+    sort: sortSettings.value.sortBy
+      ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
+      : undefined,
   });
   void loadArtists(null, {
-    filters: convertFiltersToGraphQLFilters({ ...activeFilters.value, name: searchQuery.value || null }),
-    sort: sortSettings.value.sortBy ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`] : undefined,
+    filters: convertFiltersToGraphQLFilters({
+      ...activeFilters.value,
+      name: searchQuery.value || null,
+    }),
+    sort: sortSettings.value.sortBy
+      ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
+      : undefined,
   });
   void loadCities();
 });

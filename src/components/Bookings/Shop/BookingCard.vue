@@ -1,18 +1,19 @@
 <template>
-  <div class="booking-card bg-block q-pa-md border-radius-md" :class="{ sent: isSent, received: isReceived }">
+  <div
+    class="booking-card bg-block q-pa-md border-radius-md"
+    :class="{ sent: isSent, received: isReceived }"
+  >
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm">
-          <q-img
-            :src="artist?.avatar?.url"
-            fit="cover"
-            spinner-color="dark"
-            spinner-size="16px"
-          />
+          <q-img :src="artist?.avatar?.url" fit="cover" spinner-color="dark" spinner-size="16px" />
         </q-avatar>
         <div class="flex column">
           <div class="user-name">{{ artist?.name || 'User' }}</div>
-          <div v-if="artist?.experience" class="experience-info flex items-center q-gap-xs text-grey-6">
+          <div
+            v-if="artist?.experience"
+            class="experience-info flex items-center q-gap-xs text-grey-6"
+          >
             <q-icon name="date_range" size="16px" />
             <span>{{ artist?.experience }} years of experience</span>
           </div>
@@ -101,7 +102,7 @@ import { computed, defineComponent } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
 
 defineComponent({
-  name: 'BookingCard'
+  name: 'BookingCard',
 });
 
 interface Props {
@@ -118,18 +119,8 @@ const props = defineProps<Props>();
 defineEmits<Emits>();
 
 // Computed properties
-const {
-  documentId,
-  title,
-  description,
-  startTime,
-  endTime,
-  date,
-  status,
-  location,
-  type,
-  artist,
-} = props.booking;
+const { documentId, title, description, startTime, endTime, date, status, location, type, artist } =
+  props.booking;
 
 // Determine if this is a sent or received booking for the current user
 const isReceived = computed(() => type === 'shop-to-artist');
@@ -140,7 +131,7 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -150,7 +141,7 @@ const getStatusLabel = (status: IBooking['status']) => {
     accepted: 'Accepted',
     rejected: 'Rejected',
     cancelled: 'Cancelled',
-    completed: 'Completed'
+    completed: 'Completed',
   };
   return statusMap[status];
 };

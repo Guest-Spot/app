@@ -6,7 +6,7 @@ import {
   type ILoginResponse,
   type IMeResponse,
   type IJWTTokens,
-  UserType
+  UserType,
 } from 'src/interfaces/user';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
@@ -39,7 +39,7 @@ const useUser = () => {
    */
   const login = async (
     identifier: string,
-    password: string
+    password: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       userStore.setIsLoading(true);
@@ -72,7 +72,7 @@ const useUser = () => {
       console.error('Login error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Login failed'
+        error: error instanceof Error ? error.message : 'Login failed',
       };
     } finally {
       userStore.setIsLoading(false);
@@ -87,9 +87,13 @@ const useUser = () => {
       userStore.setIsLoading(true);
 
       // Use Apollo query with current context (token will be added by authLink)
-      const { result, load } = useLazyQuery<IMeResponse<IShop | IArtist>>(ME_QUERY, {}, {
-        fetchPolicy: 'network-only', // Always fetch fresh data
-      });
+      const { result, load } = useLazyQuery<IMeResponse<IShop | IArtist>>(
+        ME_QUERY,
+        {},
+        {
+          fetchPolicy: 'network-only', // Always fetch fresh data
+        },
+      );
 
       await load();
 
@@ -102,7 +106,7 @@ const useUser = () => {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch user'
+        error: error instanceof Error ? error.message : 'Failed to fetch user',
       };
     } finally {
       userStore.setIsLoading(false);

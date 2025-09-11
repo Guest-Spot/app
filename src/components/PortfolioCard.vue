@@ -1,19 +1,10 @@
 <template>
   <div class="portfolio-item bg-block border-radius-md">
     <div class="portfolio-carousel q-z-1">
-      <ImageCarousel
-        :pictures="pictures"
-        height="200px"
-      />
+      <ImageCarousel :pictures="pictures" height="200px" />
     </div>
     <div v-if="editable" class="portfolio-edit q-z-2">
-      <q-btn
-        round
-        color="dark"
-        icon="edit"
-        size="sm"
-        @click="$emit('edit', work.documentId)"
-      />
+      <q-btn round color="dark" icon="edit" size="sm" @click="$emit('edit', work.documentId)" />
     </div>
     <div class="portfolio-details">
       <h4 class="portfolio-title">{{ work.title }}</h4>

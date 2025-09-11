@@ -42,10 +42,7 @@
     </div>
 
     <!-- Invite Artist Dialog -->
-    <ArtistInviteDialog
-      v-model="showAddArtistDialog"
-      :shop-id="shopId"
-    />
+    <ArtistInviteDialog v-model="showAddArtistDialog" :shop-id="shopId" />
   </div>
 </template>
 
@@ -72,7 +69,7 @@ const artists = ref<IArtist[]>([
       latitude: '37.7749',
       longitude: '-122.4194',
     },
-    experience: 8
+    experience: 8,
   },
   {
     documentId: '2',
@@ -89,8 +86,8 @@ const artists = ref<IArtist[]>([
       latitude: '40.7128',
       longitude: '-74.0060',
     },
-    experience: 5
-  }
+    experience: 5,
+  },
 ]);
 
 // Dialog state
@@ -111,7 +108,7 @@ const handleFavoriteToggle = (artistDocumentId: string) => {
 
 // Expose data for parent component
 defineExpose({
-  artists
+  artists,
 });
 </script>
 
@@ -151,6 +148,4 @@ defineExpose({
 .empty-description {
   margin: 0 0 24px 0;
 }
-
-
 </style>

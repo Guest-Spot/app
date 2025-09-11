@@ -27,7 +27,9 @@
         <div class="info-row">
           <q-icon name="location_on" color="grey-6" size="20px" />
           <span class="info-label">Location:</span>
-          <span class="info-value text-grey-6">{{ trip.location.city }}, {{ trip.location.address }}</span>
+          <span class="info-value text-grey-6"
+            >{{ trip.location.city }}, {{ trip.location.address }}</span
+          >
         </div>
         <div class="info-row">
           <q-icon name="event" color="grey-6" size="20px" />
@@ -65,7 +67,9 @@ defineEmits<{
 <style scoped lang="scss">
 .trip-item {
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .trip-header {

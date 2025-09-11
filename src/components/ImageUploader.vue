@@ -71,7 +71,7 @@
             accept="image/*"
             :multiple="multiple"
             @change="onGallerySelected"
-            style="display: none;"
+            style="display: none"
           />
         </div>
       </div>
@@ -118,7 +118,7 @@
         accept="image/*"
         capture="environment"
         @change="onCameraSelected"
-        style="display: none;"
+        style="display: none"
       />
 
       <!-- Open camera button (mobile only) -->
@@ -134,10 +134,7 @@
       />
     </template>
 
-    <div
-      v-if="hasImages && !multiple"
-      class="flex column absolute-bottom-right q-mr-md q-mb-md"
-    >
+    <div v-if="hasImages && !multiple" class="flex column absolute-bottom-right q-mr-md q-mb-md">
       <q-btn
         round
         size="sm"
@@ -153,28 +150,24 @@
     <ImagePreviewDialog v-model="dialog" :image-src="previewDialogSrc" />
 
     <!-- Loader -->
-    <q-inner-loading
-      :showing="isLoading"
-      size="sm"
-      style="z-index: 10;"
-    />
+    <q-inner-loading :showing="isLoading" size="sm" style="z-index: 10" />
   </div>
 </template>
 
 <script setup lang="ts">
-import imageCompression from 'browser-image-compression'
-import useImage from '../modules/useImage'
-import { useQuasar, type ValidationRule } from 'quasar'
-import { ref, toRefs, watch, computed, type PropType } from 'vue'
-import { VueDraggableNext } from 'vue-draggable-next'
+import imageCompression from 'browser-image-compression';
+import useImage from '../modules/useImage';
+import { useQuasar, type ValidationRule } from 'quasar';
+import { ref, toRefs, watch, computed, type PropType } from 'vue';
+import { VueDraggableNext } from 'vue-draggable-next';
 
-const MAX_SIZE = 4096
+const MAX_SIZE = 4096;
 
 defineOptions({
   name: 'ImageUploader',
-})
+});
 
-const emit = defineEmits(['clear', 'on-change'])
+const emit = defineEmits(['clear', 'on-change']);
 
 const props = defineProps({
   image: {
@@ -199,7 +192,7 @@ const props = defineProps({
   },
   rules: {
     type: Array as PropType<ValidationRule[]>,
-    default: () => []
+    default: () => [],
   },
   placeholder: {
     type: String,
@@ -213,44 +206,44 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-})
+});
 
-const $q = useQuasar()
-const { image, images, multiple } = toRefs(props)
-const { formatFileToBase64 } = useImage()
+const $q = useQuasar();
+const { image, images, multiple } = toRefs(props);
+const { formatFileToBase64 } = useImage();
 
-const imagePreview = ref<string>('')
-const imagesPreview = ref<{ src: string, index: number }[]>([])
-const selectedFiles = ref<File[]>([])
-const isLoading = ref(false)
-const dialog = ref(false)
-const cameraInput = ref<HTMLInputElement | null>(null)
-const galleryInput = ref<HTMLInputElement | null>(null)
-const isMobile = $q.platform.is.mobile
-const previewDialogSrc = ref<string | null>(null)
-const dragIndex = ref<number | null>(null)
+const imagePreview = ref<string>('');
+const imagesPreview = ref<{ src: string; index: number }[]>([]);
+const selectedFiles = ref<File[]>([]);
+const isLoading = ref(false);
+const dialog = ref(false);
+const cameraInput = ref<HTMLInputElement | null>(null);
+const galleryInput = ref<HTMLInputElement | null>(null);
+const isMobile = $q.platform.is.mobile;
+const previewDialogSrc = ref<string | null>(null);
+const dragIndex = ref<number | null>(null);
 
 // Import dialog component statically
-import { ImagePreviewDialog } from 'src/components/Dialogs'
+import { ImagePreviewDialog } from 'src/components/Dialogs';
 
 const hasImages = computed(() => {
-  return multiple.value ? imagesPreview.value.length > 0 : !!imagePreview.value
-})
+  return multiple.value ? imagesPreview.value.length > 0 : !!imagePreview.value;
+});
 
 // ---------- Methods ---------- //
 function zoomImage(src?: string) {
-  previewDialogSrc.value = src || imagePreview.value
-  dialog.value = true
+  previewDialogSrc.value = src || imagePreview.value;
+  dialog.value = true;
 }
 
 function clear() {
   if (multiple.value) {
-    imagesPreview.value = []
-    selectedFiles.value = []
+    imagesPreview.value = [];
+    selectedFiles.value = [];
   } else {
-    imagePreview.value = ''
+    imagePreview.value = '';
   }
-  emit('clear')
+  emit('clear');
 }
 
 async function compressAndPrepare(file: File) {
@@ -258,128 +251,140 @@ async function compressAndPrepare(file: File) {
     maxSizeMB: 0.3,
     maxWidthOrHeight: 1024,
     useWebWorker: true,
-  }
-  const compressedImage = await imageCompression(file, options)
-  const fileSize = compressedImage.size / 1000
+  };
+  const compressedImage = await imageCompression(file, options);
+  const fileSize = compressedImage.size / 1000;
   if (fileSize >= MAX_SIZE) {
-    console.error('File size is too large')
-    return null
+    console.error('File size is too large');
+    return null;
   }
-  const base64 = await formatFileToBase64(compressedImage)
-  return { file: compressedImage, base64 }
+  const base64 = await formatFileToBase64(compressedImage);
+  return { file: compressedImage, base64 };
 }
 
 async function onChangeImage(input: File | File[]) {
-  isLoading.value = true
+  isLoading.value = true;
   try {
     if (multiple.value) {
-      const files = Array.isArray(input) ? input : [input]
-      const results = await Promise.all(files.map((f) => compressAndPrepare(f)))
-      const valid = results.filter((r): r is { file: File; base64: string } => !!r)
-      imagesPreview.value.push(...valid.map((v, index) => ({ src: v.base64, index: imagesPreview.value.length + index })))
-      selectedFiles.value.push(...valid.map((v) => v.file))
-      emit('on-change', selectedFiles.value)
+      const files = Array.isArray(input) ? input : [input];
+      const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
+      const valid = results.filter((r): r is { file: File; base64: string } => !!r);
+      imagesPreview.value.push(
+        ...valid.map((v, index) => ({ src: v.base64, index: imagesPreview.value.length + index })),
+      );
+      selectedFiles.value.push(...valid.map((v) => v.file));
+      emit('on-change', selectedFiles.value);
     } else {
-      const file = Array.isArray(input) ? input[0] : input
+      const file = Array.isArray(input) ? input[0] : input;
       if (!file) {
-        isLoading.value = false
-        return
+        isLoading.value = false;
+        return;
       }
-      const result = await compressAndPrepare(file)
-      if (!result) return
-      imagePreview.value = result.base64
-      emit('on-change', result.file)
+      const result = await compressAndPrepare(file);
+      if (!result) return;
+      imagePreview.value = result.base64;
+      emit('on-change', result.file);
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 
 function openCamera() {
   if (cameraInput.value) {
-    cameraInput.value.click()
+    cameraInput.value.click();
   }
 }
 
 function openGallery() {
-  galleryInput.value?.click()
+  galleryInput.value?.click();
 }
 
 async function onCameraSelected(event: Event) {
-  const fileList = (event.target as HTMLInputElement | null)?.files
-  if (!fileList || fileList.length === 0) return
+  const fileList = (event.target as HTMLInputElement | null)?.files;
+  if (!fileList || fileList.length === 0) return;
   if (multiple.value) {
-    await onChangeImage(Array.from(fileList))
+    await onChangeImage(Array.from(fileList));
   } else {
-    const file = fileList.item(0)
-    if (!file) return
-    await onChangeImage(file)
+    const file = fileList.item(0);
+    if (!file) return;
+    await onChangeImage(file);
   }
-  (event.target as HTMLInputElement).value = ''
+  (event.target as HTMLInputElement).value = '';
 }
 
 async function onGallerySelected(event: Event) {
-  const fileList = (event.target as HTMLInputElement | null)?.files
-  if (!fileList || fileList.length === 0) return
+  const fileList = (event.target as HTMLInputElement | null)?.files;
+  if (!fileList || fileList.length === 0) return;
   if (multiple.value) {
-    await onChangeImage(Array.from(fileList))
+    await onChangeImage(Array.from(fileList));
   } else {
-    const file = fileList.item(0)
-    if (!file) return
-    await onChangeImage(file)
+    const file = fileList.item(0);
+    if (!file) return;
+    await onChangeImage(file);
   }
-  (event.target as HTMLInputElement).value = ''
+  (event.target as HTMLInputElement).value = '';
 }
 
 function removeAt(index: number) {
-  if (!multiple.value) return
-  imagesPreview.value.splice(index, 1)
-  selectedFiles.value.splice(index, 1)
-  emit('on-change', selectedFiles.value)
+  if (!multiple.value) return;
+  imagesPreview.value.splice(index, 1);
+  selectedFiles.value.splice(index, 1);
+  emit('on-change', selectedFiles.value);
 }
 
 function onDragStart(index: number) {
-  if (!multiple.value) return
-  dragIndex.value = index
+  if (!multiple.value) return;
+  dragIndex.value = index;
 }
 
 function onDragEnd() {
-  dragIndex.value = null
+  dragIndex.value = null;
 }
 
 function onDrop(dropIndex: number) {
-  if (!multiple.value) return
-  if (dragIndex.value === null || dragIndex.value === dropIndex) return
+  if (!multiple.value) return;
+  if (dragIndex.value === null || dragIndex.value === dropIndex) return;
 
-  const from = dragIndex.value
-  const to = dropIndex
+  const from = dragIndex.value;
+  const to = dropIndex;
 
   const move = (arr: unknown[], fromIdx: number, toIdx: number) => {
-    const item = arr.splice(fromIdx, 1)[0]
-    arr.splice(toIdx, 0, item)
-  }
+    const item = arr.splice(fromIdx, 1)[0];
+    arr.splice(toIdx, 0, item);
+  };
 
-  move(imagesPreview.value, from, to)
-  move(selectedFiles.value, from, to)
-  dragIndex.value = null
-  emit('on-change', selectedFiles.value)
+  move(imagesPreview.value, from, to);
+  move(selectedFiles.value, from, to);
+  dragIndex.value = null;
+  emit('on-change', selectedFiles.value);
 }
 
-watch(image, async (newValue, oldValue) => {
-  if (!newValue || newValue === oldValue) return
-  imagePreview.value = await formatFileToBase64(newValue)
-}, {
-  immediate: true
-})
+watch(
+  image,
+  async (newValue, oldValue) => {
+    if (!newValue || newValue === oldValue) return;
+    imagePreview.value = await formatFileToBase64(newValue);
+  },
+  {
+    immediate: true,
+  },
+);
 
-watch(images, async (newValue, oldValue) => {
-  if (!newValue || newValue === oldValue) return
-  imagesPreview.value = await Promise.all(newValue.map(async (v, index) => ({ src: await formatFileToBase64(v), index })))
-}, {
-  immediate: true
-})
+watch(
+  images,
+  async (newValue, oldValue) => {
+    if (!newValue || newValue === oldValue) return;
+    imagesPreview.value = await Promise.all(
+      newValue.map(async (v, index) => ({ src: await formatFileToBase64(v), index })),
+    );
+  },
+  {
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss">

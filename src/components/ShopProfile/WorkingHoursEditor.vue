@@ -6,7 +6,9 @@
         :key="item.day"
         class="day-card bg-block border-radius-md"
       >
-        <div class="day-title text-subtitle2 text-bold bg-block q-py-sm q-px-md">{{ item.day }}</div>
+        <div class="day-title text-subtitle2 text-bold bg-block q-py-sm q-px-md">
+          {{ item.day }}
+        </div>
         <div class="flex column q-gap-sm q-pa-md">
           <div class="field">
             <label class="input-label text-grey-6">Start</label>
@@ -69,8 +71,6 @@ import { TimePickerDialog } from 'src/components/Dialogs';
 import type { IOpeningHours } from 'src/interfaces/shop';
 import { OpeningHoursDays } from 'src/interfaces/enums';
 
-
-
 interface Props {
   modelValue: IOpeningHours[] | [];
 }
@@ -89,16 +89,16 @@ const defaultHours: IOpeningHours[] = [
   { day: OpeningHoursDays.thu, start: '', end: '' },
   { day: OpeningHoursDays.fri, start: '', end: '' },
   { day: OpeningHoursDays.sat, start: '', end: '' },
-  { day: OpeningHoursDays.sun, start: '', end: '' }
+  { day: OpeningHoursDays.sun, start: '', end: '' },
 ];
 
 // Local reactive copy to allow editing
-const localHours = reactive<IOpeningHours[]>(props.modelValue?.length ? [...props.modelValue] : [...defaultHours]);
+const localHours = reactive<IOpeningHours[]>(
+  props.modelValue?.length ? [...props.modelValue] : [...defaultHours],
+);
 
 // Dialog visibility per day
-const dialogs = reactive(
-  localHours.map(() => ({ start: false, end: false }))
-);
+const dialogs = reactive(localHours.map(() => ({ start: false, end: false })));
 
 watch(
   () => props.modelValue,
@@ -113,13 +113,13 @@ watch(
         }
       }
     }
-  }
+  },
 );
 
 // Emit changes when localHours change
 watch(
   () => localHours.map((d) => `${d.start}-${d.end}`).join('|'),
-  () => emit('update:modelValue', [...localHours])
+  () => emit('update:modelValue', [...localHours]),
 );
 
 const openDialog = (idx: number, type: 'start' | 'end') => {
@@ -146,7 +146,6 @@ const onConfirm = (idx: number, type: 'start' | 'end', time: string) => {
 // For potential parent reads as computed
 const value = computed(() => [...localHours]);
 defineExpose({ value });
-
 </script>
 
 <style scoped lang="scss">
@@ -174,4 +173,3 @@ defineExpose({ value });
   cursor: pointer;
 }
 </style>
-
