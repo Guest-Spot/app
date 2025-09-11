@@ -53,15 +53,15 @@ const contacts = computed(() => [
 const workingHours = computed(() => {
   const times = [...(props.shopData.openingHours || [])];
   times.sort((a, b) => {
-    const dayA = a.day as keyof typeof OpeningHoursDays;
-    const dayB = b.day as keyof typeof OpeningHoursDays;
+    const dayA = a.day;
+    const dayB = b.day;
     const orderA = Object.keys(OpeningHoursDays).indexOf(dayA);
     const orderB = Object.keys(OpeningHoursDays).indexOf(dayB);
     return orderA - orderB;
   });
 
   return times.map((time) => ({
-    label: OpeningHoursDays[time.day as keyof typeof OpeningHoursDays],
+    label: OpeningHoursDays[time.day],
     value:
       time.start && time.end ? `${formatTime(time.start)} - ${formatTime(time.end)}` : 'Closed',
     className: time.start && time.end ? '' : 'opening-times--closed',

@@ -1,4 +1,4 @@
-import type { LinkType } from "src/interfaces/enums";
+import type { LinkType, OpeningHoursDays } from "src/interfaces/enums";
 
 export interface IPicture {
   url: string;
@@ -21,7 +21,7 @@ export interface ITag {
 }
 
 export interface IOpeningHours {
-  day: string;
+  day: keyof typeof OpeningHoursDays;
   start: string;
   end: string;
 }

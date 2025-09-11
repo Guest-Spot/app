@@ -14,7 +14,7 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <q-time v-model="timeValue" format24h unelevated class="full-width bg-block" />
+        <q-time v-model="timeValue" unelevated class="full-width bg-block" />
       </q-card-section>
       <q-card-actions class="dialog-actions bg-block">
         <div class="left-actions flex q-gap-sm">

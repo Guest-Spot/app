@@ -20,6 +20,11 @@ export const ME_QUERY = gql`
         }
         phone
         email
+        openingHours {
+          day
+          start
+          end
+        }
       }
     }
   }

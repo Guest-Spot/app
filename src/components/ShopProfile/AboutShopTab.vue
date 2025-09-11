@@ -50,7 +50,7 @@
     <!-- Contacts -->
     <q-expansion-item
       icon="location_on"
-      label="Contacts"
+      label="Location"
       header-class="expansion-header"
       class="bg-block border-radius-lg"
     >
@@ -79,6 +79,17 @@
             v-model="shopData.location.address"
           />
         </div>
+      </div>
+    </q-expansion-item>
+
+    <!-- Contacts -->
+    <q-expansion-item
+      icon="contact_page"
+      label="Contacts"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
         <div class="input-group">
           <label class="input-label">Phone</label>
           <q-input

@@ -35,6 +35,16 @@ export enum OpeningHoursIndexDays {
   sun = 7,
 }
 
+export enum OpeningHoursKeysDays {
+  mon = 'mon',
+  tue = 'tue',
+  wed = 'wed',
+  thu = 'thu',
+  fri = 'fri',
+  sat = 'sat',
+  sun = 'sun',
+}
+
 export enum UserType {
   Shop = 'shop',
   Artist = 'artist',
