@@ -6,14 +6,19 @@
 import { onMounted } from 'vue';
 import useUser from 'src/modules/useUser';
 import useTokens from 'src/modules/useTokens';
+import { useProfileStore } from 'src/stores/profile';
 
 const { fetchMe } = useUser();
 const { getStoredTokens } = useTokens();
+const profileStore = useProfileStore();
 
-const fetchCurrentUser = (): void => {
+const fetchCurrentUser = async (): Promise<void> => {
   const tokens = getStoredTokens();
   if (tokens?.accessToken) {
-    void fetchMe();
+    const result = await fetchMe();
+    if (result) {
+      profileStore.setUserProfile(result);
+    }
   }
 };
 

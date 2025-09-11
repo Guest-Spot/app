@@ -34,3 +34,9 @@ export enum OpeningHoursIndexDays {
   sat = 6,
   sun = 7,
 }
+
+export enum UserType {
+  Shop = 'shop',
+  Artist = 'artist',
+  Guest = 'guest',
+}

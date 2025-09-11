@@ -1,34 +1,29 @@
 import type { IArtist } from 'src/interfaces/artist';
-import type { LinkType } from 'src/interfaces/enums';
-
-export interface IOpeningHours {
-  day: string;
-  start: string;
-  end: string;
-}
+import type { IPicture, ILocation, ILink, IOpeningHours } from 'src/interfaces/common';
 
 export interface IShop {
   documentId: string;
   createdAt: string;
   updatedAt: string;
   name: string;
-  location: {
-    city: string;
-    address: string;
-    latitude: string;
-    longitude: string;
-  };
+  location: ILocation;
   description: string;
-  pictures: {
-    url: string;
-  }[];
+  pictures: IPicture[];
   phone?: string;
   email?: string;
   openingHours?: IOpeningHours[];
-  links?: {
-    type: LinkType;
-    value: string;
-  }[];
+  links?: ILink[];
+}
+
+export interface IShopFormData {
+  pictures: string[];
+  name: string;
+  description: string;
+  location: ILocation;
+  phone: '',
+  email: '',
+  links: ILink[],
+  openingHours: IOpeningHours[],
 }
 
 export interface IGraphQLShopsResult {

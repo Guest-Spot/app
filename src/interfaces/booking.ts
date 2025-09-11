@@ -1,5 +1,5 @@
-import type { IArtist } from './artist';
-import type { IShop } from './shop';
+import type { IArtist } from 'src/interfaces/artist';
+import type { IShop } from 'src/interfaces/shop';
 
 type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
 type BookingType = 'shop-to-artist' | 'artist-to-shop';

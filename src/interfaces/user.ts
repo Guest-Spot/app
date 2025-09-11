@@ -1,13 +1,17 @@
-export enum UserType {
-  Shop = 'shop',
-  Artist = 'artist',
-  Guest = 'guest',
-}
+import type { ILocation, IOpeningHours, ILink } from "src/interfaces/common";
+import type { IArtist } from "src/interfaces/artist";
+import type { IShop } from "src/interfaces/shop";
+import type { UserType } from "src/interfaces/enums";
 
 export interface IProfile {
-  id: string;
-  created_at: string;
   name: string;
+  pictures: { url: string }[];
+  description: string;
+  location: ILocation;
+  phone: string;
+  email: string;
+  links: ILink[];
+  openingHours: IOpeningHours[];
 }
 
 // JWT Token interfaces
@@ -17,20 +21,20 @@ export interface IJWTTokens {
 }
 
 // GraphQL Auth responses
-export interface ILoginResponse<Profile> {
+export interface ILoginResponse {
   loginWithRefresh: {
     jwt: string;
     refreshToken: string;
-    user: IUser<Profile>;
+    user: IUser;
   };
 }
 
-export interface IMeResponse<Profile> {
-  me: IUser<Profile>;
+export interface IMeResponse {
+  me: IUser;
 }
 
 // Enhanced User interface for GraphQL
-export interface IUser<T> {
+export interface IUser {
   id: string;
   documentId: string;
   email: string;
@@ -38,15 +42,14 @@ export interface IUser<T> {
   confirmed: boolean;
   blocked: boolean;
   type: UserType;
-  profile: T;
+  profile: IShop | IArtist | null;
 }
 
 // Auth state interface
-export interface IAuthState<Profile> {
+export interface IAuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: IUser<Profile> | null;
-  profile: Profile | null;
+  user: IUser | null;
   tokens: IJWTTokens | null;
   isShop: boolean;
   isArtist: boolean;

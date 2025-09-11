@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
 import { TimePickerDialog } from 'src/components/Dialogs';
-import type { IOpeningHours } from 'src/interfaces/shop';
+import type { IOpeningHours } from 'src/interfaces/common';
 import { OpeningHoursDays } from 'src/interfaces/enums';
 
 interface Props {

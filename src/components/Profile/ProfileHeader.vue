@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between items-center q-gap-md">
     <div class="text-h6">
-      Welcome, <span class="text-primary">{{ profile?.name }}</span>
+      Welcome<template v-if="name">, <span class="text-primary">{{ name }}</span></template>
     </div>
     <q-btn text-color="negative" icon="settings" round unelevated class="bg-block" size="sm">
       <q-menu style="width: 150px">
@@ -29,17 +29,24 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({
-  name: 'ProfileHeader',
-});
-
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
 
+defineOptions({
+  name: 'ProfileHeader',
+});
+
+defineProps({
+  name: {
+    type: String,
+    default: '',
+  },
+});
+
 const router = useRouter();
 const $q = useQuasar();
-const { logout, profile } = useUser();
+const { logout } = useUser();
 
 const handleLogout = () => {
   $q.dialog({

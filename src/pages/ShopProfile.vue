@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
-      <ProfileHeader class="q-mb-md" />
+      <ProfileHeader class="q-mb-md" :name="profile?.name || ''" />
     </div>
 
     <div class="container">
@@ -28,11 +28,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
+import { useProfileStore } from 'src/stores/profile';
+
+const profileStore = useProfileStore();
+const profile = computed(() => profileStore.getShopProfile);
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';

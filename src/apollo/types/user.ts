@@ -8,6 +8,18 @@ export const ME_QUERY = gql`
       type
       profile {
         name
+        pictures {
+          url
+        }
+        description
+        location {
+          city
+          address
+          latitude
+          longitude
+        }
+        phone
+        email
       }
     }
   }

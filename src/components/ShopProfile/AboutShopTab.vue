@@ -63,7 +63,7 @@
             rounded
             placeholder="Enter shop city"
             class="custom-input"
-            v-model="shopData.city"
+            v-model="shopData.location.city"
             clearable
           />
         </div>
@@ -76,7 +76,7 @@
             placeholder="Enter shop address"
             clearable
             class="custom-input"
-            v-model="shopData.address"
+            v-model="shopData.location.address"
           />
         </div>
         <div class="input-group">
@@ -118,64 +118,6 @@
       <WorkingHoursEditor v-model="openingTimesModel" />
     </q-expansion-item>
 
-    <!-- Links -->
-    <q-expansion-item
-      icon="link"
-      label="Links"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Website</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Website link"
-            class="custom-input"
-            v-model="shopData.website"
-            clearable
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Instagram</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Instagram link"
-            class="custom-input"
-            v-model="shopData.instagram"
-            clearable
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-
-    <!-- Additional Info -->
-    <q-expansion-item
-      icon="add_circle"
-      label="Additional Info"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Date Opened</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter opening date"
-            class="custom-input"
-            v-model="shopData.dateOpened"
-            clearable
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-
     <!-- Theme Settings -->
     <ThemeSettings />
 
@@ -190,38 +132,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue';
+import { ref, computed, defineAsyncComponent, watch } from 'vue';
 import { ImageUploader, ThemeSettings } from 'src/components';
-import type { IOpeningHours } from 'src/interfaces/shop';
+import type { IShopFormData } from 'src/interfaces/shop';
+import type { IOpeningHours } from 'src/interfaces/common';
+import { useProfileStore } from 'src/stores/profile';
+import { API_URL } from 'src/config/constants';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
+const profileStore = useProfileStore();
+
 // Form data
-const shopData = ref({
-  pictures: [] as File[],
+const shopData = ref<IShopFormData>({
+  pictures: [],
   name: '',
   description: '',
-  city: '',
-  address: '',
+  location: {
+    city: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+  },
   phone: '',
   email: '',
-  dateOpened: '',
-  instagram: '',
-  openingTimes: [] as IOpeningHours[],
-  website: '',
+  links: [],
+  openingHours: [] as IOpeningHours[],
 });
 
 // Computed property for opening times to handle v-model
 const openingTimesModel = computed({
-  get: () => shopData.value.openingTimes || [],
+  get: () => shopData.value.openingHours || [],
   set: (value: IOpeningHours[]) => {
-    shopData.value.openingTimes = value;
+    shopData.value.openingHours = value;
   },
 });
 
 const saveChanges = () => {
   console.log('Saving changes...', shopData.value);
 };
+
+watch(() => profileStore.getShopProfile, (profile) => {
+  Object.assign(shopData.value, {
+    ...profile,
+    pictures: profile?.pictures?.map((picture) => `${API_URL}${picture.url}`) || [],
+  });
+}, { immediate: true });
 
 // Expose data for parent component
 defineExpose({
