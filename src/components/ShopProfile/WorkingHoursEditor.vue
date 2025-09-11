@@ -30,7 +30,7 @@
               :model-value="dialogs[idx]?.start || false"
               @update:model-value="(val) => updateDialogVisibility(idx, 'start', val)"
               :time="item.start"
-              :title="`Select start time — ${item.day}`"
+              :title="`Select start time — ${OpeningHoursDays[item.day]}`"
               @confirm="onConfirm(idx, 'start', $event)"
             />
           </div>
@@ -55,7 +55,7 @@
               :model-value="dialogs[idx]?.end || false"
               @update:model-value="(val) => updateDialogVisibility(idx, 'end', val)"
               :time="item.end"
-              :title="`Select end time — ${item.day}`"
+              :title="`Select end time — ${OpeningHoursDays[item.day]}`"
               @confirm="onConfirm(idx, 'end', $event)"
             />
           </div>

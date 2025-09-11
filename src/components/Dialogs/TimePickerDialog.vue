@@ -134,6 +134,10 @@ const confirmTime = () => {
       font-weight: 600;
     }
   }
+
+  :deep(.q-time__header-ampm) {
+    display: none;
+  }
 }
 
 .body--dark {
