@@ -278,11 +278,13 @@ async function onChangeImage(input: File | File[] | string | string[]) {
     if (multiple.value) {
       const files = Array.isArray(input) ? input : [input];
       const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-      const valid = results.filter((r): r is { file: File; base64: string } | { file: string; base64: string } => !!r);
+      const valid = results.filter(
+        (r): r is { file: File; base64: string } | { file: string; base64: string } => !!r,
+      );
 
       const newPreviews = valid.map((v, index) => ({
         src: v.base64,
-        index: imagesPreview.value.length + index
+        index: imagesPreview.value.length + index,
       }));
 
       imagesPreview.value = [...imagesPreview.value, ...newPreviews];

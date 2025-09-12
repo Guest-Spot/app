@@ -1,7 +1,9 @@
 <template>
-  <div class="flex justify-between items-center q-gap-md">
+  <div class="flex justify-between items-start q-gap-md no-wrap">
     <div class="text-h6">
-      Welcome<template v-if="name">, <span class="text-primary">{{ name }}</span></template>
+      Welcome<template v-if="name"
+        >, <span class="text-primary">{{ name }}</span></template
+      >
     </div>
     <q-btn text-color="negative" icon="settings" round unelevated class="bg-block" size="sm">
       <q-menu style="width: 150px">

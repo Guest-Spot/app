@@ -1,6 +1,5 @@
 import type { IPicture, ITag } from 'src/interfaces/common';
 
-
 export interface IPortfolio {
   documentId: string;
   title: string;

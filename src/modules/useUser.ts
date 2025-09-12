@@ -102,7 +102,7 @@ const useUser = () => {
       }
     } catch (error) {
       console.error('Fetch user error:', error);
-      return null
+      return null;
     } finally {
       userStore.setIsLoading(false);
     }

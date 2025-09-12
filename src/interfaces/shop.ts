@@ -20,10 +20,10 @@ export interface IShopFormData {
   name: string;
   description: string;
   location: ILocation;
-  phone: '',
-  email: '',
-  links: ILink[],
-  openingHours: IOpeningHours[],
+  phone: '';
+  email: '';
+  links: ILink[];
+  openingHours: IOpeningHours[];
 }
 
 export interface IGraphQLShopsResult {

@@ -134,7 +134,15 @@
 
     <!-- Save Button -->
     <div class="save-section">
-      <q-btn class="full-width bg-block" @click="saveChanges" rounded size="lg" unelevated>
+      <q-btn
+        class="full-width bg-block"
+        @click="saveChanges"
+        rounded
+        size="lg"
+        unelevated
+        :loading="mutationLoading"
+        :disable="mutationLoading"
+      >
         <q-icon name="save" size="18px" />
         <span class="q-ml-sm text-subtitle1">Save changes</span>
       </q-btn>
@@ -146,13 +154,17 @@
 import { ref, computed, defineAsyncComponent, watch } from 'vue';
 import { ImageUploader, ThemeSettings } from 'src/components';
 import type { IShopFormData } from 'src/interfaces/shop';
-import type { IOpeningHours } from 'src/interfaces/common';
+import type { IOpeningHours, IPicture } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';
 import { API_URL } from 'src/config/constants';
+import { useMutation } from '@vue/apollo-composable';
+import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
+import useNotify from 'src/modules/useNotify';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
 const profileStore = useProfileStore();
+const { showSuccess, showError } = useNotify();
 
 // Form data
 const shopData = ref<IShopFormData>({
@@ -171,6 +183,13 @@ const shopData = ref<IShopFormData>({
   openingHours: [] as IOpeningHours[],
 });
 
+// Setup mutation
+const {
+  mutate: updateShop,
+  loading: mutationLoading,
+  onDone: onDoneUpdateShop,
+} = useMutation(UPDATE_SHOP_MUTATION);
+
 // Computed property for opening times to handle v-model
 const openingTimesModel = computed({
   get: () => shopData.value.openingHours || [],
@@ -179,16 +198,75 @@ const openingTimesModel = computed({
   },
 });
 
-const saveChanges = () => {
-  console.log('Saving changes...', shopData.value);
+// Prepare data for mutation
+const prepareDataForMutation = () => {
+  // Convert image URLs back to the format expected by the API
+  const pictures: IPicture[] = shopData.value.pictures.map((url) => {
+    // If the URL already contains the API_URL, remove it
+    const cleanUrl =
+      typeof url === 'string' && API_URL && url.includes(API_URL) ? url.replace(API_URL, '') : url;
+    return { url: cleanUrl };
+  });
+
+  return {
+    name: shopData.value.name,
+    description: shopData.value.description,
+    pictures,
+    phone: shopData.value.phone,
+    email: shopData.value.email,
+    links: shopData.value.links,
+    location: shopData.value.location,
+    openingHours: shopData.value.openingHours,
+  };
 };
 
-watch(() => profileStore.getShopProfile, (profile) => {
-  Object.assign(shopData.value, {
-    ...profile,
-    pictures: profile?.pictures?.map((picture) => `${API_URL}${picture.url}`) || [],
-  });
-}, { immediate: true });
+const saveChanges = () => {
+  try {
+    const shopProfile = profileStore.getShopProfile;
+    if (!shopProfile?.documentId) {
+      throw new Error('Shop profile not found');
+    }
+
+    const data = prepareDataForMutation();
+
+    void updateShop({
+      documentId: shopProfile.documentId,
+      data: {
+        name: data.name,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating data:', error);
+    showError('Error updating data');
+  }
+};
+
+onDoneUpdateShop((result) => {
+  if (result.errors?.length) {
+    console.error('Error updating shop:', result.errors);
+    showError('Error updating shop');
+    return;
+  }
+
+  if (result.data?.updateShop) {
+    profileStore.setShopProfile({
+      ...profileStore.getShopProfile,
+      ...result.data.updateShop,
+    });
+    showSuccess('Shop successfully updated');
+  }
+});
+
+watch(
+  () => profileStore.getShopProfile,
+  (profile) => {
+    Object.assign(shopData.value, {
+      ...profile,
+      pictures: profile?.pictures?.map((picture) => `${API_URL}${picture.url}`) || [],
+    });
+  },
+  { immediate: true },
+);
 
 // Expose data for parent component
 defineExpose({

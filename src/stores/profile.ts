@@ -32,9 +32,9 @@ export const useProfileStore = defineStore('profile', {
      */
     setUserProfile(user: IUser) {
       if (user.type === UserType.Shop) {
-        this.setShopProfile(user.profile as IShop || null);
+        this.setShopProfile((user.profile as IShop) || null);
       } else if (user.type === UserType.Artist) {
-        this.setArtistProfile(user.profile as IArtist || null);
+        this.setArtistProfile((user.profile as IArtist) || null);
       }
     },
 

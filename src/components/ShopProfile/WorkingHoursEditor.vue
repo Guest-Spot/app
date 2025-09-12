@@ -7,7 +7,10 @@
         class="day-card bg-block border-radius-md"
       >
         <div class="day-title text-subtitle2 text-bold bg-block q-py-sm q-px-md">
-          <q-badge :label="OpeningHoursDays[item.day]" :color="item.start && item.end ? 'primary' : 'transparent'" />
+          <q-badge
+            :label="OpeningHoursDays[item.day]"
+            :color="item.start && item.end ? 'primary' : 'transparent'"
+          />
         </div>
         <div class="flex column q-gap-sm q-pa-md">
           <div class="field">
