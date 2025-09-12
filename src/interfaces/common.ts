@@ -24,6 +24,6 @@ export interface ITag {
 
 export interface IOpeningHours {
   day: keyof typeof OpeningHoursDays;
-  start: string;
-  end: string;
+  start: string | null;
+  end: string | null;
 }

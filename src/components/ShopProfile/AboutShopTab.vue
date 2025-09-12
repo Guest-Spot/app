@@ -64,7 +64,7 @@
             rounded
             placeholder="Enter shop city"
             class="custom-input"
-            v-model="shopData.location.city"
+            v-model="shopData.city"
             clearable
           />
         </div>
@@ -77,7 +77,7 @@
             placeholder="Enter shop address"
             clearable
             class="custom-input"
-            v-model="shopData.location.address"
+            v-model="shopData.address"
           />
         </div>
       </div>
@@ -127,7 +127,7 @@
       header-class="expansion-header"
       class="bg-block border-radius-lg full-width"
     >
-      <WorkingHoursEditor v-model="openingTimesModel" />
+      <WorkingHoursEditor v-model="openingHours" />
     </q-expansion-item>
 
     <!-- Theme Settings -->
@@ -158,11 +158,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, watch } from 'vue';
+import { ref, defineAsyncComponent, watch, reactive } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
-import type { IOpeningHours } from 'src/interfaces/common';
+import type { IOpeningHours, ILink } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';
 import { API_URL } from 'src/config/constants';
 import { useMutation } from '@vue/apollo-composable';
@@ -176,21 +176,17 @@ const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
 
 // Form data
-const shopData = ref<IShopFormData>({
+const shopData = reactive<IShopFormData>({
   pictures: [],
   name: '',
   description: '',
-  location: {
-    city: '',
-    address: '',
-    latitude: '',
-    longitude: '',
-  },
+  city: '',
+  address: '',
   phone: '',
   email: '',
-  links: [],
-  openingHours: [] as IOpeningHours[],
 });
+const links = ref<ILink[]>([]);
+const openingHours = ref<IOpeningHours[]>([]);
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
@@ -201,27 +197,22 @@ const {
   onDone: onDoneUpdateShop,
 } = useMutation(UPDATE_SHOP_MUTATION);
 
-// Computed property for opening times to handle v-model
-const openingTimesModel = computed({
-  get: () => shopData.value.openingHours || [],
-  set: (value: IOpeningHours[]) => {
-    shopData.value.openingHours = value;
-  },
-});
-
 // Prepare data for mutation
-const prepareDataForMutation = () => {
-  console.log(imagesForUpload.value);
-  console.log(imagesForRemove.value);
-
+const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
   return {
-    name: shopData.value.name,
-    description: shopData.value.description,
-    phone: shopData.value.phone,
-    email: shopData.value.email,
-    links: shopData.value.links,
-    location: shopData.value.location,
-    openingHours: shopData.value.openingHours,
+    ...(uploadedFiles.length > 0 && { pictures: [
+      ...uploadedFiles.map((file) => file.id),
+      // Set current pictures ids
+    ] }),
+    name: shopData.name,
+    description: shopData.description,
+    phone: shopData.phone,
+    email: shopData.email,
+    openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
+    location: {
+      city: shopData.city,
+      address: shopData.address,
+    }
   };
 };
 
@@ -242,20 +233,11 @@ const saveChanges = async () => {
 
     const uploadedFiles: UploadFileResponse[] = await upload();
 
-    const data = prepareDataForMutation();
+    const data = prepareDataForMutation(uploadedFiles);
 
     void updateShop({
       documentId: shopProfile.documentId,
-      data: {
-        name: data.name,
-        ...(uploadedFiles.length > 0 && { pictures: [
-          ...uploadedFiles.map((file) => file.id),
-          // Set current pictures ids
-        ] }),
-        description: data.description,
-        phone: data.phone,
-        email: data.email,
-      },
+      data,
     });
   } catch (error) {
     console.error('Error updating data:', error);
@@ -284,13 +266,20 @@ onDoneUpdateShop((result) => {
 watch(
   () => profileStore.getShopProfile,
   (profile) => {
-    Object.assign(shopData.value, {
-      ...profile,
+    links.value = profile?.links || [];
+    openingHours.value = profile?.openingHours || [];
+    Object.assign(shopData, {
       pictures: profile?.pictures?.map((picture, index) => ({
         url: `${API_URL}${picture.url}`,
         documentId: picture.documentId,
         index,
       })) || [],
+      name: profile?.name || '',
+      description: profile?.description || '',
+      city: profile?.location?.city || '',
+      address: profile?.location?.address || '',
+      phone: profile?.phone || '',
+      email: profile?.email || '',
     });
   },
   { immediate: true },

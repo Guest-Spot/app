@@ -212,7 +212,7 @@ const shopData = ref({
   instagram: '',
 });
 
-const workingHours = ref({
+const workingHours = ref<{ start: string | null; end: string | null }>({
   start: '08:00',
   end: '23:30',
 });
@@ -220,11 +220,11 @@ const workingHours = ref({
 const startTimeDialog = ref(false);
 const endTimeDialog = ref(false);
 
-const onStartTimeConfirm = (time: string) => {
+const onStartTimeConfirm = (time: string | null) => {
   workingHours.value.start = time;
 };
 
-const onEndTimeConfirm = (time: string) => {
+const onEndTimeConfirm = (time: string | null) => {
   workingHours.value.end = time;
 };
 

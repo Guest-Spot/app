@@ -43,20 +43,23 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: boolean;
-  time: string;
-  title: string;
+  time: string | null;
+  title: string | null;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'confirm', time: string): void;
+  (e: 'confirm', time: string | null): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+
+const { formatToFullTime } = useDate();
 
 const isVisible = ref(props.modelValue);
 const timeValue = ref(props.time);
@@ -93,7 +96,7 @@ const closeDialog = () => {
 };
 
 const confirmTime = () => {
-  emit('confirm', timeValue.value);
+  emit('confirm', formatToFullTime(timeValue.value || '') || null);
   isVisible.value = false;
 };
 </script>
@@ -135,9 +138,9 @@ const confirmTime = () => {
     }
   }
 
-  :deep(.q-time__header-ampm) {
-    display: none;
-  }
+  // :deep(.q-time__header-ampm) {
+  //   display: none;
+  // }
 }
 
 .body--dark {

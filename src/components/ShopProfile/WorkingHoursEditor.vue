@@ -89,13 +89,13 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 
 const defaultHours: IOpeningHours[] = [
-  { day: OpeningHoursKeysDays.mon, start: '', end: '' },
-  { day: OpeningHoursKeysDays.tue, start: '', end: '' },
-  { day: OpeningHoursKeysDays.wed, start: '', end: '' },
-  { day: OpeningHoursKeysDays.thu, start: '', end: '' },
-  { day: OpeningHoursKeysDays.fri, start: '', end: '' },
-  { day: OpeningHoursKeysDays.sat, start: '', end: '' },
-  { day: OpeningHoursKeysDays.sun, start: '', end: '' },
+  { day: OpeningHoursKeysDays.mon, start: null, end: null },
+  { day: OpeningHoursKeysDays.tue, start: null, end: null },
+  { day: OpeningHoursKeysDays.wed, start: null, end: null },
+  { day: OpeningHoursKeysDays.thu, start: null, end: null },
+  { day: OpeningHoursKeysDays.fri, start: null, end: null },
+  { day: OpeningHoursKeysDays.sat, start: null, end: null },
+  { day: OpeningHoursKeysDays.sun, start: null, end: null },
 ];
 
 // Local reactive copy to allow editing
@@ -138,7 +138,7 @@ const updateDialogVisibility = (idx: number, type: 'start' | 'end', val: boolean
   }
 };
 
-const onConfirm = (idx: number, type: 'start' | 'end', time: string) => {
+const onConfirm = (idx: number, type: 'start' | 'end', time: string | null) => {
   const hour = localHours[idx];
   if (hour) {
     hour[type] = time;
