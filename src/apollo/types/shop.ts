@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client/core';
 
 export const SHOPS_QUERY = gql`
-  query Shops($filters: ShopFiltersInput, $sort: [String]) {
-    shops(filters: $filters, sort: $sort) {
+  query Shops($filters: ShopFiltersInput, $sort: [String], $pagination: PaginationArg) {
+    shops(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       name
       description
@@ -15,12 +15,9 @@ export const SHOPS_QUERY = gql`
         type
         value
       }
-      location {
-        city
-        address
-        latitude
-        longitude
-      }
+      city
+      address
+      link
       openingHours {
         day
         start
@@ -34,8 +31,8 @@ export const SHOPS_QUERY = gql`
 `;
 
 export const SHOP_QUERY = gql`
-  query Shop($documentId: ID!) {
-    shop(documentId: $documentId) {
+  query Shop($documentId: ID!, $pagination: PaginationArg) {
+    shop(documentId: $documentId, pagination: $pagination) {
       documentId
       name
       description
@@ -48,12 +45,9 @@ export const SHOP_QUERY = gql`
         type
         value
       }
-      location {
-        city
-        address
-        latitude
-        longitude
-      }
+      link
+      city
+      address
       openingHours {
         day
         start

@@ -1,12 +1,14 @@
 import type { IArtist } from 'src/interfaces/artist';
-import type { IPicture, ILocation, ILink, IOpeningHours } from 'src/interfaces/common';
+import type { IPicture, ILink, IOpeningHours } from 'src/interfaces/common';
 
 export interface IShop {
   documentId: string;
   createdAt: string;
   updatedAt: string;
   name: string;
-  location: ILocation;
+  city: string;
+  address: string;
+  link: string;
   description: string;
   pictures: IPicture[];
   phone?: string;

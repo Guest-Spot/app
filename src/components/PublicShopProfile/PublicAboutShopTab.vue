@@ -8,8 +8,8 @@
       :loading="loading"
       class="opening-times-card"
     />
-    <InfoCard title="Contacts" icon="location_on" :data="contacts" />
-    <InfoCard title="Links" icon="link" :data="links" />
+    <InfoCard v-if="contacts.length" title="Contacts" icon="location_on" :data="contacts" />
+    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
   </div>
 </template>
 
@@ -32,11 +32,11 @@ const { formatTime } = useDate();
 const contacts = computed(() => [
   {
     label: 'City',
-    value: props.shopData.location?.city || '',
+    value: props.shopData.city || '',
   },
   {
     label: 'Address',
-    value: props.shopData.location?.address || '',
+    value: props.shopData.address || '',
   },
   {
     label: 'Phone',
@@ -48,7 +48,7 @@ const contacts = computed(() => [
     value: props.shopData.email || '',
     type: InfoItemType.Email,
   },
-]);
+].filter((contact) => !!contact.value));
 
 const workingHours = computed(() => {
   const times = [...(props.shopData.openingHours || [])];
