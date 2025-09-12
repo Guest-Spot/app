@@ -18,6 +18,24 @@ const useDate = () => {
     return `${hours12}:${minutes} ${period}`;
   };
 
+  const formatToFullTime = (time: string): string => {
+    if (!time) return '';
+
+    // Check if time is in hh:mm format
+    const timeRegex = /^(\d{1,2}):(\d{2})$/;
+    const match = time.match(timeRegex);
+
+    if (!match) return '';
+
+    const [, hours, minutes] = match;
+
+    // Ensure hours are in HH format (two digits)
+    const paddedHours = hours?.padStart(2, '0');
+
+    // Return in HH:mm:ss.SSS format
+    return `${paddedHours}:${minutes}:00.000`;
+  };
+
   const formatDate = (
     date: string | Date,
     { useUsFormat = true }: { useUsFormat?: boolean } = {},
@@ -38,6 +56,7 @@ const useDate = () => {
 
   return {
     formatTime,
+    formatToFullTime,
     formatDate,
   };
 };

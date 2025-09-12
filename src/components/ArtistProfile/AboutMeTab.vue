@@ -129,7 +129,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ImageUploader, ThemeSettings } from 'src/components';
+import { ThemeSettings } from 'src/components';
+import ImageUploader from 'src/components/ImageUploader/index.vue';
 
 // Form data
 const artistData = ref({

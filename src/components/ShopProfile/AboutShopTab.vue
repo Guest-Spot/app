@@ -1,12 +1,13 @@
 <template>
   <div class="about-shop-tab flex column q-gap-md">
     <!-- Banner Image Section -->
-    <ImageUploader
+    <ImageUploaderV2
       :images="shopData.pictures || []"
-      @on-change="shopData.pictures = $event"
       placeholder="Upload images"
       multiple
       placeholderIcon="photo_library"
+      @on-change="imagesForUpload = $event"
+      @on-remove="imagesForRemove = $event"
     />
 
     <!-- Basic Information -->
@@ -50,7 +51,7 @@
     <!-- Contacts -->
     <q-expansion-item
       icon="location_on"
-      label="Contacts"
+      label="Location"
       header-class="expansion-header"
       class="bg-block border-radius-lg"
     >
@@ -79,6 +80,17 @@
             v-model="shopData.address"
           />
         </div>
+      </div>
+    </q-expansion-item>
+
+    <!-- Contacts -->
+    <q-expansion-item
+      icon="contact_page"
+      label="Contacts"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
         <div class="input-group">
           <label class="input-label">Phone</label>
           <q-input
@@ -115,65 +127,7 @@
       header-class="expansion-header"
       class="bg-block border-radius-lg full-width"
     >
-      <WorkingHoursEditor v-model="openingTimesModel" />
-    </q-expansion-item>
-
-    <!-- Links -->
-    <q-expansion-item
-      icon="link"
-      label="Links"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Website</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Website link"
-            class="custom-input"
-            v-model="shopData.website"
-            clearable
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Instagram</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Instagram link"
-            class="custom-input"
-            v-model="shopData.instagram"
-            clearable
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-
-    <!-- Additional Info -->
-    <q-expansion-item
-      icon="add_circle"
-      label="Additional Info"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Date Opened</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter opening date"
-            class="custom-input"
-            v-model="shopData.dateOpened"
-            clearable
-          />
-        </div>
-      </div>
+      <WorkingHoursEditor v-model="openingHours" />
     </q-expansion-item>
 
     <!-- Theme Settings -->
@@ -181,47 +135,155 @@
 
     <!-- Save Button -->
     <div class="save-section">
-      <q-btn class="full-width bg-block" @click="saveChanges" rounded size="lg" unelevated>
+      <q-btn
+        class="full-width bg-block"
+        @click="saveChanges"
+        rounded
+        size="lg"
+        unelevated
+        :loading="saveLoading"
+        :disable="saveLoading"
+      >
         <q-icon name="save" size="18px" />
         <span class="q-ml-sm text-subtitle1">Save changes</span>
+        <template #loading>
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-spinner size="sm" />
+            <span class="q-ml-sm text-subtitle1">Saving...</span>
+          </div>
+        </template>
       </q-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue';
-import { ImageUploader, ThemeSettings } from 'src/components';
-import type { IOpeningHours } from 'src/interfaces/shop';
+import { ref, defineAsyncComponent, watch, reactive } from 'vue';
+import { ThemeSettings } from 'src/components';
+import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
+import type { IShopFormData } from 'src/interfaces/shop';
+import type { IOpeningHours, ILink } from 'src/interfaces/common';
+import { useProfileStore } from 'src/stores/profile';
+import { API_URL } from 'src/config/constants';
+import { useMutation } from '@vue/apollo-composable';
+import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
+import useNotify from 'src/modules/useNotify';
+import { uploadFiles, type UploadFileResponse } from 'src/api';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
+const profileStore = useProfileStore();
+const { showSuccess, showError } = useNotify();
+
 // Form data
-const shopData = ref({
-  pictures: [] as File[],
+const shopData = reactive<IShopFormData>({
+  pictures: [],
   name: '',
   description: '',
   city: '',
   address: '',
   phone: '',
   email: '',
-  dateOpened: '',
-  instagram: '',
-  openingTimes: [] as IOpeningHours[],
-  website: '',
 });
+const links = ref<ILink[]>([]);
+const openingHours = ref<IOpeningHours[]>([]);
+const imagesForRemove = ref<string[]>([]);
+const imagesForUpload = ref<File[]>([]);
+const saveLoading = ref(false);
 
-// Computed property for opening times to handle v-model
-const openingTimesModel = computed({
-  get: () => shopData.value.openingTimes || [],
-  set: (value: IOpeningHours[]) => {
-    shopData.value.openingTimes = value;
-  },
-});
+// Setup mutation
+const {
+  mutate: updateShop,
+  onDone: onDoneUpdateShop,
+} = useMutation(UPDATE_SHOP_MUTATION);
 
-const saveChanges = () => {
-  console.log('Saving changes...', shopData.value);
+// Prepare data for mutation
+const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
+  return {
+    ...(uploadedFiles.length > 0 && { pictures: [
+      ...uploadedFiles.map((file) => file.id),
+      // Set current pictures ids
+    ] }),
+    name: shopData.name,
+    description: shopData.description,
+    phone: shopData.phone,
+    email: shopData.email,
+    openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
+    location: {
+      city: shopData.city,
+      address: shopData.address,
+    }
+  };
 };
+
+async function upload(): Promise<UploadFileResponse[] | []> {
+  if (imagesForUpload.value.length > 0) {
+    return await uploadFiles(imagesForUpload.value);
+  }
+  return [];
+}
+
+const saveChanges = async () => {
+  saveLoading.value = true;
+  try {
+    const shopProfile = profileStore.getShopProfile;
+    if (!shopProfile?.documentId) {
+      throw new Error('Shop profile not found');
+    }
+
+    const uploadedFiles: UploadFileResponse[] = await upload();
+
+    const data = prepareDataForMutation(uploadedFiles);
+
+    void updateShop({
+      documentId: shopProfile.documentId,
+      data,
+    });
+  } catch (error) {
+    console.error('Error updating data:', error);
+    showError('Error updating data');
+  } finally {
+    saveLoading.value = false;
+  }
+};
+
+onDoneUpdateShop((result) => {
+  if (result.errors?.length) {
+    console.error('Error updating shop:', result.errors);
+    showError('Error updating shop');
+    return;
+  }
+
+  if (result.data?.updateShop) {
+    profileStore.setShopProfile({
+      ...profileStore.getShopProfile,
+      ...result.data.updateShop,
+    });
+    showSuccess('Shop successfully updated');
+  }
+});
+
+watch(
+  () => profileStore.getShopProfile,
+  (profile) => {
+    links.value = profile?.links || [];
+    openingHours.value = profile?.openingHours || [];
+    Object.assign(shopData, {
+      pictures: profile?.pictures?.map((picture, index) => ({
+        url: `${API_URL}${picture.url}`,
+        documentId: picture.documentId,
+        index,
+      })) || [],
+      name: profile?.name || '',
+      description: profile?.description || '',
+      city: profile?.location?.city || '',
+      address: profile?.location?.address || '',
+      phone: profile?.phone || '',
+      email: profile?.email || '',
+    });
+  },
+  { immediate: true },
+);
 
 // Expose data for parent component
 defineExpose({

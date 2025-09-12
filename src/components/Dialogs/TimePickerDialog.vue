@@ -14,7 +14,7 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <q-time v-model="timeValue" format24h unelevated class="full-width bg-block" />
+        <q-time v-model="timeValue" unelevated class="full-width bg-block" />
       </q-card-section>
       <q-card-actions class="dialog-actions bg-block">
         <div class="left-actions flex q-gap-sm">
@@ -43,20 +43,23 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: boolean;
-  time: string;
-  title: string;
+  time: string | null;
+  title: string | null;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'confirm', time: string): void;
+  (e: 'confirm', time: string | null): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+
+const { formatToFullTime } = useDate();
 
 const isVisible = ref(props.modelValue);
 const timeValue = ref(props.time);
@@ -93,7 +96,7 @@ const closeDialog = () => {
 };
 
 const confirmTime = () => {
-  emit('confirm', timeValue.value);
+  emit('confirm', formatToFullTime(timeValue.value || '') || null);
   isVisible.value = false;
 };
 </script>
@@ -134,6 +137,10 @@ const confirmTime = () => {
       font-weight: 600;
     }
   }
+
+  // :deep(.q-time__header-ampm) {
+  //   display: none;
+  // }
 }
 
 .body--dark {

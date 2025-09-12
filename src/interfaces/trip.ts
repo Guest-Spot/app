@@ -1,11 +1,8 @@
+import type { ILocation } from 'src/interfaces/common';
+
 export interface ITrip {
   documentId: string;
-  location: {
-    city: string;
-    address: string;
-    latitude: string;
-    longitude: string;
-  };
+  location: ILocation;
   date: string;
   startTime: string;
   endTime: string;
@@ -16,10 +13,7 @@ export interface ITrip {
 
 export interface ITripForm {
   documentId: string;
-  location: {
-    city: string;
-    address: string;
-  };
+  location: ILocation;
   date: string;
   startTime: string;
   endTime: string;

@@ -1,13 +1,11 @@
+import type { IPicture, ITag } from 'src/interfaces/common';
+
 export interface IPortfolio {
   documentId: string;
   title: string;
   description: string;
-  pictures: {
-    url: string;
-  }[];
-  tags: {
-    name: string;
-  }[];
+  pictures: IPicture[];
+  tags: ITag[];
   ownerDocumentId: string;
 }
 

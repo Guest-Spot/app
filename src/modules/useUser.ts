@@ -6,10 +6,8 @@ import {
   type ILoginResponse,
   type IMeResponse,
   type IJWTTokens,
-  UserType,
 } from 'src/interfaces/user';
-import type { IShop } from 'src/interfaces/shop';
-import type { IArtist } from 'src/interfaces/artist';
+import { UserType } from 'src/interfaces/enums';
 import { useTokens } from 'src/modules/useTokens';
 import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
 import gql from 'graphql-tag';
@@ -24,7 +22,6 @@ const useUser = () => {
 
   // Computed getters
   const user = computed(() => userStore.getUser);
-  const profile = computed(() => userStore.getProfile);
   const isShop = computed(() => userStore.getIsShop);
   const isArtist = computed(() => userStore.getIsArtist);
   const isGuest = computed(() => userStore.getIsGuest);
@@ -32,7 +29,7 @@ const useUser = () => {
   const isLoading = computed(() => userStore.getIsLoading);
 
   // GraphQL composables
-  const { mutate: loginMutation } = useMutation<ILoginResponse<IShop | IArtist>>(LOGIN_MUTATION);
+  const { mutate: loginMutation } = useMutation<ILoginResponse>(LOGIN_MUTATION);
   const { mutate: logoutMutation } = useMutation(gql(LOGOUT_MUTATION));
   /**
    * Login user with email and password
@@ -82,12 +79,12 @@ const useUser = () => {
   /**
    * Fetch current user from API
    */
-  const fetchMe = async (): Promise<{ success: boolean; error?: string }> => {
+  const fetchMe = async (): Promise<IUser | null> => {
     try {
       userStore.setIsLoading(true);
 
       // Use Apollo query with current context (token will be added by authLink)
-      const { result, load } = useLazyQuery<IMeResponse<IShop | IArtist>>(
+      const { result, load } = useLazyQuery<IMeResponse>(
         ME_QUERY,
         {},
         {
@@ -99,15 +96,13 @@ const useUser = () => {
 
       if (result.value?.me) {
         updateUserState(result.value.me);
-        return { success: true };
+        return result.value.me;
       } else {
         throw new Error('Failed to fetch user data');
       }
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch user',
-      };
+      console.error('Fetch user error:', error);
+      return null;
     } finally {
       userStore.setIsLoading(false);
     }
@@ -116,9 +111,8 @@ const useUser = () => {
   /**
    * Update user state in store
    */
-  const updateUserState = (userData: IUser<IShop | IArtist>): void => {
+  const updateUserState = (userData: IUser): void => {
     userStore.setUser(userData);
-    userStore.setProfile(userData.profile);
     userStore.setIsAuthenticated(true);
 
     if (userData.type) {
@@ -147,7 +141,6 @@ const useUser = () => {
   return {
     // State
     user,
-    profile,
     isShop,
     isArtist,
     isGuest,

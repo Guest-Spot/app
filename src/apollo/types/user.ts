@@ -7,7 +7,26 @@ export const ME_QUERY = gql`
       email
       type
       profile {
+        documentId
         name
+        pictures {
+          documentId
+          url
+        }
+        description
+        location {
+          city
+          address
+          latitude
+          longitude
+        }
+        phone
+        email
+        openingHours {
+          day
+          start
+          end
+        }
       }
     }
   }

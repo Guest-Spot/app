@@ -7,13 +7,16 @@
         class="day-card bg-block border-radius-md"
       >
         <div class="day-title text-subtitle2 text-bold bg-block q-py-sm q-px-md">
-          {{ item.day }}
+          <q-badge
+            :label="OpeningHoursDays[item.day]"
+            :color="item.start && item.end ? 'primary' : 'transparent'"
+          />
         </div>
         <div class="flex column q-gap-sm q-pa-md">
           <div class="field">
             <label class="input-label text-grey-6">Start</label>
             <q-input
-              :model-value="localHours[idx]?.start || ''"
+              :model-value="formatTime(localHours[idx]?.start || '')"
               outlined
               dense
               rounded
@@ -30,7 +33,7 @@
               :model-value="dialogs[idx]?.start || false"
               @update:model-value="(val) => updateDialogVisibility(idx, 'start', val)"
               :time="item.start"
-              :title="`Select start time — ${item.day}`"
+              :title="`Select start time — ${OpeningHoursDays[item.day]}`"
               @confirm="onConfirm(idx, 'start', $event)"
             />
           </div>
@@ -38,7 +41,7 @@
           <div class="field">
             <label class="input-label text-grey-6">End</label>
             <q-input
-              :model-value="localHours[idx]?.end || ''"
+              :model-value="formatTime(localHours[idx]?.end || '')"
               outlined
               dense
               rounded
@@ -55,7 +58,7 @@
               :model-value="dialogs[idx]?.end || false"
               @update:model-value="(val) => updateDialogVisibility(idx, 'end', val)"
               :time="item.end"
-              :title="`Select end time — ${item.day}`"
+              :title="`Select end time — ${OpeningHoursDays[item.day]}`"
               @confirm="onConfirm(idx, 'end', $event)"
             />
           </div>
@@ -68,8 +71,9 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
 import { TimePickerDialog } from 'src/components/Dialogs';
-import type { IOpeningHours } from 'src/interfaces/shop';
-import { OpeningHoursDays } from 'src/interfaces/enums';
+import type { IOpeningHours } from 'src/interfaces/common';
+import { OpeningHoursKeysDays, OpeningHoursDays } from 'src/interfaces/enums';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: IOpeningHours[] | [];
@@ -82,20 +86,20 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
+const { formatTime } = useDate();
+
 const defaultHours: IOpeningHours[] = [
-  { day: OpeningHoursDays.mon, start: '', end: '' },
-  { day: OpeningHoursDays.tue, start: '', end: '' },
-  { day: OpeningHoursDays.wed, start: '', end: '' },
-  { day: OpeningHoursDays.thu, start: '', end: '' },
-  { day: OpeningHoursDays.fri, start: '', end: '' },
-  { day: OpeningHoursDays.sat, start: '', end: '' },
-  { day: OpeningHoursDays.sun, start: '', end: '' },
+  { day: OpeningHoursKeysDays.mon, start: null, end: null },
+  { day: OpeningHoursKeysDays.tue, start: null, end: null },
+  { day: OpeningHoursKeysDays.wed, start: null, end: null },
+  { day: OpeningHoursKeysDays.thu, start: null, end: null },
+  { day: OpeningHoursKeysDays.fri, start: null, end: null },
+  { day: OpeningHoursKeysDays.sat, start: null, end: null },
+  { day: OpeningHoursKeysDays.sun, start: null, end: null },
 ];
 
 // Local reactive copy to allow editing
-const localHours = reactive<IOpeningHours[]>(
-  props.modelValue?.length ? [...props.modelValue] : [...defaultHours],
-);
+const localHours = reactive<IOpeningHours[]>(defaultHours);
 
 // Dialog visibility per day
 const dialogs = reactive(localHours.map(() => ({ start: false, end: false })));
@@ -103,17 +107,15 @@ const dialogs = reactive(localHours.map(() => ({ start: false, end: false })));
 watch(
   () => props.modelValue,
   (val) => {
-    if (val && val.length === 7) {
-      for (let i = 0; i < 7; i++) {
-        const localItem = localHours[i];
-        const valItem = val[i];
-        if (localItem && valItem) {
-          localItem.start = valItem.start;
-          localItem.end = valItem.end;
-        }
+    for (const item of val) {
+      const localItem = localHours.find((d) => d.day === item.day);
+      if (localItem) {
+        localItem.start = item.start;
+        localItem.end = item.end;
       }
     }
   },
+  { immediate: true },
 );
 
 // Emit changes when localHours change
@@ -136,7 +138,7 @@ const updateDialogVisibility = (idx: number, type: 'start' | 'end', val: boolean
   }
 };
 
-const onConfirm = (idx: number, type: 'start' | 'end', time: string) => {
+const onConfirm = (idx: number, type: 'start' | 'end', time: string | null) => {
   const hour = localHours[idx];
   if (hour) {
     hour[type] = time;
@@ -161,6 +163,7 @@ defineExpose({ value });
 }
 
 .day-card {
+  max-width: 170px;
   flex: 0 0 auto;
   overflow: hidden;
 }

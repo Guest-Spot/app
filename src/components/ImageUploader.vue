@@ -171,11 +171,11 @@ const emit = defineEmits(['clear', 'on-change']);
 
 const props = defineProps({
   image: {
-    type: File,
+    type: [File, String],
     default: null,
   },
   images: {
-    type: Array as PropType<File[]>,
+    type: Array as PropType<(File | string)[]>,
     default: () => [],
   },
   size: {
@@ -212,9 +212,14 @@ const $q = useQuasar();
 const { image, images, multiple } = toRefs(props);
 const { formatFileToBase64 } = useImage();
 
+const isUrlString = (value: unknown): value is string => {
+  return typeof value === 'string';
+};
+
 const imagePreview = ref<string>('');
-const imagesPreview = ref<{ src: string; index: number }[]>([]);
-const selectedFiles = ref<File[]>([]);
+type ImagePreviewItem = { src: string; index: number };
+const imagesPreview = ref<ImagePreviewItem[]>([]);
+const selectedFiles = ref<(File | string)[]>([]);
 const isLoading = ref(false);
 const dialog = ref(false);
 const cameraInput = ref<HTMLInputElement | null>(null);
@@ -246,7 +251,12 @@ function clear() {
   emit('clear');
 }
 
-async function compressAndPrepare(file: File) {
+type PreparedImage = { file: File; base64: string } | { file: string; base64: string } | null;
+
+async function compressAndPrepare(file: File | string): Promise<PreparedImage> {
+  if (isUrlString(file)) {
+    return { file, base64: file };
+  }
   const options = {
     maxSizeMB: 0.3,
     maxWidthOrHeight: 1024,
@@ -262,17 +272,24 @@ async function compressAndPrepare(file: File) {
   return { file: compressedImage, base64 };
 }
 
-async function onChangeImage(input: File | File[]) {
+async function onChangeImage(input: File | File[] | string | string[]) {
   isLoading.value = true;
   try {
     if (multiple.value) {
       const files = Array.isArray(input) ? input : [input];
       const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-      const valid = results.filter((r): r is { file: File; base64: string } => !!r);
-      imagesPreview.value.push(
-        ...valid.map((v, index) => ({ src: v.base64, index: imagesPreview.value.length + index })),
+      const valid = results.filter(
+        (r): r is { file: File; base64: string } | { file: string; base64: string } => !!r,
       );
-      selectedFiles.value.push(...valid.map((v) => v.file));
+
+      const newPreviews = valid.map((v, index) => ({
+        src: v.base64,
+        index: imagesPreview.value.length + index,
+      }));
+
+      imagesPreview.value = [...imagesPreview.value, ...newPreviews];
+      selectedFiles.value = [...selectedFiles.value, ...valid.map((v) => v.file)];
+
       emit('on-change', selectedFiles.value);
     } else {
       const file = Array.isArray(input) ? input[0] : input;
@@ -366,7 +383,11 @@ watch(
   image,
   async (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
-    imagePreview.value = await formatFileToBase64(newValue);
+    if (isUrlString(newValue)) {
+      imagePreview.value = newValue;
+    } else if (newValue instanceof File) {
+      imagePreview.value = await formatFileToBase64(newValue);
+    }
   },
   {
     immediate: true,
@@ -378,7 +399,10 @@ watch(
   async (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
     imagesPreview.value = await Promise.all(
-      newValue.map(async (v, index) => ({ src: await formatFileToBase64(v), index })),
+      [...imagesPreview.value, ...newValue].map(async (v, index) => {
+        const src = isUrlString(v) ? v : await formatFileToBase64(v as File);
+        return { src, index };
+      }),
     );
   },
   {

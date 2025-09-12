@@ -1,4 +1,4 @@
-import type { LinkType } from 'src/interfaces/enums';
+import type { IPicture, ILocation, ILink } from 'src/interfaces/common';
 
 export interface IArtist {
   documentId: string;
@@ -10,19 +10,9 @@ export interface IArtist {
   email?: string;
   experience?: number;
   status?: string;
-  avatar?: {
-    url: string;
-  };
-  links?: {
-    type: LinkType;
-    value: string;
-  }[];
-  location?: {
-    city: string;
-    address: string;
-    latitude: string;
-    longitude: string;
-  };
+  avatar?: IPicture;
+  links?: ILink[];
+  location?: ILocation;
 }
 
 export interface IGraphQLArtistsResult {

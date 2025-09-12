@@ -194,6 +194,7 @@ onMounted(() => {
         name: 'John Doe',
         avatar: {
           url: 'artists/artist1.jpeg',
+          documentId: '1',
         },
         experience: 10,
       },
@@ -217,6 +218,7 @@ onMounted(() => {
         name: 'John Doe',
         avatar: {
           url: 'artists/artist2.jpg',
+          documentId: '2',
         },
         experience: 3,
       },
@@ -240,6 +242,7 @@ onMounted(() => {
         name: 'John Doe',
         avatar: {
           url: 'artists/artist3.jpg',
+          documentId: '3',
         },
         experience: 3,
       },
@@ -263,6 +266,7 @@ onMounted(() => {
         name: 'John Doe',
         avatar: {
           url: 'artists/artist4.jpg',
+          documentId: '4',
         },
         experience: 5,
       },

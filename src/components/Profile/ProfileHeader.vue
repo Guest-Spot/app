@@ -1,12 +1,14 @@
 <template>
-  <div class="flex justify-between items-center q-gap-md">
+  <div class="flex justify-between items-start q-gap-md no-wrap">
     <div class="text-h6">
-      Welcome, <span class="text-primary">{{ profile?.name }}</span>
+      Welcome<template v-if="name"
+        >, <span class="text-primary">{{ name }}</span></template
+      >
     </div>
     <q-btn text-color="negative" icon="settings" round unelevated class="bg-block" size="sm">
       <q-menu style="width: 150px">
         <q-list>
-          <q-item v-close-popup clickable>
+          <q-item v-close-popup clickable @click="handlePublicProfile">
             <q-item-section>
               <div class="flex items-center no-wrap q-gap-sm">
                 <q-icon name="public" size="18px" />
@@ -29,17 +31,26 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({
-  name: 'ProfileHeader',
-});
-
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
 
+defineOptions({
+  name: 'ProfileHeader',
+});
+
+defineProps({
+  name: {
+    type: String,
+    default: '',
+  },
+});
+
+const emit = defineEmits(['openPublicProfile']);
+
 const router = useRouter();
 const $q = useQuasar();
-const { logout, profile } = useUser();
+const { logout } = useUser();
 
 const handleLogout = () => {
   $q.dialog({
@@ -59,5 +70,9 @@ const handleLogout = () => {
     void logout();
     void router.push('/');
   });
+};
+
+const handlePublicProfile = () => {
+  emit('openPublicProfile');
 };
 </script>
