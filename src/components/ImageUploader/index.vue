@@ -45,7 +45,7 @@ defineOptions({
   name: 'ImageUploader',
 });
 
-defineEmits(['clear', 'on-change']);
+const emit = defineEmits(['on-change', 'on-remove']);
 
 const props = defineProps({
   images: {
@@ -141,6 +141,7 @@ async function onChangeImage(input: File | File[]) {
   }
   imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
   filesForUpload.value = [...filesForUpload.value, ...newFilesList];
+  emit('on-change', filesForUpload.value.map((f) => f.file));
 }
 
 function onRemoveImage(index: number) {
@@ -149,6 +150,7 @@ function onRemoveImage(index: number) {
     .filter((id) => !filesForUpload.value.some((f) => f.documentId === id));
   filesForUpload.value = filesForUpload.value.filter((f) => f.documentId !== itemByIndex?.documentId);
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
+  emit('on-remove', imagesIdsForRemove.value);
 }
 
 watch(

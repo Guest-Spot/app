@@ -3,10 +3,11 @@
     <!-- Banner Image Section -->
     <ImageUploaderV2
       :images="shopData.pictures || []"
-      @on-change="shopData.pictures = $event"
       placeholder="Upload images"
       multiple
       placeholderIcon="photo_library"
+      @on-change="imagesForUpload = $event"
+      @on-remove="imagesForRemove = $event"
     />
 
     <!-- Basic Information -->
@@ -155,7 +156,7 @@ import { ref, computed, defineAsyncComponent, watch } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
-import type { IOpeningHours, IPicture } from 'src/interfaces/common';
+import type { IOpeningHours } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';
 import { API_URL } from 'src/config/constants';
 import { useMutation } from '@vue/apollo-composable';
@@ -183,6 +184,8 @@ const shopData = ref<IShopFormData>({
   links: [],
   openingHours: [] as IOpeningHours[],
 });
+const imagesForRemove = ref<string[]>([]);
+const imagesForUpload = ref<File[]>([]);
 
 // Setup mutation
 const {
@@ -201,20 +204,12 @@ const openingTimesModel = computed({
 
 // Prepare data for mutation
 const prepareDataForMutation = () => {
-  // Convert image URLs back to the format expected by the API
-  const pictures: IPicture[] = shopData.value.pictures.map((picture) => {
-    // If the URL already contains the API_URL, remove it
-    const cleanUrl =
-      typeof picture.url === 'string' && API_URL && picture.url.includes(API_URL)
-        ? picture.url.replace(API_URL, '')
-        : picture.url;
-    return { url: cleanUrl, documentId: picture.documentId, index: picture.index || 0 };
-  });
+  console.log(imagesForUpload.value);
+  console.log(imagesForRemove.value);
 
   return {
     name: shopData.value.name,
     description: shopData.value.description,
-    pictures,
     phone: shopData.value.phone,
     email: shopData.value.email,
     links: shopData.value.links,
