@@ -1,8 +1,8 @@
 import { jwtDecode } from 'jwt-decode';
 import { type IJWTTokens } from 'src/interfaces/user';
 
-const TOKEN_STORAGE_KEY = 'guestspot_tokens';
-const REFRESH_TOKEN_KEY = 'guestspot_refresh';
+const TOKEN_STORAGE_KEY = 'guestspot_access-token';
+const REFRESH_TOKEN_KEY = 'guestspot_refresh-token';
 
 /**
  * Token Management Module
