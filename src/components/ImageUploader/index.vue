@@ -6,14 +6,12 @@
       'image-uploader--circle': circle,
     }"
   >
-    <template v-if="hasImages">
-      <PreviewImages
-        v-if="hasImages"
-        :images="imagesPreview"
-        :multiple="multiple"
-        @open-zoom-dialog="zoomImage"
-      />
-    </template>
+    <PreviewImages
+      v-if="hasImages"
+      :images="imagesPreview"
+      :multiple="multiple"
+      @open-zoom-dialog="zoomImage"
+    />
 
     <UploadForm
       :multiple="multiple"
@@ -36,7 +34,8 @@
 <script setup lang="ts">
 import useImage from 'src/modules/useImage';
 import { type ValidationRule } from 'quasar';
-import { ref, toRefs, watch, computed, type PropType } from 'vue';
+import { ref, watch, computed, type PropType } from 'vue';
+import imageCompression from 'browser-image-compression';
 import PreviewImages from 'src/components/ImageUploader/PreviewImages.vue';
 import UploadForm from 'src/components/ImageUploader/UploadForm.vue';
 
@@ -47,10 +46,6 @@ defineOptions({
 defineEmits(['clear', 'on-change']);
 
 const props = defineProps({
-  image: {
-    type: [File, String],
-    default: null,
-  },
   images: {
     type: Array as PropType<(File | string)[]>,
     default: () => [],
@@ -85,15 +80,15 @@ const props = defineProps({
   },
 });
 
-const { image, images, multiple } = toRefs(props);
+const MAX_SIZE = 4096;
+type ImagePreviewItem = { src: string; index: number };
+
 const { formatFileToBase64 } = useImage();
 
 const isUrlString = (value: unknown): value is string => {
   return typeof value === 'string';
 };
 
-const imagePreview = ref<string>('');
-type ImagePreviewItem = { src: string; index: number };
 const imagesPreview = ref<ImagePreviewItem[]>([]);
 const isLoading = ref(false);
 const dialog = ref(false);
@@ -102,37 +97,43 @@ const previewDialogSrc = ref<string | null>(null);
 // Import dialog component statically
 import { ImagePreviewDialog } from 'src/components/Dialogs';
 
-const hasImages = computed(() => {
-  return multiple.value ? imagesPreview.value.length > 0 : !!imagePreview.value;
-});
+const hasImages = computed(() => imagesPreview.value.length > 0);
 
 // ---------- Methods ---------- //
-function zoomImage(src?: string) {
-  previewDialogSrc.value = src || imagePreview.value;
+function zoomImage(src: string) {
+  previewDialogSrc.value = src;
   dialog.value = true;
 }
 
-function onChangeImage(input: File | File[]) {
-  console.log(input);
+async function compressAndPrepare(file: File): Promise<{ file: File; base64: string } | null> {
+  const options = {
+    maxSizeMB: 0.3,
+    maxWidthOrHeight: 1024,
+    useWebWorker: true,
+  };
+  const compressedImage = await imageCompression(file, options);
+  const fileSize = compressedImage.size / 1000;
+  if (fileSize >= MAX_SIZE) {
+    console.error('File size is too large');
+    return null;
+  }
+  const base64 = await formatFileToBase64(compressedImage);
+  return { file: compressedImage, base64 };
+}
+
+async function onChangeImage(input: File | File[]) {
+  const files = Array.isArray(input) ? input : [input];
+  const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
+  const newPreviews = results.map((v, index) => ({
+    src: v?.base64 || '',
+    index: imagesPreview.value.length + index,
+  }));
+
+  imagesPreview.value = [...imagesPreview.value, ...newPreviews];
 }
 
 watch(
-  image,
-  async (newValue, oldValue) => {
-    if (!newValue || newValue === oldValue) return;
-    if (isUrlString(newValue)) {
-      imagePreview.value = newValue;
-    } else if (newValue instanceof File) {
-      imagePreview.value = await formatFileToBase64(newValue);
-    }
-  },
-  {
-    immediate: true,
-  },
-);
-
-watch(
-  images,
+  () => props.images,
   async (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
     imagesPreview.value = await Promise.all(
