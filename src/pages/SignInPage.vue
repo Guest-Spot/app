@@ -93,10 +93,12 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import useUser from 'src/modules/useUser';
+import { useProfileStore } from 'src/stores/profile';
 
 const router = useRouter();
 const $q = useQuasar();
 const { login, isAuthenticated, fetchMe } = useUser();
+const profileStore = useProfileStore();
 
 const loading = ref(false);
 const showPassword = ref(false);
@@ -112,7 +114,10 @@ const handleLogin = async () => {
     const result = await login(form.value.login, form.value.password);
 
     if (result.success && isAuthenticated.value) {
-      await fetchMe();
+      const userData = await fetchMe();
+      if (userData) {
+        profileStore.setUserProfile(userData);
+      }
       $q.notify({
         type: 'primary',
         message: 'Login successful!',
