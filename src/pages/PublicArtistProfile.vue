@@ -26,7 +26,7 @@
           <q-avatar size="150px" class="profile-avatar bg-block">
             <q-img
               v-if="artistData.avatar?.url"
-              :src="`${API_URL}${artistData.avatar?.url}`"
+              :src="artistData.avatar?.url"
               :ratio="1"
               spinner-color="dark"
               spinner-size="32px"
@@ -110,7 +110,6 @@ import { CreateBookingDialog } from 'src/components/Dialogs';
 import type { IArtist, IGraphQLArtistResult } from 'src/interfaces/artist';
 import { ARTIST_QUERY } from 'src/apollo/types/artist';
 import { useLazyQuery } from '@vue/apollo-composable';
-import { API_URL } from 'src/config/constants';
 import type { IGraphQLTripsResult } from 'src/interfaces/trip';
 import { TRIPS_QUERY } from 'src/apollo/types/trip';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';

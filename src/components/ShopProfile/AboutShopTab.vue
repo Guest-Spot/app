@@ -164,7 +164,6 @@ import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
 import type { IOpeningHours, ILink } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';
-import { API_URL } from 'src/config/constants';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
@@ -268,7 +267,7 @@ watch(
     openingHours.value = profile?.openingHours || [];
     Object.assign(shopData, {
       pictures: profile?.pictures?.map((picture, index) => ({
-        url: `${API_URL}${picture.url}`,
+        url: picture.url,
         documentId: picture.documentId,
         index,
       })) || [],
