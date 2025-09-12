@@ -1,4 +1,3 @@
-export { default as ImageUploader } from './ImageUploader.vue';
 export { default as TheFooter } from './TheFooter.vue';
 export { default as TabsComp } from './TabsComp.vue';
 export { default as ThemeSettings } from './ThemeSettings.vue';

@@ -1,7 +1,7 @@
 <template>
   <div class="about-shop-tab flex column q-gap-md">
     <!-- Banner Image Section -->
-    <ImageUploader
+    <ImageUploaderV2
       :images="shopData.pictures || []"
       @on-change="shopData.pictures = $event"
       placeholder="Upload images"
@@ -152,7 +152,8 @@
 
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent, watch } from 'vue';
-import { ImageUploader, ThemeSettings } from 'src/components';
+import { ThemeSettings } from 'src/components';
+import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
 import type { IOpeningHours, IPicture } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';

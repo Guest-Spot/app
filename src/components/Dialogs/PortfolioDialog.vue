@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { ImageUploader } from 'src/components';
+import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 
 defineOptions({

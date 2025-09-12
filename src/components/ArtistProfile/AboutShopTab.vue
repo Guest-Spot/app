@@ -199,7 +199,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { TimePickerDialog } from '../Dialogs';
-import { ImageUploader } from 'src/components';
+import ImageUploader from 'src/components/ImageUploader/index.vue';
 
 // Form data
 const shopData = ref({
