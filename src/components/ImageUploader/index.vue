@@ -47,7 +47,7 @@ defineEmits(['clear', 'on-change']);
 
 const props = defineProps({
   images: {
-    type: Array as PropType<(File | string)[]>,
+    type: Array as PropType<string[]>,
     default: () => [],
   },
   size: {
@@ -85,14 +85,11 @@ type ImagePreviewItem = { src: string; index: number };
 
 const { formatFileToBase64 } = useImage();
 
-const isUrlString = (value: unknown): value is string => {
-  return typeof value === 'string';
-};
-
 const imagesPreview = ref<ImagePreviewItem[]>([]);
 const isLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
+const newFiles = ref<File[]>([]);
 
 // Import dialog component statically
 import { ImagePreviewDialog } from 'src/components/Dialogs';
@@ -130,18 +127,21 @@ async function onChangeImage(input: File | File[]) {
   }));
 
   imagesPreview.value = [...imagesPreview.value, ...newPreviews];
+  newFiles.value = [
+    ...newFiles.value,
+    ...results.map((v) => v?.file || null),
+  ].filter((v): v is File => v !== null);
 }
 
 watch(
   () => props.images,
-  async (newValue, oldValue) => {
+  (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
-    imagesPreview.value = await Promise.all(
-      [...imagesPreview.value, ...newValue].map(async (v, index) => {
-        const src = isUrlString(v) ? v : await formatFileToBase64(v as File);
-        return { src, index };
-      }),
-    );
+    const newImagePreviews = newValue.map((src, index) => ({
+      src: src || '',
+      index: imagesPreview.value.length + index
+    }));
+    imagesPreview.value = [...imagesPreview.value, ...newImagePreviews];
   },
   {
     immediate: true,
