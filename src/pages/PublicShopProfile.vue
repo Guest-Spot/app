@@ -22,12 +22,13 @@
       <div class="profile-info-container flex column">
         <!-- Pictures Carousel or Avatar -->
         <div class="profile-carousel">
+          <q-skeleton v-if="isLoadingShop" height="300px" square />
           <ImageCarousel
-            v-if="shopPictures && shopPictures.length > 0"
+            v-else-if="shopPictures && shopPictures.length > 0"
             :pictures="shopPictures"
             height="300px"
           />
-          <q-skeleton v-else height="300px" square />
+          <div v-else class="bg-block" style="height: 300px" />
         </div>
 
         <!-- User Details -->
@@ -155,12 +156,9 @@ const shopData = ref<IShop>({
   documentId: '',
   createdAt: '',
   updatedAt: '',
-  location: {
-    city: '',
-    address: '',
-    latitude: '',
-    longitude: '',
-  },
+  city: '',
+  address: '',
+  link: '',
   description: '',
   name: '',
   phone: '',

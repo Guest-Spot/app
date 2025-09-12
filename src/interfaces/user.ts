@@ -1,4 +1,4 @@
-import type { ILocation, IOpeningHours, ILink, IPicture } from 'src/interfaces/common';
+import type { IOpeningHours, ILink, IPicture } from 'src/interfaces/common';
 import type { IArtist } from 'src/interfaces/artist';
 import type { IShop } from 'src/interfaces/shop';
 import type { UserType } from 'src/interfaces/enums';
@@ -7,7 +7,9 @@ export interface IProfile {
   name: string;
   pictures: IPicture[];
   description: string;
-  location: ILocation;
+  link: string;
+  city: string;
+  address: string;
   phone: string;
   email: string;
   links: ILink[];

@@ -209,10 +209,8 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
     phone: shopData.phone,
     email: shopData.email,
     openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
-    location: {
-      city: shopData.city,
-      address: shopData.address,
-    }
+    city: shopData.city,
+    address: shopData.address,
   };
 };
 
@@ -276,8 +274,8 @@ watch(
       })) || [],
       name: profile?.name || '',
       description: profile?.description || '',
-      city: profile?.location?.city || '',
-      address: profile?.location?.address || '',
+      city: profile?.city || '',
+      address: profile?.address || '',
       phone: profile?.phone || '',
       email: profile?.email || '',
     });

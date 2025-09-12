@@ -14,12 +14,9 @@ export const ME_QUERY = gql`
           url
         }
         description
-        location {
-          city
-          address
-          latitude
-          longitude
-        }
+        city
+        address
+        link
         phone
         email
         openingHours {

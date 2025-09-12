@@ -221,6 +221,9 @@ onBeforeMount(() => {
     sort: sortSettings.value.sortBy
       ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
       : undefined,
+    pagination: {
+      limit: 100,
+    }
   });
   void loadArtists(null, {
     filters: convertFiltersToGraphQLFilters({
@@ -230,6 +233,9 @@ onBeforeMount(() => {
     sort: sortSettings.value.sortBy
       ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
       : undefined,
+    pagination: {
+      limit: 100,
+    }
   });
   void loadCities();
 });

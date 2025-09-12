@@ -1,7 +1,10 @@
 <template>
   <div class="shop-card bg-block border-radius-md" @click="$emit('click', shop)">
     <div class="shop-image">
-      <ImageCarousel :pictures="shopPictures" />
+      <ImageCarousel v-if="shopPictures.length" :pictures="shopPictures" />
+      <div v-else class="bg-block border-radius-md shop-image-placeholder">
+        <q-icon name="no_photography" size="48px" color="grey-6" class="absolute-center" />
+      </div>
     </div>
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
@@ -18,7 +21,7 @@
       <div class="shop-info">
         <div class="shop-location text-grey-6">
           <q-icon name="location_on" size="16px" />
-          <span>{{ shop.location.city }} {{ shop.location.address }}</span>
+          <span>{{ shop.city }} {{ shop.address }}</span>
         </div>
         <div class="shop-hours text-grey-6">
           <q-icon name="schedule" size="16px" />
@@ -73,7 +76,9 @@ const toggleFavorite = () => {
     createdAt: props.shop.createdAt,
     updatedAt: props.shop.updatedAt,
     name: props.shop.name,
-    location: props.shop.location,
+    city: props.shop.city,
+    address: props.shop.address,
+    link: props.shop.link,
     description: props.shop.description,
     pictures: props.shop.pictures,
     ...(props.shop.phone && { phone: props.shop.phone }),
@@ -94,6 +99,12 @@ const toggleFavorite = () => {
 
 .shop-image {
   position: relative;
+}
+
+.shop-image-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: var(--bg-block);
 }
 
 .shop-details {
