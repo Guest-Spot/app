@@ -162,6 +162,7 @@ import { API_URL } from 'src/config/constants';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
+import { uploadFiles } from 'src/api';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
@@ -218,12 +219,16 @@ const prepareDataForMutation = () => {
   };
 };
 
-const saveChanges = () => {
+const saveChanges = async () => {
   try {
     const shopProfile = profileStore.getShopProfile;
     if (!shopProfile?.documentId) {
       throw new Error('Shop profile not found');
     }
+
+    const files = await uploadFiles(imagesForUpload.value);
+
+    console.log(files);
 
     const data = prepareDataForMutation();
 
