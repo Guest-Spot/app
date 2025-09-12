@@ -145,7 +145,8 @@ async function onChangeImage(input: File | File[]) {
 
 function onRemoveImage(index: number) {
   const itemByIndex = imagesPreview.value.find((v) => v.index === index);
-  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || ''];
+  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || '']
+    .filter((id) => !filesForUpload.value.some((f) => f.documentId === id));
   filesForUpload.value = filesForUpload.value.filter((f) => f.documentId !== itemByIndex?.documentId);
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
 }
