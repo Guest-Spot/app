@@ -11,6 +11,7 @@
       :images="imagesPreview"
       :multiple="multiple"
       @open-zoom-dialog="zoomImage"
+      @on-remove="onRemoveImage"
     />
 
     <UploadForm
@@ -33,11 +34,12 @@
 
 <script setup lang="ts">
 import useImage from 'src/modules/useImage';
-import { type ValidationRule } from 'quasar';
+import { type ValidationRule, uid } from 'quasar';
 import { ref, watch, computed, type PropType } from 'vue';
 import imageCompression from 'browser-image-compression';
 import PreviewImages from 'src/components/ImageUploader/PreviewImages.vue';
 import UploadForm from 'src/components/ImageUploader/UploadForm.vue';
+import type { IPicture } from 'src/interfaces/common';
 
 defineOptions({
   name: 'ImageUploader',
@@ -47,7 +49,7 @@ defineEmits(['clear', 'on-change']);
 
 const props = defineProps({
   images: {
-    type: Array as PropType<string[]>,
+    type: Array as PropType<IPicture[]>,
     default: () => [],
   },
   size: {
@@ -81,15 +83,15 @@ const props = defineProps({
 });
 
 const MAX_SIZE = 4096;
-type ImagePreviewItem = { src: string; index: number };
 
 const { formatFileToBase64 } = useImage();
 
-const imagesPreview = ref<ImagePreviewItem[]>([]);
+const imagesPreview = ref<IPicture[]>([]);
 const isLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
-const newFiles = ref<File[]>([]);
+const imagesIdsForRemove = ref<string[]>([]);
+const filesForUpload = ref<{ file: File | null; documentId: string }[]>([]);
 
 // Import dialog component statically
 import { ImagePreviewDialog } from 'src/components/Dialogs';
@@ -121,27 +123,38 @@ async function compressAndPrepare(file: File): Promise<{ file: File; base64: str
 async function onChangeImage(input: File | File[]) {
   const files = Array.isArray(input) ? input : [input];
   const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-  const newPreviews = results.map((v, index) => ({
-    src: v?.base64 || '',
-    index: imagesPreview.value.length + index,
-  }));
+  const newPreviewsList = []
+  const newFilesList = []
+  for (const [index, result] of results.entries()) {
+    const id = uid();
+    const newPreview = {
+      url: result?.base64 || '',
+      documentId: id,
+      index: imagesPreview.value.length + index,
+    };
+    const newFile = {
+      file: result?.file || null,
+      documentId: id,
+    };
+    newPreviewsList.push(newPreview);
+    newFilesList.push(newFile);
+  }
+  imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
+  filesForUpload.value = [...filesForUpload.value, ...newFilesList];
+}
 
-  imagesPreview.value = [...imagesPreview.value, ...newPreviews];
-  newFiles.value = [
-    ...newFiles.value,
-    ...results.map((v) => v?.file || null),
-  ].filter((v): v is File => v !== null);
+function onRemoveImage(index: number) {
+  const itemByIndex = imagesPreview.value.find((v) => v.index === index);
+  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || ''];
+  filesForUpload.value = filesForUpload.value.filter((f) => f.documentId !== itemByIndex?.documentId);
+  imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
 }
 
 watch(
   () => props.images,
   (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
-    const newImagePreviews = newValue.map((src, index) => ({
-      src: src || '',
-      index: imagesPreview.value.length + index
-    }));
-    imagesPreview.value = [...imagesPreview.value, ...newImagePreviews];
+    imagesPreview.value = [...imagesPreview.value, ...newValue];
   },
   {
     immediate: true,

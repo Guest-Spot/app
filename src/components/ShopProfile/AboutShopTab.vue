@@ -202,11 +202,13 @@ const openingTimesModel = computed({
 // Prepare data for mutation
 const prepareDataForMutation = () => {
   // Convert image URLs back to the format expected by the API
-  const pictures: IPicture[] = shopData.value.pictures.map((url) => {
+  const pictures: IPicture[] = shopData.value.pictures.map((picture) => {
     // If the URL already contains the API_URL, remove it
     const cleanUrl =
-      typeof url === 'string' && API_URL && url.includes(API_URL) ? url.replace(API_URL, '') : url;
-    return { url: cleanUrl };
+      typeof picture.url === 'string' && API_URL && picture.url.includes(API_URL)
+        ? picture.url.replace(API_URL, '')
+        : picture.url;
+    return { url: cleanUrl, documentId: picture.documentId, index: picture.index || 0 };
   });
 
   return {
@@ -263,7 +265,11 @@ watch(
   (profile) => {
     Object.assign(shopData.value, {
       ...profile,
-      pictures: profile?.pictures?.map((picture) => `${API_URL}${picture.url}`) || [],
+      pictures: profile?.pictures?.map((picture, index) => ({
+        url: `${API_URL}${picture.url}`,
+        documentId: picture.documentId,
+        index,
+      })) || [],
     });
   },
   { immediate: true },

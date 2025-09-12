@@ -10,6 +10,7 @@ export const ME_QUERY = gql`
         documentId
         name
         pictures {
+          documentId
           url
         }
         description

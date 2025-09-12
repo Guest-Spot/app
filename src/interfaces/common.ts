@@ -2,6 +2,8 @@ import type { LinkType, OpeningHoursDays } from 'src/interfaces/enums';
 
 export interface IPicture {
   url: string;
+  documentId: string;
+  index?: number;
 }
 
 export interface ILocation {

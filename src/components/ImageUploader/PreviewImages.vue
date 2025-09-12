@@ -12,15 +12,15 @@
         v-for="(img, index) in images"
         :key="index"
         class="image-item border-radius-md"
-        @click="zoomImage(img.src)"
+        @click="zoomImage(img.url)"
         draggable="true"
-        @dragstart="onDragStart(img.index)"
+        @dragstart="onDragStart(img.index || index)"
         @dragover.prevent
-        @drop="onDrop(img.index)"
+        @drop="onDrop(img.index || index)"
         @dragend="onDragEnd"
       >
         <q-img
-          :src="img.src"
+          :src="img.url"
           height="100%"
           width="100%"
           fit="cover"
@@ -56,8 +56,8 @@
   <!-- Single image preview -->
   <div v-else class="image-preview-wrapper border-radius-md">
     <q-img
-      :src="images[0]?.src || undefined"
-      @click="zoomImage(images[0]?.src || '')"
+      :src="images[0]?.url || undefined"
+      @click="zoomImage(images[0]?.url || '')"
       height="100%"
       fit="cover"
       spinner-size="md"
@@ -83,14 +83,15 @@
 </template>
 
 <script setup lang="ts">
-import { type PropType, ref, toRefs } from 'vue';
+import { type PropType, ref } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
+import type { IPicture } from 'src/interfaces/common';
 
 defineOptions({
   name: 'PreviewImages',
 });
 
-const emit = defineEmits(['open-zoom-dialog']);
+const emit = defineEmits(['open-zoom-dialog', 'on-remove']);
 
 const props = defineProps({
   multiple: {
@@ -98,12 +99,11 @@ const props = defineProps({
     default: false,
   },
   images: {
-    type: Array as PropType<({ src: string; index: number })[]>,
+    type: Array as PropType<IPicture[]>,
     default: () => [],
   },
 });
 
-const { images } = toRefs(props);
 const dragIndex = ref<number | null>(null);
 
 function zoomImage(src?: string) {
@@ -112,7 +112,7 @@ function zoomImage(src?: string) {
 
 function removeAt(index: number) {
   if (!props.multiple) return;
-  images.value.splice(index, 1);
+  emit('on-remove', index);
 }
 
 function onDragStart(index: number) {

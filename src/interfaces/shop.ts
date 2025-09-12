@@ -16,7 +16,7 @@ export interface IShop {
 }
 
 export interface IShopFormData {
-  pictures: string[];
+  pictures: IPicture[];
   name: string;
   description: string;
   location: ILocation;
