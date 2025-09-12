@@ -31,8 +31,8 @@ export const SHOPS_QUERY = gql`
 `;
 
 export const SHOP_QUERY = gql`
-  query Shop($documentId: ID!, $pagination: PaginationArg) {
-    shop(documentId: $documentId, pagination: $pagination) {
+  query Shop($documentId: ID!) {
+    shop(documentId: $documentId) {
       documentId
       name
       description
