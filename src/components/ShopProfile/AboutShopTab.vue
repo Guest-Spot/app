@@ -141,11 +141,17 @@
         rounded
         size="lg"
         unelevated
-        :loading="mutationLoading"
-        :disable="mutationLoading"
+        :loading="saveLoading"
+        :disable="saveLoading"
       >
         <q-icon name="save" size="18px" />
         <span class="q-ml-sm text-subtitle1">Save changes</span>
+        <template #loading>
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-spinner size="sm" />
+            <span class="q-ml-sm text-subtitle1">Saving...</span>
+          </div>
+        </template>
       </q-btn>
     </div>
   </div>
@@ -162,7 +168,7 @@ import { API_URL } from 'src/config/constants';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
-import { uploadFiles } from 'src/api';
+import { uploadFiles, type UploadFileResponse } from 'src/api';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
@@ -187,11 +193,11 @@ const shopData = ref<IShopFormData>({
 });
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
+const saveLoading = ref(false);
 
 // Setup mutation
 const {
   mutate: updateShop,
-  loading: mutationLoading,
   onDone: onDoneUpdateShop,
 } = useMutation(UPDATE_SHOP_MUTATION);
 
@@ -219,16 +225,22 @@ const prepareDataForMutation = () => {
   };
 };
 
+async function upload(): Promise<UploadFileResponse[] | []> {
+  if (imagesForUpload.value.length > 0) {
+    return await uploadFiles(imagesForUpload.value);
+  }
+  return [];
+}
+
 const saveChanges = async () => {
+  saveLoading.value = true;
   try {
     const shopProfile = profileStore.getShopProfile;
     if (!shopProfile?.documentId) {
       throw new Error('Shop profile not found');
     }
 
-    const files = await uploadFiles(imagesForUpload.value);
-
-    console.log(files);
+    const uploadedFiles: UploadFileResponse[] = await upload();
 
     const data = prepareDataForMutation();
 
@@ -236,11 +248,20 @@ const saveChanges = async () => {
       documentId: shopProfile.documentId,
       data: {
         name: data.name,
+        ...(uploadedFiles.length > 0 && { pictures: [
+          ...uploadedFiles.map((file) => file.id),
+          // Set current pictures ids
+        ] }),
+        description: data.description,
+        phone: data.phone,
+        email: data.email,
       },
     });
   } catch (error) {
     console.error('Error updating data:', error);
     showError('Error updating data');
+  } finally {
+    saveLoading.value = false;
   }
 };
 

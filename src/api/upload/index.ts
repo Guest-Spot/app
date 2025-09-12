@@ -3,6 +3,7 @@ import { api } from 'src/boot/axios';
 // Upload files types
 export interface UploadFileResponse {
   id: number;
+  documentId: string;
   name: string;
   alternativeText?: string;
   caption?: string;
