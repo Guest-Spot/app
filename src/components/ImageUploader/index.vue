@@ -95,7 +95,7 @@ const isLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
 const imagesIdsForRemove = ref<string[]>([]);
-const filesForUpload = ref<{ file: File | null; documentId: string }[]>([]);
+const filesForUpload = ref<{ file: File | null; id: string }[]>([]);
 
 // Import dialog component statically
 import { ImagePreviewDialog } from 'src/components/Dialogs';
@@ -133,12 +133,12 @@ async function onChangeImage(input: File | File[]) {
     const id = uid();
     const newPreview = {
       url: result?.base64 || '',
-      documentId: id,
+      id: id,
       index: imagesPreview.value.length + index,
     };
     const newFile = {
       file: result?.file || null,
-      documentId: id,
+      id: id,
     };
     newPreviewsList.push(newPreview);
     newFilesList.push(newFile);
@@ -153,11 +153,11 @@ async function onChangeImage(input: File | File[]) {
 
 function onRemoveImage(index: number) {
   const itemByIndex = imagesPreview.value.find((v) => v.index === index);
-  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || ''].filter(
-    (id) => !filesForUpload.value.some((f) => f.documentId === id),
+  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.id || ''].filter(
+    (id) => !filesForUpload.value.some((f) => f.id === id),
   );
   filesForUpload.value = filesForUpload.value.filter(
-    (f) => f.documentId !== itemByIndex?.documentId,
+    (f) => f.id !== itemByIndex?.id,
   );
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
   emit('on-remove', imagesIdsForRemove.value);

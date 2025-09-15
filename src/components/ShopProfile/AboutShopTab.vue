@@ -169,11 +169,13 @@ import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
+import useUser from 'src/modules/useUser';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
 const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
+const { fetchMe } = useUser();
 
 // Form data
 const shopData = reactive<IShopFormData>({
@@ -265,14 +267,14 @@ onDoneUpdateShop((result) => {
   }
 
   if (result.data?.updateShop) {
-    profileStore.setShopProfile({
-      ...profileStore.getShopProfile,
-      ...result.data.updateShop,
-    });
-
+    void (async () => {
+      const userData = await fetchMe();
+      if (userData) {
+        profileStore.setUserProfile(userData);
+      }
+    })();
     imagesForUpload.value = [];
     imagesForRemove.value = [];
-
     showSuccess('Shop successfully updated');
   }
 });
@@ -285,7 +287,7 @@ watch(
       pictures:
         profile?.pictures?.map((picture, index) => ({
           url: picture.url,
-          documentId: picture.id || picture.documentId,
+          id: picture.id,
           index,
         })) || [],
     });

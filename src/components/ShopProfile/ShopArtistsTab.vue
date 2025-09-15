@@ -62,7 +62,7 @@ const artists = ref<IArtist[]>([
     description: 'Experienced tattoo artist specializing in traditional American style tattoos.',
     avatar: {
       url: 'artists/artist1.jpeg',
-      documentId: '1',
+      id: '1',
     },
     location: {
       city: 'San Francisco, CA',
@@ -80,7 +80,7 @@ const artists = ref<IArtist[]>([
     description: 'Creative artist known for beautiful watercolor style tattoos.',
     avatar: {
       url: 'artists/artist2.jpg',
-      documentId: '2',
+      id: '2',
     },
     location: {
       city: 'New York, NY',
