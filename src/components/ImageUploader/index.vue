@@ -167,6 +167,7 @@ watch(
   () => props.images,
   (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
+    imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
   },
   {
