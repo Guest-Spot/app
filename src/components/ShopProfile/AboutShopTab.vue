@@ -134,12 +134,13 @@
     <ThemeSettings />
 
     <!-- Save Button -->
-    <div class="save-section">
+    <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
       <q-btn
         class="full-width bg-block"
         @click="saveChanges"
         rounded
         size="lg"
+        :text-color="!!hasChanges ? 'primary' : ''"
         unelevated
         :loading="saveLoading"
         :disable="saveLoading"
@@ -158,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, watch, reactive } from 'vue';
+import { ref, defineAsyncComponent, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
@@ -176,6 +177,10 @@ const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEdit
 const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
 const { fetchMe } = useUser();
+
+// Setup mutation
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
 const shopData = reactive<IShopFormData>({
@@ -197,9 +202,11 @@ const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
-// Setup mutation
-const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
-const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
+const hasChanges = computed(() =>
+  Object.keys(compareAndReturnDifferences(shopDataOriginal, shopData)).length > 0 ||
+  imagesForUpload.value.length > 0 ||
+  imagesForRemove.value.length > 0
+);
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
@@ -232,7 +239,6 @@ async function deleteImages(): Promise<void> {
     }
   }
 }
-
 
 const saveChanges = async () => {
   saveLoading.value = true;
@@ -342,9 +348,14 @@ defineExpose({
   }
 }
 
-.save-section {
+.save-btn {
   margin-top: 20px;
   text-align: center;
+
+  &--active {
+    position: sticky;
+    bottom: 90px;
+  }
 }
 
 :deep(.working-hours) {

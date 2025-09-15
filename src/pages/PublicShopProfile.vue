@@ -225,7 +225,7 @@ const loadShopData = () => {
     if (shopInStore) {
       shopData.value = shopInStore;
     } else {
-      void loadShop(null, { documentId });
+      void loadShop(null, { documentId }, { fetchPolicy: 'network-only' });
     }
   }
 };
@@ -263,9 +263,7 @@ onErrorPortfolio((error) => {
 });
 
 onBeforeMount(() => {
-  setTimeout(() => {
-    void loadShopData();
-  }, 1000);
+  void loadShopData();
   void loadPortfolio(null, { documentId: route.params.documentId as string });
   void loadShopArtists(null, { documentId: route.params.documentId as string });
 });
