@@ -168,6 +168,7 @@ import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
+import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
@@ -190,14 +191,13 @@ const shopData = reactive<IShopFormData>({
 const shopDataOriginal = ({ ...shopData });
 // ------------------------------------------------------------------------//
 
-// const links = ref<ILink[]>([]);
-// const openingHours = ref<IOpeningHours[]>([]);
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
 // Setup mutation
 const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
@@ -206,21 +206,11 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
     ...(uploadedFiles.length > 0 && {
       pictures: [
         ...uploadedFiles.map((file) => file.id),
-        // Set current pictures ids
+        ...shopData.pictures.map((picture) => picture.id),
       ],
     }),
-    // name: shopData.name,
-    // description: shopData.description,
-    // phone: shopData.phone,
-    // email: shopData.email,
-    // openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
-    // city: shopData.city,
-    // address: shopData.address,
   };
   const differences = compareAndReturnDifferences(shopDataOriginal, preparedData);
-  console.log('shopDataOriginal:', shopDataOriginal);
-  console.log('preparedData:', preparedData);
-  console.log('differences:', differences);
   return differences;
 };
 
@@ -231,6 +221,17 @@ async function upload(): Promise<UploadFileResponse[] | []> {
   return [];
 }
 
+async function deleteImages(): Promise<void> {
+  if (imagesForRemove.value.length > 0) {
+    for (const id of imagesForRemove.value) {
+      await deleteImage({
+        id,
+      });
+    }
+  }
+}
+
+
 const saveChanges = async () => {
   saveLoading.value = true;
   try {
@@ -239,6 +240,7 @@ const saveChanges = async () => {
       throw new Error('Shop profile not found');
     }
 
+    await deleteImages();
     const uploadedFiles: UploadFileResponse[] = await upload();
 
     const data = prepareDataForMutation(uploadedFiles);
@@ -267,6 +269,10 @@ onDoneUpdateShop((result) => {
       ...profileStore.getShopProfile,
       ...result.data.updateShop,
     });
+
+    imagesForUpload.value = [];
+    imagesForRemove.value = [];
+
     showSuccess('Shop successfully updated');
   }
 });
@@ -274,23 +280,14 @@ onDoneUpdateShop((result) => {
 watch(
   () => profileStore.getShopProfile,
   (profile) => {
-    // links.value = profile?.links || [];
-    // openingHours.value = profile?.openingHours || [];
     Object.assign(shopData, {
+      ...profile,
       pictures:
         profile?.pictures?.map((picture, index) => ({
           url: picture.url,
-          documentId: picture.documentId,
+          documentId: picture.id || picture.documentId,
           index,
         })) || [],
-      name: profile?.name || '',
-      description: profile?.description || '',
-      openingHours: profile?.openingHours || [],
-      links: profile?.links || [],
-      city: profile?.city || '',
-      address: profile?.address || '',
-      phone: profile?.phone || '',
-      email: profile?.email || '',
     });
     Object.assign(shopDataOriginal, { ...shopData });
   },
