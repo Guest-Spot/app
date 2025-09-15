@@ -25,6 +25,8 @@ export interface IShopFormData {
   address: string;
   phone: '';
   email: '';
+  openingHours: IOpeningHours[];
+  links: ILink[];
 }
 
 export interface IGraphQLShopsResult {

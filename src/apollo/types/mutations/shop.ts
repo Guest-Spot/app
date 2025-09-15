@@ -5,30 +5,21 @@ export const UPDATE_SHOP_MUTATION = gql`
     updateShop(documentId: $documentId, data: $data) {
       documentId
       name
-      description
       pictures {
+        documentId
         url
       }
+      description
+      city
+      address
+      link
       phone
-      links {
-        type
-        value
-      }
-      location {
-        city
-        address
-        latitude
-        longitude
-      }
+      email
       openingHours {
         day
         start
         end
       }
-      email
-      createdAt
-      updatedAt
-      publishedAt
     }
   }
 `;

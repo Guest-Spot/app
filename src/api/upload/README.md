@@ -34,7 +34,7 @@ const uploadedFiles = await uploadEntryFiles({
   files: file,
   refId: '5c126648c7415f0c0ef1bccd',
   ref: 'api::restaurant.restaurant',
-  field: 'cover'
+  field: 'cover',
 });
 ```
 
@@ -61,7 +61,7 @@ const file = await getFile(123);
 // Update file metadata
 const updatedFile = await updateFileInfo(123, {
   alternativeText: 'New alt text',
-  caption: 'New caption'
+  caption: 'New caption',
 });
 ```
 

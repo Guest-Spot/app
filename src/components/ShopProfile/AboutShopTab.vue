@@ -97,7 +97,7 @@
             outlined
             dense
             rounded
-            mask="(###) ### - ####"
+            mask="+(###) ### - ####"
             placeholder="Enter phone number"
             class="custom-input"
             clearable
@@ -105,7 +105,7 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Email</label>
+          <label class="input-label">Public email</label>
           <q-input
             outlined
             dense
@@ -127,7 +127,7 @@
       header-class="expansion-header"
       class="bg-block border-radius-lg full-width"
     >
-      <WorkingHoursEditor v-model="openingHours" />
+      <WorkingHoursEditor v-model="shopData.openingHours" />
     </q-expansion-item>
 
     <!-- Theme Settings -->
@@ -162,12 +162,12 @@ import { ref, defineAsyncComponent, watch, reactive } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
-import type { IOpeningHours, ILink } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
+import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
@@ -183,34 +183,45 @@ const shopData = reactive<IShopFormData>({
   address: '',
   phone: '',
   email: '',
+  openingHours: [],
+  links: []
 });
-const links = ref<ILink[]>([]);
-const openingHours = ref<IOpeningHours[]>([]);
+// NOTE: This variable is used to compare the original data with the new data
+const shopDataOriginal = ({ ...shopData });
+// ------------------------------------------------------------------------//
+
+// const links = ref<ILink[]>([]);
+// const openingHours = ref<IOpeningHours[]>([]);
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
 // Setup mutation
-const {
-  mutate: updateShop,
-  onDone: onDoneUpdateShop,
-} = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
-  return {
-    ...(uploadedFiles.length > 0 && { pictures: [
-      ...uploadedFiles.map((file) => file.id),
-      // Set current pictures ids
-    ] }),
-    name: shopData.name,
-    description: shopData.description,
-    phone: shopData.phone,
-    email: shopData.email,
-    openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
-    city: shopData.city,
-    address: shopData.address,
+  const preparedData = {
+    ...shopData,
+    ...(uploadedFiles.length > 0 && {
+      pictures: [
+        ...uploadedFiles.map((file) => file.id),
+        // Set current pictures ids
+      ],
+    }),
+    // name: shopData.name,
+    // description: shopData.description,
+    // phone: shopData.phone,
+    // email: shopData.email,
+    // openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
+    // city: shopData.city,
+    // address: shopData.address,
   };
+  const differences = compareAndReturnDifferences(shopDataOriginal, preparedData);
+  console.log('shopDataOriginal:', shopDataOriginal);
+  console.log('preparedData:', preparedData);
+  console.log('differences:', differences);
+  return differences;
 };
 
 async function upload(): Promise<UploadFileResponse[] | []> {
@@ -263,21 +274,25 @@ onDoneUpdateShop((result) => {
 watch(
   () => profileStore.getShopProfile,
   (profile) => {
-    links.value = profile?.links || [];
-    openingHours.value = profile?.openingHours || [];
+    // links.value = profile?.links || [];
+    // openingHours.value = profile?.openingHours || [];
     Object.assign(shopData, {
-      pictures: profile?.pictures?.map((picture, index) => ({
-        url: picture.url,
-        documentId: picture.documentId,
-        index,
-      })) || [],
+      pictures:
+        profile?.pictures?.map((picture, index) => ({
+          url: picture.url,
+          documentId: picture.documentId,
+          index,
+        })) || [],
       name: profile?.name || '',
       description: profile?.description || '',
+      openingHours: profile?.openingHours || [],
+      links: profile?.links || [],
       city: profile?.city || '',
       address: profile?.address || '',
       phone: profile?.phone || '',
       email: profile?.email || '',
     });
+    Object.assign(shopDataOriginal, { ...shopData });
   },
   { immediate: true },
 );

@@ -5,12 +5,7 @@
   >
     <div class="flex justify-between items-center q-gap-md full-width">
       <q-avatar size="80px" class="bg-block">
-        <q-img
-          :src="artist.avatar?.url"
-          :ratio="0.85"
-          class="avatar-img"
-          spinner-size="24px"
-        />
+        <q-img :src="artist.avatar?.url" :ratio="0.85" class="avatar-img" spinner-size="24px" />
       </q-avatar>
       <div class="artist-content">
         <div class="artist-name q-mb-sm">{{ artist.name }}</div>

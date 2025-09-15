@@ -46,7 +46,7 @@ export async function uploadFiles(files: File | File[]): Promise<UploadFileRespo
   const formData = new FormData();
 
   if (Array.isArray(files)) {
-    files.forEach(file => {
+    files.forEach((file) => {
       formData.append('files', file);
     });
   } else {
@@ -72,7 +72,7 @@ export async function uploadEntryFiles(params: UploadEntryParams): Promise<Uploa
 
   // Add files
   if (Array.isArray(params.files)) {
-    params.files.forEach(file => {
+    params.files.forEach((file) => {
       formData.append('files', file);
     });
   } else {
@@ -120,7 +120,10 @@ export async function getFile(id: number | string): Promise<UploadFileResponse> 
  * @param fileInfo - New file information
  * @returns Promise with updated file data
  */
-export async function updateFileInfo(id: number | string, fileInfo: UpdateFileInfoParams): Promise<UploadFileResponse> {
+export async function updateFileInfo(
+  id: number | string,
+  fileInfo: UpdateFileInfoParams,
+): Promise<UploadFileResponse> {
   const formData = new FormData();
   formData.append('fileInfo', JSON.stringify(fileInfo));
 

@@ -223,7 +223,7 @@ onBeforeMount(() => {
       : undefined,
     pagination: {
       limit: 100,
-    }
+    },
   });
   void loadArtists(null, {
     filters: convertFiltersToGraphQLFilters({
@@ -235,7 +235,7 @@ onBeforeMount(() => {
       : undefined,
     pagination: {
       limit: 100,
-    }
+    },
   });
   void loadCities();
 });

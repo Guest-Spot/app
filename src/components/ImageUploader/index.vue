@@ -25,7 +25,11 @@
     />
 
     <!-- Dialog -->
-    <ImagePreviewDialog v-model="dialog" :image-src="previewDialogSrc" @loading="isLoading = $event" />
+    <ImagePreviewDialog
+      v-model="dialog"
+      :image-src="previewDialogSrc"
+      @loading="isLoading = $event"
+    />
 
     <!-- Loader -->
     <q-inner-loading :showing="isLoading" size="sm" style="z-index: 10" />
@@ -123,8 +127,8 @@ async function compressAndPrepare(file: File): Promise<{ file: File; base64: str
 async function onChangeImage(input: File | File[]) {
   const files = Array.isArray(input) ? input : [input];
   const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-  const newPreviewsList = []
-  const newFilesList = []
+  const newPreviewsList = [];
+  const newFilesList = [];
   for (const [index, result] of results.entries()) {
     const id = uid();
     const newPreview = {
@@ -141,14 +145,20 @@ async function onChangeImage(input: File | File[]) {
   }
   imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
   filesForUpload.value = [...filesForUpload.value, ...newFilesList];
-  emit('on-change', filesForUpload.value.map((f) => f.file));
+  emit(
+    'on-change',
+    filesForUpload.value.map((f) => f.file),
+  );
 }
 
 function onRemoveImage(index: number) {
   const itemByIndex = imagesPreview.value.find((v) => v.index === index);
-  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || '']
-    .filter((id) => !filesForUpload.value.some((f) => f.documentId === id));
-  filesForUpload.value = filesForUpload.value.filter((f) => f.documentId !== itemByIndex?.documentId);
+  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || ''].filter(
+    (id) => !filesForUpload.value.some((f) => f.documentId === id),
+  );
+  filesForUpload.value = filesForUpload.value.filter(
+    (f) => f.documentId !== itemByIndex?.documentId,
+  );
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
   emit('on-remove', imagesIdsForRemove.value);
 }
