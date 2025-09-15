@@ -279,6 +279,7 @@ onDoneUpdateShop((result) => {
         profileStore.setUserProfile(userData);
       }
     })();
+    Object.assign(shopDataOriginal, { ...shopData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
     showSuccess('Shop successfully updated');
