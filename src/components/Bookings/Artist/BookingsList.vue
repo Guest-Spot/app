@@ -194,7 +194,7 @@ onMounted(() => {
       shop: {
         documentId: '1',
         name: 'Tattoo Studio',
-        pictures: [{ url: 'shops/shop1.jpg', documentId: '1', index: 0 }],
+        pictures: [{ url: 'shops/shop1.jpg', id: '1', index: 0 }],
       },
     },
     {
@@ -214,7 +214,7 @@ onMounted(() => {
       shop: {
         documentId: '3',
         name: 'Art Gallery',
-        pictures: [{ url: 'shops/shop2.jpg', documentId: '2', index: 0 }],
+        pictures: [{ url: 'shops/shop2.jpg', id: '2', index: 0 }],
       },
     },
     {
@@ -234,7 +234,7 @@ onMounted(() => {
       shop: {
         documentId: '3',
         name: 'Art Gallery',
-        pictures: [{ url: 'shops/shop3.webp', documentId: '3', index: 0 }],
+        pictures: [{ url: 'shops/shop3.webp', id: '3', index: 0 }],
       },
     },
     {
@@ -254,7 +254,7 @@ onMounted(() => {
       shop: {
         documentId: '5',
         name: 'Tattoo Studio',
-        pictures: [{ url: 'shops/shop4.jpg', documentId: '4', index: 0 }],
+        pictures: [{ url: 'shops/shop4.jpg', id: '4', index: 0 }],
       },
     },
   ];

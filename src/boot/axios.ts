@@ -25,21 +25,24 @@ const axiosParams = {
 
 const api = axios.create(axiosParams);
 
-api.interceptors.request.use(request => {
-  const { getStoredTokens } = useTokens();
-  const tokens = getStoredTokens();
-  const accessToken = tokens?.accessToken;
-  if (accessToken) {
-    request.headers['Authorization'] = `Bearer ${accessToken}`;
-  }
-  return request;
-}, error => {
-  return Promise.reject(error as Error);
-});
+api.interceptors.request.use(
+  (request) => {
+    const { getStoredTokens } = useTokens();
+    const tokens = getStoredTokens();
+    const accessToken = tokens?.accessToken;
+    if (accessToken) {
+      request.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    return request;
+  },
+  (error) => {
+    return Promise.reject(error as Error);
+  },
+);
 
 api.interceptors.response.use(
-  response => response, // Directly return successful responses.
-  async error => {
+  (response) => response, // Directly return successful responses.
+  async (error) => {
     const { getStoredTokens, clearTokens, storeTokens } = useTokens();
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
@@ -65,7 +68,7 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error as Error); // For all other errors, return the error as is.
-  }
+  },
 );
 
 export default defineBoot(({ app }) => {

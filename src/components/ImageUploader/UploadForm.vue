@@ -130,7 +130,6 @@ function openCamera() {
   }
 }
 
-
 async function onCameraSelected(event: Event) {
   const fileList = (event.target as HTMLInputElement | null)?.files;
   if (!fileList || fileList.length === 0) return;

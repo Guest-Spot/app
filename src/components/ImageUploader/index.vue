@@ -25,7 +25,11 @@
     />
 
     <!-- Dialog -->
-    <ImagePreviewDialog v-model="dialog" :image-src="previewDialogSrc" @loading="isLoading = $event" />
+    <ImagePreviewDialog
+      v-model="dialog"
+      :image-src="previewDialogSrc"
+      @loading="isLoading = $event"
+    />
 
     <!-- Loader -->
     <q-inner-loading :showing="isLoading" size="sm" style="z-index: 10" />
@@ -91,7 +95,7 @@ const isLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
 const imagesIdsForRemove = ref<string[]>([]);
-const filesForUpload = ref<{ file: File | null; documentId: string }[]>([]);
+const filesForUpload = ref<{ file: File | null; id: string }[]>([]);
 
 // Import dialog component statically
 import { ImagePreviewDialog } from 'src/components/Dialogs';
@@ -123,32 +127,38 @@ async function compressAndPrepare(file: File): Promise<{ file: File; base64: str
 async function onChangeImage(input: File | File[]) {
   const files = Array.isArray(input) ? input : [input];
   const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-  const newPreviewsList = []
-  const newFilesList = []
+  const newPreviewsList = [];
+  const newFilesList = [];
   for (const [index, result] of results.entries()) {
     const id = uid();
     const newPreview = {
       url: result?.base64 || '',
-      documentId: id,
+      id: id,
       index: imagesPreview.value.length + index,
     };
     const newFile = {
       file: result?.file || null,
-      documentId: id,
+      id: id,
     };
     newPreviewsList.push(newPreview);
     newFilesList.push(newFile);
   }
   imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
   filesForUpload.value = [...filesForUpload.value, ...newFilesList];
-  emit('on-change', filesForUpload.value.map((f) => f.file));
+  emit(
+    'on-change',
+    filesForUpload.value.map((f) => f.file),
+  );
 }
 
 function onRemoveImage(index: number) {
   const itemByIndex = imagesPreview.value.find((v) => v.index === index);
-  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.documentId || '']
-    .filter((id) => !filesForUpload.value.some((f) => f.documentId === id));
-  filesForUpload.value = filesForUpload.value.filter((f) => f.documentId !== itemByIndex?.documentId);
+  imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.id || ''].filter(
+    (id) => !filesForUpload.value.some((f) => f.id === id),
+  );
+  filesForUpload.value = filesForUpload.value.filter(
+    (f) => f.id !== itemByIndex?.id,
+  );
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
   emit('on-remove', imagesIdsForRemove.value);
 }
@@ -157,6 +167,7 @@ watch(
   () => props.images,
   (newValue, oldValue) => {
     if (!newValue || newValue === oldValue) return;
+    imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
   },
   {

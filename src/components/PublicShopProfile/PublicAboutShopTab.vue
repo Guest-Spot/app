@@ -29,26 +29,28 @@ const props = defineProps<Props>();
 
 const { formatTime } = useDate();
 
-const contacts = computed(() => [
-  {
-    label: 'City',
-    value: props.shopData.city || '',
-  },
-  {
-    label: 'Address',
-    value: props.shopData.address || '',
-  },
-  {
-    label: 'Phone',
-    value: props.shopData.phone || '',
-    type: InfoItemType.Phone,
-  },
-  {
-    label: 'Email',
-    value: props.shopData.email || '',
-    type: InfoItemType.Email,
-  },
-].filter((contact) => !!contact.value));
+const contacts = computed(() =>
+  [
+    {
+      label: 'City',
+      value: props.shopData.city || '',
+    },
+    {
+      label: 'Address',
+      value: props.shopData.address || '',
+    },
+    {
+      label: 'Phone',
+      value: props.shopData.phone || '',
+      type: InfoItemType.Phone,
+    },
+    {
+      label: 'Email',
+      value: props.shopData.email || '',
+      type: InfoItemType.Email,
+    },
+  ].filter((contact) => !!contact.value),
+);
 
 const workingHours = computed(() => {
   const times = [...(props.shopData.openingHours || [])];

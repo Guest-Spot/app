@@ -97,7 +97,7 @@
             outlined
             dense
             rounded
-            mask="(###) ### - ####"
+            mask="+(###) ### - ####"
             placeholder="Enter phone number"
             class="custom-input"
             clearable
@@ -105,7 +105,7 @@
           />
         </div>
         <div class="input-group">
-          <label class="input-label">Email</label>
+          <label class="input-label">Public email</label>
           <q-input
             outlined
             dense
@@ -127,19 +127,20 @@
       header-class="expansion-header"
       class="bg-block border-radius-lg full-width"
     >
-      <WorkingHoursEditor v-model="openingHours" />
+      <WorkingHoursEditor v-model="shopData.openingHours" />
     </q-expansion-item>
 
     <!-- Theme Settings -->
     <ThemeSettings />
 
     <!-- Save Button -->
-    <div class="save-section">
+    <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
       <q-btn
         class="full-width bg-block"
         @click="saveChanges"
         rounded
         size="lg"
+        :text-color="!!hasChanges ? 'primary' : ''"
         unelevated
         :loading="saveLoading"
         :disable="saveLoading"
@@ -158,21 +159,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, watch, reactive } from 'vue';
+import { ref, defineAsyncComponent, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
-import type { IOpeningHours, ILink } from 'src/interfaces/common';
 import { useProfileStore } from 'src/stores/profile';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
+import { compareAndReturnDifferences } from 'src/helpers/handleObject';
+import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
+import useUser from 'src/modules/useUser';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
 const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
+const { fetchMe } = useUser();
+
+// Setup mutation
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
 const shopData = reactive<IShopFormData>({
@@ -183,34 +191,36 @@ const shopData = reactive<IShopFormData>({
   address: '',
   phone: '',
   email: '',
+  openingHours: [],
+  links: []
 });
-const links = ref<ILink[]>([]);
-const openingHours = ref<IOpeningHours[]>([]);
+// NOTE: This variable is used to compare the original data with the new data
+const shopDataOriginal = ({ ...shopData });
+// ------------------------------------------------------------------------//
+
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
-// Setup mutation
-const {
-  mutate: updateShop,
-  onDone: onDoneUpdateShop,
-} = useMutation(UPDATE_SHOP_MUTATION);
+const hasChanges = computed(() =>
+  Object.keys(compareAndReturnDifferences(shopDataOriginal, shopData)).length > 0 ||
+  imagesForUpload.value.length > 0 ||
+  imagesForRemove.value.length > 0
+);
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
-  return {
-    ...(uploadedFiles.length > 0 && { pictures: [
-      ...uploadedFiles.map((file) => file.id),
-      // Set current pictures ids
-    ] }),
-    name: shopData.name,
-    description: shopData.description,
-    phone: shopData.phone,
-    email: shopData.email,
-    openingHours: openingHours.value.filter((hour) => hour.start && hour.end),
-    city: shopData.city,
-    address: shopData.address,
+  const preparedData = {
+    ...shopData,
+    ...(uploadedFiles.length > 0 && {
+      pictures: [
+        ...uploadedFiles.map((file) => file.id),
+        ...shopData.pictures.map((picture) => picture.id),
+      ],
+    }),
   };
+  const differences = compareAndReturnDifferences(shopDataOriginal, preparedData);
+  return differences;
 };
 
 async function upload(): Promise<UploadFileResponse[] | []> {
@@ -218,6 +228,16 @@ async function upload(): Promise<UploadFileResponse[] | []> {
     return await uploadFiles(imagesForUpload.value);
   }
   return [];
+}
+
+async function deleteImages(): Promise<void> {
+  if (imagesForRemove.value.length > 0) {
+    for (const id of imagesForRemove.value) {
+      await deleteImage({
+        id,
+      });
+    }
+  }
 }
 
 const saveChanges = async () => {
@@ -228,6 +248,7 @@ const saveChanges = async () => {
       throw new Error('Shop profile not found');
     }
 
+    await deleteImages();
     const uploadedFiles: UploadFileResponse[] = await upload();
 
     const data = prepareDataForMutation(uploadedFiles);
@@ -252,10 +273,15 @@ onDoneUpdateShop((result) => {
   }
 
   if (result.data?.updateShop) {
-    profileStore.setShopProfile({
-      ...profileStore.getShopProfile,
-      ...result.data.updateShop,
-    });
+    void (async () => {
+      const userData = await fetchMe();
+      if (userData) {
+        profileStore.setUserProfile(userData);
+      }
+    })();
+    Object.assign(shopDataOriginal, { ...shopData });
+    imagesForUpload.value = [];
+    imagesForRemove.value = [];
     showSuccess('Shop successfully updated');
   }
 });
@@ -263,21 +289,16 @@ onDoneUpdateShop((result) => {
 watch(
   () => profileStore.getShopProfile,
   (profile) => {
-    links.value = profile?.links || [];
-    openingHours.value = profile?.openingHours || [];
     Object.assign(shopData, {
-      pictures: profile?.pictures?.map((picture, index) => ({
-        url: picture.url,
-        documentId: picture.documentId,
-        index,
-      })) || [],
-      name: profile?.name || '',
-      description: profile?.description || '',
-      city: profile?.city || '',
-      address: profile?.address || '',
-      phone: profile?.phone || '',
-      email: profile?.email || '',
+      ...profile,
+      pictures:
+        profile?.pictures?.map((picture, index) => ({
+          url: picture.url,
+          id: picture.id,
+          index,
+        })) || [],
     });
+    Object.assign(shopDataOriginal, { ...shopData });
   },
   { immediate: true },
 );
@@ -328,9 +349,14 @@ defineExpose({
   }
 }
 
-.save-section {
+.save-btn {
   margin-top: 20px;
   text-align: center;
+
+  &--active {
+    position: sticky;
+    bottom: 90px;
+  }
 }
 
 :deep(.working-hours) {

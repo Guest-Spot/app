@@ -151,7 +151,7 @@ const artistData = ref<IArtist>({
   description: '',
   avatar: {
     url: '',
-    documentId: '',
+    id: '',
   },
   phone: '',
   email: '',
@@ -208,7 +208,7 @@ const toggleFavorite = () => {
     status: artistData.value.status || '',
     avatar: artistData.value.avatar || {
       url: '',
-      documentId: '',
+      id: '',
     },
     phone: artistData.value.phone || '',
     email: artistData.value.email || '',
