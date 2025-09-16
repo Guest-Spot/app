@@ -175,7 +175,8 @@ function onDrop(dropIndex: number) {
 
 .image-item {
   position: relative;
-  flex: 0 0 200px;
+  flex: 0 0 auto;
+  min-width: 200px;
   height: 100%;
   overflow: hidden;
 
