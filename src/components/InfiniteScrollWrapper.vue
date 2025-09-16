@@ -2,24 +2,14 @@
   <div ref="scrollContainer" class="infinite-scroll-wrapper">
     <slot />
     <div ref="observerTarget" class="observer-target" />
-    <div
-      v-if="loading"
-      class="full-width flex items-center justify-center q-mt-md"
-    >
+    <div v-if="loading" class="full-width flex items-center justify-center q-mt-md">
       <q-spinner-dots color="primary" size="lg" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  onMounted,
-  onUnmounted,
-  defineProps,
-  defineEmits,
-  watch,
-} from 'vue';
+import { ref, onMounted, onUnmounted, defineProps, defineEmits, watch } from 'vue';
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
@@ -37,12 +27,7 @@ const debounceTimer = ref<NodeJS.Timeout | null>(null);
 const resizeTimer = ref<NodeJS.Timeout | null>(null);
 
 const handleIntersect = (entries: IntersectionObserverEntry[]) => {
-  if (
-    entries[0]?.isIntersecting &&
-    !props.loading &&
-    !hasLoaded.value &&
-    !props.stop
-  ) {
+  if (entries[0]?.isIntersecting && !props.loading && !hasLoaded.value && !props.stop) {
     if (debounceTimer.value) clearTimeout(debounceTimer.value);
     debounceTimer.value = setTimeout(() => {
       hasLoaded.value = true;
@@ -90,7 +75,7 @@ watch(
       hasLoaded.value = false;
       checkContainerHeight();
     }
-  }
+  },
 );
 
 onMounted(() => {

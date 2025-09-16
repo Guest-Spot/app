@@ -31,7 +31,11 @@ export default function useShops() {
   const shops = computed(() => shopsStore.getShops);
   const totalShops = computed(() => shopsStore.getTotal);
 
-  const fetchShops = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
+  const fetchShops = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+  ) => {
     if (!hasMoreShops.value) {
       return;
     }
@@ -57,7 +61,11 @@ export default function useShops() {
     shopsStore.clearShops();
   };
 
-  const refetchShopsData = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
+  const refetchShopsData = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+  ) => {
     void refetchShops({
       filters: convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
       sort: sortSettings.sortBy

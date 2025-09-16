@@ -156,9 +156,7 @@ function onRemoveImage(index: number) {
   imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.id || ''].filter(
     (id) => !filesForUpload.value.some((f) => f.id === id),
   );
-  filesForUpload.value = filesForUpload.value.filter(
-    (f) => f.id !== itemByIndex?.id,
-  );
+  filesForUpload.value = filesForUpload.value.filter((f) => f.id !== itemByIndex?.id);
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
   emit('on-remove', imagesIdsForRemove.value);
 }

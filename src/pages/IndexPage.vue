@@ -101,7 +101,14 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { SearchTabs, ShopCard, ArtistCard, SearchHeader, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
+import {
+  SearchTabs,
+  ShopCard,
+  ArtistCard,
+  SearchHeader,
+  TAB_SHOPS,
+  TAB_ARTISTS,
+} from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
 import { NoResult, LoadingState } from 'src/components';
@@ -174,8 +181,12 @@ const hasActiveFilters = computed(() =>
   Object.values(activeFilters.value).some((filter) => !!filter),
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
-const shopsTitle = computed(() => totalShops.value > 0 ? `Shops (${shops.value.length}/${totalShops.value})` : `Shops`);
-const artistsTitle = computed(() => totalArtists.value > 0 ? `Artists (${artists.value.length}/${totalArtists.value})` : `Artists`);
+const shopsTitle = computed(() =>
+  totalShops.value > 0 ? `Shops (${shops.value.length}/${totalShops.value})` : `Shops`,
+);
+const artistsTitle = computed(() =>
+  totalArtists.value > 0 ? `Artists (${artists.value.length}/${totalArtists.value})` : `Artists`,
+);
 
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.documentId}`);
@@ -208,7 +219,6 @@ watch(
     refetchArtistsData(newFilters, newSearchQuery, newSortSettings);
   },
 );
-
 
 onResultCities(({ data, loading }) => {
   if (!loading) citiesStore.setCities(data?.cities || []);

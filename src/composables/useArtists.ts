@@ -31,7 +31,11 @@ export default function useArtists() {
   const artists = computed(() => artistsStore.getArtists);
   const totalArtists = computed(() => artistsStore.getTotal);
 
-  const fetchArtists = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
+  const fetchArtists = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+  ) => {
     if (!hasMoreArtists.value) {
       return;
     }
@@ -57,7 +61,11 @@ export default function useArtists() {
     artistsStore.clearArtists();
   };
 
-  const refetchArtistsData = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
+  const refetchArtistsData = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+  ) => {
     void refetchArtists({
       filters: convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
       sort: sortSettings.sortBy
