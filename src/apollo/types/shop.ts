@@ -2,6 +2,11 @@ import { gql } from '@apollo/client/core';
 
 export const SHOPS_QUERY = gql`
   query Shops($filters: ShopFiltersInput, $sort: [String], $pagination: PaginationArg) {
+    shops_connection {
+      pageInfo {
+        total
+      }
+    }
     shops(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       name

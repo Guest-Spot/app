@@ -192,20 +192,21 @@ const shopData = reactive<IShopFormData>({
   phone: '',
   email: '',
   openingHours: [],
-  links: []
+  links: [],
 });
 // NOTE: This variable is used to compare the original data with the new data
-const shopDataOriginal = ({ ...shopData });
+const shopDataOriginal = { ...shopData };
 // ------------------------------------------------------------------------//
 
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
-const hasChanges = computed(() =>
-  Object.keys(compareAndReturnDifferences(shopDataOriginal, shopData)).length > 0 ||
-  imagesForUpload.value.length > 0 ||
-  imagesForRemove.value.length > 0
+const hasChanges = computed(
+  () =>
+    Object.keys(compareAndReturnDifferences(shopDataOriginal, shopData)).length > 0 ||
+    imagesForUpload.value.length > 0 ||
+    imagesForRemove.value.length > 0,
 );
 
 // Prepare data for mutation
