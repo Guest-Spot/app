@@ -20,9 +20,6 @@ export default function useArtists() {
   const artistsPage = ref(2); // Start from page 2 since page 1 is loaded initially
   const hasMoreArtists = ref(true);
 
-  // Infinite scroll done callback
-  let artistsScrollDone: ((stop?: boolean) => void) | null = null;
-
   const {
     load: loadArtists,
     refetch: refetchArtists,
@@ -31,24 +28,14 @@ export default function useArtists() {
     onError: onErrorArtists,
   } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
-  // Separate query for infinite scroll
-  const {
-    load: loadMoreArtistsQuery,
-    onResult: onResultLoadMoreArtists,
-    onError: onErrorLoadMoreArtists,
-  } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
-
   const artists = computed(() => artistsStore.getArtists);
 
-  const loadMoreArtists = (index: number, done: (stop?: boolean) => void, activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
+  const fetchArtists = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
     if (!hasMoreArtists.value) {
-      done(true);
       return;
     }
 
-    artistsScrollDone = done;
-
-    void loadMoreArtistsQuery(null, {
+    void loadArtists(null, {
       filters: convertFiltersToGraphQLFilters({
         ...activeFilters,
         name: searchQuery || null,
@@ -69,22 +56,6 @@ export default function useArtists() {
     artistsStore.clearArtists();
   };
 
-  const initializeArtists = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
-    void loadArtists(null, {
-      filters: convertFiltersToGraphQLFilters({
-        ...activeFilters,
-        name: searchQuery || null,
-      }),
-      sort: sortSettings.sortBy
-        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : undefined,
-      pagination: {
-        page: 1,
-        pageSize: ITEMS_PER_PAGE,
-      },
-    });
-  };
-
   const refetchArtistsData = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
     void refetchArtists({
       filters: convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
@@ -101,21 +72,7 @@ export default function useArtists() {
   // Result handlers
   onResultArtists(({ data, loading }) => {
     if (!loading && data?.artists) {
-      artistsStore.setArtists(data.artists);
-      // Check if we got fewer items than requested for the first load
-      if (data.artists.length < ITEMS_PER_PAGE) {
-        hasMoreArtists.value = false;
-      }
-    }
-  });
-
-  onErrorArtists((error) => {
-    console.error('Error fetching artists:', error);
-  });
-
-  // Infinite scroll result handlers
-  onResultLoadMoreArtists(({ data, loading }) => {
-    if (!loading && data?.artists) {
+      // Append new data for load more
       if (data.artists.length > 0) {
         artistsStore.setArtists([...artistsStore.getArtists, ...data.artists]);
         artistsPage.value++;
@@ -123,32 +80,24 @@ export default function useArtists() {
         // Check if we got fewer items than requested (means we've reached the end)
         if (data.artists.length < ITEMS_PER_PAGE) {
           hasMoreArtists.value = false;
-          artistsScrollDone?.(true);
-        } else {
-          artistsScrollDone?.();
         }
       } else {
         hasMoreArtists.value = false;
-        artistsScrollDone?.(true);
       }
-      artistsScrollDone = null;
     }
   });
 
-  onErrorLoadMoreArtists((error) => {
-    console.error('Error loading more artists:', error);
+  onErrorArtists((error) => {
+    console.error('Error fetching artists:', error);
     hasMoreArtists.value = false;
-    artistsScrollDone?.(true);
-    artistsScrollDone = null;
   });
 
   return {
     artists,
     isLoadingArtists,
     hasMoreArtists,
-    loadMoreArtists,
+    fetchArtists,
     resetArtistsPagination,
-    initializeArtists,
     refetchArtistsData,
   };
 }

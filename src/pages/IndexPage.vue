@@ -34,11 +34,13 @@
             description="Please wait while we fetch the latest shops"
             spinner-name="dots"
           />
-          <q-infinite-scroll
+          <InfiniteScrollWrapper
             v-else-if="shops.length > 0"
-            @load="loadMoreShopsWrapper"
-            :offset="250"
             class="flex column q-gap-md"
+            :offset="250"
+            :loading="isLoadingShops"
+            :stop="!hasMoreShops"
+            @load-more="loadMoreShopsWrapper"
           >
             <ShopCard
               v-for="shop in shops"
@@ -46,12 +48,7 @@
               :shop="shop"
               @click="selectShop"
             />
-            <template v-slot:loading>
-              <div class="row justify-center">
-                <q-spinner-dots color="primary" size="40px" />
-              </div>
-            </template>
-          </q-infinite-scroll>
+          </InfiniteScrollWrapper>
           <NoResult
             v-else
             icon="search_off"
@@ -69,10 +66,12 @@
             description="Please wait while we fetch the latest artists"
             spinner-name="dots"
           />
-          <q-infinite-scroll
+          <InfiniteScrollWrapper
             v-else-if="artists.length > 0"
-            @load="loadMoreArtistsWrapper"
+            @load-more="loadMoreArtistsWrapper"
             :offset="250"
+            :loading="isLoadingArtists"
+            :stop="!hasMoreArtists"
             class="flex column q-gap-md"
           >
             <ArtistCard
@@ -86,7 +85,7 @@
                 <q-spinner-dots color="primary" size="40px" />
               </div>
             </template>
-          </q-infinite-scroll>
+          </InfiniteScrollWrapper>
           <NoResult
             v-else
             icon="search_off"
@@ -114,6 +113,7 @@ import { useCitiesStore } from 'src/stores/cities';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
+import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 
 // Sort settings
 interface SortSettings {
@@ -131,18 +131,18 @@ const citiesStore = useCitiesStore();
 const {
   shops,
   isLoadingShops,
-  loadMoreShops,
+  hasMoreShops,
   resetShopsPagination,
-  initializeShops,
+  fetchShops,
   refetchShopsData,
 } = useShops();
 
 const {
   artists,
   isLoadingArtists,
-  loadMoreArtists,
+  hasMoreArtists,
+  fetchArtists,
   resetArtistsPagination,
-  initializeArtists,
   refetchArtistsData,
 } = useArtists();
 
@@ -182,12 +182,12 @@ const selectArtist = (artist: IArtist) => {
 };
 
 // Load more functions for infinite scroll
-const loadMoreShopsWrapper = (index: number, done: (stop?: boolean) => void) => {
-  loadMoreShops(index, done, activeFilters.value, searchQuery.value, sortSettings.value);
+const loadMoreShopsWrapper = () => {
+  fetchShops(activeFilters.value, searchQuery.value, sortSettings.value);
 };
 
-const loadMoreArtistsWrapper = (index: number, done: (stop?: boolean) => void) => {
-  loadMoreArtists(index, done, activeFilters.value, searchQuery.value, sortSettings.value);
+const loadMoreArtistsWrapper = () => {
+  fetchArtists(activeFilters.value, searchQuery.value, sortSettings.value);
 };
 
 // Reset pagination when filters change
@@ -215,8 +215,8 @@ onErrorCities((error) => {
 });
 
 onBeforeMount(() => {
-  initializeShops(activeFilters.value, searchQuery.value, sortSettings.value);
-  initializeArtists(activeFilters.value, searchQuery.value, sortSettings.value);
+  fetchShops(activeFilters.value, searchQuery.value, sortSettings.value);
+  fetchArtists(activeFilters.value, searchQuery.value, sortSettings.value);
   void loadCities();
 });
 </script>
