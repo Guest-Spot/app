@@ -34,14 +34,24 @@
             description="Please wait while we fetch the latest shops"
             spinner-name="dots"
           />
-          <div v-else-if="shops.length" class="flex column q-gap-md">
+          <q-infinite-scroll
+            v-else-if="shops.length || hasMoreShops"
+            @load="loadMoreShopsWrapper"
+            :offset="250"
+            class="flex column q-gap-md"
+          >
             <ShopCard
               v-for="shop in shops"
               :key="shop.documentId"
               :shop="shop"
               @click="selectShop"
             />
-          </div>
+            <template v-slot:loading>
+              <div class="row justify-center q-my-md">
+                <q-spinner-dots color="primary" size="40px" />
+              </div>
+            </template>
+          </q-infinite-scroll>
           <NoResult
             v-else
             icon="search_off"
@@ -59,14 +69,24 @@
             description="Please wait while we fetch the latest artists"
             spinner-name="dots"
           />
-          <div v-else-if="artists.length" class="flex column q-gap-md">
+          <q-infinite-scroll
+            v-else-if="artists.length || hasMoreArtists"
+            @load="loadMoreArtistsWrapper"
+            :offset="250"
+            class="flex column q-gap-md"
+          >
             <ArtistCard
               v-for="artist in artists"
               :key="artist.documentId"
               :artist="artist"
               @click="selectArtist"
             />
-          </div>
+            <template v-slot:loading>
+              <div class="row justify-center q-my-md">
+                <q-spinner-dots color="primary" size="40px" />
+              </div>
+            </template>
+          </q-infinite-scroll>
           <NoResult
             v-else
             icon="search_off"
@@ -82,25 +102,18 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
+import { SearchTabs, ShopCard, ArtistCard, SearchHeader, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import type { IShop } from 'src/interfaces/shop';
 import type { IArtist } from 'src/interfaces/artist';
-import NoResult from 'src/components/NoResult.vue';
-import LoadingState from 'src/components/LoadingState.vue';
-import SearchHeader from 'src/components/SearchPage/SearchHeader.vue';
+import { NoResult, LoadingState } from 'src/components';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
 import { useLazyQuery } from '@vue/apollo-composable';
-import { SHOPS_QUERY } from 'src/apollo/types/shop';
-import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import { CITIES_QUERY } from 'src/apollo/types/city';
-import type { IGraphQLShopsResult } from 'src/interfaces/shop';
-import useHelpers from 'src/modules/useHelpers';
-import { useShopsStore } from 'src/stores/shops';
-import { useArtistsStore } from 'src/stores/artists';
 import { useCitiesStore } from 'src/stores/cities';
-import type { IGraphQLArtistsResult } from 'src/interfaces/artist';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
+import useShops from 'src/composables/useShops';
+import useArtists from 'src/composables/useArtists';
 
 // Sort settings
 interface SortSettings {
@@ -112,26 +125,28 @@ interface SortSettings {
 const route = useRoute();
 const router = useRouter();
 
-const { convertFiltersToGraphQLFilters } = useHelpers();
-const shopsStore = useShopsStore();
-const artistsStore = useArtistsStore();
 const citiesStore = useCitiesStore();
 
+// Use composables
 const {
-  load: loadShops,
-  refetch: refetchShops,
-  loading: isLoadingShops,
-  onResult: onResultShops,
-  onError: onErrorShops,
-} = useLazyQuery<IGraphQLShopsResult>(SHOPS_QUERY);
+  shops,
+  isLoadingShops,
+  hasMoreShops,
+  loadMoreShops,
+  resetShopsPagination,
+  initializeShops,
+  refetchShopsData,
+} = useShops();
 
 const {
-  load: loadArtists,
-  refetch: refetchArtists,
-  loading: isLoadingArtists,
-  onResult: onResultArtists,
-  onError: onErrorArtists,
-} = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+  artists,
+  isLoadingArtists,
+  hasMoreArtists,
+  loadMoreArtists,
+  resetArtistsPagination,
+  initializeArtists,
+  refetchArtistsData,
+} = useArtists();
 
 const {
   load: loadCities,
@@ -159,8 +174,6 @@ const hasActiveFilters = computed(() =>
   Object.values(activeFilters.value).some((filter) => !!filter),
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
-const shops = computed(() => shopsStore.getShops);
-const artists = computed(() => artistsStore.getArtists);
 
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.documentId}`);
@@ -170,39 +183,30 @@ const selectArtist = (artist: IArtist) => {
   void router.push(`/artist/${artist.documentId}`);
 };
 
+// Load more functions for infinite scroll
+const loadMoreShopsWrapper = (index: number, done: (stop?: boolean) => void) => {
+  loadMoreShops(index, done, activeFilters.value, searchQuery.value, sortSettings.value);
+};
+
+const loadMoreArtistsWrapper = (index: number, done: (stop?: boolean) => void) => {
+  loadMoreArtists(index, done, activeFilters.value, searchQuery.value, sortSettings.value);
+};
+
+// Reset pagination when filters change
+const resetPagination = () => {
+  resetShopsPagination();
+  resetArtistsPagination();
+};
+
 watch(
   [activeFilters, searchQuery, sortSettings],
   ([newFilters, newSearchQuery, newSortSettings]) => {
-    void refetchShops({
-      filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
-      sort: newSortSettings.sortBy
-        ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`]
-        : undefined,
-    });
-    void refetchArtists({
-      filters: convertFiltersToGraphQLFilters({ ...newFilters, name: newSearchQuery || null }),
-      sort: newSortSettings.sortBy
-        ? [`${newSortSettings.sortBy}:${newSortSettings.sortDirection}`]
-        : undefined,
-    });
+    resetPagination();
+    refetchShopsData(newFilters, newSearchQuery, newSortSettings);
+    refetchArtistsData(newFilters, newSearchQuery, newSortSettings);
   },
 );
 
-onResultShops(({ data, loading }) => {
-  if (!loading) shopsStore.setShops(data?.shops || []);
-});
-
-onErrorShops((error) => {
-  console.error('Error fetching shops:', error);
-});
-
-onResultArtists(({ data, loading }) => {
-  if (!loading) artistsStore.setArtists(data?.artists || []);
-});
-
-onErrorArtists((error) => {
-  console.error('Error fetching artists:', error);
-});
 
 onResultCities(({ data, loading }) => {
   if (!loading) citiesStore.setCities(data?.cities || []);
@@ -213,30 +217,8 @@ onErrorCities((error) => {
 });
 
 onBeforeMount(() => {
-  void loadShops(null, {
-    filters: convertFiltersToGraphQLFilters({
-      ...activeFilters.value,
-      name: searchQuery.value || null,
-    }),
-    sort: sortSettings.value.sortBy
-      ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
-      : undefined,
-    pagination: {
-      limit: 100,
-    },
-  });
-  void loadArtists(null, {
-    filters: convertFiltersToGraphQLFilters({
-      ...activeFilters.value,
-      name: searchQuery.value || null,
-    }),
-    sort: sortSettings.value.sortBy
-      ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
-      : undefined,
-    pagination: {
-      limit: 100,
-    },
-  });
+  initializeShops(activeFilters.value, searchQuery.value, sortSettings.value);
+  initializeArtists(activeFilters.value, searchQuery.value, sortSettings.value);
   void loadCities();
 });
 </script>

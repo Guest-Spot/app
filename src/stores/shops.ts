@@ -12,5 +12,11 @@ export const useShopsStore = defineStore('shops', {
     setShops(shops: IShop[]) {
       this.shops = shops;
     },
+    addShops(shops: IShop[]) {
+      this.shops.push(...shops);
+    },
+    clearShops() {
+      this.shops = [];
+    },
   },
 });
