@@ -12,9 +12,6 @@ export const useArtistsStore = defineStore('artists', {
     setArtists(artists: IArtist[]) {
       this.artists = artists;
     },
-    addArtists(artists: IArtist[]) {
-      this.artists.push(...artists);
-    },
     clearArtists() {
       this.artists = [];
     },

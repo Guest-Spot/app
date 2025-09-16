@@ -117,7 +117,7 @@ export default function useShops() {
   onResultLoadMoreShops(({ data, loading }) => {
     if (!loading && data?.shops) {
       if (data.shops.length > 0) {
-        shopsStore.addShops(data.shops);
+        shopsStore.setShops([...shopsStore.getShops, ...data.shops]);
         shopsPage.value++;
 
         // Check if we got fewer items than requested (means we've reached the end)

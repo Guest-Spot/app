@@ -35,7 +35,7 @@
             spinner-name="dots"
           />
           <q-infinite-scroll
-            v-else-if="shops.length || hasMoreShops"
+            v-else-if="shops.length > 0"
             @load="loadMoreShopsWrapper"
             :offset="250"
             class="flex column q-gap-md"
@@ -47,7 +47,7 @@
               @click="selectShop"
             />
             <template v-slot:loading>
-              <div class="row justify-center q-my-md">
+              <div class="row justify-center">
                 <q-spinner-dots color="primary" size="40px" />
               </div>
             </template>
@@ -70,7 +70,7 @@
             spinner-name="dots"
           />
           <q-infinite-scroll
-            v-else-if="artists.length || hasMoreArtists"
+            v-else-if="artists.length > 0"
             @load="loadMoreArtistsWrapper"
             :offset="250"
             class="flex column q-gap-md"
@@ -131,7 +131,6 @@ const citiesStore = useCitiesStore();
 const {
   shops,
   isLoadingShops,
-  hasMoreShops,
   loadMoreShops,
   resetShopsPagination,
   initializeShops,
@@ -141,7 +140,6 @@ const {
 const {
   artists,
   isLoadingArtists,
-  hasMoreArtists,
   loadMoreArtists,
   resetArtistsPagination,
   initializeArtists,

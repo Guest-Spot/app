@@ -117,7 +117,7 @@ export default function useArtists() {
   onResultLoadMoreArtists(({ data, loading }) => {
     if (!loading && data?.artists) {
       if (data.artists.length > 0) {
-        artistsStore.addArtists(data.artists);
+        artistsStore.setArtists([...artistsStore.getArtists, ...data.artists]);
         artistsPage.value++;
 
         // Check if we got fewer items than requested (means we've reached the end)
