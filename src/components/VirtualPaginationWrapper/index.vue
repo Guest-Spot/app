@@ -6,6 +6,7 @@
       :is-loading="loading"
       :title="$t('loading.title')"
       :description="$t('loading.description')"
+      spinner-name="dots"
     />
     
     <!-- Error State -->
@@ -13,7 +14,7 @@
       v-else-if="error"
       icon="error"
       :title="$t('error.title')"
-      :description="error"
+      :description="error || $t('error.description')"
     />
     
     <!-- Empty State -->
@@ -45,6 +46,7 @@
           <component
             :is="itemComponent || 'div'"
             v-bind="{ ...itemProps, item, index }"
+            @error="(error: Error) => handleRenderError(error, index)"
           />
         </div>
       </template>
@@ -65,8 +67,7 @@ import { useI18n } from 'vue-i18n'
 import LoadingState from '../LoadingState.vue'
 import NoResult from '../NoResult.vue'
 import type { 
-  VirtualPaginationWrapperProps, 
-  VirtualPaginationWrapperEmits 
+  VirtualPaginationWrapperProps
 } from './types'
 
 // Props definition
@@ -84,10 +85,18 @@ const props = withDefaults(defineProps<VirtualPaginationWrapperProps>(), {
 })
 
 // Emits definition
-const emit = defineEmits<VirtualPaginationWrapperEmits>()
+const emit = defineEmits<{
+  'scroll-end': []
+  'visible-range-change': [{ startIndex: number; endIndex: number }]
+  'render-error': [{ error: Error; index: number }]
+  'item-click': [{ item: unknown; index: number }]
+}>()
 
 // Composables
 const { t } = useI18n()
+
+// Suppress unused variable warning for now - will be used in later tasks
+void t
 
 // Template refs
 const virtualScrollRef = ref<ComponentPublicInstance | null>(null)
@@ -98,17 +107,43 @@ const isEmpty = computed(() => {
 })
 
 // Methods
-const getItemKey = (item: any, index: number): string | number => {
-  return item.id || item.key || index
+const getItemKey = (item: unknown, index: number): string | number => {
+  const typedItem = item as Record<string, unknown>
+  const id = typedItem.id
+  const key = typedItem.key
+  
+  if (typeof id === 'string' || typeof id === 'number') return id
+  if (typeof key === 'string' || typeof key === 'number') return key
+  
+  return index
 }
 
-const handleItemClick = (item: any, index: number) => {
+const handleItemClick = (item: unknown, index: number) => {
   emit('item-click', { item, index })
 }
 
-const onVirtualScroll = (details: any) => {
-  // This will be implemented in later tasks
-  console.log('Virtual scroll event:', details)
+const handleRenderError = (error: Error, index: number) => {
+  console.error(`Render error at index ${index}:`, error)
+  emit('render-error', { error, index })
+}
+
+const onVirtualScroll = (details: { 
+  index: number
+  from: number
+  to: number
+  direction: 'increase' | 'decrease'
+}) => {
+  // Emit visible range change event
+  emit('visible-range-change', { 
+    startIndex: details.from, 
+    endIndex: details.to 
+  })
+  
+  // Check if we've scrolled to the end
+  const isNearEnd = details.to >= props.items.length - props.overscan
+  if (isNearEnd && details.direction === 'increase') {
+    emit('scroll-end')
+  }
 }
 
 // Expose methods for parent components
