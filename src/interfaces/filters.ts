@@ -5,7 +5,7 @@ export interface IFilters {
 
 export interface IGraphQLFilters {
   name?: {
-    contains: string | null;
+    containsi: string | null;
   };
   location?: {
     city?: {

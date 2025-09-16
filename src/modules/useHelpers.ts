@@ -5,7 +5,7 @@ const useHelpers = () => {
     return {
       ...(filters.name && {
         name: {
-          contains: filters.name || null,
+          containsi: filters.name || null,
         },
       }),
       ...(filters.city && {
