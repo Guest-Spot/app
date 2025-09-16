@@ -29,6 +29,7 @@ export default function useArtists() {
   } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
   const artists = computed(() => artistsStore.getArtists);
+  const totalArtists = computed(() => artistsStore.getTotal);
 
   const fetchArtists = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
     if (!hasMoreArtists.value) {
@@ -72,6 +73,7 @@ export default function useArtists() {
   // Result handlers
   onResultArtists(({ data, loading }) => {
     if (!loading && data?.artists) {
+      artistsStore.setTotal(data.artists_connection.pageInfo.total);
       // Append new data for load more
       if (data.artists.length > 0) {
         artistsStore.setArtists([...artistsStore.getArtists, ...data.artists]);
@@ -94,6 +96,7 @@ export default function useArtists() {
 
   return {
     artists,
+    totalArtists,
     isLoadingArtists,
     hasMoreArtists,
     fetchArtists,

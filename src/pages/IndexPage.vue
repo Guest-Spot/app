@@ -8,7 +8,7 @@
     <div class="container">
       <SearchHeader
         v-model="searchQuery"
-        :title="activeTab === TAB_SHOPS ? `Shops (${shops.length})` : `Artists (${artists.length})`"
+        :title="activeTab === TAB_SHOPS ? shopsTitle : artistsTitle"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
         @toggle-search="showSearchDialog = true"
@@ -130,6 +130,7 @@ const citiesStore = useCitiesStore();
 // Use composables
 const {
   shops,
+  totalShops,
   isLoadingShops,
   hasMoreShops,
   resetShopsPagination,
@@ -139,6 +140,7 @@ const {
 
 const {
   artists,
+  totalArtists,
   isLoadingArtists,
   hasMoreArtists,
   fetchArtists,
@@ -172,6 +174,8 @@ const hasActiveFilters = computed(() =>
   Object.values(activeFilters.value).some((filter) => !!filter),
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
+const shopsTitle = computed(() => totalShops.value > 0 ? `Shops (${shops.value.length}/${totalShops.value})` : `Shops`);
+const artistsTitle = computed(() => totalArtists.value > 0 ? `Artists (${artists.value.length}/${totalArtists.value})` : `Artists`);
 
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.documentId}`);

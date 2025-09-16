@@ -2,6 +2,11 @@ import { gql } from '@apollo/client/core';
 
 export const ARTISTS_QUERY = gql`
   query Artists($filters: ArtistFiltersInput, $sort: [String], $pagination: PaginationArg) {
+    artists_connection {
+      pageInfo {
+        total
+      }
+    }
     artists(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       name

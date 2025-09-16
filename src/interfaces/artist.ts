@@ -17,6 +17,11 @@ export interface IArtist {
 
 export interface IGraphQLArtistsResult {
   artists: IArtist[];
+  artists_connection: {
+    pageInfo: {
+      total: number;
+    };
+  };
 }
 
 export interface IGraphQLArtistResult {

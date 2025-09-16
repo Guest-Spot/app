@@ -31,6 +31,11 @@ export interface IShopFormData {
 
 export interface IGraphQLShopsResult {
   shops: IShop[];
+  shops_connection: {
+    pageInfo: {
+      total: number;
+    };
+  };
 }
 
 export interface IGraphQLShopResult {

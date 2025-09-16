@@ -29,6 +29,7 @@ export default function useShops() {
   } = useLazyQuery<IGraphQLShopsResult>(SHOPS_QUERY);
 
   const shops = computed(() => shopsStore.getShops);
+  const totalShops = computed(() => shopsStore.getTotal);
 
   const fetchShops = (activeFilters: IFilters, searchQuery: string | null, sortSettings: SortSettings) => {
     if (!hasMoreShops.value) {
@@ -72,6 +73,7 @@ export default function useShops() {
   // Result handlers
   onResultShops(({ data, loading }) => {
     if (!loading && data?.shops) {
+      shopsStore.setTotal(data.shops_connection.pageInfo.total);
       // Append new data for load more
       if (data.shops.length > 0) {
         shopsStore.setShops([...shopsStore.getShops, ...data.shops]);
@@ -94,6 +96,7 @@ export default function useShops() {
 
   return {
     shops,
+    totalShops,
     isLoadingShops,
     hasMoreShops,
     resetShopsPagination,
