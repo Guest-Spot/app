@@ -52,9 +52,9 @@ api.interceptors.response.use(
 
         // Make a request to your auth server to refresh the token.
         const response = await axios.post(`${API_URL}/api/auth/refreshToken`, {
-          token: tokens?.refreshToken,
+          refreshToken: tokens?.refreshToken,
         });
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        const { jwt: accessToken, refreshToken: newRefreshToken } = response.data;
         // Store the new access and refresh tokens.
         storeTokens({ accessToken, refreshToken: newRefreshToken });
         // Update the authorization header with the new access token.
