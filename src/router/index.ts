@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import { useScrollStore } from 'src/stores/scroll';
 
 /*
  * If not building with SSR mode, you can
@@ -23,8 +24,9 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       ? createWebHistory
       : createWebHashHistory;
 
+  const scrollStore = useScrollStore();
+
   const Router = createRouter({
-    scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
 
     // Leave this as is and make changes in quasar.conf.js instead!
@@ -33,21 +35,30 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  function scrollToTop() {
-    const QApp = document.querySelector('#q-app');
-    if (QApp) {
-      setTimeout(() => {
-        QApp.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
-      }, 100);
-    }
-  }
-
   Router.beforeEach((to, from, next) => {
-    scrollToTop();
+    const QApp = document.querySelector('#q-app');
+    const scrollY = QApp?.scrollTop;
+    setTimeout(() => {
+      if (from.meta.saveScrollPosition) {
+        scrollStore.setScrollPosition(from.path, scrollY || 0);
+      }
+      if (to.meta.saveScrollPosition) {
+        QApp?.scrollTo({
+          top: scrollStore.getScrollPosition(to.path),
+        });
+      }
+    }, 0);
     next();
+  });
+
+  Router.afterEach((to) => {
+    const QApp = document.querySelector('#q-app');
+    if (!to.meta.saveScrollPosition) {
+      QApp?.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
   });
 
   return Router;
