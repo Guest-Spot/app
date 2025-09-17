@@ -23,6 +23,9 @@ export const authLink = setContext((_, { headers }) => {
   };
 });
 
+// Global promise to track ongoing token refresh
+let refreshTokenPromise: Promise<{ accessToken: string; refreshToken: string } | null> | null = null;
+
 /**
  * Error Link - handles 401 errors and token refresh
  */
@@ -36,8 +39,11 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
   function handleTokenRefreshAndRetry(logMessage: string) {
     console.log(logMessage);
 
+    // If there's already an ongoing refresh, wait for it
+    const refreshPromise = refreshTokenPromise || refreshTokens();
+
     return fromPromise(
-      refreshTokens()
+      refreshPromise
         .then((newTokens) => {
           if (newTokens) {
             // Update the operation context with new token
@@ -83,44 +89,59 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
    * Refresh tokens using the refresh token
    */
   async function refreshTokens(): Promise<{ accessToken: string; refreshToken: string } | null> {
-    try {
-      const tokens = getStoredTokens();
-      if (!tokens?.refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      // Create a simple HTTP request for token refresh (without Apollo to avoid circular dependency)
-      const response = await fetch(GRAPHQL_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: REFRESH_TOKEN_MUTATION,
-          variables: { input: { refreshToken: tokens.refreshToken } },
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.errors || !result.data?.refreshToken) {
-        throw new Error('Token refresh failed');
-      }
-
-      const newTokens = {
-        accessToken: result.data.refreshToken.jwt,
-        refreshToken: result.data.refreshToken.refreshToken,
-      };
-
-      // Store new tokens
-      storeTokens(newTokens);
-
-      console.log('Tokens refreshed successfully');
-      return newTokens;
-    } catch (error) {
-      console.error('Error refreshing tokens:', error);
-      return null;
+    // If there's already an ongoing refresh, return that promise
+    if (refreshTokenPromise) {
+      return refreshTokenPromise;
     }
+
+    // Create new refresh promise
+    refreshTokenPromise = (async () => {
+      try {
+        const tokens = getStoredTokens();
+        if (!tokens?.refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        console.log('Starting token refresh...');
+
+        // Create a simple HTTP request for token refresh (without Apollo to avoid circular dependency)
+        const response = await fetch(GRAPHQL_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: REFRESH_TOKEN_MUTATION,
+            variables: { input: { refreshToken: tokens.refreshToken } },
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.errors || !result.data?.refreshToken) {
+          throw new Error('Token refresh failed');
+        }
+
+        const newTokens = {
+          accessToken: result.data.refreshToken.jwt,
+          refreshToken: result.data.refreshToken.refreshToken,
+        };
+
+        // Store new tokens
+        storeTokens(newTokens);
+
+        console.log('Tokens refreshed successfully');
+        return newTokens;
+      } catch (error) {
+        console.error('Error refreshing tokens:', error);
+        return null;
+      } finally {
+        // Clear the promise after completion (success or failure)
+        refreshTokenPromise = null;
+      }
+    })();
+
+    return refreshTokenPromise;
   }
 
   /**

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { SHOPS_QUERY } from 'src/apollo/types/shop';
 import type { IGraphQLShopsResult } from 'src/interfaces/shop';
@@ -15,11 +15,6 @@ export default function useShops() {
   const shopsStore = useShopsStore();
   const { convertFiltersToGraphQLFilters } = useHelpers();
 
-  // Pagination
-  const ITEMS_PER_PAGE = 15;
-  const shopsPage = ref(2); // Start from page 2 since page 1 is loaded initially
-  const hasMoreShops = ref(true);
-
   const {
     load: loadShops,
     refetch: refetchShops,
@@ -30,13 +25,14 @@ export default function useShops() {
 
   const shops = computed(() => shopsStore.getShops);
   const totalShops = computed(() => shopsStore.getTotal);
+  const hasMoreShops = computed(() => shopsStore.getHasMore);
 
   const fetchShops = (
     activeFilters: IFilters,
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
-    if (!hasMoreShops.value) {
+    if (!shopsStore.getHasMore) {
       return;
     }
 
@@ -49,15 +45,15 @@ export default function useShops() {
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
         : undefined,
       pagination: {
-        page: shopsPage.value,
-        pageSize: ITEMS_PER_PAGE,
+        page: shopsStore.getPage,
+        pageSize: shopsStore.getPageSize,
       },
     });
   };
 
   const resetShopsPagination = () => {
-    shopsPage.value = 2; // Start from page 2 since we're loading page 1 initially
-    hasMoreShops.value = true;
+    shopsStore.setPage(1);
+    shopsStore.setHasMore(true);
     shopsStore.clearShops();
   };
 
@@ -72,8 +68,8 @@ export default function useShops() {
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
         : undefined,
       pagination: {
-        page: 1,
-        pageSize: ITEMS_PER_PAGE,
+        page: shopsStore.getPage,
+        pageSize: shopsStore.getPageSize,
       },
     });
   };
@@ -85,21 +81,16 @@ export default function useShops() {
       // Append new data for load more
       if (data.shops.length > 0) {
         shopsStore.setShops([...shopsStore.getShops, ...data.shops]);
-        shopsPage.value++;
-
-        // Check if we got fewer items than requested (means we've reached the end)
-        if (data.shops.length < ITEMS_PER_PAGE) {
-          hasMoreShops.value = false;
-        }
+        shopsStore.setPage(shopsStore.getPage + 1);
       } else {
-        hasMoreShops.value = false;
+        shopsStore.setHasMore(false);
       }
     }
   });
 
   onErrorShops((error) => {
     console.error('Error fetching shops:', error);
-    hasMoreShops.value = false;
+    shopsStore.setHasMore(false);
   });
 
   return {
