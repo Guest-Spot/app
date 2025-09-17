@@ -2,8 +2,11 @@
   <div
     class="image-uploader border-radius-lg q-pa-sm q-gap-sm bg-block flex no-wrap items-stretch"
     :class="{
-      'image-uploader--sm': size === 'sm',
-      'image-uploader--circle': circle,
+      'image-uploader--round': round,
+    }"
+    :style="{
+      width: width ? `${width}px` : '100%',
+      height: height ? `${height}px` : '100%',
     }"
   >
     <PreviewImages
@@ -15,6 +18,7 @@
     />
 
     <UploadForm
+      v-if="!hasImages && !multiple"
       :multiple="multiple"
       :hint="hint"
       :rules="rules"
@@ -56,17 +60,21 @@ const props = defineProps({
     type: Array as PropType<IPicture[]>,
     default: () => [],
   },
-  size: {
-    type: String,
-    default: null,
-  },
   hint: {
     type: String,
     default: null,
   },
-  circle: {
+  round: {
     type: Boolean,
     default: false,
+  },
+  width: {
+    type: Number,
+    default: null,
+  },
+  height: {
+    type: Number,
+    default: null,
   },
   rules: {
     type: Array as PropType<ValidationRule[]>,
@@ -186,24 +194,11 @@ watch(
   display: flex;
   align-items: stretch;
 
-  &--sm {
-    width: 30px;
-    min-width: 30px;
-    height: 30px;
-    min-height: 30px;
-    border-radius: var(--border-radius-xs);
-
-    span {
-      font-size: 16px;
-      line-height: normal;
-    }
-  }
-
   &--zoom {
     cursor: pointer;
   }
 
-  &--circle {
+  &--round {
     border-radius: 100%;
   }
 }

@@ -1,6 +1,11 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <ImageUploader />
+    <div class="flex items-center justify-center full-width">
+      <ImageUploader
+        placeholder-icon="person"
+        placeholder="Upload avatar"
+      />
+    </div>
 
     <!-- BIO Section -->
     <q-expansion-item

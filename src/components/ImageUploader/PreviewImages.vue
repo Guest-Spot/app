@@ -111,7 +111,6 @@ function zoomImage(src?: string) {
 }
 
 function removeAt(index: number) {
-  if (!props.multiple) return;
   emit('on-remove', index);
 }
 
