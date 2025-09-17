@@ -121,6 +121,7 @@ import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 
 // Sort settings
 interface SortSettings {
@@ -181,12 +182,24 @@ const hasActiveFilters = computed(() =>
   Object.values(activeFilters.value).some((filter) => !!filter),
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
-const shopsTitle = computed(() =>
-  totalShops.value > 0 ? `Shops (${shops.value.length}/${totalShops.value})` : `Shops`,
-);
-const artistsTitle = computed(() =>
-  totalArtists.value > 0 ? `Artists (${artists.value.length}/${totalArtists.value})` : `Artists`,
-);
+const shopsTitle = computed(() => {
+  if (totalShops.value === 0) {
+    return `Shops`;
+  }
+  if (totalShops.value <= PAGINATION_PAGE_SIZE) {
+    return `Shops (${shops.value.length})`;
+  }
+  return `Shops (${shops.value.length}/${totalShops.value})`;
+});
+const artistsTitle = computed(() =>{
+  if (totalArtists.value === 0) {
+    return `Artists`;
+  }
+  if (totalArtists.value <= PAGINATION_PAGE_SIZE) {
+    return `Artists (${artists.value.length})`;
+  }
+  return `Artists (${artists.value.length}/${totalArtists.value})`;
+});
 
 const selectShop = (shop: IShop) => {
   void router.push(`/shop/${shop.documentId}`);

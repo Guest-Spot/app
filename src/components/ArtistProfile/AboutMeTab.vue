@@ -111,6 +111,33 @@
       </div>
     </q-expansion-item>
 
+    <!-- Contacts Section -->
+    <q-expansion-item
+      icon="info"
+      label="Additional Information"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
+        <div class="input-group">
+          <label class="input-label">Experience</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            type="number"
+            placeholder="Enter experience"
+            class="custom-input"
+            :min="1"
+            clearable
+            suffix="years"
+            v-model.number="artistData.experience"
+            :rules="[val => val >= 1 || 'Experience must be at least 1 year']"
+          />
+        </div>
+      </div>
+    </q-expansion-item>
+
     <!-- Theme Settings -->
     <ThemeSettings />
 
@@ -170,6 +197,7 @@ const artistData = reactive<IArtistFormData>({
   phone: '',
   email: '',
   avatar: null,
+  experience: null,
 });
 // NOTE: This variable is used to compare the original data with the new data
 const artistDataOriginal = { ...artistData };

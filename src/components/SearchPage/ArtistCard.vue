@@ -12,11 +12,11 @@
         <div class="artist-info">
           <div class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
-            <span>{{ artist.location?.city }} {{ artist.location?.address }}</span>
+            <span>{{ artist.city }} {{ artist.address }}</span>
           </div>
           <div class="artist-experience text-grey-6">
             <q-icon name="work" size="14px" />
-            <span>{{ artist.experience ? `${artist.experience}+ years` : '2+ years' }}</span>
+            <span>{{ artist.experience ? `${artist.experience}+ years` : 'n/a years' }}</span>
           </div>
         </div>
       </div>

@@ -25,6 +25,7 @@ export const ME_QUERY = gql`
         link
         phone
         email
+        experience
         openingHours {
           day
           start

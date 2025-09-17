@@ -38,4 +38,5 @@ export interface IArtistFormData {
   phone?: string;
   email?: string;
   avatar?: IPicture | null;
+  experience?: number | null;
 }
