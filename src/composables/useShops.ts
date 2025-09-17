@@ -17,7 +17,7 @@ export default function useShops() {
 
   // Pagination
   const ITEMS_PER_PAGE = 15;
-  const shopsPage = ref(2); // Start from page 2 since page 1 is loaded initially
+  const shopsPage = ref(1);
   const hasMoreShops = ref(true);
 
   const {
@@ -86,14 +86,10 @@ export default function useShops() {
       if (data.shops.length > 0) {
         shopsStore.setShops([...shopsStore.getShops, ...data.shops]);
         shopsPage.value++;
-
-        // Check if we got fewer items than requested (means we've reached the end)
-        if (data.shops.length < ITEMS_PER_PAGE) {
-          hasMoreShops.value = false;
-        }
       } else {
         hasMoreShops.value = false;
       }
+      debugger;
     }
   });
 

@@ -17,7 +17,7 @@ export default function useArtists() {
 
   // Pagination
   const ITEMS_PER_PAGE = 15;
-  const artistsPage = ref(2); // Start from page 2 since page 1 is loaded initially
+  const artistsPage = ref(1);
   const hasMoreArtists = ref(true);
 
   const {
@@ -86,11 +86,6 @@ export default function useArtists() {
       if (data.artists.length > 0) {
         artistsStore.setArtists([...artistsStore.getArtists, ...data.artists]);
         artistsPage.value++;
-
-        // Check if we got fewer items than requested (means we've reached the end)
-        if (data.artists.length < ITEMS_PER_PAGE) {
-          hasMoreArtists.value = false;
-        }
       } else {
         hasMoreArtists.value = false;
       }
