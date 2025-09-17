@@ -31,9 +31,9 @@
             class="cropper-component"
           />
            <q-img
-            v-else-if="imageSrc"
+            v-else-if="imagePreview"
             ref="imageRef"
-            :src="imageSrc"
+            :src="imagePreview"
             fit="contain"
             spinner-size="lg"
             spinner-color="dark"
@@ -72,30 +72,27 @@
         <!-- Normal Mode Actions -->
         <div v-else class="row justify-center q-gap-sm">
           <q-btn
-            v-if="allowCropping && imageSrc"
+            v-if="allowCropping && imagePreview"
             icon="crop"
-            label="Crop"
             class="bg-block"
             unelevated
-            rounded
+            round
             @click="toggleCropMode"
           />
           <q-btn
             :icon="isZoomed ? 'zoom_out' : 'zoom_in'"
-            :label="isZoomed ? 'Zoom Out' : 'Zoom In'"
             class="bg-block"
             unelevated
-            rounded
+            round
             @click="toggleZoom"
           />
           <q-btn
             icon="download"
-            label="Download"
             class="bg-block"
             unelevated
-            rounded
+            round
             @click="downloadImage"
-            v-if="imageSrc"
+            v-if="imagePreview"
           />
         </div>
       </q-card-section>
@@ -107,6 +104,7 @@
 import { computed, ref, watch } from 'vue';
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css';
+import useImage from 'src/modules/useImage';
 
 type ElementRef = HTMLElement | { $el: HTMLElement } | null;
 
@@ -122,11 +120,14 @@ interface Props {
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'cropped', value: { canvas: HTMLCanvasElement; coordinates: unknown }): void;
+  (e: 'cropped', value: { file: File; base64: string }): void;
+  (e: 'loading', value: boolean): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+
+const { formatFileToBase64 } = useImage();
 
 const isZoomed = ref(false);
 const imageRef = ref<ElementRef>(null);
@@ -135,6 +136,7 @@ const translateY = ref(0);
 const imageContainer = ref<ElementRef>(null);
 const isCropMode = ref(false);
 const cropperRef = ref<{ getResult: () => { canvas: HTMLCanvasElement; coordinates: unknown } } | null>(null);
+const imagePreview = ref<string | null>(null);
 
 // Computed style for image transform
 const imageStyle = computed(() => {
@@ -184,10 +186,10 @@ function resetPosition() {
 }
 
 function downloadImage() {
-  if (!props.imageSrc) return;
+  if (!imagePreview.value) return;
 
   const link = document.createElement('a');
-  link.href = props.imageSrc;
+  link.href = imagePreview.value;
   link.download = `image-${Date.now()}.png`;
   document.body.appendChild(link);
   link.click();
@@ -202,14 +204,39 @@ function toggleCropMode() {
   }
 }
 
-function applyCrop() {
+async function applyCrop() {
   if (!cropperRef.value) return;
 
-  const { canvas, coordinates } = cropperRef.value.getResult();
-  if (canvas && coordinates) {
-    emit('cropped', { canvas, coordinates });
+  try {
+    emit('loading', true);
+
+    const { canvas } = cropperRef.value.getResult();
+    if (!canvas) return;
+
+    // Convert canvas to blob
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, 'image/jpeg', 0.9);
+    });
+
+    if (!blob) return;
+
+    // Create file from blob
+    const file = new File([blob], `cropped-image-${Date.now()}.jpg`, {
+      type: 'image/jpeg',
+    });
+
+    // Convert to base64 for preview
+    const base64 = await formatFileToBase64(file);
+
+    imagePreview.value = base64;
+
+    emit('cropped', { file, base64 });
     isZoomed.value = false;
     isCropMode.value = false;
+  } catch (error) {
+    console.error('Error processing cropped image:', error);
+  } finally {
+    emit('loading', false);
   }
 }
 
@@ -276,10 +303,12 @@ function onPan(evt: { delta?: { x?: number; y?: number } }) {
 
 // Reset zoom and position when dialog closes
 watch(dialogModel, (newValue) => {
+  imagePreview.value = props.imageSrc || null;
   if (!newValue) {
     isCropMode.value = false;
     isZoomed.value = false;
     resetPosition();
+    imagePreview.value = null;
   }
 });
 </script>

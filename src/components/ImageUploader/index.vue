@@ -47,8 +47,8 @@ import useImage from 'src/modules/useImage';
 import { type ValidationRule, uid } from 'quasar';
 import { ref, watch, computed, type PropType } from 'vue';
 import imageCompression from 'browser-image-compression';
-import PreviewImages from 'src/components/ImageUploader/PreviewImages.vue';
-import UploadForm from 'src/components/ImageUploader/UploadForm.vue';
+import PreviewImages from './PreviewImages.vue';
+import UploadForm from './UploadForm.vue';
 import type { IPicture } from 'src/interfaces/common';
 
 defineOptions({
@@ -177,49 +177,30 @@ function onRemoveImage(index: number) {
   emit('on-remove', imagesIdsForRemove.value);
 }
 
-async function onImageCropped({ canvas }: { canvas: HTMLCanvasElement; coordinates: unknown }) {
+function onImageCropped({ file, base64 }: { file: File; base64: string }) {
   if (currentImageIndex.value === null) return;
 
-  try {
-    // Convert canvas to blob
-    const blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, 'image/jpeg', 0.9);
-    });
+  // Find the image to replace
+  const imageToReplace = imagesPreview.value.find((img) => img.index === currentImageIndex.value);
+  if (!imageToReplace) return;
 
-    if (!blob) return;
-
-    // Create file from blob
-    const file = new File([blob], `cropped-image-${Date.now()}.jpg`, {
-      type: 'image/jpeg',
-    });
-
-    // Convert to base64 for preview
-    const base64 = await formatFileToBase64(file);
-
-    // Find the image to replace
-    const imageToReplace = imagesPreview.value.find((img) => img.index === currentImageIndex.value);
-    if (!imageToReplace) return;
-
-    // Update preview
-    const updatedImage = { ...imageToReplace, url: base64 };
-    const imageIndex = imagesPreview.value.findIndex((img) => img.index === currentImageIndex.value);
-    if (imageIndex !== -1) {
-      imagesPreview.value[imageIndex] = updatedImage;
-    }
-
-    // Update file for upload
-    const fileIndex = filesForUpload.value.findIndex((f) => f.id === imageToReplace.id);
-    if (fileIndex !== -1) {
-      filesForUpload.value[fileIndex] = { file, id: filesForUpload.value[fileIndex]?.id || '' };
-    }
-
-    emit(
-      'on-change',
-      filesForUpload.value.map((f) => f.file),
-    );
-  } catch (error) {
-    console.error('Error processing cropped image:', error);
+  // Update preview
+  const updatedImage = { ...imageToReplace, url: base64 };
+  const imageIndex = imagesPreview.value.findIndex((img) => img.index === currentImageIndex.value);
+  if (imageIndex !== -1) {
+    imagesPreview.value[imageIndex] = updatedImage;
   }
+
+  // Update file for upload
+  const fileIndex = filesForUpload.value.findIndex((f) => f.id === imageToReplace.id);
+  if (fileIndex !== -1) {
+    filesForUpload.value[fileIndex] = { file, id: filesForUpload.value[fileIndex]?.id || '' };
+  }
+
+  emit(
+    'on-change',
+    filesForUpload.value.map((f) => f.file),
+  );
 }
 
 watch(
