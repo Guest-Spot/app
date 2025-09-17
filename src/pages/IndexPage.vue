@@ -211,6 +211,15 @@ const resetPagination = () => {
   resetArtistsPagination();
 };
 
+const fetchListings = () => {
+  if (!shops.value.length) {
+    fetchShops(activeFilters.value, searchQuery.value, sortSettings.value);
+  }
+  if (!artists.value.length) {
+    fetchArtists(activeFilters.value, searchQuery.value, sortSettings.value);
+  }
+};
+
 watch(
   [activeFilters, searchQuery, sortSettings],
   ([newFilters, newSearchQuery, newSortSettings]) => {
@@ -229,8 +238,7 @@ onErrorCities((error) => {
 });
 
 onBeforeMount(() => {
-  fetchShops(activeFilters.value, searchQuery.value, sortSettings.value);
-  fetchArtists(activeFilters.value, searchQuery.value, sortSettings.value);
+  void fetchListings();
   void loadCities();
 });
 </script>
