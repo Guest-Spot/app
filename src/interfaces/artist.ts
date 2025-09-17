@@ -13,6 +13,8 @@ export interface IArtist {
   avatar?: IPicture;
   links?: ILink[];
   location?: ILocation;
+  city?: string;
+  address?: string;
 }
 
 export interface IGraphQLArtistsResult {
@@ -31,6 +33,8 @@ export interface IGraphQLArtistResult {
 export interface IArtistFormData {
   name: string;
   description: string;
+  city?: string;
+  address?: string;
   phone?: string;
   email?: string;
   avatar?: IPicture | null;

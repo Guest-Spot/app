@@ -48,7 +48,7 @@
       </div>
     </q-expansion-item>
 
-    <!-- Contacts -->
+    <!-- Location -->
     <q-expansion-item
       icon="location_on"
       label="Location"

@@ -43,6 +43,41 @@
       </div>
     </q-expansion-item>
 
+    <!-- Location -->
+    <q-expansion-item
+      icon="location_on"
+      label="Location"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
+        <div class="input-group">
+          <label class="input-label">City</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter shop city"
+            class="custom-input"
+            v-model="artistData.city"
+            clearable
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Address</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter shop address"
+            clearable
+            class="custom-input"
+            v-model="artistData.address"
+          />
+        </div>
+      </div>
+    </q-expansion-item>
+
     <!-- Contacts Section -->
     <q-expansion-item
       icon="contact_phone"
@@ -130,6 +165,8 @@ const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 const artistData = reactive<IArtistFormData>({
   name: '',
   description: '',
+  city: '',
+  address: '',
   phone: '',
   email: '',
   avatar: null,
@@ -234,10 +271,7 @@ watch(
   () => profileStore.getArtistProfile,
   (profile) => {
     Object.assign(artistData, {
-      name: profile?.name || '',
-      description: profile?.description || '',
-      phone: profile?.phone || '',
-      email: profile?.email || '',
+      ...profile,
       avatar: profile?.avatar ? {
         url: profile?.avatar?.url,
         id: profile?.avatar?.id,

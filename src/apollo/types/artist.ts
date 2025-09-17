@@ -27,6 +27,8 @@ export const ARTISTS_QUERY = gql`
       }
       phone
       email
+      city
+      address
       createdAt
       updatedAt
     }
@@ -40,6 +42,8 @@ export const ARTIST_QUERY = gql`
       name
       description
       experience
+      city
+      address
       avatar {
         url
       }
