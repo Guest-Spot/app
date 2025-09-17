@@ -14,7 +14,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: () => import('pages/IndexPage.vue'),
-        meta: { title: 'Search Page' },
+        meta: { title: 'Search Page', saveScrollPosition: true },
       },
       {
         path: 'bookmarks',
