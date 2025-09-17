@@ -172,7 +172,7 @@ function onRemoveImage(index: number) {
 watch(
   () => props.images,
   (newValue, oldValue) => {
-    if (!newValue.length || newValue === oldValue) return;
+    if (!newValue || JSON.stringify(newValue) === JSON.stringify(oldValue)) return;
     imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
   },
