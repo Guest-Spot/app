@@ -1,15 +1,15 @@
 <template>
   <div class="public-about-me-tab flex column q-gap-md full-width">
-    <InfoCard title="Basic Information" icon="person" :data="basicInformation" />
-    <InfoCard title="Contacts" icon="contact_phone" :data="contacts" />
-    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
+    <InfoCard v-if="basicInformation.length" title="Basic Information" icon="person" :data="basicInformation" />
+    <InfoCard v-if="location.length" title="Location" icon="location_on" :data="location" />
+    <InfoCard v-if="contacts.length" title="Contacts" icon="contact_phone" :data="contacts" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType, LinkType } from 'src/interfaces/enums';
+import { InfoItemType } from 'src/interfaces/enums';
 import type { IArtist } from 'src/interfaces/artist';
 
 interface Props {
@@ -27,17 +27,20 @@ const basicInformation = computed(() => [
     label: 'Bio',
     value: props.artistData.description || '',
   },
-]);
+].filter((item) => item.value));
 
-const contacts = computed(() => [
+const location = computed(() => [
   {
     label: 'City',
-    value: props.artistData.location?.city || '',
+    value: props.artistData.city || '',
   },
   {
     label: 'Address',
-    value: props.artistData.location?.address || '',
+    value: props.artistData.address || '',
   },
+].filter((item) => item.value));
+
+const contacts = computed(() => [
   {
     label: 'Phone',
     value: props.artistData.phone || '',
@@ -48,13 +51,5 @@ const contacts = computed(() => [
     value: props.artistData.email || '',
     type: InfoItemType.Email,
   },
-]);
-
-const links = computed(() => [
-  {
-    label: 'Instagram',
-    value: props.artistData.links?.find((link) => link.type === LinkType.Instagram)?.value || '',
-    type: InfoItemType.Link,
-  },
-]);
+].filter((item) => item.value));
 </script>

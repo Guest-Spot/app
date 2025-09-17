@@ -1,5 +1,11 @@
 <template>
-  <div class="upload-form relative-position" v-ripple>
+  <div
+    v-ripple
+    class="upload-form relative-position"
+    :class="{
+      'upload-form--round': round,
+    }"
+  >
     <q-file
       outlined
       :model-value="null"
@@ -10,8 +16,8 @@
       accept="image/*"
     >
       <div class="upload-form_placeholder">
-        <q-icon :name="placeholderIcon" size="32px" color="grey-6" />
-        <p v-if="!hasImages" class="text-grey-6 q-mt-sm">{{ placeholder }}</p>
+        <q-icon :name="placeholderIcon" size="42px" color="grey-6" />
+        <p v-if="!hasImages" class="text-grey-6 q-mt-sm q-mb-none text-center">{{ placeholder }}</p>
       </div>
     </q-file>
 
@@ -22,7 +28,7 @@
       accept="image/*"
       capture="environment"
       @change="onCameraSelected"
-      style="display: none"
+      class="hidden"
     />
 
     <!-- Open camera button (mobile only) -->
@@ -59,7 +65,7 @@ const props = defineProps({
     type: String,
     default: null,
   },
-  circle: {
+  round: {
     type: Boolean,
     default: false,
   },
@@ -152,7 +158,7 @@ async function onCameraSelected(event: Event) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: inherit;
 
   :deep(.q-field) {
     height: 100%;
@@ -172,12 +178,21 @@ async function onCameraSelected(event: Event) {
     height: 100%;
     flex: 1;
   }
+
+  &--round {
+    border-radius: 100%;
+  }
 }
 
 :deep(.q-file) {
   width: 100%;
   height: 100%;
   position: relative;
+  border-radius: inherit;
+
+  .q-field__inner {
+    border-radius: inherit;
+  }
 
   .q-field__control {
     height: 100%;
@@ -185,11 +200,11 @@ async function onCameraSelected(event: Event) {
     padding-bottom: 5px;
     justify-content: center;
     position: relative;
+    border-radius: inherit;
 
     &::before,
     &::after {
       border: 2px dashed rgba(0, 0, 0, 0.1);
-      border-radius: 20px;
     }
 
     .q-field__append {

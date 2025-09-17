@@ -14,6 +14,11 @@ export const ME_QUERY = gql`
           documentId
           url
         }
+        avatar {
+          id
+          documentId
+          url
+        }
         description
         city
         address

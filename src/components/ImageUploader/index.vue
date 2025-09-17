@@ -2,19 +2,23 @@
   <div
     class="image-uploader border-radius-lg q-pa-sm q-gap-sm bg-block flex no-wrap items-stretch"
     :class="{
-      'image-uploader--sm': size === 'sm',
-      'image-uploader--circle': circle,
+      'image-uploader--round': round,
+    }"
+    :style="{
+      width: width ? `${width}px` :  '',
+      height: height ? `${height}px` : '',
     }"
   >
     <PreviewImages
       v-if="hasImages"
       :images="imagesPreview"
       :multiple="multiple"
-      @open-zoom-dialog="zoomImage"
+      @open-zoom-dialog="(src, index) => zoomImage(src, index)"
       @on-remove="onRemoveImage"
     />
 
     <UploadForm
+      v-if="(!hasImages && !multiple) || multiple"
       :multiple="multiple"
       :hint="hint"
       :rules="rules"
@@ -28,7 +32,9 @@
     <ImagePreviewDialog
       v-model="dialog"
       :image-src="previewDialogSrc"
+      :allow-cropping="allowCropping"
       @loading="isLoading = $event"
+      @cropped="onImageCropped"
     />
 
     <!-- Loader -->
@@ -41,8 +47,8 @@ import useImage from 'src/modules/useImage';
 import { type ValidationRule, uid } from 'quasar';
 import { ref, watch, computed, type PropType } from 'vue';
 import imageCompression from 'browser-image-compression';
-import PreviewImages from 'src/components/ImageUploader/PreviewImages.vue';
-import UploadForm from 'src/components/ImageUploader/UploadForm.vue';
+import PreviewImages from './PreviewImages.vue';
+import UploadForm from './UploadForm.vue';
 import type { IPicture } from 'src/interfaces/common';
 
 defineOptions({
@@ -56,17 +62,21 @@ const props = defineProps({
     type: Array as PropType<IPicture[]>,
     default: () => [],
   },
-  size: {
-    type: String,
-    default: null,
-  },
   hint: {
     type: String,
     default: null,
   },
-  circle: {
+  round: {
     type: Boolean,
     default: false,
+  },
+  width: {
+    type: Number,
+    default: null,
+  },
+  height: {
+    type: Number,
+    default: null,
   },
   rules: {
     type: Array as PropType<ValidationRule[]>,
@@ -84,6 +94,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  allowCropping: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const MAX_SIZE = 4096;
@@ -94,6 +108,7 @@ const imagesPreview = ref<IPicture[]>([]);
 const isLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
+const currentImageIndex = ref<number | null>(null);
 const imagesIdsForRemove = ref<string[]>([]);
 const filesForUpload = ref<{ file: File | null; id: string }[]>([]);
 
@@ -103,8 +118,9 @@ import { ImagePreviewDialog } from 'src/components/Dialogs';
 const hasImages = computed(() => imagesPreview.value.length > 0);
 
 // ---------- Methods ---------- //
-function zoomImage(src: string) {
+function zoomImage(src: string, index?: number) {
   previewDialogSrc.value = src;
+  currentImageIndex.value = index ?? null;
   dialog.value = true;
 }
 
@@ -161,10 +177,36 @@ function onRemoveImage(index: number) {
   emit('on-remove', imagesIdsForRemove.value);
 }
 
+function onImageCropped({ file, base64 }: { file: File; base64: string }) {
+  if (currentImageIndex.value === null) return;
+
+  // Find the image to replace
+  const imageToReplace = imagesPreview.value.find((img) => img.index === currentImageIndex.value);
+  if (!imageToReplace) return;
+
+  // Update preview
+  const updatedImage = { ...imageToReplace, url: base64 };
+  const imageIndex = imagesPreview.value.findIndex((img) => img.index === currentImageIndex.value);
+  if (imageIndex !== -1) {
+    imagesPreview.value[imageIndex] = updatedImage;
+  }
+
+  // Update file for upload
+  const fileIndex = filesForUpload.value.findIndex((f) => f.id === imageToReplace.id);
+  if (fileIndex !== -1) {
+    filesForUpload.value[fileIndex] = { file, id: filesForUpload.value[fileIndex]?.id || '' };
+  }
+
+  emit(
+    'on-change',
+    filesForUpload.value.map((f) => f.file),
+  );
+}
+
 watch(
   () => props.images,
   (newValue, oldValue) => {
-    if (!newValue || newValue === oldValue) return;
+    if (!newValue || JSON.stringify(newValue) === JSON.stringify(oldValue)) return;
     imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
   },
@@ -179,31 +221,18 @@ watch(
   text-align: center;
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 200px;
   min-height: 200px;
   overflow-x: auto;
   overflow-y: hidden;
   display: flex;
   align-items: stretch;
 
-  &--sm {
-    width: 30px;
-    min-width: 30px;
-    height: 30px;
-    min-height: 30px;
-    border-radius: var(--border-radius-xs);
-
-    span {
-      font-size: 16px;
-      line-height: normal;
-    }
-  }
-
   &--zoom {
     cursor: pointer;
   }
 
-  &--circle {
+  &--round {
     border-radius: 100%;
   }
 }

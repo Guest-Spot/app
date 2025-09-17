@@ -1,7 +1,7 @@
 <template>
   <div class="about-shop-tab flex column q-gap-md">
     <!-- Banner Image Section -->
-    <ImageUploaderV2
+    <ImageUploader
       :images="shopData.pictures || []"
       placeholder="Upload images"
       multiple
@@ -48,7 +48,7 @@
       </div>
     </q-expansion-item>
 
-    <!-- Contacts -->
+    <!-- Location -->
     <q-expansion-item
       icon="location_on"
       label="Location"
@@ -161,7 +161,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
-import ImageUploaderV2 from 'src/components/ImageUploader/index.vue';
+import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
 import { useProfileStore } from 'src/stores/profile';
 import { useMutation } from '@vue/apollo-composable';
