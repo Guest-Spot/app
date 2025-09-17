@@ -12,7 +12,7 @@
         v-for="(img, index) in images"
         :key="index"
         class="image-item border-radius-md"
-        @click="zoomImage(img.url)"
+        @click="zoomImage(img.url, img.index || index)"
         draggable="true"
         @dragstart="onDragStart(img.index || index)"
         @dragover.prevent
@@ -57,7 +57,7 @@
   <div v-else class="image-preview-wrapper border-radius-md">
     <q-img
       :src="images[0]?.url || undefined"
-      @click="zoomImage(images[0]?.url || '')"
+      @click="zoomImage(images[0]?.url || '', images[0]?.index || 0)"
       height="100%"
       :ratio="1"
       spinner-size="md"
@@ -106,8 +106,8 @@ const props = defineProps({
 
 const dragIndex = ref<number | null>(null);
 
-function zoomImage(src?: string) {
-  emit('open-zoom-dialog', src);
+function zoomImage(src?: string, index?: number) {
+  emit('open-zoom-dialog', src, index);
 }
 
 function removeAt(index: number) {

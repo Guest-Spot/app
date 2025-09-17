@@ -20,8 +20,18 @@
       <!-- Image Container -->
       <q-card-section class="q-pt-none image-container" ref="imageContainer">
         <div class="full-width full-height flex justify-center items-center">
-          <q-img
-            v-if="imageSrc"
+          <!-- Normal Preview Mode -->
+          <Cropper
+            v-if="isCropMode && imageSrc"
+            ref="cropperRef"
+            :src="imageSrc"
+            auto-zoom
+            :default-boundaries="defaultBoundaries"
+            image-restriction="fit-area"
+            class="cropper-component"
+          />
+           <q-img
+            v-else-if="imageSrc"
             ref="imageRef"
             :src="imageSrc"
             fit="contain"
@@ -42,7 +52,34 @@
 
       <!-- Footer Actions -->
       <q-card-section class="dialog-footer q-mt-auto bg-block">
-        <div class="row justify-center q-gap-sm">
+        <!-- Crop Mode Actions -->
+        <div v-if="isCropMode" class="row justify-center q-gap-sm">
+          <q-btn
+            label="Cancel"
+            class="bg-block"
+            unelevated
+            rounded
+            @click="cancelCrop"
+          />
+          <q-btn
+            label="Apply Crop"
+            color="primary"
+            unelevated
+            rounded
+            @click="applyCrop"
+          />
+        </div>
+        <!-- Normal Mode Actions -->
+        <div v-else class="row justify-center q-gap-sm">
+          <q-btn
+            v-if="allowCropping && imageSrc"
+            icon="crop"
+            label="Crop"
+            class="bg-block"
+            unelevated
+            rounded
+            @click="toggleCropMode"
+          />
           <q-btn
             :icon="isZoomed ? 'zoom_out' : 'zoom_in'"
             :label="isZoomed ? 'Zoom Out' : 'Zoom In'"
@@ -68,6 +105,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { Cropper } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css';
 
 type ElementRef = HTMLElement | { $el: HTMLElement } | null;
 
@@ -78,25 +117,24 @@ defineOptions({
 interface Props {
   modelValue: boolean;
   imageSrc?: string | null;
+  allowCropping?: boolean;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
+  (e: 'cropped', value: { canvas: HTMLCanvasElement; coordinates: unknown }): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const isZoomed = ref(false);
+const imageRef = ref<ElementRef>(null);
 const translateX = ref(0);
 const translateY = ref(0);
 const imageContainer = ref<ElementRef>(null);
-const imageRef = ref<ElementRef>(null);
-
-const dialogModel = computed({
-  get: () => props.modelValue,
-  set: (value: boolean) => emit('update:modelValue', value),
-});
+const isCropMode = ref(false);
+const cropperRef = ref<{ getResult: () => { canvas: HTMLCanvasElement; coordinates: unknown } } | null>(null);
 
 // Computed style for image transform
 const imageStyle = computed(() => {
@@ -105,6 +143,31 @@ const imageStyle = computed(() => {
   return {
     transform: `scale(1.5) translate(${translateX.value}px, ${translateY.value}px)`,
   };
+});
+
+// Cropper boundaries function to fit within screen
+const defaultBoundaries = () => {
+  const containerElement = imageContainer.value;
+  if (!containerElement) return { width: 800, height: 600 };
+
+  // Handle both HTMLElement and Vue component reference
+  const element = 'getBoundingClientRect' in containerElement
+    ? containerElement
+    : (containerElement as { $el: HTMLElement }).$el;
+
+  const containerRect = element.getBoundingClientRect();
+  const maxWidth = Math.min(containerRect.width, window.innerWidth * 0.95);
+  const maxHeight = Math.min(containerRect.height, window.innerHeight * 0.7);
+
+  return {
+    width: maxWidth,
+    height: maxHeight
+  };
+};
+
+const dialogModel = computed({
+  get: () => props.modelValue,
+  set: (value: boolean) => emit('update:modelValue', value),
 });
 
 // Methods
@@ -118,6 +181,41 @@ function toggleZoom() {
 function resetPosition() {
   translateX.value = 0;
   translateY.value = 0;
+}
+
+function downloadImage() {
+  if (!props.imageSrc) return;
+
+  const link = document.createElement('a');
+  link.href = props.imageSrc;
+  link.download = `image-${Date.now()}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function toggleCropMode() {
+  isCropMode.value = !isCropMode.value;
+  isZoomed.value = false;
+  if (!isCropMode.value) {
+    resetPosition();
+  }
+}
+
+function applyCrop() {
+  if (!cropperRef.value) return;
+
+  const { canvas, coordinates } = cropperRef.value.getResult();
+  if (canvas && coordinates) {
+    emit('cropped', { canvas, coordinates });
+    isZoomed.value = false;
+    isCropMode.value = false;
+  }
+}
+
+function cancelCrop() {
+  isCropMode.value = false;
+  isZoomed.value = false;
 }
 
 function getElement(elementRef: ElementRef): HTMLElement | null {
@@ -176,20 +274,10 @@ function onPan(evt: { delta?: { x?: number; y?: number } }) {
   translateY.value = Math.max(minY, Math.min(maxY, newY));
 }
 
-function downloadImage() {
-  if (!props.imageSrc) return;
-
-  const link = document.createElement('a');
-  link.href = props.imageSrc;
-  link.download = `image-${Date.now()}.png`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
 // Reset zoom and position when dialog closes
 watch(dialogModel, (newValue) => {
   if (!newValue) {
+    isCropMode.value = false;
     isZoomed.value = false;
     resetPosition();
   }
@@ -228,6 +316,19 @@ watch(dialogModel, (newValue) => {
     position: sticky;
     bottom: 0;
     z-index: 10;
+  }
+
+  .cropper-component {
+    max-width: 100vw;
+    max-height: 70vh;
+    width: 100%;
+    height: 100%;
+
+    // Ensure cropper doesn't overflow
+    :deep(.vue-advanced-cropper__foreground),
+    :deep(.vue-advanced-cropper__background) {
+      background: transparent;
+    }
   }
 }
 </style>
