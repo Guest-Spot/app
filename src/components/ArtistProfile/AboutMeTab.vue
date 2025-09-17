@@ -4,8 +4,9 @@
       :images="artistData.avatar ? [artistData.avatar] : []"
       placeholder-icon="person"
       placeholder="Upload avatar"
-      @on-change="imagesForUpload = $event"
+      @on-upload="imagesForUpload = $event"
       @on-remove="imagesForRemove = $event"
+      @on-update="onUpdateImages"
     />
 
     <!-- BIO Section -->
@@ -248,6 +249,11 @@ async function deleteImages(): Promise<void> {
     }
   }
 }
+
+const onUpdateImages = (files: { id: string; file: File }[]) => {
+  imagesForRemove.value = files.map((file) => file.id);
+  imagesForUpload.value = files.map((file) => file.file);
+};
 
 const saveChanges = async () => {
   saveLoading.value = true;

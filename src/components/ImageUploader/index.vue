@@ -55,7 +55,7 @@ defineOptions({
   name: 'ImageUploader',
 });
 
-const emit = defineEmits(['on-change', 'on-remove']);
+const emit = defineEmits(['on-upload', 'on-remove', 'on-update']);
 
 const props = defineProps({
   images: {
@@ -111,6 +111,7 @@ const previewDialogSrc = ref<string | null>(null);
 const currentImageIndex = ref<number | null>(null);
 const imagesIdsForRemove = ref<string[]>([]);
 const filesForUpload = ref<{ file: File | null; id: string }[]>([]);
+const filesForUpdate = ref<{ file: File | null; id: string }[]>([]);
 
 // Import dialog component statically
 import { ImagePreviewDialog } from 'src/components/Dialogs';
@@ -162,7 +163,7 @@ async function onChangeImage(input: File | File[]) {
   imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
   filesForUpload.value = [...filesForUpload.value, ...newFilesList];
   emit(
-    'on-change',
+    'on-upload',
     filesForUpload.value.map((f) => f.file),
   );
 }
@@ -186,6 +187,7 @@ function onImageCropped({ file, base64 }: { file: File; base64: string }) {
 
   // Update preview
   const updatedImage = { ...imageToReplace, url: base64 };
+
   const imageIndex = imagesPreview.value.findIndex((img) => img.index === currentImageIndex.value);
   if (imageIndex !== -1) {
     imagesPreview.value[imageIndex] = updatedImage;
@@ -195,12 +197,18 @@ function onImageCropped({ file, base64 }: { file: File; base64: string }) {
   const fileIndex = filesForUpload.value.findIndex((f) => f.id === imageToReplace.id);
   if (fileIndex !== -1) {
     filesForUpload.value[fileIndex] = { file, id: filesForUpload.value[fileIndex]?.id || '' };
+    emit(
+      'on-upload',
+      filesForUpload.value.map((f) => f.file),
+    );
+  } else {
+    filesForUpdate.value.push({ file, id: imageToReplace.id });
+    emit(
+      'on-update',
+      filesForUpdate.value,
+    );
   }
 
-  emit(
-    'on-change',
-    filesForUpload.value.map((f) => f.file),
-  );
 }
 
 watch(
