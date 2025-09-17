@@ -5,8 +5,8 @@
       'image-uploader--round': round,
     }"
     :style="{
-      width: width ? `${width}px` : '100%',
-      height: height ? `${height}px` : '100%',
+      width: width ? `${width}px` :  '',
+      height: height ? `${height}px` : '',
     }"
   >
     <PreviewImages
@@ -18,7 +18,7 @@
     />
 
     <UploadForm
-      v-if="!hasImages && !multiple"
+      v-if="(!hasImages && !multiple) || multiple"
       :multiple="multiple"
       :hint="hint"
       :rules="rules"
@@ -172,7 +172,7 @@ function onRemoveImage(index: number) {
 watch(
   () => props.images,
   (newValue, oldValue) => {
-    if (!newValue || newValue === oldValue) return;
+    if (!newValue.length || newValue === oldValue) return;
     imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
   },
@@ -187,7 +187,7 @@ watch(
   text-align: center;
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 200px;
   min-height: 200px;
   overflow-x: auto;
   overflow-y: hidden;

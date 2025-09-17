@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
-      <ProfileHeader class="q-mb-md" :name="profile?.name || ''" />
+      <ProfileHeader class="q-mb-md" :name="profile?.name || ''" @openPublicProfile="openPublicProfile" />
     </div>
 
     <div class="container">
@@ -16,16 +16,9 @@
     </div>
 
     <div class="container">
-      <!-- Main Content Area -->
-      <div class="main-content flex column q-gap-md">
-        <!-- Tab Content -->
-        <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <AboutMeTab />
-        </div>
-        <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
-          <PortfolioTab />
-        </div>
-      </div>
+      <!-- Tab Content -->
+      <AboutMeTab v-if="activeTab.tab === TAB_ABOUT" />
+      <PortfolioTab v-else-if="activeTab.tab === TAB_PORTFOLIO" />
     </div>
   </q-page>
 </template>
@@ -37,6 +30,7 @@ import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import { useProfileStore } from 'src/stores/profile';
+import { useRouter } from 'vue-router';
 
 const profileStore = useProfileStore();
 const profile = computed(() => profileStore.getArtistProfile);
@@ -55,10 +49,16 @@ const TABS: ITab[] = [
   },
 ];
 
+const router = useRouter();
+
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
+};
+
+const openPublicProfile = () => {
+  void router.push(`/artist/${profile.value?.documentId}`);
 };
 </script>

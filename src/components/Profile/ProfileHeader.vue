@@ -34,6 +34,7 @@
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
+import useNotify from 'src/modules/useNotify';
 
 defineOptions({
   name: 'ProfileHeader',
@@ -51,6 +52,7 @@ const emit = defineEmits(['openPublicProfile']);
 const router = useRouter();
 const $q = useQuasar();
 const { logout } = useUser();
+const { showSuccess } = useNotify();
 
 const handleLogout = () => {
   $q.dialog({
@@ -68,6 +70,7 @@ const handleLogout = () => {
     },
   }).onOk(() => {
     void logout();
+    showSuccess('Logout successful');
     void router.push('/');
   });
 };

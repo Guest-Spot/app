@@ -27,3 +27,11 @@ export interface IGraphQLArtistsResult {
 export interface IGraphQLArtistResult {
   artist: IArtist;
 }
+
+export interface IArtistFormData {
+  name: string;
+  description: string;
+  phone?: string;
+  email?: string;
+  avatar?: IPicture | null;
+}

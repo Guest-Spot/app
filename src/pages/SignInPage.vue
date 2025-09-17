@@ -120,7 +120,7 @@ const handleLogin = async () => {
       }
       $q.notify({
         type: 'primary',
-        message: 'Login successful!',
+        message: 'Login successful',
         position: 'top',
         timeout: 1500,
         color: 'dark',

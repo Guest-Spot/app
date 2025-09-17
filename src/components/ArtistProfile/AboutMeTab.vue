@@ -1,11 +1,12 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <div class="flex items-center justify-center full-width">
-      <ImageUploader
-        placeholder-icon="person"
-        placeholder="Upload avatar"
-      />
-    </div>
+    <ImageUploader
+      :images="artistData.avatar ? [artistData.avatar] : []"
+      placeholder-icon="person"
+      placeholder="Upload avatar"
+      @on-change="imagesForUpload = $event"
+      @on-remove="imagesForRemove = $event"
+    />
 
     <!-- BIO Section -->
     <q-expansion-item
@@ -35,7 +36,7 @@
             type="textarea"
             placeholder="Tell us about yourself..."
             class="custom-input"
-            v-model="artistData.bio"
+            v-model="artistData.description"
             rows="4"
           />
         </div>
@@ -75,60 +76,178 @@
       </div>
     </q-expansion-item>
 
-    <!-- Links Section -->
-    <q-expansion-item
-      icon="link"
-      label="Links"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Instagram</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter Instagram link"
-            class="custom-input"
-            v-model="artistData.instagram"
-          />
-        </div>
-      </div>
-    </q-expansion-item>
-
     <!-- Theme Settings -->
     <ThemeSettings />
 
     <!-- Save Button -->
-    <div class="save-section">
-      <q-btn class="full-width bg-block" @click="saveChanges" rounded size="lg" unelevated>
+    <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
+      <q-btn
+        class="full-width bg-block"
+        @click="saveChanges"
+        rounded
+        size="lg"
+        :text-color="!!hasChanges ? 'primary' : ''"
+        unelevated
+        :loading="saveLoading"
+        :disable="saveLoading"
+      >
         <q-icon name="save" size="18px" />
         <span class="q-ml-sm text-subtitle1">Save changes</span>
+        <template #loading>
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-spinner size="sm" />
+            <span class="q-ml-sm text-subtitle1">Saving...</span>
+          </div>
+        </template>
       </q-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
+import type { IArtistFormData } from 'src/interfaces/artist';
+import { useProfileStore } from 'src/stores/profile';
+import { useMutation } from '@vue/apollo-composable';
+import { UPDATE_ARTIST_MUTATION } from 'src/apollo/types/mutations/artist';
+import useNotify from 'src/modules/useNotify';
+import { uploadFiles, type UploadFileResponse } from 'src/api';
+import { compareAndReturnDifferences } from 'src/helpers/handleObject';
+import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
+import useUser from 'src/modules/useUser';
+
+const profileStore = useProfileStore();
+const { showSuccess, showError } = useNotify();
+const { fetchMe } = useUser();
+
+// Setup mutation
+const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_ARTIST_MUTATION);
+const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
-const artistData = ref({
-  username: 'artist_john',
-  name: 'John Doe',
-  status: 'Available for bookings',
-  bio: 'Passionate artist with 5+ years of experience in live performances and studio recordings.',
-  phone: '+1 (555) 123-4567',
-  email: 'john.doe@example.com',
-  instagram: 'https://instagram.com/johndoe_artist',
+const artistData = reactive<IArtistFormData>({
+  name: '',
+  description: '',
+  phone: '',
+  email: '',
+  avatar: null,
+});
+// NOTE: This variable is used to compare the original data with the new data
+const artistDataOriginal = { ...artistData };
+// ------------------------------------------------------------------------//
+
+const imagesForRemove = ref<string[]>([]);
+const imagesForUpload = ref<File[]>([]);
+const saveLoading = ref(false);
+
+const hasChanges = computed(
+  () =>
+    Object.keys(compareAndReturnDifferences(artistDataOriginal, artistData)).length > 0 ||
+    imagesForUpload.value.length > 0 ||
+    imagesForRemove.value.length > 0,
+);
+
+// Prepare data for mutation
+const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
+  const preparedData = {
+    ...artistData,
+    ...(uploadedFiles.length > 0 && {
+      avatar: uploadedFiles[0]?.id,
+    }),
+  };
+
+  // Remove avatar field if no new image and no existing image
+  if (!preparedData.avatar && imagesForRemove.value.length > 0) {
+    preparedData.avatar = null;
+  }
+
+  const differences = compareAndReturnDifferences(artistDataOriginal, preparedData);
+  return differences;
+};
+
+async function upload(): Promise<UploadFileResponse[] | []> {
+  if (imagesForUpload.value.length > 0) {
+    return await uploadFiles(imagesForUpload.value);
+  }
+  return [];
+}
+
+async function deleteImages(): Promise<void> {
+  if (imagesForRemove.value.length > 0) {
+    for (const id of imagesForRemove.value) {
+      await deleteImage({
+        id,
+      });
+    }
+  }
+}
+
+const saveChanges = async () => {
+  saveLoading.value = true;
+  try {
+    const artistProfile = profileStore.getArtistProfile;
+    if (!artistProfile?.documentId) {
+      throw new Error('Artist profile not found');
+    }
+
+    await deleteImages();
+    const uploadedFiles: UploadFileResponse[] = await upload();
+
+    const data = prepareDataForMutation(uploadedFiles);
+
+    void updateArtist({
+      documentId: artistProfile.documentId,
+      data,
+    });
+  } catch (error) {
+    console.error('Error updating data:', error);
+    showError('Error updating data');
+  } finally {
+    saveLoading.value = false;
+  }
+};
+
+onDoneUpdateArtist((result) => {
+  if (result.errors?.length) {
+    console.error('Error updating artist:', result.errors);
+    showError('Error updating artist');
+    return;
+  }
+
+  if (result.data?.updateArtist) {
+    void (async () => {
+      const userData = await fetchMe();
+      if (userData) {
+        profileStore.setUserProfile(userData);
+      }
+    })();
+    Object.assign(artistDataOriginal, { ...artistData });
+    imagesForUpload.value = [];
+    imagesForRemove.value = [];
+    showSuccess('Artist profile successfully updated');
+  }
 });
 
-const saveChanges = () => {
-  console.log('Saving artist changes...', artistData.value);
-};
+watch(
+  () => profileStore.getArtistProfile,
+  (profile) => {
+    Object.assign(artistData, {
+      name: profile?.name || '',
+      description: profile?.description || '',
+      phone: profile?.phone || '',
+      email: profile?.email || '',
+      avatar: profile?.avatar ? {
+        url: profile?.avatar?.url,
+        id: profile?.avatar?.id,
+        index: profile?.avatar?.index || 0,
+      } : null,
+    });
+    Object.assign(artistDataOriginal, { ...artistData });
+  },
+  { immediate: true },
+);
 
 // Expose data for parent component
 defineExpose({
@@ -178,8 +297,13 @@ defineExpose({
   margin-bottom: 8px;
 }
 
-.save-section {
+.save-btn {
   margin-top: 20px;
   text-align: center;
+
+  &--active {
+    position: sticky;
+    bottom: 90px;
+  }
 }
 </style>

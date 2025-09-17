@@ -59,7 +59,7 @@
       :src="images[0]?.url || undefined"
       @click="zoomImage(images[0]?.url || '')"
       height="100%"
-      fit="cover"
+      :ratio="1"
       spinner-size="md"
       spinner-color="grey"
       class="full-width full-height"
