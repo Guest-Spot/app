@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import type { IGraphQLArtistsResult } from 'src/interfaces/artist';
@@ -15,11 +15,6 @@ export default function useArtists() {
   const artistsStore = useArtistsStore();
   const { convertFiltersToGraphQLFilters } = useHelpers();
 
-  // Pagination
-  const ITEMS_PER_PAGE = 15;
-  const artistsPage = ref(1);
-  const hasMoreArtists = ref(true);
-
   const {
     load: loadArtists,
     refetch: refetchArtists,
@@ -30,13 +25,14 @@ export default function useArtists() {
 
   const artists = computed(() => artistsStore.getArtists);
   const totalArtists = computed(() => artistsStore.getTotal);
+  const hasMoreArtists = computed(() => artistsStore.getHasMore);
 
   const fetchArtists = (
     activeFilters: IFilters,
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
-    if (!hasMoreArtists.value) {
+    if (!artistsStore.getHasMore) {
       return;
     }
 
@@ -49,15 +45,15 @@ export default function useArtists() {
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
         : undefined,
       pagination: {
-        page: artistsPage.value,
-        pageSize: ITEMS_PER_PAGE,
+        page: artistsStore.getPage,
+        pageSize: artistsStore.getPageSize,
       },
     });
   };
 
   const resetArtistsPagination = () => {
-    artistsPage.value = 2; // Start from page 2 since we're loading page 1 initially
-    hasMoreArtists.value = true;
+    artistsStore.setPage(1);
+    artistsStore.setHasMore(true);
     artistsStore.clearArtists();
   };
 
@@ -73,7 +69,7 @@ export default function useArtists() {
         : undefined,
       pagination: {
         page: 1,
-        pageSize: ITEMS_PER_PAGE,
+        pageSize: artistsStore.getPageSize,
       },
     });
   };
@@ -85,16 +81,16 @@ export default function useArtists() {
       // Append new data for load more
       if (data.artists.length > 0) {
         artistsStore.setArtists([...artistsStore.getArtists, ...data.artists]);
-        artistsPage.value++;
+        artistsStore.setPage(artistsStore.getPage + 1);
       } else {
-        hasMoreArtists.value = false;
+        artistsStore.setHasMore(false);
       }
     }
   });
 
   onErrorArtists((error) => {
     console.error('Error fetching artists:', error);
-    hasMoreArtists.value = false;
+    artistsStore.setHasMore(false);
   });
 
   return {
