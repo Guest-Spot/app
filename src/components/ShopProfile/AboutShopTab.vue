@@ -6,8 +6,9 @@
       placeholder="Upload images"
       multiple
       placeholderIcon="photo_library"
-      @on-change="imagesForUpload = $event"
+      @on-upload="imagesForUpload = $event"
       @on-remove="imagesForRemove = $event"
+      @on-update="onUpdateImages"
     />
 
     <!-- Basic Information -->
@@ -216,7 +217,7 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
     ...(uploadedFiles.length > 0 && {
       pictures: [
         ...uploadedFiles.map((file) => file.id),
-        ...shopData.pictures.map((picture) => picture.id),
+        ...shopData.pictures.map((picture) => picture.id).filter((id) => !imagesForRemove.value.includes(id)),
       ],
     }),
   };
@@ -240,6 +241,11 @@ async function deleteImages(): Promise<void> {
     }
   }
 }
+
+const onUpdateImages = (files: { id: string; file: File }[]) => {
+  imagesForRemove.value = files.map((file) => file.id);
+  imagesForUpload.value = files.map((file) => file.file);
+};
 
 const saveChanges = async () => {
   saveLoading.value = true;
