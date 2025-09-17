@@ -16,17 +16,6 @@
     >
       <div class="info-section">
         <div class="input-group">
-          <label class="input-label">Username</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter username"
-            class="custom-input"
-            v-model="artistData.username"
-          />
-        </div>
-        <div class="input-group">
           <label class="input-label">Name</label>
           <q-input
             outlined
@@ -35,17 +24,6 @@
             placeholder="Enter name"
             class="custom-input"
             v-model="artistData.name"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Status</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter status"
-            class="custom-input"
-            v-model="artistData.status"
           />
         </div>
         <div class="input-group">
