@@ -68,14 +68,17 @@
                     rounded
                     flat
                     dense
-                    label="Invite to shop"
-                    icon="person_add"
                     color="primary"
                     class="bg-block full-width"
-                    :loading="isInviting"
-                    :disable="isInviting"
-                    @click.stop="inviteArtist(artist)"
-                  />
+                    :loading="invitingArtist"
+                    :disable="invitingArtist"
+                    @click.stop="sendInvitation(artist)"
+                  >
+                    <div class="flex items-center q-gap-sm">
+                      <q-icon name="person_add" size="18px" />
+                      <span>Invite to shop</span>
+                    </div>
+                  </q-btn>
                 </template>
               </ArtistCard>
               <template #loading>
@@ -93,8 +96,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
-import { useLazyQuery, useMutation } from '@vue/apollo-composable';
+import { useLazyQuery } from '@vue/apollo-composable';
 import { ArtistCard, SearchHeader } from 'src/components/SearchPage';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import type { IArtist, IGraphQLArtistsResult } from 'src/interfaces/artist';
@@ -106,9 +108,9 @@ import { useCitiesStore } from 'src/stores/cities';
 import { CITIES_QUERY } from 'src/apollo/types/city';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useHelpers from 'src/modules/useHelpers';
-import { INVITE_ARTIST_MUTATION } from 'src/apollo/types/mutations/shopArtists';
-import type { IBooking } from 'src/interfaces/booking';
 import useNotify from 'src/modules/useNotify';
+import useShopArtists from 'src/composables/useShopArtists';
+import { useProfileStore } from 'src/stores/profile';
 
 // Sort settings interface
 interface SortSettings {
@@ -128,10 +130,11 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const $q = useQuasar();
+const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useShopArtists();
 const citiesStore = useCitiesStore();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showSuccess, showError } = useNotify();
+const profileStore = useProfileStore();
 
 const isVisible = ref(props.modelValue);
 const searchQuery = ref('');
@@ -171,14 +174,6 @@ const {
   onResult: onResultCities,
   onError: onErrorCities,
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
-
-// Mutation for inviting artist
-const {
-  mutate: inviteArtistMutation,
-  loading: isInviting,
-  onDone: onInviteSuccess,
-  onError: onInviteError,
-} = useMutation<{ createBooking: IBooking }>(INVITE_ARTIST_MUTATION);
 
 const title = computed(() => {
   if (totalArtists.value === 0) {
@@ -224,6 +219,16 @@ watch(
 );
 
 // Methods
+const sendInvitation = (artist: IArtist) => {
+  const shop = profileStore.shopProfile;
+  if (!shop) {
+    showError('Shop profile not found');
+    console.error('Shop profile not found');
+    return;
+  }
+  void inviteArtist(shop, artist);
+};
+
 const resetPagination = () => {
   currentPage.value = 1;
   localArtists.value = [];
@@ -295,47 +300,6 @@ const selectArtist = (artist: IArtist) => {
   console.log('Artist selected:', artist);
 };
 
-const inviteArtist = (artist: IArtist) => {
-  $q.dialog({
-    title: 'Invite Artist',
-    message: `Are you sure you want to invite <strong class="text-primary">${artist.name}</strong> to your shop?`,
-    persistent: true,
-    html: true,
-    ok: {
-      label: 'Yes, Invite',
-      color: 'primary',
-      rounded: true,
-      unelevated: true,
-    },
-    cancel: {
-      label: 'Cancel',
-      color: 'grey-9',
-      rounded: true
-    },
-  }).onOk(() => {
-    if (!props.shopId) {
-      showError('Shop ID is required to send invitation');
-      return;
-    }
-
-    // Create invitation as a special booking
-    void inviteArtistMutation({
-      data: {
-        title: 'Shop Invitation',
-        description: `You have been invited to showcase your work at our shop.`,
-        shopDocumentId: props.shopId.toString(),
-        artistDocumentId: artist.documentId,
-        type: 'shop-to-artist',
-        status: 'pending',
-        // Set invitation dates to today as placeholder
-        date: new Date().toISOString().split('T')[0],
-        startTime: '09:00',
-        endTime: '18:00',
-      },
-    });
-  });
-};
-
 // Handle query results
 onArtistsResult(({ data, loading }) => {
   if (!loading && data?.artists) {
@@ -372,13 +336,10 @@ onErrorCities((error) => {
 // Handle invitation success
 onInviteSuccess(({ data }) => {
   const invitedArtist = localArtists.value.find((a) =>
-    a.documentId === data?.createBooking?.artistDocumentId
+    a.documentId === data?.createInvite?.recipient
   );
-
   if (invitedArtist) {
     showSuccess(`Invitation sent to ${invitedArtist.name}!`);
-    emit('artistInvited', invitedArtist);
-    closeDialog();
   }
 });
 

@@ -73,7 +73,7 @@
       </div>
 
       <!-- Booking Button -->
-      <div class="action-buttons flex justify-center q-mt-lg">
+      <div class="action-buttons flex justify-center q-mt-lg q-gap-sm">
         <q-btn
           unelevated
           rounded
@@ -83,6 +83,27 @@
         >
           <span class="text-body2">Booking request</span>
           <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+        </q-btn>
+        <q-btn
+          v-if="menuItems.length"
+          unelevated
+          round
+          class="bg-block"
+          text-color="primary"
+          icon="more_horiz"
+        >
+          <q-menu anchor="top end" self="bottom end" :offset="[0, 4]" style="width: 210px">
+            <q-list>
+              <q-item clickable v-ripple v-for="item in menuItems" :key="item.label" @click="item.onClick">
+                <q-item-section>
+                  <q-item-label>{{ item.label }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-icon :name="item.icon" size="16px" color="primary" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
         </q-btn>
       </div>
     </div>
@@ -117,6 +138,7 @@ import { TRIPS_QUERY } from 'src/apollo/types/trip';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
+import { useUserStore } from 'src/stores/user';
 
 const {
   load: loadArtist,
@@ -139,6 +161,7 @@ const {
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const route = useRoute();
 const artistsStore = useArtistsStore();
+const userStore = useUserStore();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -174,6 +197,15 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
+
+const menuItems = computed(() => [
+  {
+    label: 'Invite to my shop',
+    icon: 'person_add',
+    visible: userStore.isShop,
+    onClick: () => {},
+  },
+].filter((item) => item.visible));
 
 const TABS = computed<ITab[]>(() => [
   {
