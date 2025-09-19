@@ -93,6 +93,8 @@
                 v-ripple
                 v-for="item in menuItems"
                 :key="item.label"
+                :loading="!!item.loading"
+                :disable="!!item.loading"
                 @click="item.onClick"
               >
                 <q-item-section>
@@ -139,6 +141,9 @@ import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
 import { useUserStore } from 'src/stores/user';
+import useShopArtists from 'src/composables/useShopArtists';
+import { useProfileStore } from 'src/stores/profile';
+import useNotify from 'src/modules/useNotify';
 
 const {
   load: loadArtist,
@@ -162,6 +167,9 @@ const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const route = useRoute();
 const artistsStore = useArtistsStore();
 const userStore = useUserStore();
+const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useShopArtists();
+const profileStore = useProfileStore();
+const { showError, showSuccess } = useNotify();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -204,7 +212,16 @@ const menuItems = computed(() =>
       label: 'Invite to my shop',
       icon: 'person_add',
       visible: userStore.isShop,
-      onClick: () => {},
+      loading: invitingArtist.value,
+      onClick: () => {
+        const shop = profileStore.shopProfile;
+        if (!shop) {
+          showError('Shop profile not found');
+          console.error('Shop profile not found');
+          return;
+        }
+        void inviteArtist(shop, artistData.value);
+      },
     },
   ].filter((item) => item.visible),
 );
@@ -331,6 +348,15 @@ onResultPortfolio((result) => {
 
 onErrorPortfolio((error) => {
   console.error('Error fetching portfolio:', error);
+});
+
+onInviteSuccess(() => {
+  showSuccess(`Invitation sent to ${artistData.value?.name}!`);
+});
+
+onInviteError((error) => {
+  console.error('Error sending invitation:', error);
+  showError('Failed to send invitation. Please try again.');
 });
 
 // Load all data on component mount
