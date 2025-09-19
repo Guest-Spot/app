@@ -191,7 +191,7 @@ const shopsTitle = computed(() => {
   }
   return `Shops (${shops.value.length}/${totalShops.value})`;
 });
-const artistsTitle = computed(() =>{
+const artistsTitle = computed(() => {
   if (totalArtists.value === 0) {
     return `Artists`;
   }

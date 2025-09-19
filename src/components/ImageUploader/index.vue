@@ -5,7 +5,7 @@
       'image-uploader--round': round,
     }"
     :style="{
-      width: width ? `${width}px` :  '',
+      width: width ? `${width}px` : '',
       height: height ? `${height}px` : '',
     }"
   >
@@ -203,12 +203,8 @@ function onImageCropped({ file, base64 }: { file: File; base64: string }) {
     );
   } else {
     filesForUpdate.value.push({ file, id: imageToReplace.id });
-    emit(
-      'on-update',
-      filesForUpdate.value,
-    );
+    emit('on-update', filesForUpdate.value);
   }
-
 }
 
 watch(

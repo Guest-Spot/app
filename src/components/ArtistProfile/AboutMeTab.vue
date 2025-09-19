@@ -133,7 +133,7 @@
             clearable
             suffix="years"
             v-model.number="artistData.experience"
-            :rules="[val => val >= 1 || 'Experience must be at least 1 year']"
+            :rules="[(val) => val >= 1 || 'Experience must be at least 1 year']"
           />
         </div>
       </div>
@@ -306,11 +306,13 @@ watch(
   (profile) => {
     Object.assign(artistData, {
       ...profile,
-      avatar: profile?.avatar ? {
-        url: profile?.avatar?.url,
-        id: profile?.avatar?.id,
-        index: profile?.avatar?.index || 0,
-      } : null,
+      avatar: profile?.avatar
+        ? {
+            url: profile?.avatar?.url,
+            id: profile?.avatar?.id,
+            index: profile?.avatar?.index || 0,
+          }
+        : null,
     });
     Object.assign(artistDataOriginal, { ...artistData });
   },

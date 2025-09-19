@@ -1,10 +1,10 @@
-import { ref } from "vue";
-import type { IArtist } from "src/interfaces/artist";
-import { useQuasar } from "quasar";
-import useNotify from "src/modules/useNotify";
-import { useMutation } from "@vue/apollo-composable";
-import { CREATE_INVITE_MUTATION } from "src/apollo/types/invite";
-import type { IShop } from "src/interfaces/shop";
+import { ref } from 'vue';
+import type { IArtist } from 'src/interfaces/artist';
+import { useQuasar } from 'quasar';
+import useNotify from 'src/modules/useNotify';
+import { useMutation } from '@vue/apollo-composable';
+import { CREATE_INVITE_MUTATION } from 'src/apollo/types/invite';
+import type { IShop } from 'src/interfaces/shop';
 
 const useShopArtists = () => {
   const $q = useQuasar();
@@ -34,7 +34,7 @@ const useShopArtists = () => {
       cancel: {
         label: 'Cancel',
         color: 'grey-9',
-        rounded: true
+        rounded: true,
       },
     }).onOk(() => {
       if (!shop.documentId) {

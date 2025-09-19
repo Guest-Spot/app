@@ -6,7 +6,8 @@ export const useScrollStore = defineStore('scroll', {
   }),
   getters: {
     getScrollPositions: (state) => state.scrollPositions,
-    getScrollPosition: (state) => (path: string) => state.scrollPositions[path as keyof typeof state.scrollPositions],
+    getScrollPosition: (state) => (path: string) =>
+      state.scrollPositions[path as keyof typeof state.scrollPositions],
   },
   actions: {
     setScrollPosition(path: string, position: number) {

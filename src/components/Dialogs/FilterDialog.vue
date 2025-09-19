@@ -119,10 +119,10 @@ watch(isVisible, (newValue) => {
 
 const filterFn = (val: string, update: (value: () => void) => void) => {
   update(() => {
-    const needle = val.toLocaleLowerCase()
-    cities.value = citiesStore.getCities.filter(v => v.toLocaleLowerCase().indexOf(needle) > -1)
-  })
-}
+    const needle = val.toLocaleLowerCase();
+    cities.value = citiesStore.getCities.filter((v) => v.toLocaleLowerCase().indexOf(needle) > -1);
+  });
+};
 
 const onChangeFilters = () => {
   if (!props.noRouteReplace) {

@@ -1,11 +1,12 @@
 <template>
   <!-- Dialogs -->
-  <SearchDialog
-    v-model="showSearchDialog"
-    v-model:query="searchQuery"
+  <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" no-route-replace />
+  <FilterDialog
+    v-model="showFilterDialog"
+    v-model:filterValue="activeFilters"
     no-route-replace
+    unelevated
   />
-  <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" no-route-replace unelevated />
   <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
 
   <q-dialog v-model="isVisible" position="bottom" maximized no-route-dismiss>
@@ -335,8 +336,8 @@ onErrorCities((error) => {
 
 // Handle invitation success
 onInviteSuccess(({ data }) => {
-  const invitedArtist = localArtists.value.find((a) =>
-    a.documentId === data?.createInvite?.recipient
+  const invitedArtist = localArtists.value.find(
+    (a) => a.documentId === data?.createInvite?.recipient,
   );
   if (invitedArtist) {
     showSuccess(`Invitation sent to ${invitedArtist.name}!`);

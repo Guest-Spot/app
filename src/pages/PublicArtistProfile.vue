@@ -74,13 +74,7 @@
 
       <!-- Booking Button -->
       <div class="action-buttons flex justify-center q-mt-lg q-gap-sm">
-        <q-btn
-          unelevated
-          rounded
-          class="bg-block"
-          text-color="primary"
-          @click="openBookingDialog"
-        >
+        <q-btn unelevated rounded class="bg-block" text-color="primary" @click="openBookingDialog">
           <span class="text-body2">Booking request</span>
           <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
         </q-btn>
@@ -94,7 +88,13 @@
         >
           <q-menu anchor="top end" self="bottom end" :offset="[0, 4]" style="width: 210px">
             <q-list>
-              <q-item clickable v-ripple v-for="item in menuItems" :key="item.label" @click="item.onClick">
+              <q-item
+                clickable
+                v-ripple
+                v-for="item in menuItems"
+                :key="item.label"
+                @click="item.onClick"
+              >
                 <q-item-section>
                   <q-item-label>{{ item.label }}</q-item-label>
                 </q-item-section>
@@ -198,14 +198,16 @@ const trips = ref<ITrip[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 
-const menuItems = computed(() => [
-  {
-    label: 'Invite to my shop',
-    icon: 'person_add',
-    visible: userStore.isShop,
-    onClick: () => {},
-  },
-].filter((item) => item.visible));
+const menuItems = computed(() =>
+  [
+    {
+      label: 'Invite to my shop',
+      icon: 'person_add',
+      visible: userStore.isShop,
+      onClick: () => {},
+    },
+  ].filter((item) => item.visible),
+);
 
 const TABS = computed<ITab[]>(() => [
   {
