@@ -68,6 +68,10 @@ const props = defineProps({
     type: Object as PropType<IFilters>,
     required: true,
   },
+  noRouteReplace: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['update:modelValue', 'update:filterValue', 'clearFilters']);
@@ -106,7 +110,9 @@ watch(isVisible, (newValue) => {
 });
 
 const onChangeFilters = () => {
-  void router.replace({ query: { ...route.query, ...filters.value } });
+  if (!props.noRouteReplace) {
+    void router.replace({ query: { ...route.query, ...filters.value } });
+  }
   emit('update:filterValue', filters.value);
 };
 
@@ -118,7 +124,9 @@ const clearFilters = () => {
   filters.value = {
     city: null,
   };
-  void router.replace({ query: { ...route.query, ...filters.value } });
+  if (!props.noRouteReplace) {
+    void router.replace({ query: { ...route.query, ...filters.value } });
+  }
   emit('update:filterValue', filters.value);
 };
 

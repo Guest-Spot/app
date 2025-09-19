@@ -1,5 +1,14 @@
 <template>
-  <q-dialog v-model="isVisible" position="bottom" maximized>
+  <!-- Dialogs -->
+  <SearchDialog
+    v-model="showSearchDialog"
+    v-model:query="searchQuery"
+    no-route-replace
+  />
+  <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" no-route-replace unelevated />
+  <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
+
+  <q-dialog v-model="isVisible" position="bottom" maximized no-route-dismiss>
     <q-card class="artist-invite-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">{{ title }}</div>
@@ -15,22 +24,17 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
-        <!-- Search Field -->
-        <div class="search-container q-mb-lg">
-          <q-input
+        <!-- Search Header with Filters -->
+        <div class="search-container">
+          <SearchHeader
             v-model="searchQuery"
-            outlined
-            dense
-            rounded
-            placeholder="Search artists..."
-            class="search-input"
-            clearable
-            @input="onSearchInput"
-          >
-            <template #prepend>
-              <q-icon name="search" />
-            </template>
-          </q-input>
+            :title="title"
+            :has-filters="hasActiveFilters"
+            :has-sort="hasActiveSort"
+            @toggle-search="showSearchDialog = true"
+            @toggle-filters="showFilterDialog = true"
+            @toggle-sort="showSortDialog = true"
+          />
         </div>
 
         <!-- Artists List -->
@@ -89,11 +93,23 @@
 import { ref, watch, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useLazyQuery } from '@vue/apollo-composable';
-import { ArtistCard } from 'src/components/SearchPage';
+import { ArtistCard, SearchHeader } from 'src/components/SearchPage';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import type { IArtist, IGraphQLArtistsResult } from 'src/interfaces/artist';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
+import type { IFilters } from 'src/interfaces/filters';
+import { useCitiesStore } from 'src/stores/cities';
+import { CITIES_QUERY } from 'src/apollo/types/city';
+import type { IGraphQLCitiesResult } from 'src/interfaces/city';
+import useHelpers from 'src/modules/useHelpers';
+
+// Sort settings interface
+interface SortSettings {
+  sortBy: string | null;
+  sortDirection: 'asc' | 'desc';
+}
 
 interface Props {
   modelValue: boolean;
@@ -108,9 +124,26 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const $q = useQuasar();
+const citiesStore = useCitiesStore();
+const { convertFiltersToGraphQLFilters } = useHelpers();
 
 const isVisible = ref(props.modelValue);
 const searchQuery = ref('');
+
+// Dialog states for search, filters, and sort
+const showSearchDialog = ref(false);
+const showFilterDialog = ref(false);
+const showSortDialog = ref(false);
+
+// Filters and sort state
+const activeFilters = ref<IFilters>({
+  city: null,
+});
+
+const sortSettings = ref<SortSettings>({
+  sortBy: null,
+  sortDirection: 'asc',
+});
 
 // Local state for dialog artists to avoid interfering with global store
 const localArtists = ref<IArtist[]>([]);
@@ -126,7 +159,27 @@ const {
   onError: onArtistsError,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
-const title = computed(() => 'Invite Artist to Shop');
+// Cities query for filters
+const {
+  load: loadCities,
+  onResult: onResultCities,
+  onError: onErrorCities,
+} = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
+
+const title = computed(() => {
+  if (totalArtists.value === 0) {
+    return 'Artists';
+  }
+  if (totalArtists.value <= PAGINATION_PAGE_SIZE) {
+    return `Artists (${localArtists.value.length})`;
+  }
+  return `Artists (${localArtists.value.length}/${totalArtists.value})`;
+});
+
+const hasActiveFilters = computed(() =>
+  Object.values(activeFilters.value).some((filter) => !!filter),
+);
+const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 
 // Watch for external changes to modelValue
 watch(
@@ -135,32 +188,62 @@ watch(
     isVisible.value = newValue;
     if (newValue) {
       loadArtistsList();
+      void loadCities();
     }
   },
 );
 
-// Watch for internal changes to isVisible
+// // Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
 
+// Watch for changes in filters, search, or sort to refetch data
+watch(
+  [activeFilters, searchQuery, sortSettings],
+  () => {
+    if (isVisible.value) {
+      refetchArtistsData();
+    }
+  },
+  { deep: true },
+);
+
 // Methods
-const closeDialog = () => {
-  isVisible.value = false;
-  // Reset search when closing dialog
-  searchQuery.value = '';
-  // Reset pagination
+const resetPagination = () => {
   currentPage.value = 1;
   localArtists.value = [];
   hasMoreArtists.value = true;
 };
 
-const loadArtistsList = () => {
-  // Only load if we don't have artists data yet
-  if (localArtists.value.length === 0 && !isLoadingQuery.value) {
-    currentPage.value = 1;
+const closeDialog = () => {
+  isVisible.value = false;
+  // Reset search when closing dialog
+  searchQuery.value = '';
+  // Reset filters and sort
+  activeFilters.value = { city: null };
+  sortSettings.value = { sortBy: null, sortDirection: 'asc' };
+  // Reset dialogs
+  showSearchDialog.value = false;
+  showFilterDialog.value = false;
+  showSortDialog.value = false;
+};
+
+const loadArtistsList = (resetData = false) => {
+  if (resetData) {
+    resetPagination();
+  }
+
+  // Only load if we don't have artists data yet or we're resetting
+  if ((localArtists.value.length === 0 || resetData) && !isLoadingQuery.value) {
     void loadArtistsQuery(null, {
-      sort: ['name:asc'],
+      filters: convertFiltersToGraphQLFilters({
+        ...activeFilters.value,
+        name: searchQuery.value || null,
+      }),
+      sort: sortSettings.value.sortBy
+        ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
+        : ['name:asc'],
       pagination: {
         page: currentPage.value,
         pageSize: PAGINATION_PAGE_SIZE,
@@ -173,7 +256,13 @@ const loadMoreArtists = () => {
   if (!isLoadingQuery.value && hasMoreArtists.value) {
     currentPage.value += 1;
     void loadArtistsQuery(null, {
-      sort: ['name:asc'],
+      filters: convertFiltersToGraphQLFilters({
+        ...activeFilters.value,
+        name: searchQuery.value || null,
+      }),
+      sort: sortSettings.value.sortBy
+        ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
+        : ['name:asc'],
       pagination: {
         page: currentPage.value,
         pageSize: PAGINATION_PAGE_SIZE,
@@ -182,9 +271,9 @@ const loadMoreArtists = () => {
   }
 };
 
-const onSearchInput = () => {
-  // Search is handled by computed property filteredArtists
-  // Could add debouncing here if needed for API calls
+const refetchArtistsData = () => {
+  resetPagination();
+  loadArtistsList(true);
 };
 
 const selectArtist = (artist: IArtist) => {
@@ -240,10 +329,20 @@ onArtistsError((error) => {
   });
 });
 
-// Load artists when component mounts and dialog is visible
+// Handle cities results
+onResultCities(({ data, loading }) => {
+  if (!loading) citiesStore.setCities(data?.cities || []);
+});
+
+onErrorCities((error) => {
+  console.error('Error fetching cities:', error);
+});
+
+// Load artists and cities when component mounts and dialog is visible
 onMounted(() => {
   if (props.modelValue) {
     loadArtistsList();
+    void loadCities();
   }
 });
 </script>
@@ -276,10 +375,6 @@ onMounted(() => {
 
     .search-container {
       flex-shrink: 0;
-
-      .search-input {
-        width: 100%;
-      }
     }
 
     .artists-container {
