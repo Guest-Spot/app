@@ -43,18 +43,6 @@
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
           </div>
-
-          <!-- Booking Button -->
-          <q-btn
-            unelevated
-            rounded
-            class="bg-block"
-            text-color="primary"
-            @click="openBookingDialog"
-          >
-            <span class="text-body2">Booking request</span>
-            <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
-          </q-btn>
         </div>
       </div>
 
@@ -82,6 +70,20 @@
         <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
           <PublicTripsTab :trips="trips" :loading="isLoadingTrips" />
         </div>
+      </div>
+
+      <!-- Booking Button -->
+      <div class="action-buttons flex justify-center q-mt-lg">
+        <q-btn
+          unelevated
+          rounded
+          class="bg-block"
+          text-color="primary"
+          @click="openBookingDialog"
+        >
+          <span class="text-body2">Booking request</span>
+          <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+        </q-btn>
       </div>
     </div>
 
@@ -367,5 +369,10 @@ onBeforeMount(() => {
 .favorite-btn {
   min-width: 36px;
   min-height: 36px;
+}
+
+.action-buttons {
+  position: sticky;
+  bottom: 98px;
 }
 </style>

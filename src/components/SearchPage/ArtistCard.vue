@@ -20,7 +20,7 @@
           </div>
         </div>
       </div>
-      <div class="artist-actions absolute-top-right q-ma-sm q-z-2">
+      <div class="artist-actions absolute-top-right q-ma-sm q-z-2 flex column q-gap-xs">
         <q-btn
           round
           flat
@@ -29,6 +29,7 @@
           :color="isFavorite ? 'red' : 'grey-6'"
           @click.stop="toggleFavorite"
         />
+        <slot name="actions" />
       </div>
     </div>
     <div v-if="$slots.footer" class="artist-footer">
@@ -120,12 +121,5 @@ const navigateToProfile = () => {
   gap: 6px;
   font-size: 12px;
   font-weight: 500;
-}
-
-.artist-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
 }
 </style>

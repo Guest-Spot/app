@@ -42,7 +42,11 @@
     </div>
 
     <!-- Invite Artist Dialog -->
-    <ArtistInviteDialog v-model="showAddArtistDialog" :shop-id="shopId" />
+    <ArtistInviteDialog
+      v-model="showAddArtistDialog"
+      :shop-id="shopId"
+      @artist-invited="handleArtistInvited"
+    />
   </div>
 </template>
 
@@ -106,6 +110,13 @@ const handleArtistClick = (artist: IArtist) => {
 const handleFavoriteToggle = (artistDocumentId: string) => {
   // Handle favorite toggle - could update local state or make API call
   console.log('Favorite toggled for artist:', artistDocumentId);
+};
+
+const handleArtistInvited = (artist: IArtist) => {
+  // Handle artist invitation - could add to shop artists or show confirmation
+  console.log('Artist invited to shop:', artist);
+  // In a real app, you might want to add the artist to the shop's artist list
+  // or refresh the data from the server
 };
 
 // Expose data for parent component
