@@ -52,7 +52,7 @@ export enum UserType {
 }
 
 export enum InviteType {
-  ArtistToShop = 'artist-to-shop',
+  ArtistToShop = 'artist_to_shop',
 }
 
 export enum InviteReaction {

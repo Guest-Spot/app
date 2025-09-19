@@ -95,7 +95,7 @@ const handleArtistInvited = (artist: IArtist) => {
 };
 
 onResultShopArtists(({ data }) => {
-  console.log(data.shopArtists);
+  artists.value = data.shopArtists;
 });
 
 onErrorShopArtists((error) => {
