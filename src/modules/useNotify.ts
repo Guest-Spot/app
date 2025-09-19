@@ -10,6 +10,7 @@ const useNotify = () => {
       message,
       position: 'top',
       timeout: 2000,
+      progress: true,
       actions: [
         {
           icon: 'close',
@@ -25,6 +26,7 @@ const useNotify = () => {
       message,
       position: 'top',
       timeout: 2000,
+      progress: true,
       actions: [
         {
           icon: 'close',

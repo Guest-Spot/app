@@ -72,6 +72,8 @@
                     icon="person_add"
                     color="primary"
                     class="bg-block full-width"
+                    :loading="isInviting"
+                    :disable="isInviting"
                     @click.stop="inviteArtist(artist)"
                   />
                 </template>
@@ -92,11 +94,11 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { useLazyQuery } from '@vue/apollo-composable';
+import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import { ArtistCard, SearchHeader } from 'src/components/SearchPage';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import type { IArtist, IGraphQLArtistsResult } from 'src/interfaces/artist';
-import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import InfiniteScrollWrapper from '../InfiniteScrollWrapper.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
@@ -104,6 +106,9 @@ import { useCitiesStore } from 'src/stores/cities';
 import { CITIES_QUERY } from 'src/apollo/types/city';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useHelpers from 'src/modules/useHelpers';
+import { INVITE_ARTIST_MUTATION } from 'src/apollo/types/mutations/shopArtists';
+import type { IBooking } from 'src/interfaces/booking';
+import useNotify from 'src/modules/useNotify';
 
 // Sort settings interface
 interface SortSettings {
@@ -126,6 +131,7 @@ const emit = defineEmits<Emits>();
 const $q = useQuasar();
 const citiesStore = useCitiesStore();
 const { convertFiltersToGraphQLFilters } = useHelpers();
+const { showSuccess, showError } = useNotify();
 
 const isVisible = ref(props.modelValue);
 const searchQuery = ref('');
@@ -165,6 +171,14 @@ const {
   onResult: onResultCities,
   onError: onErrorCities,
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
+
+// Mutation for inviting artist
+const {
+  mutate: inviteArtistMutation,
+  loading: isInviting,
+  onDone: onInviteSuccess,
+  onError: onInviteError,
+} = useMutation<{ createBooking: IBooking }>(INVITE_ARTIST_MUTATION);
 
 const title = computed(() => {
   if (totalArtists.value === 0) {
@@ -282,22 +296,44 @@ const selectArtist = (artist: IArtist) => {
 };
 
 const inviteArtist = (artist: IArtist) => {
-  $q.notify({
-    type: 'positive',
-    color: 'dark',
-    message: `Invitation sent to ${artist.name}!`,
-    position: 'top',
-    timeout: 3000,
-    actions: [
-      {
-        icon: 'close',
-        color: 'white',
-      },
-    ],
-  });
+  $q.dialog({
+    title: 'Invite Artist',
+    message: `Are you sure you want to invite <strong class="text-primary">${artist.name}</strong> to your shop?`,
+    persistent: true,
+    html: true,
+    ok: {
+      label: 'Yes, Invite',
+      color: 'primary',
+      rounded: true,
+      unelevated: true,
+    },
+    cancel: {
+      label: 'Cancel',
+      color: 'grey-9',
+      rounded: true
+    },
+  }).onOk(() => {
+    if (!props.shopId) {
+      showError('Shop ID is required to send invitation');
+      return;
+    }
 
-  emit('artistInvited', artist);
-  closeDialog();
+    // Create invitation as a special booking
+    void inviteArtistMutation({
+      data: {
+        title: 'Shop Invitation',
+        description: `You have been invited to showcase your work at our shop.`,
+        shopDocumentId: props.shopId.toString(),
+        artistDocumentId: artist.documentId,
+        type: 'shop-to-artist',
+        status: 'pending',
+        // Set invitation dates to today as placeholder
+        date: new Date().toISOString().split('T')[0],
+        startTime: '09:00',
+        endTime: '18:00',
+      },
+    });
+  });
 };
 
 // Handle query results
@@ -321,12 +357,7 @@ onArtistsResult(({ data, loading }) => {
 
 onArtistsError((error) => {
   console.error('Error fetching artists for dialog:', error);
-  $q.notify({
-    type: 'negative',
-    message: 'Failed to load artists. Please try again.',
-    position: 'top',
-    timeout: 3000,
-  });
+  showError('Failed to load artists. Please try again.');
 });
 
 // Handle cities results
@@ -336,6 +367,25 @@ onResultCities(({ data, loading }) => {
 
 onErrorCities((error) => {
   console.error('Error fetching cities:', error);
+});
+
+// Handle invitation success
+onInviteSuccess(({ data }) => {
+  const invitedArtist = localArtists.value.find((a) =>
+    a.documentId === data?.createBooking?.artistDocumentId
+  );
+
+  if (invitedArtist) {
+    showSuccess(`Invitation sent to ${invitedArtist.name}!`);
+    emit('artistInvited', invitedArtist);
+    closeDialog();
+  }
+});
+
+// Handle invitation error
+onInviteError((error) => {
+  console.error('Error sending invitation:', error);
+  showError('Failed to send invitation. Please try again.');
 });
 
 // Load artists and cities when component mounts and dialog is visible
