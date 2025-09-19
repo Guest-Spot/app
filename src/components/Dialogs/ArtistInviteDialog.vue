@@ -110,7 +110,7 @@ import { CITIES_QUERY } from 'src/apollo/types/city';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useHelpers from 'src/modules/useHelpers';
 import useNotify from 'src/modules/useNotify';
-import useShopArtists from 'src/composables/useShopArtists';
+import useInviteCompos from 'src/composables/useInviteCompos';
 import { useProfileStore } from 'src/stores/profile';
 
 // Sort settings interface
@@ -131,7 +131,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useShopArtists();
+const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useInviteCompos();
 const citiesStore = useCitiesStore();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showSuccess, showError } = useNotify();

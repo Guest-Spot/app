@@ -5,8 +5,9 @@ import useNotify from 'src/modules/useNotify';
 import { useMutation } from '@vue/apollo-composable';
 import { CREATE_INVITE_MUTATION } from 'src/apollo/types/invite';
 import type { IShop } from 'src/interfaces/shop';
+import { InviteType } from 'src/interfaces/enums';
 
-const useShopArtists = () => {
+const useInviteCompos = () => {
   const $q = useQuasar();
   const { showError } = useNotify();
 
@@ -38,7 +39,8 @@ const useShopArtists = () => {
       },
     }).onOk(() => {
       if (!shop.documentId) {
-        showError('Shop ID is required to send invitation');
+        showError('Please login to send invitation');
+        console.error('Shop ID is required to send invitation');
         return;
       }
       void createInviteMutation({
@@ -47,6 +49,7 @@ const useShopArtists = () => {
           description: `Hey ${artist.name}! We would love to welcome you to our creative team at ${shop.name}. Your unique style would be a perfect addition to our shop. Looking forward to working together!`,
           sender: shop.documentId,
           recipient: artist.documentId,
+          type: InviteType.ArtistToShop,
         },
       });
     });
@@ -61,4 +64,4 @@ const useShopArtists = () => {
   };
 };
 
-export default useShopArtists;
+export default useInviteCompos;

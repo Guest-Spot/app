@@ -141,7 +141,7 @@ import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
 import { useUserStore } from 'src/stores/user';
-import useShopArtists from 'src/composables/useShopArtists';
+import useInviteCompos from 'src/composables/useInviteCompos';
 import { useProfileStore } from 'src/stores/profile';
 import useNotify from 'src/modules/useNotify';
 
@@ -167,7 +167,7 @@ const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const route = useRoute();
 const artistsStore = useArtistsStore();
 const userStore = useUserStore();
-const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useShopArtists();
+const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useInviteCompos();
 const profileStore = useProfileStore();
 const { showError, showSuccess } = useNotify();
 

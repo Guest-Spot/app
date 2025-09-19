@@ -50,3 +50,13 @@ export enum UserType {
   Artist = 'artist',
   Guest = 'guest',
 }
+
+export enum InviteType {
+  ArtistToShop = 'artist-to-shop',
+}
+
+export enum InviteReaction {
+  Pending = 'pending',
+  Accepted = 'accepted',
+  Rejected = 'rejected',
+}
