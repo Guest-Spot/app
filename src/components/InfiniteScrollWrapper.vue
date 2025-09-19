@@ -2,7 +2,7 @@
   <div ref="scrollContainer" class="infinite-scroll-wrapper">
     <slot />
     <div ref="observerTarget" class="observer-target" />
-    <div v-if="loading" class="full-width flex items-center justify-center q-mt-md">
+    <div v-if="!stop" class="full-width flex items-center justify-center q-mb-md">
       <q-spinner-dots color="primary" size="lg" />
     </div>
   </div>

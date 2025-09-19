@@ -16,7 +16,7 @@
 
       <q-card-section class="dialog-content">
         <!-- Search Field -->
-        <div class="search-container q-mb-md">
+        <div class="search-container q-mb-lg">
           <q-input
             v-model="searchQuery"
             outlined
@@ -35,36 +35,49 @@
 
         <!-- Artists List -->
         <div class="artists-container">
-          <div v-if="isLoadingQuery" class="loading-container">
+          <div v-if="isLoadingQuery && !localArtists.length" class="loading-container">
             <q-spinner-dots size="40px" color="primary" />
             <div class="text-grey-6 q-mt-md">Loading artists...</div>
           </div>
 
-          <div v-else-if="filteredArtists.length === 0" class="no-results">
+          <div v-else-if="localArtists.length === 0" class="no-results">
             <q-icon name="person_search" size="48px" color="grey-6" />
             <div class="text-grey-6 q-mt-md">No artists found</div>
           </div>
 
-          <div v-else class="artists-list flex column q-gap-md">
-            <ArtistCard
-              v-for="artist in filteredArtists"
-              :key="artist.documentId"
-              :artist="artist"
-              @click="selectArtist"
+          <div v-else class="artists-list q-pb-lg">
+            <InfiniteScrollWrapper
+              class="flex column q-gap-md"
+              :offset="150"
+              :loading="isLoadingQuery"
+              :stop="!hasMoreArtists"
+              @load-more="loadMoreArtists"
             >
-              <template #footer>
-                <q-btn
-                  rounded
-                  flat
-                  dense
-                  label="Invite to shop"
-                  icon="person_add"
-                  color="primary"
-                  class="bg-block full-width"
-                  @click.stop="inviteArtist(artist)"
-                />
+              <ArtistCard
+                v-for="artist in localArtists"
+                :key="artist.documentId"
+                :artist="artist"
+                @click="selectArtist"
+              >
+                <template #footer>
+                  <q-btn
+                    rounded
+                    flat
+                    dense
+                    label="Invite to shop"
+                    icon="person_add"
+                    color="primary"
+                    class="bg-block full-width"
+                    @click.stop="inviteArtist(artist)"
+                  />
+                </template>
+              </ArtistCard>
+              <template #loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="40px" />
+                </div>
               </template>
-            </ArtistCard>
+            </InfiniteScrollWrapper>
           </div>
         </div>
       </q-card-section>
@@ -79,6 +92,8 @@ import { useLazyQuery } from '@vue/apollo-composable';
 import { ArtistCard } from 'src/components/SearchPage';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import type { IArtist, IGraphQLArtistsResult } from 'src/interfaces/artist';
+import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 
 interface Props {
   modelValue: boolean;
@@ -99,6 +114,9 @@ const searchQuery = ref('');
 
 // Local state for dialog artists to avoid interfering with global store
 const localArtists = ref<IArtist[]>([]);
+const currentPage = ref(1);
+const totalArtists = ref(0);
+const hasMoreArtists = ref(true);
 
 // Direct GraphQL query for artists
 const {
@@ -107,20 +125,6 @@ const {
   onResult: onArtistsResult,
   onError: onArtistsError,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
-
-// Computed properties
-const filteredArtists = computed(() => {
-  if (!searchQuery.value?.trim()) {
-    return localArtists.value;
-  }
-
-  const query = searchQuery.value.toLowerCase().trim();
-  return localArtists.value.filter(artist =>
-    artist.name.toLowerCase().includes(query) ||
-    artist.city?.toLowerCase().includes(query) ||
-    artist.address?.toLowerCase().includes(query)
-  );
-});
 
 const title = computed(() => 'Invite Artist to Shop');
 
@@ -145,16 +149,34 @@ const closeDialog = () => {
   isVisible.value = false;
   // Reset search when closing dialog
   searchQuery.value = '';
+  // Reset pagination
+  currentPage.value = 1;
+  localArtists.value = [];
+  hasMoreArtists.value = true;
 };
 
 const loadArtistsList = () => {
   // Only load if we don't have artists data yet
   if (localArtists.value.length === 0 && !isLoadingQuery.value) {
+    currentPage.value = 1;
     void loadArtistsQuery(null, {
       sort: ['name:asc'],
       pagination: {
-        page: 1,
-        pageSize: 50, // Load more artists for the dialog
+        page: currentPage.value,
+        pageSize: PAGINATION_PAGE_SIZE,
+      },
+    });
+  }
+};
+
+const loadMoreArtists = () => {
+  if (!isLoadingQuery.value && hasMoreArtists.value) {
+    currentPage.value += 1;
+    void loadArtistsQuery(null, {
+      sort: ['name:asc'],
+      pagination: {
+        page: currentPage.value,
+        pageSize: PAGINATION_PAGE_SIZE,
       },
     });
   }
@@ -192,7 +214,19 @@ const inviteArtist = (artist: IArtist) => {
 // Handle query results
 onArtistsResult(({ data, loading }) => {
   if (!loading && data?.artists) {
-    localArtists.value = data.artists;
+    const newArtists = data.artists;
+
+    if (currentPage.value === 1) {
+      // First page - replace all artists
+      localArtists.value = newArtists;
+    } else {
+      // Subsequent pages - append new artists
+      localArtists.value = [...localArtists.value, ...newArtists];
+    }
+
+    // Update pagination info
+    totalArtists.value = data.artists_connection?.pageInfo?.total || 0;
+    hasMoreArtists.value = newArtists.length === PAGINATION_PAGE_SIZE;
   }
 });
 
@@ -234,7 +268,7 @@ onMounted(() => {
   }
 
   .dialog-content {
-    padding: 20px;
+    padding: 20px 20px 0;
     flex: 1;
     overflow: hidden;
     display: flex;
@@ -270,6 +304,31 @@ onMounted(() => {
         justify-content: center;
         padding: 40px 20px;
         text-align: center;
+      }
+
+      .artists-list {
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        // Custom scrollbar styling
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.3);
+        }
       }
     }
   }
