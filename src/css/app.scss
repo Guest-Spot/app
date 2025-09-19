@@ -162,6 +162,11 @@ a {
   overflow: hidden;
 }
 
+.q-dialog__backdrop {
+  background: transparent;
+  backdrop-filter: blur(10px);
+}
+
 .q-menu,
 .q-time,
 .q-date,

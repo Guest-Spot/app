@@ -25,11 +25,19 @@
               outlined
               dense
               rounded
+              menu-anchor="top left"
+              menu-self="bottom left"
+              :use-input="!filters.city"
+              @filter="filterFn"
               placeholder="Select city"
               class="filter-select"
               clearable
               @update:model-value="onChangeFilters"
-            />
+            >
+              <template v-slot:prepend>
+                <q-icon name="location_on" />
+              </template>
+            </q-select>
           </div>
         </div>
       </q-card-section>
@@ -54,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, type PropType, computed } from 'vue';
+import { ref, watch, type PropType } from 'vue';
 import type { IFilters } from 'src/interfaces/filters';
 import { useRouter, useRoute } from 'vue-router';
 import { useCitiesStore } from 'src/stores/cities';
@@ -80,7 +88,7 @@ const citiesStore = useCitiesStore();
 const router = useRouter();
 const route = useRoute();
 
-const cities = computed(() => citiesStore.getCities);
+const cities = ref(citiesStore.getCities);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -108,6 +116,13 @@ watch(
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
+
+const filterFn = (val: string, update: (value: () => void) => void) => {
+  update(() => {
+    const needle = val.toLocaleLowerCase()
+    cities.value = citiesStore.getCities.filter(v => v.toLocaleLowerCase().indexOf(needle) > -1)
+  })
+}
 
 const onChangeFilters = () => {
   if (!props.noRouteReplace) {
