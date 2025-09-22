@@ -38,7 +38,8 @@
     "capacitor:run:android": "quasar dev -m capacitor -T android",
     "capacitor:run:ios": "quasar dev -m capacitor -T ios",
     "capacitor:open:android": "quasar dev -m capacitor -T android --open",
-    "capacitor:open:ios": "quasar dev -m capacitor -T ios --open"
+    "capacitor:open:ios": "quasar dev -m capacitor -T ios --open",
+    "capacitor:build:aab": "./scripts/build-aab.sh"
   },
   "dependencies": {
     "@apollo/client": "^3.8.6",
