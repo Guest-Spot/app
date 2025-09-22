@@ -71,8 +71,8 @@ fi
 
 print_status "Quasar build completed successfully"
 
-# Step 2: Build Android App Bundle
-print_status "Step 2: Building Android App Bundle (AAB) in release mode..."
+# Step 2: Build Android App Bundle and APK
+print_status "Step 2: Building Android App Bundle (AAB) and APK in release mode..."
 
 # Navigate to Android directory
 cd src-capacitor/android
@@ -91,37 +91,71 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+print_status "AAB build completed successfully!"
+
+# Build release APK with Gradle properties
+print_status "Building release APK with Gradle properties..."
+./gradlew assembleRelease -PRELEASE_STORE_PASSWORD="$STORE_PASSWORD" -PRELEASE_KEY_PASSWORD="$KEY_PASSWORD"
+
+# Check if APK build was successful
+if [ $? -ne 0 ]; then
+    print_error "APK build failed!"
+    exit 1
+fi
+
+print_status "APK build completed successfully!"
+
 # Navigate back to project root
 cd ../..
 
-print_status "AAB build completed successfully!"
-
-# Step 3: Locate and verify the AAB file
+# Step 3: Locate and verify the AAB and APK files
 AAB_PATH="src-capacitor/android/app/build/outputs/bundle/release/app-release.aab"
+APK_PATH="src-capacitor/android/app/build/outputs/apk/release/app-release.apk"
 
+# Create temp directory if it doesn't exist
+mkdir -p temp
+
+# Check and copy AAB file
 if [ -f "$AAB_PATH" ]; then
     print_status "✅ AAB file created successfully!"
     print_status "📁 Location: $AAB_PATH"
     
     # Get file size
     FILE_SIZE=$(du -h "$AAB_PATH" | cut -f1)
-    print_status "📊 File size: $FILE_SIZE"
-    
-    # Create temp directory if it doesn't exist
-    mkdir -p temp
+    print_status "📊 AAB file size: $FILE_SIZE"
     
     # Copy to temp directory for easy access
     cp "$AAB_PATH" "temp/app-release-signed.aab"
     print_status "📋 AAB file copied to: temp/app-release-signed.aab"
-    
-    print_status "🎉 Build process completed successfully!"
-    print_status "The AAB file is ready for Google Play Store upload"
     
 else
     print_error "AAB file not found at expected location: $AAB_PATH"
     print_error "Build may have failed or file was created in a different location"
     exit 1
 fi
+
+# Check and copy APK file
+if [ -f "$APK_PATH" ]; then
+    print_status "✅ APK file created successfully!"
+    print_status "📁 Location: $APK_PATH"
+    
+    # Get file size
+    FILE_SIZE=$(du -h "$APK_PATH" | cut -f1)
+    print_status "📊 APK file size: $FILE_SIZE"
+    
+    # Copy to temp directory for easy access
+    cp "$APK_PATH" "temp/app-release-signed.apk"
+    print_status "📋 APK file copied to: temp/app-release-signed.apk"
+    
+else
+    print_error "APK file not found at expected location: $APK_PATH"
+    print_error "Build may have failed or file was created in a different location"
+    exit 1
+fi
+
+print_status "🎉 Build process completed successfully!"
+print_status "The AAB file is ready for Google Play Store upload"
+print_status "The APK file is ready for local testing"
 
 
 # Step 4: Verify the AAB file
@@ -147,5 +181,8 @@ print_status "🎯 Next steps:"
 print_status "1. Upload the AAB file to Google Play Console"
 print_status "2. Complete the app review process"
 print_status "3. Publish your app to the Play Store"
+print_status "4. Use the APK file for local testing and debugging"
 echo ""
-print_status "📁 AAB file location: temp/app-release-signed.aab"
+print_status "📁 Files created:"
+print_status "   • AAB file: temp/app-release-signed.aab (for Google Play Store)"
+print_status "   • APK file: temp/app-release-signed.apk (for local testing)"

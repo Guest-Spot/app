@@ -1,6 +1,6 @@
-# Android App Bundle (AAB) Build Guide
+# Android App Bundle (AAB) and APK Build Guide
 
-This guide describes the process of building Android App Bundle (AAB) files for the GuestSpot application in release mode.
+This guide describes the process of building Android App Bundle (AAB) and APK files for the GuestSpot application in release mode.
 
 ## Prerequisites
 
@@ -37,9 +37,9 @@ npm install
 yarn install
 ```
 
-### 3. Build Android App Bundle (AAB)
+### 3. Build Android App Bundle (AAB) and APK
 
-Use the provided build script to create a signed AAB file:
+Use the provided build script to create signed AAB and APK files:
 
 ```bash
 ./scripts/build-aab.sh
@@ -48,7 +48,8 @@ Use the provided build script to create a signed AAB file:
 This command will:
 - Build the Quasar application for Capacitor
 - Generate the Android project
-- Create a signed AAB file in release mode
+- Create a signed AAB file for Google Play Store distribution
+- Create a signed APK file for local testing
 
 ### 4. Alternative Build Methods
 
@@ -67,9 +68,10 @@ npm run capacitor:build:aab
 # Build Quasar app
 npm run capacitor:build:android
 
-# Build AAB file
+# Build AAB and APK files
 cd src-capacitor/android
 ./gradlew bundleRelease
+./gradlew assembleRelease
 ```
 
 ## Security Notes
@@ -80,16 +82,18 @@ cd src-capacitor/android
 - Use strong passwords for your keystore and key
 - Consider using environment variables in CI/CD pipelines
 
-### 4. Locate the Built AAB
+### 4. Locate the Built Files
 
-The signed AAB file will be located at:
+The signed files will be located at:
 ```
-temp/app-release-signed.aab
+temp/app-release-signed.aab  # For Google Play Store
+temp/app-release-signed.apk  # For local testing
 ```
 
-Original location:
+Original locations:
 ```
 src-capacitor/android/app/build/outputs/bundle/release/app-release.aab
+src-capacitor/android/app/build/outputs/apk/release/app-release.apk
 ```
 
 ## Configuration
@@ -138,8 +142,9 @@ The `scripts/build-aab.sh` script automates the entire build process:
 3. **Builds Quasar app** - Compiles the web application
 4. **Syncs Capacitor** - Updates the Android project
 5. **Builds AAB** - Creates the signed AAB file using Gradle properties
-6. **Verifies output** - Checks if the AAB was created successfully
-7. **Copies to temp** - Makes the AAB easily accessible
+6. **Builds APK** - Creates the signed APK file using Gradle properties
+7. **Verifies output** - Checks if both files were created successfully
+8. **Copies to temp** - Makes both files easily accessible
 
 ### Script Features
 
@@ -148,7 +153,8 @@ The `scripts/build-aab.sh` script automates the entire build process:
 - **File validation** - Checks keystore and output files
 - **Secure password handling** - Passwords never stored in version control
 - **Automatic cleanup** - Removes previous builds
-- **Size reporting** - Shows final AAB file size
+- **Size reporting** - Shows final AAB and APK file sizes
+- **Dual output** - Creates both AAB and APK files for different use cases
 
 ## Troubleshooting
 
@@ -182,11 +188,13 @@ The `scripts/build-aab.sh` script automates the entire build process:
 
 ## Next Steps
 
-After building your AAB file, you can:
+After building your files, you can:
 
 1. **Upload to Google Play Console** - Use the AAB file for app distribution
 2. **Complete app review** - Follow Google's review process
 3. **Publish your app** - Make it available on the Play Store
+4. **Local testing** - Use the APK file for testing on devices
+5. **Debug and development** - Install APK directly on test devices
 
 ## File Structure
 
@@ -195,7 +203,8 @@ GuestSpot/
 ├── scripts/
 │   └── build-aab.sh                # Build script
 ├── temp/
-│   └── app-release-signed.aab      # Signed AAB file
+│   ├── app-release-signed.aab      # Signed AAB file (Google Play Store)
+│   └── app-release-signed.apk      # Signed APK file (Local testing)
 ├── src-capacitor/
 │   └── android/
 │       ├── guest-spot-key.jks      # Keystore file
@@ -208,14 +217,17 @@ GuestSpot/
 
 ## Verification
 
-To verify the AAB file was built correctly:
+To verify the files were built correctly:
 
 ```bash
-# Check file size
+# Check file sizes
 ls -la temp/app-release-signed.aab
+ls -la temp/app-release-signed.apk
 
-# Expected size: ~6.2MB
-# Expected location: temp/app-release-signed.aab
+# Expected sizes:
+# AAB: ~6.2MB (for Google Play Store)
+# APK: ~8-12MB (for local testing)
+# Expected location: temp/
 ```
 
 For more information about Android app distribution, refer to the [Google Play Console documentation](https://support.google.com/googleplay/android-developer).
