@@ -217,7 +217,9 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
     ...(uploadedFiles.length > 0 && {
       pictures: [
         ...uploadedFiles.map((file) => file.id),
-        ...shopData.pictures.map((picture) => picture.id).filter((id) => !imagesForRemove.value.includes(id)),
+        ...shopData.pictures
+          .map((picture) => picture.id)
+          .filter((id) => !imagesForRemove.value.includes(id)),
       ],
     }),
   };

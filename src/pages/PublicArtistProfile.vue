@@ -43,18 +43,6 @@
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
           </div>
-
-          <!-- Booking Button -->
-          <q-btn
-            unelevated
-            rounded
-            class="bg-block"
-            text-color="primary"
-            @click="openBookingDialog"
-          >
-            <span class="text-body2">Booking request</span>
-            <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
-          </q-btn>
         </div>
       </div>
 
@@ -82,6 +70,43 @@
         <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
           <PublicTripsTab :trips="trips" :loading="isLoadingTrips" />
         </div>
+      </div>
+
+      <!-- Booking Button -->
+      <div class="action-buttons flex justify-center q-mt-lg q-gap-sm">
+        <q-btn unelevated rounded class="bg-block" text-color="primary" @click="openBookingDialog">
+          <span class="text-body2">Booking request</span>
+          <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+        </q-btn>
+        <q-btn
+          v-if="menuItems.length"
+          unelevated
+          round
+          class="bg-block"
+          text-color="primary"
+          icon="more_horiz"
+        >
+          <q-menu anchor="top end" self="bottom end" :offset="[0, 4]" style="width: 210px">
+            <q-list>
+              <q-item
+                clickable
+                v-ripple
+                v-for="item in menuItems"
+                :key="item.label"
+                :loading="!!item.loading"
+                :disable="!!item.loading"
+                @click="item.onClick"
+              >
+                <q-item-section>
+                  <q-item-label>{{ item.label }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-icon :name="item.icon" size="16px" color="primary" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </div>
     </div>
 
@@ -115,6 +140,10 @@ import { TRIPS_QUERY } from 'src/apollo/types/trip';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
+import { useUserStore } from 'src/stores/user';
+import useInviteCompos from 'src/composables/useInviteCompos';
+import { useProfileStore } from 'src/stores/profile';
+import useNotify from 'src/modules/useNotify';
 
 const {
   load: loadArtist,
@@ -137,6 +166,10 @@ const {
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const route = useRoute();
 const artistsStore = useArtistsStore();
+const userStore = useUserStore();
+const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useInviteCompos();
+const profileStore = useProfileStore();
+const { showError, showSuccess } = useNotify();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -172,6 +205,26 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
+
+const menuItems = computed(() =>
+  [
+    {
+      label: 'Invite to my shop',
+      icon: 'person_add',
+      visible: userStore.isShop,
+      loading: invitingArtist.value,
+      onClick: () => {
+        const shop = profileStore.shopProfile;
+        if (!shop) {
+          showError('Shop profile not found');
+          console.error('Shop profile not found');
+          return;
+        }
+        void inviteArtist(shop, artistData.value);
+      },
+    },
+  ].filter((item) => item.visible),
+);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -297,6 +350,15 @@ onErrorPortfolio((error) => {
   console.error('Error fetching portfolio:', error);
 });
 
+onInviteSuccess(() => {
+  showSuccess(`Invitation sent to ${artistData.value?.name}!`);
+});
+
+onInviteError((error) => {
+  console.error('Error sending invitation:', error);
+  showError('Failed to send invitation. Please try again.');
+});
+
 // Load all data on component mount
 onBeforeMount(() => {
   void loadArtistData();
@@ -367,5 +429,10 @@ onBeforeMount(() => {
 .favorite-btn {
   min-width: 36px;
   min-height: 36px;
+}
+
+.action-buttons {
+  position: sticky;
+  bottom: 98px;
 }
 </style>

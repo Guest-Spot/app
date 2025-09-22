@@ -30,7 +30,7 @@
             image-restriction="fit-area"
             class="cropper-component"
           />
-           <q-img
+          <q-img
             v-else-if="imagePreview"
             ref="imageRef"
             :src="imagePreview"
@@ -54,20 +54,8 @@
       <q-card-section class="dialog-footer q-mt-auto bg-block">
         <!-- Crop Mode Actions -->
         <div v-if="isCropMode" class="row justify-center q-gap-sm">
-          <q-btn
-            label="Cancel"
-            class="bg-block"
-            unelevated
-            rounded
-            @click="cancelCrop"
-          />
-          <q-btn
-            label="Apply Crop"
-            color="primary"
-            unelevated
-            rounded
-            @click="applyCrop"
-          />
+          <q-btn label="Cancel" class="bg-block" unelevated rounded @click="cancelCrop" />
+          <q-btn label="Apply Crop" color="primary" unelevated rounded @click="applyCrop" />
         </div>
         <!-- Normal Mode Actions -->
         <div v-else class="row justify-center q-gap-sm">
@@ -102,7 +90,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { Cropper } from 'vue-advanced-cropper'
+import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import useImage from 'src/modules/useImage';
 
@@ -135,7 +123,9 @@ const translateX = ref(0);
 const translateY = ref(0);
 const imageContainer = ref<ElementRef>(null);
 const isCropMode = ref(false);
-const cropperRef = ref<{ getResult: () => { canvas: HTMLCanvasElement; coordinates: unknown } } | null>(null);
+const cropperRef = ref<{
+  getResult: () => { canvas: HTMLCanvasElement; coordinates: unknown };
+} | null>(null);
 const imagePreview = ref<string | null>(null);
 
 // Computed style for image transform
@@ -153,9 +143,10 @@ const defaultBoundaries = () => {
   if (!containerElement) return { width: 800, height: 600 };
 
   // Handle both HTMLElement and Vue component reference
-  const element = 'getBoundingClientRect' in containerElement
-    ? containerElement
-    : (containerElement as { $el: HTMLElement }).$el;
+  const element =
+    'getBoundingClientRect' in containerElement
+      ? containerElement
+      : (containerElement as { $el: HTMLElement }).$el;
 
   const containerRect = element.getBoundingClientRect();
   const maxWidth = Math.min(containerRect.width, window.innerWidth * 0.95);
@@ -163,7 +154,7 @@ const defaultBoundaries = () => {
 
   return {
     width: maxWidth,
-    height: maxHeight
+    height: maxHeight,
   };
 };
 
@@ -247,7 +238,7 @@ function cancelCrop() {
 
 function getElement(elementRef: ElementRef): HTMLElement | null {
   if (!elementRef) return null;
-  return (elementRef as { $el: HTMLElement }).$el || elementRef as HTMLElement;
+  return (elementRef as { $el: HTMLElement }).$el || (elementRef as HTMLElement);
 }
 
 function calculateBoundaries() {

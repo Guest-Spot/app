@@ -151,7 +151,7 @@ a {
 
 .q-notification__badge--top-left,
 .q-notification__badge--top-right {
-  top: 14px;
+  top: calc(50% - 10px);
 }
 
 .q-drawer {
@@ -160,6 +160,11 @@ a {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   overflow: hidden;
+}
+
+.q-dialog__backdrop {
+  background: transparent;
+  backdrop-filter: blur(10px);
 }
 
 .q-menu,

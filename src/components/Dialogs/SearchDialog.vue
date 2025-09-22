@@ -42,6 +42,7 @@ import { useRouter, useRoute } from 'vue-router';
 interface Props {
   modelValue: boolean;
   query: string | null;
+  noRouteReplace?: boolean;
 }
 
 interface Emits {
@@ -82,7 +83,9 @@ watch(isVisible, (newValue) => {
 function handleSearch() {
   const trimmedQuery = searchQuery.value?.trim() || '';
   emit('update:query', trimmedQuery);
-  void router.replace({ query: { ...route.query, search: trimmedQuery } });
+  if (!props.noRouteReplace) {
+    void router.replace({ query: { ...route.query, search: trimmedQuery } });
+  }
 }
 
 function closeSearch() {

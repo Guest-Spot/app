@@ -75,6 +75,7 @@ interface SortValue {
 interface Props {
   modelValue: boolean;
   sortValue: SortValue;
+  noRouteReplace?: boolean;
 }
 
 interface Emits {
@@ -121,6 +122,7 @@ watch(isVisible, (newValue) => {
 });
 
 const saveSortToUrl = (sortBy: string, sortDirection: string) => {
+  if (props.noRouteReplace) return;
   const queryParams = {
     ...(sortBy && sortDirection ? { sort: `${sortBy}:${sortDirection}` } : { sort: null }),
   };

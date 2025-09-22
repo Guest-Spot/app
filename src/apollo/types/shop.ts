@@ -85,6 +85,8 @@ export const SHOP_ARTISTS_QUERY = gql`
         latitude
         longitude
       }
+      city
+      address
       phone
       email
       createdAt

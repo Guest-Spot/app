@@ -42,55 +42,34 @@
     </div>
 
     <!-- Invite Artist Dialog -->
-    <ArtistInviteDialog v-model="showAddArtistDialog" :shop-id="shopId" />
+    <ArtistInviteDialog
+      v-model="showAddArtistDialog"
+      :shop-id="shopId"
+      @artist-invited="handleArtistInvited"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
 import { ArtistCard } from 'src/components/SearchPage/index';
 import type { IArtist } from 'src/interfaces/artist';
+import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
+import { useLazyQuery } from '@vue/apollo-composable';
+import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
+import { useProfileStore } from 'src/stores/profile';
+
+const {
+  load: loadShopArtists,
+  onResult: onResultShopArtists,
+  onError: onErrorShopArtists,
+} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+
+const profileStore = useProfileStore();
 
 // Artists data
-const artists = ref<IArtist[]>([
-  {
-    documentId: '1',
-    createdAt: '2021-01-01',
-    updatedAt: '2021-01-01',
-    name: 'John Doe',
-    description: 'Experienced tattoo artist specializing in traditional American style tattoos.',
-    avatar: {
-      url: 'artists/artist1.jpeg',
-      id: '1',
-    },
-    location: {
-      city: 'San Francisco, CA',
-      address: '123 Main St, San Francisco, CA',
-      latitude: '37.7749',
-      longitude: '-122.4194',
-    },
-    experience: 8,
-  },
-  {
-    documentId: '2',
-    createdAt: '2021-01-02',
-    updatedAt: '2021-01-02',
-    name: 'Jane Smith',
-    description: 'Creative artist known for beautiful watercolor style tattoos.',
-    avatar: {
-      url: 'artists/artist2.jpg',
-      id: '2',
-    },
-    location: {
-      city: 'New York, NY',
-      address: '456 Main St, New York, NY',
-      latitude: '40.7128',
-      longitude: '-74.0060',
-    },
-    experience: 5,
-  },
-]);
+const artists = ref<IArtist[]>([]);
 
 // Dialog state
 const showAddArtistDialog = ref(false);
@@ -107,6 +86,29 @@ const handleFavoriteToggle = (artistDocumentId: string) => {
   // Handle favorite toggle - could update local state or make API call
   console.log('Favorite toggled for artist:', artistDocumentId);
 };
+
+const handleArtistInvited = (artist: IArtist) => {
+  // Handle artist invitation - could add to shop artists or show confirmation
+  console.log('Artist invited to shop:', artist);
+  // In a real app, you might want to add the artist to the shop's artist list
+  // or refresh the data from the server
+};
+
+onResultShopArtists(({ data }) => {
+  artists.value = data.shopArtists;
+});
+
+onErrorShopArtists((error) => {
+  console.error('Error fetching invites:', error);
+});
+
+watch(() => profileStore.getShopProfile, (newProfile) => {
+  if (newProfile) {
+    void loadShopArtists(null, {
+      documentId: newProfile.documentId,
+    }, { fetchPolicy: 'network-only' });
+  }
+}, { immediate: true });
 
 // Expose data for parent component
 defineExpose({

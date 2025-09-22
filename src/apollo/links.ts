@@ -24,7 +24,8 @@ export const authLink = setContext((_, { headers }) => {
 });
 
 // Global promise to track ongoing token refresh
-let refreshTokenPromise: Promise<{ accessToken: string; refreshToken: string } | null> | null = null;
+let refreshTokenPromise: Promise<{ accessToken: string; refreshToken: string } | null> | null =
+  null;
 
 /**
  * Error Link - handles 401 errors and token refresh
