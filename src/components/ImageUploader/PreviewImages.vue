@@ -43,7 +43,7 @@
             dense
             size="sm"
             icon="drag_indicator"
-            class="image-item__move bg-block"
+            class="image-item__move bg-block hidden"
             @click.stop
           >
             <q-tooltip class="bg-block border-radius-md text-body2">Drag to reorder</q-tooltip>

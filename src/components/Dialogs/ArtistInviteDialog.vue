@@ -12,7 +12,7 @@
   <q-dialog v-model="isVisible" position="bottom" maximized no-route-dismiss>
     <q-card class="artist-invite-dialog">
       <q-card-section class="dialog-header">
-        <div class="text-subtitle1 text-bold">{{ title }}</div>
+        <div class="text-subtitle1 text-bold">Invite Artists</div>
         <q-btn
           icon="close"
           round
