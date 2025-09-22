@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Загружаем local.properties для получения паролей подписи
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
 android {
     namespace "org.guestspot.app"
     compileSdk rootProject.ext.compileSdkVersion
@@ -19,9 +28,10 @@ android {
     signingConfigs {
         release {
             storeFile file(RELEASE_STORE_FILE)
-            storePassword project.findProperty('RELEASE_STORE_PASSWORD') ?: System.getenv('RELEASE_STORE_PASSWORD')
+            // Пароли берутся из local.properties (не добавляется в git) или переменных окружения
+            storePassword localProperties.getProperty('RELEASE_STORE_PASSWORD') ?: project.findProperty('RELEASE_STORE_PASSWORD') ?: System.getenv('RELEASE_STORE_PASSWORD')
             keyAlias RELEASE_KEY_ALIAS
-            keyPassword project.findProperty('RELEASE_KEY_PASSWORD') ?: System.getenv('RELEASE_KEY_PASSWORD')
+            keyPassword localProperties.getProperty('RELEASE_KEY_PASSWORD') ?: project.findProperty('RELEASE_KEY_PASSWORD') ?: System.getenv('RELEASE_KEY_PASSWORD')
         }
     }
     

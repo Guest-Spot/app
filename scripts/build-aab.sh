@@ -107,6 +107,9 @@ if [ -f "$AAB_PATH" ]; then
     FILE_SIZE=$(du -h "$AAB_PATH" | cut -f1)
     print_status "📊 File size: $FILE_SIZE"
     
+    # Create temp directory if it doesn't exist
+    mkdir -p temp
+    
     # Copy to temp directory for easy access
     cp "$AAB_PATH" "temp/app-release-signed.aab"
     print_status "📋 AAB file copied to: temp/app-release-signed.aab"
