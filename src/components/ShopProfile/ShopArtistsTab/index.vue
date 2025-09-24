@@ -196,7 +196,11 @@ watch(() => profileStore.getShopProfile, (newProfile) => {
     void loadShopArtists(null, {
       documentId: newProfile.documentId,
     }, { fetchPolicy: 'network-only' });
-    void loadInvites(null, {}, { fetchPolicy: 'network-only' });
+    void loadInvites(null, {
+      recipient: {
+        eq: newProfile.documentId,
+      },
+    }, { fetchPolicy: 'network-only' });
   }
 }, { immediate: true });
 

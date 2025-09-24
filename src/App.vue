@@ -20,11 +20,13 @@ const fetchCurrentUser = async (): Promise<void> => {
     const result = await fetchMe();
     if (result) {
       profileStore.setUserProfile(result);
+      if (result?.profile?.documentId) {
       void fetchInvites({
         recipient: {
-          eq: result.documentId,
-        },
-      });
+            eq: result?.profile?.documentId,
+          },
+        });
+      }
     }
   }
 };
