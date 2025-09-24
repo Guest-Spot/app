@@ -5,36 +5,44 @@
         >, <span class="text-primary">{{ name }}</span></template
       >
     </div>
-    <q-btn text-color="negative" icon="settings" round unelevated class="bg-block" size="sm">
-      <q-menu style="width: 150px">
-        <q-list>
-          <q-item v-close-popup clickable @click="handlePublicProfile">
-            <q-item-section>
-              <div class="flex items-center no-wrap q-gap-sm">
-                <q-icon name="public" size="18px" />
-                <q-item-label>Public profile</q-item-label>
-              </div>
-            </q-item-section>
-          </q-item>
-          <q-item clickable @click="handleLogout" v-close-popup>
-            <q-item-section>
-              <div class="flex items-center q-gap-sm text-negative">
-                <q-icon name="logout" size="18px" />
-                <q-item-label>Logout</q-item-label>
-              </div>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-menu>
-    </q-btn>
+    <div class="flex items-center q-gap-sm">
+      <q-btn text-color="primary" icon="notifications" round unelevated class="bg-block" size="sm" @click="showNotificationDialog">
+        <q-badge v-if="invites.length > 0" color="negative" floating rounded>{{ invites.length }}</q-badge>
+      </q-btn>
+      <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
+        <q-menu style="width: 150px">
+          <q-list>
+            <q-item v-close-popup clickable @click="handlePublicProfile">
+              <q-item-section>
+                <div class="flex items-center no-wrap q-gap-sm">
+                  <q-icon name="public" size="18px" />
+                  <q-item-label>Public profile</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
+            <q-item clickable @click="handleLogout" v-close-popup>
+              <q-item-section>
+                <div class="flex items-center q-gap-sm text-negative">
+                  <q-icon name="logout" size="18px" />
+                  <q-item-label>Logout</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
+import { useInvitesStore } from 'src/stores/invites';
+import NotificationDialog from 'src/components/Dialogs/NotificationDialog.vue';
 
 defineOptions({
   name: 'ProfileHeader',
@@ -53,6 +61,9 @@ const router = useRouter();
 const $q = useQuasar();
 const { logout } = useUser();
 const { showSuccess } = useNotify();
+const invitesStore = useInvitesStore();
+
+const invites = computed(() => invitesStore.getInvites);
 
 const handleLogout = () => {
   $q.dialog({
@@ -77,5 +88,14 @@ const handleLogout = () => {
 
 const handlePublicProfile = () => {
   emit('openPublicProfile');
+};
+
+const showNotificationDialog = () => {
+  $q.dialog({
+    component: NotificationDialog,
+    componentProps: {
+      invites: invites.value,
+    },
+  });
 };
 </script>

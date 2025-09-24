@@ -2,14 +2,16 @@ import { ref } from 'vue';
 import type { IArtist } from 'src/interfaces/artist';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
-import { useMutation } from '@vue/apollo-composable';
-import { CREATE_INVITE_MUTATION, DELETE_INVITE_MUTATION } from 'src/apollo/types/invite';
+import { useMutation, useLazyQuery } from '@vue/apollo-composable';
+import { CREATE_INVITE_MUTATION, DELETE_INVITE_MUTATION, INVITES_QUERY } from 'src/apollo/types/invite';
 import type { IShop } from 'src/interfaces/shop';
 import { InviteType } from 'src/interfaces/enums';
+import { useInvitesStore } from 'src/stores/invites';
 
 const useInviteCompos = () => {
   const $q = useQuasar();
   const { showError } = useNotify();
+  const invitesStore = useInvitesStore();
 
   const {
     mutate: createInviteMutation,
@@ -24,7 +26,18 @@ const useInviteCompos = () => {
     onError: onDeleteInviteError,
   } = useMutation(DELETE_INVITE_MUTATION);
 
+  const {
+    load: loadInvites,
+    onResult: onResultInvites,
+    onError: onErrorInvites,
+    refetch: refetchInvites,
+  } = useLazyQuery(INVITES_QUERY);
+
   const shopArtists = ref<IArtist[]>([]);
+
+  const fetchInvites = (filters: unknown = {}) => {
+    void loadInvites(null, { filters }, { fetchPolicy: 'network-only' });
+  };
 
   const inviteArtist = (shop: IShop, artist: IArtist) => {
     $q.dialog({
@@ -95,6 +108,10 @@ const useInviteCompos = () => {
     });
   };
 
+  onResultInvites((result) => {
+    invitesStore.setInvites(result?.data?.invites || []);
+  });
+
   return {
     shopArtists,
     inviteArtist,
@@ -105,6 +122,10 @@ const useInviteCompos = () => {
     onDeleteInviteSuccess,
     onDeleteInviteError,
     cancelInvite,
+    fetchInvites,
+    refetchInvites,
+    onResultInvites,
+    onErrorInvites,
   };
 };
 
