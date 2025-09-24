@@ -121,7 +121,6 @@ interface SortSettings {
 
 interface Props {
   modelValue: boolean;
-  shopId?: string | number;
   invitedDocumentIds?: string[];
   pendingDocumentIds?: string[];
 }

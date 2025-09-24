@@ -26,15 +26,17 @@
       </div>
 
       <!-- Artists Grid -->
-      <ArtistsList
+      <PendingList
         v-show="activeFilter?.tab === PENDING_TAB"
         :artists="pendingArtists"
+        :pending-document-ids="pendingDocumentIds"
         no-data-title="No Data"
         no-data-description="Invite your first artist to showcase their work"
         no-data-button-label="Invite First Artist"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
         @open-invite-dialog="showAddArtistDialog = true"
+        @cancel-invite="handleCancelInvite"
       />
       <ArtistsList
         v-show="activeFilter?.tab === ACCEPTED_TAB"
@@ -48,7 +50,6 @@
     <!-- Invite Artist Dialog -->
     <ArtistInviteDialog
       v-model="showAddArtistDialog"
-      :shop-id="shopId"
       :invited-document-ids="invitedDocumentIds"
       :pending-document-ids="pendingDocumentIds"
       @artist-invited="handleArtistInvited"
@@ -68,8 +69,11 @@ import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
 import { useProfileStore } from 'src/stores/profile';
 import type { ITab } from 'src/interfaces/tabs';
 import ArtistsList from 'src/components/ShopProfile/ShopArtistsTab/ArtistsList.vue';
+import PendingList from 'src/components/ShopProfile/ShopArtistsTab/PendingList.vue';
 import TabsComp from 'src/components/TabsComp.vue';
-import type { IGraphQLInvitesResult } from 'src/interfaces/invite';
+import type { IGraphQLInvitesResult, IInvite } from 'src/interfaces/invite';
+import useInviteCompos from 'src/composables/useInviteCompos';
+import useNotify from 'src/modules/useNotify';
 
 const ACCEPTED_TAB = 'accepted';
 const PENDING_TAB = 'pending';
@@ -94,12 +98,14 @@ const {
   refetch: refetchInvites,
 } = useLazyQuery<IGraphQLInvitesResult>(INVITES_QUERY);
 const profileStore = useProfileStore();
+const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError } = useInviteCompos();
+const { showError, showSuccess } = useNotify();
 
 // Artists data
 const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
-const shopId = ref(1);
 const pendingArtists = ref<IArtist[]>([]);
+const pendingInvites = ref<IInvite[]>([]);
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
 const pendingDocumentIds = computed(() => pendingArtists.value.map((artist) => artist.documentId));
@@ -127,6 +133,22 @@ const handleArtistInvited = () => {
   void refetchInvites();
 };
 
+const handleCancelInvite = (artist: IArtist) => {
+  const shop = profileStore.shopProfile;
+  if (!shop) {
+    showError('Shop profile not found');
+    console.error('Shop profile not found');
+    return;
+  }
+  const inviteDocumentId = pendingInvites.value.find((invite) => invite.recipient === artist.documentId)?.documentId;
+  if (!inviteDocumentId) {
+    showError('Invite document ID not found');
+    console.error('Invite document ID not found');
+    return;
+  }
+  void cancelInvite(shop, artist, inviteDocumentId);
+};
+
 onResultShopArtists(({ data }) => {
   artists.value = data.shopArtists;
 });
@@ -137,6 +159,7 @@ onErrorShopArtists((error) => {
 
 onResultInvites(({ data }) => {
   if (data.invites.length > 0) {
+    pendingInvites.value = data.invites;
     void loadPendingShopArtists(null, {
       filters: {
         documentId: {
@@ -157,6 +180,15 @@ onResultPendingShopArtists(({ data }) => {
 
 onErrorPendingShopArtists((error) => {
   console.error('Error fetching invited artists:', error);
+});
+
+onDeleteInviteSuccess(() => {
+  showSuccess('Invite canceled successfully');
+  void refetchInvites();
+});
+
+onDeleteInviteError((error) => {
+  console.error('Error canceling invite:', error);
 });
 
 watch(() => profileStore.getShopProfile, (newProfile) => {

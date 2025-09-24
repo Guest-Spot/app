@@ -67,3 +67,11 @@ export const UPDATE_INVITE_MUTATION = gql`
     }
   }
 `;
+
+export const DELETE_INVITE_MUTATION = gql`
+  mutation DeleteInvite($documentId: ID!) {
+    deleteInvite(documentId: $documentId) {
+      documentId
+    }
+  }
+`;

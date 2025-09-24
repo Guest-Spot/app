@@ -3,7 +3,7 @@ import type { IArtist } from 'src/interfaces/artist';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import { useMutation } from '@vue/apollo-composable';
-import { CREATE_INVITE_MUTATION } from 'src/apollo/types/invite';
+import { CREATE_INVITE_MUTATION, DELETE_INVITE_MUTATION } from 'src/apollo/types/invite';
 import type { IShop } from 'src/interfaces/shop';
 import { InviteType } from 'src/interfaces/enums';
 
@@ -17,6 +17,12 @@ const useInviteCompos = () => {
     onDone: onInviteSuccess,
     onError: onInviteError,
   } = useMutation(CREATE_INVITE_MUTATION);
+  const {
+    mutate: deleteInviteMutation,
+    loading: deletingInvite,
+    onDone: onDeleteInviteSuccess,
+    onError: onDeleteInviteError,
+  } = useMutation(DELETE_INVITE_MUTATION);
 
   const shopArtists = ref<IArtist[]>([]);
 
@@ -39,7 +45,7 @@ const useInviteCompos = () => {
       },
     }).onOk(() => {
       if (!shop.documentId) {
-        showError('Please login to send invitation');
+        showError('Something went wrong');
         console.error('Shop ID is required to send invitation');
         return;
       }
@@ -55,12 +61,50 @@ const useInviteCompos = () => {
     });
   };
 
+  const cancelInvite = (shop: IShop, artist: IArtist, inviteDocumentId: string) => {
+    $q.dialog({
+      title: 'Cancel Invite',
+      message: `Are you sure you want to cancel the invite for <strong class="text-primary">${artist.name}</strong>?`,
+      persistent: true,
+      html: true,
+      ok: {
+        label: 'Yes, Cancel',
+        color: 'primary',
+        rounded: true,
+        unelevated: true,
+      },
+      cancel: {
+        label: 'No, Keep It',
+        color: 'grey-9',
+        rounded: true,
+      },
+    }).onOk(() => {
+      if (!shop.documentId) {
+        showError('Something went wrong');
+        console.error('Shop ID is required to cancel invite');
+        return;
+      }
+      if (!inviteDocumentId) {
+        showError('Something went wrong');
+        console.error('Invite document ID is required to cancel invite');
+        return;
+      }
+      void deleteInviteMutation({
+        documentId: inviteDocumentId,
+      });
+    });
+  };
+
   return {
     shopArtists,
     inviteArtist,
     invitingArtist,
     onInviteSuccess,
     onInviteError,
+    deletingInvite,
+    onDeleteInviteSuccess,
+    onDeleteInviteError,
+    cancelInvite,
   };
 };
 
