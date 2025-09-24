@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client/core';
 
 export const INVITES_QUERY = gql`
-  query Invites {
-    invites {
+  query Invites($filters: InviteFiltersInput) {
+    invites(filters: $filters) {
       type
       reaction
       documentId

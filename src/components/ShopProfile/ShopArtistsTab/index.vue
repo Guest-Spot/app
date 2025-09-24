@@ -26,30 +26,20 @@
       </div>
 
       <!-- Artists Grid -->
-      <div class="artists-grid" v-if="artists.length">
-        <ArtistCard
-          v-for="artist in artists"
-          :key="artist.documentId"
-          :artist="artist"
-          @click="handleArtistClick"
-          @favorite="handleFavoriteToggle"
-        />
-      </div>
-
-      <!-- Empty State -->
-      <div v-else class="empty-state bg-block border-radius-lg">
-        <q-icon name="people" size="60px" color="grey-6" />
-        <h3 class="empty-title">No Artists Yet</h3>
-        <p class="empty-description text-grey-6">Invite your first artist to showcase their work</p>
-        <q-btn
-          class="bg-block"
-          icon="person_add"
-          label="Invite First Artist"
-          @click="showAddArtistDialog = true"
-          rounded
-          unelevated
-        />
-      </div>
+      <ArtistsList
+        v-if="activeFilter?.tab === PENDING_TAB"
+        :artists="invitedArtists"
+        @select-artist="handleArtistClick"
+        @select-favorite="handleFavoriteToggle"
+        @open-invite-dialog="showAddArtistDialog = true"
+      />
+      <ArtistsList
+        v-else
+        :artists="artists"
+        @select-artist="handleArtistClick"
+        @select-favorite="handleFavoriteToggle"
+        @open-invite-dialog="showAddArtistDialog = true"
+      />
     </div>
 
     <!-- Invite Artist Dialog -->
@@ -65,14 +55,17 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
-import { ArtistCard } from 'src/components/SearchPage/index';
-import type { IArtist } from 'src/interfaces/artist';
 import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
+import { ARTISTS_QUERY } from 'src/apollo/types/artist';
+import { INVITES_QUERY } from 'src/apollo/types/invite';
 import { useLazyQuery } from '@vue/apollo-composable';
 import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
+import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
 import { useProfileStore } from 'src/stores/profile';
 import type { ITab } from 'src/interfaces/tabs';
+import ArtistsList from 'src/components/ShopProfile/ShopArtistsTab/ArtistsList.vue';
 import TabsComp from 'src/components/TabsComp.vue';
+import type { IGraphQLInvitesResult } from 'src/interfaces/invite';
 
 const ACCEPTED_TAB = 'accepted';
 const PENDING_TAB = 'pending';
@@ -83,17 +76,30 @@ const {
   onError: onErrorShopArtists,
   refetch: refetchShopArtists,
 } = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+
+const {
+  load: loadInvitedShopArtists,
+  onResult: onResultInvitedShopArtists,
+  onError: onErrorInvitedShopArtists,
+} = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+
+const {
+  load: loadInvites,
+  onResult: onResultInvites,
+  onError: onErrorInvites,
+} = useLazyQuery<IGraphQLInvitesResult>(INVITES_QUERY);
 const profileStore = useProfileStore();
 
 // Artists data
 const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
 const shopId = ref(1);
+const invitedArtists = ref<IArtist[]>([]);
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
 const filterTabs = computed<ITab[]>(() => [
   { label: 'Accepted', tab: ACCEPTED_TAB, count: artists.value.length },
-  { label: 'Pending', tab: PENDING_TAB, count: 0 },
+  { label: 'Pending', tab: PENDING_TAB, count: invitedArtists.value.length },
 ]);
 
 const activeFilter = ref<ITab>(filterTabs.value[0]!);
@@ -122,17 +128,44 @@ onErrorShopArtists((error) => {
   console.error('Error fetching invites:', error);
 });
 
+onResultInvites(({ data }) => {
+  void loadInvitedShopArtists(null, {
+    filters: {
+      documentId: {
+        in: data.invites.map((invite) => invite.recipient),
+      },
+    },
+  }, { fetchPolicy: 'network-only' });
+});
+
+onErrorInvites((error) => {
+  console.error('Error fetching invites:', error);
+});
+
+onResultInvitedShopArtists(({ data }) => {
+  invitedArtists.value = data?.artists || [];
+});
+
+onErrorInvitedShopArtists((error) => {
+  console.error('Error fetching invited artists:', error);
+});
+
 watch(() => profileStore.getShopProfile, (newProfile) => {
   if (newProfile) {
     void loadShopArtists(null, {
       documentId: newProfile.documentId,
     }, { fetchPolicy: 'network-only' });
+    void loadInvites(null, {}, { fetchPolicy: 'network-only' });
   }
 }, { immediate: true });
 
 // Expose data for parent component
 defineExpose({
   artists,
+});
+
+defineOptions({
+  name: 'ShopArtistsTab',
 });
 </script>
 
@@ -148,28 +181,5 @@ defineExpose({
   margin: 0;
   font-size: 24px;
   font-weight: 600;
-}
-
-.artists-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-// ArtistCard component handles its own styling
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-title {
-  margin: 16px 0 8px 0;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.empty-description {
-  margin: 0 0 24px 0;
 }
 </style>
