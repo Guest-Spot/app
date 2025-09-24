@@ -13,8 +13,8 @@
   <!-- Empty State -->
   <div v-else class="empty-state bg-block border-radius-lg">
     <q-icon name="people" size="60px" color="grey-6" />
-    <h3 class="empty-title">No Artists Yet</h3>
-    <p class="empty-description text-grey-6">Invite your first artist to showcase their work</p>
+    <h3 class="empty-title">{{ noDataTitle || 'No Artists Yet' }}</h3>
+    <p class="empty-description text-grey-6">{{ noDataDescription || 'Invite your first artist to showcase their work' }}</p>
     <q-btn
       class="bg-block"
       icon="person_add"
@@ -32,6 +32,9 @@ import type { IArtist } from 'src/interfaces/artist';
 
 interface Props {
   artists: IArtist[];
+  noDataTitle?: string;
+  noDataDescription?: string;
+  noDataButtonLabel?: string;
 }
 
 interface Emits {

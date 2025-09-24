@@ -229,21 +229,15 @@ watch(
 
 // Methods
 const getInviteBtnText = (artist: LocalArtist) => {
-  if (artist.invited) {
+  if (artist.invited || artist.pending) {
     return 'Invited';
-  }
-  if (artist.pending) {
-    return 'Pending';
   }
   return 'Invite to shop';
 }
 
 const getInviteBtnIcon = (artist: LocalArtist) => {
-  if (artist.invited) {
+  if (artist.invited || artist.pending) {
     return 'check';
-  }
-  if (artist.pending) {
-    return '';
   }
   return 'person_add';
 }
@@ -370,6 +364,10 @@ onInviteSuccess(({ data }) => {
   if (invitedArtist) {
     showSuccess(`Invitation sent to ${invitedArtist.artist.name}!`);
     void emit('artistInvited', invitedArtist.artist);
+    localArtists.value = localArtists.value.map((a) => ({
+      ...a,
+      pending: a.artist.documentId === data?.createInvite?.recipient || a.pending,
+    }));
   }
 });
 
@@ -382,7 +380,7 @@ onInviteError((error) => {
 // Load artists and cities when component mounts and dialog is visible
 onMounted(() => {
   if (props.modelValue) {
-    loadArtistsList();
+    void loadArtistsList();
     void loadCities();
   }
 });

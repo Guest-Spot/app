@@ -28,7 +28,10 @@
       <!-- Artists Grid -->
       <ArtistsList
         v-show="activeFilter?.tab === PENDING_TAB"
-        :artists="invitedArtists"
+        :artists="pendingArtists"
+        no-data-title="No Data"
+        no-data-description="Invite your first artist to showcase their work"
+        no-data-button-label="Invite First Artist"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
         @open-invite-dialog="showAddArtistDialog = true"
@@ -79,15 +82,16 @@ const {
 } = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
 
 const {
-  load: loadInvitedShopArtists,
-  onResult: onResultInvitedShopArtists,
-  onError: onErrorInvitedShopArtists,
+  load: loadPendingShopArtists,
+  onResult: onResultPendingShopArtists,
+  onError: onErrorPendingShopArtists,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
 const {
   load: loadInvites,
   onResult: onResultInvites,
   onError: onErrorInvites,
+  refetch: refetchInvites,
 } = useLazyQuery<IGraphQLInvitesResult>(INVITES_QUERY);
 const profileStore = useProfileStore();
 
@@ -95,13 +99,13 @@ const profileStore = useProfileStore();
 const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
 const shopId = ref(1);
-const invitedArtists = ref<IArtist[]>([]);
+const pendingArtists = ref<IArtist[]>([]);
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
-const pendingDocumentIds = computed(() => invitedArtists.value.map((artist) => artist.documentId));
+const pendingDocumentIds = computed(() => pendingArtists.value.map((artist) => artist.documentId));
 const filterTabs = computed<ITab[]>(() => [
   { label: 'Accepted', tab: ACCEPTED_TAB, count: artists.value.length },
-  { label: 'Pending', tab: PENDING_TAB, count: invitedArtists.value.length },
+  { label: 'Pending', tab: PENDING_TAB, count: pendingArtists.value.length },
 ]);
 
 const activeFilter = ref<ITab>(filterTabs.value[0]!);
@@ -120,6 +124,7 @@ const handleFavoriteToggle = (artistDocumentId: string) => {
 
 const handleArtistInvited = () => {
   void refetchShopArtists();
+  void refetchInvites();
 };
 
 onResultShopArtists(({ data }) => {
@@ -131,24 +136,26 @@ onErrorShopArtists((error) => {
 });
 
 onResultInvites(({ data }) => {
-  void loadInvitedShopArtists(null, {
-    filters: {
-      documentId: {
-        in: data.invites.map((invite) => invite.recipient),
+  if (data.invites.length > 0) {
+    void loadPendingShopArtists(null, {
+      filters: {
+        documentId: {
+          in: data.invites.map((invite) => invite.recipient),
+        },
       },
-    },
-  }, { fetchPolicy: 'network-only' });
+    }, { fetchPolicy: 'network-only' });
+  }
 });
 
 onErrorInvites((error) => {
   console.error('Error fetching invites:', error);
 });
 
-onResultInvitedShopArtists(({ data }) => {
-  invitedArtists.value = data?.artists || [];
+onResultPendingShopArtists(({ data }) => {
+  pendingArtists.value = data?.artists || [];
 });
 
-onErrorInvitedShopArtists((error) => {
+onErrorPendingShopArtists((error) => {
   console.error('Error fetching invited artists:', error);
 });
 
