@@ -27,14 +27,14 @@
 
       <!-- Artists Grid -->
       <ArtistsList
-        v-if="activeFilter?.tab === PENDING_TAB"
+        v-show="activeFilter?.tab === PENDING_TAB"
         :artists="invitedArtists"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
         @open-invite-dialog="showAddArtistDialog = true"
       />
       <ArtistsList
-        v-else
+        v-show="activeFilter?.tab === ACCEPTED_TAB"
         :artists="artists"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
@@ -47,6 +47,7 @@
       v-model="showAddArtistDialog"
       :shop-id="shopId"
       :invited-document-ids="invitedDocumentIds"
+      :pending-document-ids="pendingDocumentIds"
       @artist-invited="handleArtistInvited"
     />
   </div>
@@ -97,6 +98,7 @@ const shopId = ref(1);
 const invitedArtists = ref<IArtist[]>([]);
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
+const pendingDocumentIds = computed(() => invitedArtists.value.map((artist) => artist.documentId));
 const filterTabs = computed<ITab[]>(() => [
   { label: 'Accepted', tab: ACCEPTED_TAB, count: artists.value.length },
   { label: 'Pending', tab: PENDING_TAB, count: invitedArtists.value.length },

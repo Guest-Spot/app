@@ -72,12 +72,12 @@
                     color="primary"
                     class="bg-block full-width"
                     :loading="invitingArtist"
-                    :disable="invitingArtist || l.invited"
+                    :disable="invitingArtist || l.invited || l.pending"
                     @click.stop="sendInvitation(l.artist)"
                   >
                     <div class="flex items-center q-gap-sm">
-                      <q-icon :name="l.invited ? 'check' : 'person_add'" size="18px" />
-                      <span>{{ l.invited ? 'Invited' : 'Invite to shop' }}</span>
+                      <q-icon v-if="getInviteBtnIcon(l)" :name="getInviteBtnIcon(l)" size="18px" />
+                      <span>{{ getInviteBtnText(l) }}</span>
                     </div>
                   </q-btn>
                 </template>
@@ -123,6 +123,13 @@ interface Props {
   modelValue: boolean;
   shopId?: string | number;
   invitedDocumentIds?: string[];
+  pendingDocumentIds?: string[];
+}
+
+interface LocalArtist {
+  artist: IArtist;
+  invited: boolean;
+  pending: boolean;
 }
 
 interface Emits {
@@ -157,7 +164,7 @@ const sortSettings = ref<SortSettings>({
 });
 
 // Local state for dialog artists to avoid interfering with global store
-const localArtists = ref<{ artist: IArtist; invited: boolean }[]>([]);
+const localArtists = ref<LocalArtist[]>([]);
 const currentPage = ref(1);
 const totalArtists = ref(0);
 const hasMoreArtists = ref(true);
@@ -221,6 +228,26 @@ watch(
 );
 
 // Methods
+const getInviteBtnText = (artist: LocalArtist) => {
+  if (artist.invited) {
+    return 'Invited';
+  }
+  if (artist.pending) {
+    return 'Pending';
+  }
+  return 'Invite to shop';
+}
+
+const getInviteBtnIcon = (artist: LocalArtist) => {
+  if (artist.invited) {
+    return 'check';
+  }
+  if (artist.pending) {
+    return '';
+  }
+  return 'person_add';
+}
+
 const sendInvitation = (artist: IArtist) => {
   const shop = profileStore.shopProfile;
   if (!shop) {
@@ -310,6 +337,7 @@ onArtistsResult(({ data, loading }) => {
     const newLocalArtists = newArtists.map((artist) => ({
       artist,
       invited: props.invitedDocumentIds?.includes(artist.documentId) || false,
+      pending: props.pendingDocumentIds?.includes(artist.documentId) || false,
     }));
 
     localArtists.value = [...(localArtists.value || []), ...newLocalArtists];
