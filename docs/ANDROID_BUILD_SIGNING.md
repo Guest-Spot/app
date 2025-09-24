@@ -2,6 +2,16 @@
 
 This guide describes the process of building and signing Android APK files for the GuestSpot application.
 
+## Quick Start
+
+For the fastest way to build and sign your Android app, use the automated script:
+
+```bash
+./scripts/complete-android-build.sh
+```
+
+This single command will handle everything: keystore generation, password configuration, building, and signing.
+
 ## Prerequisites
 
 - Node.js and npm/yarn installed
@@ -84,9 +94,64 @@ After signing, verify that the APK is properly signed:
 ~/Library/Android/sdk/build-tools/34.0.0/apksigner verify app-release-signed.apk
 ```
 
-## Complete Workflow Script
+## Automated Scripts
 
-You can create a script to automate the entire process:
+The project includes several automated scripts to simplify the build and signing process:
+
+### 1. Complete Build and Signing Automation
+
+For a fully automated process, use the complete build script:
+
+```bash
+./scripts/complete-android-build.sh
+```
+
+This script will:
+- Check for keystore file and generate one if needed
+- Configure signing passwords
+- Build APK and/or AAB files
+- Sign all generated files
+- Provide next steps and recommendations
+
+### 2. Keystore Generation
+
+To generate a new keystore file:
+
+```bash
+./scripts/generate-keystore.sh
+```
+
+This script will:
+- Generate a new JKS keystore file
+- Configure local.properties with keystore settings
+- Set secure file permissions
+- Provide security reminders
+
+### 3. APK/AAB Signing
+
+To sign existing unsigned APK/AAB files:
+
+```bash
+./scripts/sign-apk.sh
+```
+
+This script will:
+- Find unsigned APK/AAB files
+- Sign them using the configured keystore
+- Verify signatures
+- Copy signed files to temp directory
+
+### 4. AAB Build (Existing)
+
+To build AAB files with Gradle signing:
+
+```bash
+./scripts/build-aab.sh
+```
+
+## Manual Process (Legacy)
+
+If you prefer to do the process manually, here's the complete workflow:
 
 ```bash
 #!/bin/bash

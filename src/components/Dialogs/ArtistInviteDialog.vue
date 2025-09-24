@@ -59,9 +59,9 @@
               @load-more="loadMoreArtists"
             >
               <ArtistCard
-                v-for="artist in localArtists"
-                :key="artist.documentId"
-                :artist="artist"
+                v-for="l in localArtists"
+                :key="l.artist.documentId"
+                :artist="l.artist"
                 @click="selectArtist"
               >
                 <template #footer>
@@ -72,12 +72,12 @@
                     color="primary"
                     class="bg-block full-width"
                     :loading="invitingArtist"
-                    :disable="invitingArtist"
-                    @click.stop="sendInvitation(artist)"
+                    :disable="invitingArtist || l.invited || l.pending"
+                    @click.stop="sendInvitation(l.artist)"
                   >
                     <div class="flex items-center q-gap-sm">
-                      <q-icon name="person_add" size="18px" />
-                      <span>Invite to shop</span>
+                      <q-icon v-if="getInviteBtnIcon(l)" :name="getInviteBtnIcon(l)" size="18px" />
+                      <span>{{ getInviteBtnText(l) }}</span>
                     </div>
                   </q-btn>
                 </template>
@@ -121,7 +121,14 @@ interface SortSettings {
 
 interface Props {
   modelValue: boolean;
-  shopId?: string | number;
+  invitedDocumentIds?: string[];
+  pendingDocumentIds?: string[];
+}
+
+interface LocalArtist {
+  artist: IArtist;
+  invited: boolean;
+  pending: boolean;
 }
 
 interface Emits {
@@ -156,7 +163,7 @@ const sortSettings = ref<SortSettings>({
 });
 
 // Local state for dialog artists to avoid interfering with global store
-const localArtists = ref<IArtist[]>([]);
+const localArtists = ref<LocalArtist[]>([]);
 const currentPage = ref(1);
 const totalArtists = ref(0);
 const hasMoreArtists = ref(true);
@@ -220,6 +227,20 @@ watch(
 );
 
 // Methods
+const getInviteBtnText = (artist: LocalArtist) => {
+  if (artist.invited || artist.pending) {
+    return 'Invited';
+  }
+  return 'Invite to shop';
+}
+
+const getInviteBtnIcon = (artist: LocalArtist) => {
+  if (artist.invited || artist.pending) {
+    return 'check';
+  }
+  return 'person_add';
+}
+
 const sendInvitation = (artist: IArtist) => {
   const shop = profileStore.shopProfile;
   if (!shop) {
@@ -306,13 +327,13 @@ onArtistsResult(({ data, loading }) => {
   if (!loading && data?.artists) {
     const newArtists = data.artists;
 
-    if (currentPage.value === 1) {
-      // First page - replace all artists
-      localArtists.value = newArtists;
-    } else {
-      // Subsequent pages - append new artists
-      localArtists.value = [...localArtists.value, ...newArtists];
-    }
+    const newLocalArtists = newArtists.map((artist) => ({
+      artist,
+      invited: props.invitedDocumentIds?.includes(artist.documentId) || false,
+      pending: props.pendingDocumentIds?.includes(artist.documentId) || false,
+    }));
+
+    localArtists.value = [...(localArtists.value || []), ...newLocalArtists];
 
     // Update pagination info
     totalArtists.value = data.artists_connection?.pageInfo?.total || 0;
@@ -337,10 +358,15 @@ onErrorCities((error) => {
 // Handle invitation success
 onInviteSuccess(({ data }) => {
   const invitedArtist = localArtists.value.find(
-    (a) => a.documentId === data?.createInvite?.recipient,
+    (a) => a.artist.documentId === data?.createInvite?.recipient,
   );
   if (invitedArtist) {
-    showSuccess(`Invitation sent to ${invitedArtist.name}!`);
+    showSuccess(`Invitation sent to ${invitedArtist.artist.name}!`);
+    void emit('artistInvited', invitedArtist.artist);
+    localArtists.value = localArtists.value.map((a) => ({
+      ...a,
+      pending: a.artist.documentId === data?.createInvite?.recipient || a.pending,
+    }));
   }
 });
 
@@ -353,7 +379,7 @@ onInviteError((error) => {
 // Load artists and cities when component mounts and dialog is visible
 onMounted(() => {
   if (props.modelValue) {
-    loadArtistsList();
+    void loadArtistsList();
     void loadCities();
   }
 });
