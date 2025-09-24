@@ -59,9 +59,9 @@
               @load-more="loadMoreArtists"
             >
               <ArtistCard
-                v-for="artist in localArtists"
-                :key="artist.documentId"
-                :artist="artist"
+                v-for="l in localArtists"
+                :key="l.artist.documentId"
+                :artist="l.artist"
                 @click="selectArtist"
               >
                 <template #footer>
@@ -72,12 +72,12 @@
                     color="primary"
                     class="bg-block full-width"
                     :loading="invitingArtist"
-                    :disable="invitingArtist"
-                    @click.stop="sendInvitation(artist)"
+                    :disable="invitingArtist || l.invited"
+                    @click.stop="sendInvitation(l.artist)"
                   >
                     <div class="flex items-center q-gap-sm">
-                      <q-icon name="person_add" size="18px" />
-                      <span>Invite to shop</span>
+                      <q-icon :name="l.invited ? 'check' : 'person_add'" size="18px" />
+                      <span>{{ l.invited ? 'Invited' : 'Invite to shop' }}</span>
                     </div>
                   </q-btn>
                 </template>
@@ -122,6 +122,7 @@ interface SortSettings {
 interface Props {
   modelValue: boolean;
   shopId?: string | number;
+  invitedDocumentIds?: string[];
 }
 
 interface Emits {
@@ -156,7 +157,7 @@ const sortSettings = ref<SortSettings>({
 });
 
 // Local state for dialog artists to avoid interfering with global store
-const localArtists = ref<IArtist[]>([]);
+const localArtists = ref<{ artist: IArtist; invited: boolean }[]>([]);
 const currentPage = ref(1);
 const totalArtists = ref(0);
 const hasMoreArtists = ref(true);
@@ -306,13 +307,12 @@ onArtistsResult(({ data, loading }) => {
   if (!loading && data?.artists) {
     const newArtists = data.artists;
 
-    if (currentPage.value === 1) {
-      // First page - replace all artists
-      localArtists.value = newArtists;
-    } else {
-      // Subsequent pages - append new artists
-      localArtists.value = [...localArtists.value, ...newArtists];
-    }
+    const newLocalArtists = newArtists.map((artist) => ({
+      artist,
+      invited: props.invitedDocumentIds?.includes(artist.documentId) || false,
+    }));
+
+    localArtists.value = [...(localArtists.value || []), ...newLocalArtists];
 
     // Update pagination info
     totalArtists.value = data.artists_connection?.pageInfo?.total || 0;
@@ -337,10 +337,11 @@ onErrorCities((error) => {
 // Handle invitation success
 onInviteSuccess(({ data }) => {
   const invitedArtist = localArtists.value.find(
-    (a) => a.documentId === data?.createInvite?.recipient,
+    (a) => a.artist.documentId === data?.createInvite?.recipient,
   );
   if (invitedArtist) {
-    showSuccess(`Invitation sent to ${invitedArtist.name}!`);
+    showSuccess(`Invitation sent to ${invitedArtist.artist.name}!`);
+    void emit('artistInvited', invitedArtist.artist);
   }
 });
 

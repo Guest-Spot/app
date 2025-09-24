@@ -3,12 +3,23 @@
     <!-- Artists List -->
     <div class="artists-section">
       <div class="section-header q-mb-md bg-block border-radius-md">
-        <h3 class="text-subtitle1 text-bold q-my-none">Shop Artists ({{ artists.length }})</h3>
+        <div class="flex q-gap-xs">
+          <TabsComp
+            size="sm"
+            unelevated
+            send-initial-tab
+            :tabs="filterTabs"
+            :activeTab="activeFilter"
+            @set-active-tab="setActiveFilter"
+          />
+        </div>
         <q-btn
           color="primary"
           icon="person_add"
+          flat
           @click="showAddArtistDialog = true"
           round
+          class="bg-block"
           size="sm"
           unelevated
         />
@@ -45,13 +56,14 @@
     <ArtistInviteDialog
       v-model="showAddArtistDialog"
       :shop-id="shopId"
+      :invited-document-ids="invitedDocumentIds"
       @artist-invited="handleArtistInvited"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
 import { ArtistCard } from 'src/components/SearchPage/index';
 import type { IArtist } from 'src/interfaces/artist';
@@ -59,39 +71,47 @@ import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { useLazyQuery } from '@vue/apollo-composable';
 import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
 import { useProfileStore } from 'src/stores/profile';
+import type { ITab } from 'src/interfaces/tabs';
+import TabsComp from 'src/components/TabsComp.vue';
+
+const ACCEPTED_TAB = 'accepted';
+const PENDING_TAB = 'pending';
 
 const {
   load: loadShopArtists,
   onResult: onResultShopArtists,
   onError: onErrorShopArtists,
+  refetch: refetchShopArtists,
 } = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
-
 const profileStore = useProfileStore();
 
 // Artists data
 const artists = ref<IArtist[]>([]);
-
-// Dialog state
 const showAddArtistDialog = ref(false);
-
-// Shop ID (this should come from props or store in real app)
 const shopId = ref(1);
 
+const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
+const filterTabs = computed<ITab[]>(() => [
+  { label: 'Accepted', tab: ACCEPTED_TAB, count: artists.value.length },
+  { label: 'Pending', tab: PENDING_TAB, count: 0 },
+]);
+
+const activeFilter = ref<ITab>(filterTabs.value[0]!);
+
+const setActiveFilter = (filter: ITab) => {
+  activeFilter.value = filter;
+};
+
 const handleArtistClick = (artist: IArtist) => {
-  // Handle artist card click - could navigate to artist profile or show details
   console.log('Artist clicked:', artist);
 };
 
 const handleFavoriteToggle = (artistDocumentId: string) => {
-  // Handle favorite toggle - could update local state or make API call
   console.log('Favorite toggled for artist:', artistDocumentId);
 };
 
-const handleArtistInvited = (artist: IArtist) => {
-  // Handle artist invitation - could add to shop artists or show confirmation
-  console.log('Artist invited to shop:', artist);
-  // In a real app, you might want to add the artist to the shop's artist list
-  // or refresh the data from the server
+const handleArtistInvited = () => {
+  void refetchShopArtists();
 };
 
 onResultShopArtists(({ data }) => {
