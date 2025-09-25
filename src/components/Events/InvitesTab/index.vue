@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IInvite } from 'src/interfaces/invite';
 import InviteCard from 'src/components/Events/InvitesTab/InviteCard.vue';
@@ -69,7 +69,9 @@ import TabsComp from 'src/components/TabsComp.vue';
 import type { ITab } from 'src/interfaces/tabs';
 import useNotify from 'src/modules/useNotify';
 import NoResults from 'src/components/NoResult.vue';
-import { InviteType, InviteReaction } from 'src/interfaces/enums';
+import { InviteReaction } from 'src/interfaces/enums';
+import { useInvitesStore } from 'src/stores/invites';
+import { useUserStore } from 'src/stores/user';
 
 defineOptions({
   name: 'InvitesTab',
@@ -77,6 +79,8 @@ defineOptions({
 
 const $q = useQuasar();
 const { showSuccess } = useNotify();
+const invitesStore = useInvitesStore();
+const userStore = useUserStore();
 
 const SENT_TAB = 'sent';
 const RECEIVED_TAB = 'received';
@@ -86,11 +90,11 @@ const invites = ref<IInvite[]>([]);
 
 // Computed properties
 const sentInvites = computed(() => {
-  return invites.value.filter((invite) => invite.reaction !== InviteReaction.Pending);
+  return invitesStore.getInvites.filter((invite) => invite.sender === userStore.getUser?.profile?.documentId);
 });
 
 const receivedInvites = computed(() => {
-  return invites.value.filter((invite) => invite.reaction === InviteReaction.Pending);
+  return invitesStore.getInvites.filter((invite) => invite.recipient === userStore.getUser?.profile?.documentId);
 });
 
 const filterTabs = computed<ITab[]>(() => [
@@ -147,73 +151,6 @@ const cancelInvite = (inviteDocumentId: string) => {
     }
   });
 };
-
-// Load mock data on mount
-onMounted(() => {
-  // Mock data for demonstration
-  invites.value = [
-    {
-      documentId: '1',
-      title: 'Tattoo Session Request',
-      description: 'I would like to visit your shop and ...',
-      sender: '1',
-      recipient: '2',
-      createdAt: '2024-01-20T10:00:00Z',
-      updatedAt: '2024-01-20T10:00:00Z',
-      type: InviteType.ArtistToShop,
-      reaction: InviteReaction.Accepted,
-      publishedAt: '2024-01-20T10:00:00Z',
-    },
-    {
-      documentId: '2',
-      title: 'Art Commission',
-      description: 'Need artwork for shop decoration',
-      sender: '1',
-      recipient: '2',
-      createdAt: '2024-01-20T10:00:00Z',
-      updatedAt: '2024-01-20T10:00:00Z',
-      type: InviteType.ArtistToShop,
-      reaction: InviteReaction.Accepted,
-      publishedAt: '2024-01-20T10:00:00Z',
-    },
-    {
-      documentId: '3',
-      title: 'Master Class',
-      description: 'Need a master class in tattooing',
-      sender: '1',
-      recipient: '2',
-      createdAt: '2024-01-18T14:00:00Z',
-      updatedAt: '2024-01-19T09:00:00Z',
-      type: InviteType.ArtistToShop,
-      reaction: InviteReaction.Rejected,
-      publishedAt: '2024-01-20T10:00:00Z',
-    },
-    {
-      documentId: '3',
-      title: 'Master Class',
-      description: 'Need a master class in tattooing',
-      sender: '1',
-      recipient: '2',
-      createdAt: '2024-01-18T14:00:00Z',
-      updatedAt: '2024-01-19T09:00:00Z',
-      type: InviteType.ArtistToShop,
-      reaction: InviteReaction.Pending,
-      publishedAt: '2024-01-20T10:00:00Z',
-    },
-    {
-      documentId: '4',
-      title: 'Art Commission',
-      description: 'Need artwork for shop decoration',
-      sender: '1',
-      recipient: '2',
-      createdAt: '2024-01-18T14:00:00Z',
-      updatedAt: '2024-01-19T09:00:00Z',
-      type: InviteType.ArtistToShop,
-      reaction: InviteReaction.Pending,
-      publishedAt: '2024-01-20T10:00:00Z',
-    },
-  ];
-});
 </script>
 
 <style scoped lang="scss">

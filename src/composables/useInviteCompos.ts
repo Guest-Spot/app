@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { IArtist } from 'src/interfaces/artist';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
@@ -9,7 +9,7 @@ import {
   INVITES_QUERY,
 } from 'src/apollo/types/invite';
 import type { IShop } from 'src/interfaces/shop';
-import { InviteType } from 'src/interfaces/enums';
+import { InviteReaction, InviteType } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
 
 const useInviteCompos = () => {
@@ -38,6 +38,8 @@ const useInviteCompos = () => {
   } = useLazyQuery(INVITES_QUERY);
 
   const shopArtists = ref<IArtist[]>([]);
+
+  const pendingInvites = computed(() => invitesStore.getInvites.filter((invite) => invite.reaction === InviteReaction.Pending));
 
   const fetchInvites = (filters: unknown = {}) => {
     void loadInvites(null, { filters }, { fetchPolicy: 'network-only' });
@@ -130,6 +132,7 @@ const useInviteCompos = () => {
     refetchInvites,
     onResultInvites,
     onErrorInvites,
+    pendingInvites,
   };
 };
 

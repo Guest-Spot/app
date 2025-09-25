@@ -10,7 +10,7 @@
     class="notification-dialog"
   >
     <q-card>
-      <q-card-section class="row items-center q-pb-none justify-between">
+      <q-card-section class="notification-dialog-header bg-block row items-center justify-between">
         <div class="text-subtitle1 text-bold">Notifications</div>
         <q-btn
           icon="close"
@@ -24,9 +24,9 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <div v-if="invites.length > 0" class="flex column q-gap-sm">
+        <div v-if="pendingInvites.length > 0" class="flex column q-gap-sm">
           <NotificationItem
-            v-for="invite in invites"
+            v-for="invite in pendingInvites"
             :key="invite.documentId"
             :invite="invite"
             :loading="updatingInvite && invite.documentId === updatingInviteDocumentId"
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import NotificationItem from 'src/components/Cards/NotificationItem.vue';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_INVITE_MUTATION } from 'src/apollo/types/invite';
@@ -56,7 +56,6 @@ import { InviteReaction } from 'src/interfaces/enums';
 import useNotify from 'src/modules/useNotify';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useUser from 'src/modules/useUser';
-import { useInvitesStore } from 'src/stores/invites';
 
 interface Props {
   modelValue: boolean;
@@ -70,9 +69,8 @@ const emit = defineEmits<Emits>();
 const props = defineProps<Props>();
 const $q = useQuasar();
 const { showSuccess } = useNotify();
-const { fetchInvites } = useInviteCompos();
+const { fetchInvites, pendingInvites } = useInviteCompos();
 const { user } = useUser();
-const invitesStore = useInvitesStore();
 
 defineOptions({
   components: {
@@ -91,8 +89,6 @@ const {
 const isVisible = ref(props.modelValue);
 const updatingInviteDocumentId = ref<string | null>(null);
 const successMessage = ref<string>('');
-
-const invites = computed(() => invitesStore.getInvites);
 
 const handleAccept = (documentId: string) => {
   updatingInviteDocumentId.value = documentId;
@@ -182,6 +178,12 @@ watch(isVisible, (newValue) => {
 
 <style lang="scss" scoped>
 .notification-dialog {
+  .notification-dialog-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
   .q-card {
     width: 320px !important;
     border-radius: 20px 0 0 20px;

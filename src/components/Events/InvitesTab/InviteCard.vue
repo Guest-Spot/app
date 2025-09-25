@@ -70,6 +70,7 @@
 import { computed } from 'vue';
 import type { IInvite } from 'src/interfaces/invite';
 import { InviteReaction } from 'src/interfaces/enums';
+import { useUserStore } from 'src/stores/user';
 
 interface Props {
   invite: IInvite;
@@ -85,10 +86,11 @@ const props = defineProps<Props>();
 defineEmits<Emits>();
 
 // Computed properties
-const { documentId, title, description, reaction, sender } = props.invite;
+const { documentId, title, description, reaction, sender, recipient } = props.invite;
+const userStore = useUserStore();
 
-const isReceived = computed(() => reaction === InviteReaction.Pending);
-const isSent = computed(() => reaction === InviteReaction.Pending);
+const isSent = computed(() => sender === userStore.getUser?.profile?.documentId);
+const isReceived = computed(() => recipient === userStore.getUser?.profile?.documentId);
 
 // Methods
 const getStatusLabel = (status: IInvite['reaction']) => {

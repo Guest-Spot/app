@@ -8,7 +8,6 @@ import useUser from 'src/modules/useUser';
 import useTokens from 'src/modules/useTokens';
 import { useProfileStore } from 'src/stores/profile';
 import useInviteCompos from 'src/composables/useInviteCompos';
-import { InviteReaction } from 'src/interfaces/enums';
 
 const { fetchMe, user } = useUser();
 const { getStoredTokens } = useTokens();
@@ -30,12 +29,18 @@ watch(
   (newValue) => {
     if (newValue?.profile?.documentId) {
       void fetchInvites({
-        reaction: {
-          eq: InviteReaction.Pending,
-        },
-        recipient: {
-          eq: newValue.profile.documentId,
-        },
+        or: [
+          {
+            sender: {
+              eq: newValue.profile.documentId,
+            },
+          },
+          {
+            recipient: {
+              eq: newValue.profile.documentId,
+            },
+          }
+        ],
       });
     }
   },

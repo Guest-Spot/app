@@ -15,8 +15,8 @@
         size="sm"
         @click="showNotificationDialog"
       >
-        <q-badge v-if="invites.length > 0" color="negative" floating rounded>{{
-          invites.length
+        <q-badge v-if="pendingInvites.length > 0" color="negative" floating rounded>{{
+          pendingInvites.length
         }}</q-badge>
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
@@ -46,13 +46,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
-import { useInvitesStore } from 'src/stores/invites';
 import NotificationDialog from 'src/components/Dialogs/NotificationDialog.vue';
+import useInviteCompos from 'src/composables/useInviteCompos';
+import { useInvitesStore } from 'src/stores/invites';
+
+const { pendingInvites } = useInviteCompos();
 
 defineOptions({
   name: 'ProfileHeader',
@@ -72,8 +74,6 @@ const $q = useQuasar();
 const { logout } = useUser();
 const { showSuccess } = useNotify();
 const invitesStore = useInvitesStore();
-
-const invites = computed(() => invitesStore.getInvites);
 
 const handleLogout = () => {
   $q.dialog({
