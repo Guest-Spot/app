@@ -115,6 +115,7 @@ const useInviteCompos = () => {
   };
 
   onResultInvites((result) => {
+    console.log('result', result);
     invitesStore.setInvites(result?.data?.invites || []);
   });
 

@@ -29,7 +29,7 @@
         <div v-else class="invites-grid">
           <InviteCard
             v-for="invite in sentInvites"
-            :key="invite.documentId"
+            :key="`sent-${invite.documentId}`"
             :invite="invite"
             @cancel="cancelInvite"
           />
@@ -49,8 +49,9 @@
         <div v-else class="invites-grid">
           <InviteCard
             v-for="invite in receivedInvites"
-            :key="invite.documentId"
+            :key="`received-${invite.documentId}`"
             :invite="invite"
+            :loading="updatingInvite && invite.documentId === updatingInviteDocumentId"
             @accept="acceptInvite"
             @reject="rejectInvite"
           />
@@ -72,13 +73,15 @@ import NoResults from 'src/components/NoResult.vue';
 import { InviteReaction } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
 import { useUserStore } from 'src/stores/user';
+import { useMutation } from '@vue/apollo-composable';
+import { UPDATE_INVITE_MUTATION } from 'src/apollo/types/invite';
 
 defineOptions({
   name: 'InvitesTab',
 });
 
 const $q = useQuasar();
-const { showSuccess } = useNotify();
+const { showSuccess, showError } = useNotify();
 const invitesStore = useInvitesStore();
 const userStore = useUserStore();
 
@@ -87,6 +90,16 @@ const RECEIVED_TAB = 'received';
 
 // State
 const invites = ref<IInvite[]>([]);
+const updatingInviteDocumentId = ref<string | null>(null);
+const successMessage = ref<string>('');
+
+// Mutation for updating invites
+const {
+  mutate: updateInviteMutation,
+  loading: updatingInvite,
+  onDone: onUpdateInviteSuccess,
+  onError: onUpdateInviteError,
+} = useMutation(UPDATE_INVITE_MUTATION);
 
 // Computed properties
 const sentInvites = computed(() => {
@@ -111,21 +124,55 @@ const setActiveFilter = (filter: ITab) => {
 };
 
 const acceptInvite = (inviteDocumentId: string) => {
-  const invite = invites.value.find((i) => i.documentId === inviteDocumentId);
-  if (invite) {
-    invite.reaction = InviteReaction.Accepted;
-    invite.updatedAt = new Date().toISOString();
-    showSuccess('Invite accepted')
-  }
+  updatingInviteDocumentId.value = inviteDocumentId;
+  $q.dialog({
+    title: 'Confirm Invitation',
+    message: 'Are you sure you want to accept this invitation?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      title: 'Cancel',
+    },
+    ok: {
+      color: 'primary',
+      rounded: true,
+      label: 'Accept',
+    },
+  }).onOk(() => {
+    void updateInviteMutation({
+      documentId: inviteDocumentId,
+      data: {
+        reaction: InviteReaction.Accepted,
+      },
+    });
+    successMessage.value = 'Invitation accepted successfully';
+  });
 };
 
 const rejectInvite = (inviteDocumentId: string) => {
-  const invite = invites.value.find((i) => i.documentId === inviteDocumentId);
-  if (invite) {
-    invite.reaction = InviteReaction.Rejected;
-    invite.updatedAt = new Date().toISOString();
-    showSuccess('Invite rejected')
-  }
+  updatingInviteDocumentId.value = inviteDocumentId;
+  $q.dialog({
+    title: 'Confirm Rejection',
+    message: 'Are you sure you want to reject this invitation?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      title: 'Cancel',
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Reject',
+    },
+  }).onOk(() => {
+    void updateInviteMutation({
+      documentId: inviteDocumentId,
+      data: {
+        reaction: InviteReaction.Rejected,
+      },
+    });
+    successMessage.value = 'Invitation rejected successfully';
+  });
 };
 
 const cancelInvite = (inviteDocumentId: string) => {
@@ -151,6 +198,23 @@ const cancelInvite = (inviteDocumentId: string) => {
     }
   });
 };
+
+// Mutation handlers
+onUpdateInviteSuccess(({ data }) => {
+  const filteredInvites = invitesStore.getInvites.filter((invite) => invite.documentId !== data.updateInvite.documentId);
+  const mergedInvites = [...filteredInvites, data.updateInvite];
+  invitesStore.setInvites(mergedInvites);
+  updatingInviteDocumentId.value = null;
+  showSuccess(successMessage.value);
+  successMessage.value = '';
+});
+
+onUpdateInviteError((error) => {
+  updatingInviteDocumentId.value = null;
+  console.error('Error updating invite', error);
+  showError('Something went wrong');
+  successMessage.value = '';
+});
 </script>
 
 <style scoped lang="scss">
