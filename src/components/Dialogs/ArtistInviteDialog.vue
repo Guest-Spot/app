@@ -232,14 +232,14 @@ const getInviteBtnText = (artist: LocalArtist) => {
     return 'Invited';
   }
   return 'Invite to shop';
-}
+};
 
 const getInviteBtnIcon = (artist: LocalArtist) => {
   if (artist.invited || artist.pending) {
     return 'check';
   }
   return 'person_add';
-}
+};
 
 const sendInvitation = (artist: IArtist) => {
   const shop = profileStore.shopProfile;

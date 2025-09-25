@@ -5,7 +5,13 @@
   >
     <div class="flex justify-between items-center q-gap-md full-width">
       <q-avatar size="80px" class="bg-block">
-        <q-img v-if="artist.avatar?.url" :src="artist.avatar?.url" :ratio="0.85" class="avatar-img" spinner-size="24px" />
+        <q-img
+          v-if="artist.avatar?.url"
+          :src="artist.avatar?.url"
+          :ratio="0.85"
+          class="avatar-img"
+          spinner-size="24px"
+        />
         <q-icon name="person" size="42px" color="grey-9" v-else />
       </q-avatar>
       <div class="artist-content q-pr-md">

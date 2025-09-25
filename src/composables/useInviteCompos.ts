@@ -3,7 +3,11 @@ import type { IArtist } from 'src/interfaces/artist';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import { useMutation, useLazyQuery } from '@vue/apollo-composable';
-import { CREATE_INVITE_MUTATION, DELETE_INVITE_MUTATION, INVITES_QUERY } from 'src/apollo/types/invite';
+import {
+  CREATE_INVITE_MUTATION,
+  DELETE_INVITE_MUTATION,
+  INVITES_QUERY,
+} from 'src/apollo/types/invite';
 import type { IShop } from 'src/interfaces/shop';
 import { InviteType } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';

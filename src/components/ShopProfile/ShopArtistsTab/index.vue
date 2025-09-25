@@ -30,9 +30,6 @@
         v-show="activeFilter?.tab === PENDING_TAB"
         :artists="pendingArtists"
         :pending-document-ids="pendingDocumentIds"
-        no-data-title="No Data"
-        no-data-description="Invite your first artist to showcase their work"
-        no-data-button-label="Invite First Artist"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
         @open-invite-dialog="showAddArtistDialog = true"
@@ -89,6 +86,7 @@ const {
   load: loadPendingShopArtists,
   onResult: onResultPendingShopArtists,
   onError: onErrorPendingShopArtists,
+  refetch: refetchPendingShopArtists,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
 const {
@@ -106,6 +104,7 @@ const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
 const pendingArtists = ref<IArtist[]>([]);
 const pendingInvites = ref<IInvite[]>([]);
+const documentIdForDelete = ref<string>('');
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
 const pendingDocumentIds = computed(() => pendingArtists.value.map((artist) => artist.documentId));
@@ -135,12 +134,15 @@ const handleArtistInvited = () => {
 
 const handleCancelInvite = (artist: IArtist) => {
   const shop = profileStore.shopProfile;
+  documentIdForDelete.value = artist.documentId;
   if (!shop) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
   }
-  const inviteDocumentId = pendingInvites.value.find((invite) => invite.recipient === artist.documentId)?.documentId;
+  const inviteDocumentId = pendingInvites.value.find(
+    (invite) => invite.recipient === artist.documentId,
+  )?.documentId;
   if (!inviteDocumentId) {
     showError('Invite document ID not found');
     console.error('Invite document ID not found');
@@ -160,13 +162,18 @@ onErrorShopArtists((error) => {
 onResultInvites(({ data }) => {
   if (data.invites.length > 0) {
     pendingInvites.value = data.invites;
-    void loadPendingShopArtists(null, {
-      filters: {
-        documentId: {
-          in: data.invites.map((invite) => invite.recipient),
+    void loadPendingShopArtists(
+      null,
+      {
+        filters: {
+          documentId: {
+            in: data.invites.map((invite) => invite.recipient),
+          },
         },
       },
-    }, { fetchPolicy: 'network-only' });
+      { fetchPolicy: 'network-only' },
+    );
+    void refetchPendingShopArtists();
   }
 });
 
@@ -183,26 +190,41 @@ onErrorPendingShopArtists((error) => {
 });
 
 onDeleteInviteSuccess(() => {
+  pendingArtists.value = pendingArtists.value.filter(
+    (artist) => artist.documentId !== documentIdForDelete.value,
+  );
   showSuccess('Invite canceled successfully');
-  void refetchInvites();
+  documentIdForDelete.value = '';
 });
 
 onDeleteInviteError((error) => {
   console.error('Error canceling invite:', error);
 });
 
-watch(() => profileStore.getShopProfile, (newProfile) => {
-  if (newProfile) {
-    void loadShopArtists(null, {
-      documentId: newProfile.documentId,
-    }, { fetchPolicy: 'network-only' });
-    void loadInvites(null, {
-      recipient: {
-        eq: newProfile.documentId,
-      },
-    }, { fetchPolicy: 'network-only' });
-  }
-}, { immediate: true });
+watch(
+  () => profileStore.getShopProfile,
+  (newProfile) => {
+    if (newProfile) {
+      void loadShopArtists(
+        null,
+        {
+          documentId: newProfile.documentId,
+        },
+        { fetchPolicy: 'network-only' },
+      );
+      void loadInvites(
+        null,
+        {
+          recipient: {
+            eq: newProfile.documentId,
+          },
+        },
+        { fetchPolicy: 'network-only' },
+      );
+    }
+  },
+  { immediate: true },
+);
 
 // Expose data for parent component
 defineExpose({

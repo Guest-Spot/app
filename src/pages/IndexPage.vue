@@ -54,6 +54,7 @@
             icon="search_off"
             title="No shops found"
             description="Try adjusting your search or filters"
+            no-btn
           />
         </div>
 
@@ -91,6 +92,7 @@
             icon="search_off"
             title="No artists found"
             description="Try adjusting your search or filters"
+            no-btn
           />
         </div>
       </div>

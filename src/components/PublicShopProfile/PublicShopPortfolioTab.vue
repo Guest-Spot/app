@@ -27,6 +27,7 @@
         icon="photo_library"
         title="No Portfolio Items Yet"
         description="This shop hasn't added any portfolio items yet"
+        no-btn
       />
     </div>
   </div>

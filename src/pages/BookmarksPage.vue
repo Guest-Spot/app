@@ -24,10 +24,10 @@
             icon="bookmark_border"
             title="No shops bookmarked yet"
             description="Start exploring and add your favorite shops to bookmarks"
-            link="/?tab=shops"
-            linkLabel="Explore Shops"
-            linkIcon="explore"
+            btnLabel="Explore Shops"
+            btnIcon="explore"
             class="q-my-auto"
+            @click-btn="$router.push('/?tab=shops')"
           />
         </div>
 
@@ -47,9 +47,9 @@
             icon="bookmark_border"
             title="No artists bookmarked yet"
             description="Start exploring and add your favorite artists to bookmarks"
-            link="/?tab=artists"
-            linkLabel="Explore Artists"
-            linkIcon="explore"
+            btnLabel="Explore Artists"
+            btnIcon="explore"
+            @click-btn="$router.push('/?tab=artists')"
           />
         </div>
       </div>

@@ -31,9 +31,9 @@
       icon="train"
       title="No trips recorded yet"
       description="Start documenting your performances and travels"
-      link-label="Add Your First Trip"
-      link-icon="add"
-      @click="addNewTrip"
+      btn-label="Add Your First Trip"
+      btn-icon="add"
+      @click-btn="addNewTrip"
     />
 
     <!-- Trip Dialog -->

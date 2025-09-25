@@ -1,18 +1,18 @@
 <template>
-  <div class="flex column items-center q-gap-md bg-block border-radius-md q-pa-lg">
+  <div class="flex column items-center bg-block border-radius-md q-px-lg q-py-xl">
     <q-icon :name="icon" size="50px" color="grey-6" />
     <div class="flex column items-center">
       <h3 class="no-results-title">{{ title }}</h3>
       <p class="no-results-description text-grey-6 text-center">{{ description }}</p>
     </div>
     <q-btn
-      v-if="link"
-      :label="linkLabel"
-      :icon="linkIcon"
+      v-if="!noBtn"
+      :label="btnLabel"
+      :icon="btnIcon"
       class="bg-block q-mt-lg"
       rounded
       unelevated
-      @click="$router.push(link)"
+      @click="$emit('click-btn')"
     />
   </div>
 </template>
@@ -22,9 +22,13 @@ defineProps<{
   icon: string;
   title: string;
   description: string;
-  link?: string;
-  linkLabel?: string;
-  linkIcon?: string;
+  btnLabel?: string;
+  btnIcon?: string;
+  noBtn?: boolean;
+}>();
+
+defineEmits<{
+  (e: 'click-btn'): void;
 }>();
 </script>
 
