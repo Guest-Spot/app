@@ -89,6 +89,7 @@ const {
   load: loadPendingShopArtists,
   onResult: onResultPendingShopArtists,
   onError: onErrorPendingShopArtists,
+  refetch: refetchPendingShopArtists,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
 const {
@@ -106,6 +107,7 @@ const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
 const pendingArtists = ref<IArtist[]>([]);
 const pendingInvites = ref<IInvite[]>([]);
+const documentIdForDelete = ref<string>('');
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
 const pendingDocumentIds = computed(() => pendingArtists.value.map((artist) => artist.documentId));
@@ -135,6 +137,7 @@ const handleArtistInvited = () => {
 
 const handleCancelInvite = (artist: IArtist) => {
   const shop = profileStore.shopProfile;
+  documentIdForDelete.value = artist.documentId;
   if (!shop) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
@@ -167,6 +170,7 @@ onResultInvites(({ data }) => {
         },
       },
     }, { fetchPolicy: 'network-only' });
+    void refetchPendingShopArtists();
   }
 });
 
@@ -183,8 +187,9 @@ onErrorPendingShopArtists((error) => {
 });
 
 onDeleteInviteSuccess(() => {
+  pendingArtists.value = pendingArtists.value.filter((artist) => artist.documentId !== documentIdForDelete.value);
   showSuccess('Invite canceled successfully');
-  void refetchInvites();
+  documentIdForDelete.value = '';
 });
 
 onDeleteInviteError((error) => {
