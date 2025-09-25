@@ -92,6 +92,7 @@ const handleLogout = () => {
   }).onOk(() => {
     void logout();
     showSuccess('Logout successful');
+    invitesStore.setInvites([]);
     void router.push('/');
   });
 };
@@ -103,9 +104,6 @@ const handlePublicProfile = () => {
 const showNotificationDialog = () => {
   $q.dialog({
     component: NotificationDialog,
-    componentProps: {
-      invites: invites.value,
-    },
   });
 };
 </script>
