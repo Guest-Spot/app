@@ -25,28 +25,7 @@
       </q-card-section>
       <q-card-section class="dialog-content">
         <div v-if="invites.length > 0" class="flex column q-gap-sm">
-          <div
-            v-for="invite in invites"
-            :key="invite.documentId"
-            class="notification-item bg-block border-radius-md q-pa-md flex column q-gap-sm"
-          >
-            <div class="notification-item-content flex column items-start q-gap-sm">
-              <div class="flex items-center justify-between q-gap-sm full-width q-mb-sm">
-                <q-badge
-                  color="primary"
-                  class="notification-item-sender text-caption border-radius-sm"
-                  >Invitation</q-badge
-                >
-                <div
-                  class="notification-item-time text-caption bg-block border-radius-sm q-px-sm q-py-xs text-grey-6"
-                >
-                  Created at: {{ formatDate(invite.createdAt) }}
-                </div>
-              </div>
-              <div class="notification-item-title text-bold">{{ invite.title }}</div>
-              <div class="notification-item-description text-grey-4">{{ invite.description }}</div>
-            </div>
-          </div>
+          <NotificationItem v-for="invite in invites" :key="invite.documentId" :invite="invite" />
         </div>
         <div
           v-else
@@ -63,7 +42,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { IInvite } from 'src/interfaces/invite';
-import useDate from 'src/modules/useDate';
+import NotificationItem from 'src/components/Cards/NotificationItem.vue';
 
 interface Props {
   modelValue: boolean;
@@ -77,7 +56,11 @@ interface Emits {
 const emit = defineEmits<Emits>();
 const props = defineProps<Props>();
 
-const { formatDate } = useDate();
+defineOptions({
+  components: {
+    NotificationItem,
+  },
+});
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -102,15 +85,6 @@ watch(isVisible, (newValue) => {
     width: 320px !important;
     border-radius: 20px 0 0 20px;
     box-shadow: none;
-  }
-}
-
-.notification-item {
-  .notification-item-content {
-    .notification-item-description {
-      border-left: 2px solid var(--q-primary);
-      padding-left: 10px;
-    }
   }
 }
 </style>

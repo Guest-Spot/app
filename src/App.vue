@@ -24,7 +24,8 @@ const fetchCurrentUser = async (): Promise<void> => {
   }
 };
 
-watch(user,
+watch(
+  user,
   (newValue) => {
     if (newValue?.profile?.documentId) {
       void fetchInvites({
@@ -33,7 +34,8 @@ watch(user,
         },
       });
     }
-  }, { immediate: true }
+  },
+  { immediate: true },
 );
 
 onMounted(() => {
