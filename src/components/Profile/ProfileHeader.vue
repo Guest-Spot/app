@@ -104,9 +104,6 @@ const handlePublicProfile = () => {
 const showNotificationDialog = () => {
   $q.dialog({
     component: NotificationDialog,
-    componentProps: {
-      invites: invites.value,
-    },
   });
 };
 </script>
