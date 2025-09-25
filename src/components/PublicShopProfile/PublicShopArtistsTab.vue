@@ -31,6 +31,7 @@
         icon="people"
         title="No Artists Yet"
         description="This shop hasn't added any artists yet"
+        no-btn
       />
     </div>
   </div>

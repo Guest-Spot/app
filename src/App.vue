@@ -21,8 +21,8 @@ const fetchCurrentUser = async (): Promise<void> => {
     if (result) {
       profileStore.setUserProfile(result);
       if (result?.profile?.documentId) {
-      void fetchInvites({
-        recipient: {
+        void fetchInvites({
+          recipient: {
             eq: result?.profile?.documentId,
           },
         });

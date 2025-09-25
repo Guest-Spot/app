@@ -6,8 +6,18 @@
       >
     </div>
     <div class="flex items-center q-gap-sm">
-      <q-btn text-color="primary" icon="notifications" round unelevated class="bg-block" size="sm" @click="showNotificationDialog">
-        <q-badge v-if="invites.length > 0" color="negative" floating rounded>{{ invites.length }}</q-badge>
+      <q-btn
+        text-color="primary"
+        icon="notifications"
+        round
+        unelevated
+        class="bg-block"
+        size="sm"
+        @click="showNotificationDialog"
+      >
+        <q-badge v-if="invites.length > 0" color="negative" floating rounded>{{
+          invites.length
+        }}</q-badge>
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
         <q-menu style="width: 150px">

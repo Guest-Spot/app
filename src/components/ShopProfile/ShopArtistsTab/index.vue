@@ -30,9 +30,6 @@
         v-show="activeFilter?.tab === PENDING_TAB"
         :artists="pendingArtists"
         :pending-document-ids="pendingDocumentIds"
-        no-data-title="No Data"
-        no-data-description="Invite your first artist to showcase their work"
-        no-data-button-label="Invite First Artist"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
         @open-invite-dialog="showAddArtistDialog = true"
@@ -143,7 +140,9 @@ const handleCancelInvite = (artist: IArtist) => {
     console.error('Shop profile not found');
     return;
   }
-  const inviteDocumentId = pendingInvites.value.find((invite) => invite.recipient === artist.documentId)?.documentId;
+  const inviteDocumentId = pendingInvites.value.find(
+    (invite) => invite.recipient === artist.documentId,
+  )?.documentId;
   if (!inviteDocumentId) {
     showError('Invite document ID not found');
     console.error('Invite document ID not found');
@@ -163,13 +162,17 @@ onErrorShopArtists((error) => {
 onResultInvites(({ data }) => {
   if (data.invites.length > 0) {
     pendingInvites.value = data.invites;
-    void loadPendingShopArtists(null, {
-      filters: {
-        documentId: {
-          in: data.invites.map((invite) => invite.recipient),
+    void loadPendingShopArtists(
+      null,
+      {
+        filters: {
+          documentId: {
+            in: data.invites.map((invite) => invite.recipient),
+          },
         },
       },
-    }, { fetchPolicy: 'network-only' });
+      { fetchPolicy: 'network-only' },
+    );
     void refetchPendingShopArtists();
   }
 });
@@ -187,7 +190,9 @@ onErrorPendingShopArtists((error) => {
 });
 
 onDeleteInviteSuccess(() => {
-  pendingArtists.value = pendingArtists.value.filter((artist) => artist.documentId !== documentIdForDelete.value);
+  pendingArtists.value = pendingArtists.value.filter(
+    (artist) => artist.documentId !== documentIdForDelete.value,
+  );
   showSuccess('Invite canceled successfully');
   documentIdForDelete.value = '';
 });
@@ -196,18 +201,30 @@ onDeleteInviteError((error) => {
   console.error('Error canceling invite:', error);
 });
 
-watch(() => profileStore.getShopProfile, (newProfile) => {
-  if (newProfile) {
-    void loadShopArtists(null, {
-      documentId: newProfile.documentId,
-    }, { fetchPolicy: 'network-only' });
-    void loadInvites(null, {
-      recipient: {
-        eq: newProfile.documentId,
-      },
-    }, { fetchPolicy: 'network-only' });
-  }
-}, { immediate: true });
+watch(
+  () => profileStore.getShopProfile,
+  (newProfile) => {
+    if (newProfile) {
+      void loadShopArtists(
+        null,
+        {
+          documentId: newProfile.documentId,
+        },
+        { fetchPolicy: 'network-only' },
+      );
+      void loadInvites(
+        null,
+        {
+          recipient: {
+            eq: newProfile.documentId,
+          },
+        },
+        { fetchPolicy: 'network-only' },
+      );
+    }
+  },
+  { immediate: true },
+);
 
 // Expose data for parent component
 defineExpose({

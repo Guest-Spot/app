@@ -21,6 +21,7 @@
       icon="flight"
       title="No trips planned yet"
       description="This artist hasn't announced any upcoming trips or tours"
+      no-btn
     />
   </div>
 </template>
