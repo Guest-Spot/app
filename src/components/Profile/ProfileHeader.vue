@@ -92,6 +92,7 @@ const handleLogout = () => {
   }).onOk(() => {
     void logout();
     showSuccess('Logout successful');
+    invitesStore.setInvites([]);
     void router.push('/');
   });
 };
