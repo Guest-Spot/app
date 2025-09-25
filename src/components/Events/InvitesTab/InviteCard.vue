@@ -5,14 +5,9 @@
   >
     <div class="card-content">
       <div class="flex items-center q-gap-xs q-mb-sm">
-        <template v-if="isSent">
-          <q-icon name="send" size="16px" color="primary" />
-          <span class="text-primary text-weight-medium">My request</span>
-        </template>
-        <template v-else>
-          <q-icon name="inbox" size="16px" color="primary" />
-          <span class="text-primary text-weight-medium">Request for me</span>
-        </template>
+        <span class="text-primary text-weight-medium text-caption text-grey-6">
+          {{ formatTimeAgo(invite.createdAt) }}
+        </span>
         <div class="status-badge absolute-top-right q-mr-md q-mt-md" :class="invite.reaction">
           {{ getStatusLabel(invite.reaction) }}
         </div>
@@ -75,6 +70,7 @@ import { computed } from 'vue';
 import type { IInvite } from 'src/interfaces/invite';
 import { InviteReaction } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   invite: IInvite;
@@ -92,6 +88,7 @@ defineEmits<Emits>();
 
 // Computed properties
 const userStore = useUserStore();
+const { formatTimeAgo } = useDate();
 
 const isSent = computed(() => props.invite.sender === userStore.getUser?.profile?.documentId);
 const isReceived = computed(() => props.invite.recipient === userStore.getUser?.profile?.documentId);
