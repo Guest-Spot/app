@@ -1,7 +1,11 @@
 <template>
   <div
     class="invite-card-card bg-block border-radius-md q-pa-md"
-    :class="{ sent: isSent, received: isReceived }"
+    :class="{
+      sent: isSent,
+      received: isReceived,
+      pending: invite.reaction === InviteReaction.Pending,
+    }"
   >
     <div class="card-content">
       <div class="flex items-center q-gap-xs q-mb-sm">
@@ -25,8 +29,8 @@
           color="negative"
           rounded
           flat
-          :loading="loading"
-          :disable="loading"
+          :loading="loadingReject"
+          :disable="loadingReject || loadingAccept"
           @click="$emit('reject', invite.documentId)"
           class="bg-block full-width"
         />
@@ -34,8 +38,8 @@
           label="Accept"
           color="primary"
           rounded
-          :loading="loading"
-          :disable="loading"
+          :loading="loadingAccept"
+          :disable="loadingAccept || loadingReject"
           @click="$emit('accept', invite.documentId)"
           class="full-width"
         />
@@ -74,7 +78,9 @@ import useDate from 'src/modules/useDate';
 
 interface Props {
   invite: IInvite;
-  loading?: boolean;
+  loadingAccept?: boolean;
+  loadingReject?: boolean;
+  loadingCancel?: boolean;
 }
 
 interface Emits {
@@ -109,7 +115,6 @@ const getStatusLabel = (status: IInvite['reaction']) => {
 <style scoped lang="scss">
 .invite-card-card {
   transition: all 0.3s ease;
-  overflow: hidden;
 
   .card-content {
     margin-bottom: 20px;
@@ -121,27 +126,27 @@ const getStatusLabel = (status: IInvite['reaction']) => {
       font-weight: 600;
 
       &.pending {
-        background: #ff9800;
+        background: var(--q-warning);
         color: white;
       }
 
       &.accepted {
-        background: #4caf50;
+        background: var(--q-positive);
         color: white;
       }
 
       &.rejected {
-        background: #f44336;
+        background: var(--q-negative);
         color: white;
       }
 
       &.cancelled {
-        background: #9e9e9e;
+        background: var(--q-grey-6);
         color: white;
       }
 
       &.completed {
-        background: #2196f3;
+        background: var(--q-info);
         color: white;
       }
     }

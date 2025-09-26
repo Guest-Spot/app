@@ -15,9 +15,14 @@
         size="sm"
         @click="showNotificationDialog"
       >
-        <q-badge v-if="receivedPendingInvites.length > 0" color="negative" floating rounded>{{
-          receivedPendingInvites.length
-        }}</q-badge>
+        <q-badge
+          v-if="receivedPendingInvites.length > 0"
+          color="warning"
+          text-color="dark"
+          floating
+          rounded
+          >{{ receivedPendingInvites.length }}</q-badge
+        >
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
         <q-menu style="width: 150px">
