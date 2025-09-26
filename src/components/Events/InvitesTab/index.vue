@@ -103,11 +103,15 @@ const {
 
 // Computed properties
 const sentInvites = computed(() => {
-  return invitesStore.getInvites.filter((invite) => invite.sender === userStore.getUser?.profile?.documentId);
+  return invitesStore.getInvites.filter(
+    (invite) => invite.sender === userStore.getUser?.profile?.documentId,
+  );
 });
 
 const receivedInvites = computed(() => {
-  return invitesStore.getInvites.filter((invite) => invite.recipient === userStore.getUser?.profile?.documentId);
+  return invitesStore.getInvites.filter(
+    (invite) => invite.recipient === userStore.getUser?.profile?.documentId,
+  );
 });
 
 const filterTabs = computed<ITab[]>(() => [
@@ -194,14 +198,16 @@ const cancelInvite = (inviteDocumentId: string) => {
     if (invite) {
       invite.reaction = InviteReaction.Rejected;
       invite.updatedAt = new Date().toISOString();
-      showSuccess('Invite cancelled')
+      showSuccess('Invite cancelled');
     }
   });
 };
 
 // Mutation handlers
 onUpdateInviteSuccess(({ data }) => {
-  const filteredInvites = invitesStore.getInvites.filter((invite) => invite.documentId !== data.updateInvite.documentId);
+  const filteredInvites = invitesStore.getInvites.filter(
+    (invite) => invite.documentId !== data.updateInvite.documentId,
+  );
   const mergedInvites = [...filteredInvites, data.updateInvite];
   invitesStore.setInvites(mergedInvites);
   updatingInviteDocumentId.value = null;

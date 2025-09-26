@@ -24,9 +24,9 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <div v-if="pendingInvites.length > 0" class="flex column q-gap-sm">
+        <div v-if="receivedPendingInvites.length > 0" class="flex column q-gap-sm">
           <NotificationItem
-            v-for="invite in pendingInvites"
+            v-for="invite in receivedPendingInvites"
             :key="invite.documentId"
             :invite="invite"
             :loading="updatingInvite && invite.documentId === updatingInviteDocumentId"
@@ -69,7 +69,7 @@ const emit = defineEmits<Emits>();
 const props = defineProps<Props>();
 const $q = useQuasar();
 const { showSuccess } = useNotify();
-const { fetchInvites, pendingInvites } = useInviteCompos();
+const { fetchInvites, receivedPendingInvites } = useInviteCompos();
 const { user } = useUser();
 
 defineOptions({

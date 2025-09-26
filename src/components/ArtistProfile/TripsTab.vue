@@ -1,7 +1,7 @@
 <template>
   <div class="trips-tab flex column q-gap-md">
     <!-- Trips Header -->
-    <ListHeader :title="`Artist Trips (${trips.length})`">
+    <ListHeader :title="`My Trips (${trips.length})`">
       <q-btn color="primary" icon="add" size="sm" @click="addNewTrip" round unelevated />
     </ListHeader>
 

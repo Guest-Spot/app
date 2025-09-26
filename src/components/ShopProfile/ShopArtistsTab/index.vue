@@ -89,7 +89,8 @@ const {
 
 const profileStore = useProfileStore();
 const invitesStore = useInvitesStore();
-const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, pendingInvites } = useInviteCompos();
+const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, sentPendingInvites } =
+  useInviteCompos();
 const { showError, showSuccess } = useNotify();
 
 // Artists data
@@ -132,7 +133,7 @@ const handleCancelInvite = (artist: IArtist) => {
     console.error('Shop profile not found');
     return;
   }
-  const inviteDocumentId = pendingInvites.value.find(
+  const inviteDocumentId = sentPendingInvites.value.find(
     (invite) => invite.recipient === artist.documentId,
   )?.documentId;
   if (!inviteDocumentId) {
@@ -165,14 +166,16 @@ onDeleteInviteSuccess(({ data }) => {
   );
   showSuccess('Invite canceled successfully');
   documentIdForDelete.value = '';
-  invitesStore.setInvites(invitesStore.getInvites.filter((invite) => invite.documentId !== data.deleteInvite.documentId));
+  invitesStore.setInvites(
+    invitesStore.getInvites.filter((invite) => invite.documentId !== data.deleteInvite.documentId),
+  );
 });
 
 onDeleteInviteError((error) => {
   console.error('Error canceling invite:', error);
 });
 
-watch(pendingInvites, (newPendingInvites) => {
+watch(sentPendingInvites, (newPendingInvites) => {
   if (newPendingInvites.length > 0) {
     void loadPendingShopArtists(
       null,

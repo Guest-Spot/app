@@ -11,11 +11,13 @@ import {
 import type { IShop } from 'src/interfaces/shop';
 import { InviteReaction, InviteType } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
+import { useUserStore } from 'src/stores/user';
 
 const useInviteCompos = () => {
   const $q = useQuasar();
   const { showError } = useNotify();
   const invitesStore = useInvitesStore();
+  const userStore = useUserStore();
 
   const {
     mutate: createInviteMutation,
@@ -39,7 +41,21 @@ const useInviteCompos = () => {
 
   const shopArtists = ref<IArtist[]>([]);
 
-  const pendingInvites = computed(() => invitesStore.getInvites.filter((invite) => invite.reaction === InviteReaction.Pending));
+  const receivedPendingInvites = computed(() =>
+    invitesStore.getInvites.filter(
+      (invite) =>
+        invite.reaction === InviteReaction.Pending &&
+        invite.recipient === userStore.getUser?.profile?.documentId,
+    ),
+  );
+
+  const sentPendingInvites = computed(() =>
+    invitesStore.getInvites.filter(
+      (invite) =>
+        invite.reaction === InviteReaction.Pending &&
+        invite.sender === userStore.getUser?.profile?.documentId,
+    ),
+  );
 
   const fetchInvites = (filters: unknown = {}) => {
     void loadInvites(null, { filters }, { fetchPolicy: 'network-only' });
@@ -115,7 +131,6 @@ const useInviteCompos = () => {
   };
 
   onResultInvites((result) => {
-    console.log('result', result);
     invitesStore.setInvites(result?.data?.invites || []);
   });
 
@@ -133,7 +148,8 @@ const useInviteCompos = () => {
     refetchInvites,
     onResultInvites,
     onErrorInvites,
-    pendingInvites,
+    receivedPendingInvites,
+    sentPendingInvites,
   };
 };
 

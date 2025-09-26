@@ -14,8 +14,10 @@
       @click="handleTabClick(t)"
       v-bind="$attrs"
     >
-      <span class="tabs-comp-label">{{ t.label }}</span>
-      <q-badge v-if="t.count" rounded class="tabs-comp-counter text-bold q-ml-xs">{{
+      <span class="tabs-comp-label">{{ t.label }}
+        <template v-if="t.count">&nbsp;({{ t.count }})</template>
+      </span>
+      <q-badge v-if="t.newCount" rounded class="tabs-comp-counter text-bold q-ml-xs">{{
         t.count
       }}</q-badge>
     </q-btn>

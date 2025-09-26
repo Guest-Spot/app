@@ -39,7 +39,7 @@ watch(
             recipient: {
               eq: newValue.profile.documentId,
             },
-          }
+          },
         ],
       });
     }

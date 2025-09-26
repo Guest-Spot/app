@@ -15,8 +15,8 @@
         size="sm"
         @click="showNotificationDialog"
       >
-        <q-badge v-if="pendingInvites.length > 0" color="negative" floating rounded>{{
-          pendingInvites.length
+        <q-badge v-if="receivedPendingInvites.length > 0" color="negative" floating rounded>{{
+          receivedPendingInvites.length
         }}</q-badge>
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
@@ -54,7 +54,7 @@ import NotificationDialog from 'src/components/Dialogs/NotificationDialog.vue';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import { useInvitesStore } from 'src/stores/invites';
 
-const { pendingInvites } = useInviteCompos();
+const { receivedPendingInvites } = useInviteCompos();
 
 defineOptions({
   name: 'ProfileHeader',
