@@ -234,10 +234,13 @@ onDoneUpdateShop((result) => {
 
   if (result.data?.updateShop) {
     // Remove artist from local state
+    const artistForRemove = artists.value.find(
+      (artist) => artist.documentId === documentIdForDelete.value,
+    );
     artists.value = artists.value.filter(
       (artist) => artist.documentId !== documentIdForDelete.value,
     );
-    showSuccess('Artist removed from shop successfully');
+    showSuccess(`${artistForRemove?.name} removed from shop successfully`);
     removingArtist.value = false;
     documentIdForDelete.value = '';
   }
