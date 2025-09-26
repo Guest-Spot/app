@@ -224,9 +224,8 @@ const loadShopData = () => {
     const shopInStore = shopsStore.getShops.find((shop) => shop.documentId === documentId);
     if (shopInStore) {
       shopData.value = shopInStore;
-    } else {
-      void loadShop(null, { documentId }, { fetchPolicy: 'network-only' });
     }
+    void loadShop(null, { documentId }, { fetchPolicy: 'network-only' });
   }
 };
 

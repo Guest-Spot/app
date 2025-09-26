@@ -5,28 +5,41 @@
       @click="$router.push(`/shop/${invite.sender}`)"
       v-close-popup
     >
-      <div class="notification-item-time text-caption border-radius-sm text-grey-6">
-        {{ formatTimeAgo(invite.createdAt) }}
+      <div class="flex items-center justify-between q-gap-sm full-width">
+        <div class="notification-item-time text-caption border-radius-sm text-grey-6">
+          {{ formatTimeAgo(invite.createdAt) }}
+        </div>
       </div>
       <div class="notification-item-title text-bold">{{ invite.title }}</div>
       <div class="notification-item-description text-grey-4">{{ invite.description }}</div>
       <div class="notification-item-actions flex no-wrap q-gap-sm q-mt-md full-width">
         <q-btn
           label="Reject"
-          color="negative"
+          color="grey-9"
           rounded
-          flat
           size="sm"
+          :loading="loadingReject"
+          :disable="loadingReject || loadingAccept"
           @click.stop="$emit('reject', invite.documentId)"
-          class="bg-block full-width"
+          class="bg-block"
         />
         <q-btn
           label="Accept"
           color="primary"
           rounded
           size="sm"
+          :loading="loadingAccept"
+          :disable="loadingAccept || loadingReject"
           @click.stop="$emit('accept', invite.documentId)"
-          class="full-width"
+        />
+        <q-btn
+          round
+          size="sm"
+          color="grey-9"
+          icon="visibility"
+          class="bg-block q-ml-auto"
+          @click.stop="$router.push(`/shop/${invite.sender}`)"
+          v-close-popup
         />
       </div>
     </div>
@@ -43,6 +56,8 @@ defineOptions({
 
 interface Props {
   invite: IInvite;
+  loadingAccept?: boolean;
+  loadingReject?: boolean;
 }
 
 interface Emits {

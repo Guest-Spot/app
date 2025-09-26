@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { ArtistCard } from 'src/components/SearchPage/index';
 import type { IArtist } from 'src/interfaces/artist';
-import NoResult from 'src/components/NoResult.vue';
+import { NoResult } from 'src/components';
 
 interface Props {
   artists: IArtist[];
@@ -63,4 +63,14 @@ interface Emits {
 
 defineProps<Props>();
 defineEmits<Emits>();
+
+defineOptions({
+  name: 'PendingList',
+});
+</script>
+
+<script lang="ts">
+export default {
+  name: 'PendingList',
+};
 </script>

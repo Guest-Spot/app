@@ -20,7 +20,6 @@
           color="warning"
           text-color="dark"
           floating
-          rounded
           >{{ receivedPendingInvites.length }}</q-badge
         >
       </q-btn>
