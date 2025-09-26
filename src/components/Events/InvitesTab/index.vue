@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IInvite } from 'src/interfaces/invite';
 import InviteCard from 'src/components/Events/InvitesTab/InviteCard.vue';
@@ -75,6 +75,7 @@ import { useInvitesStore } from 'src/stores/invites';
 import { useUserStore } from 'src/stores/user';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_INVITE_MUTATION } from 'src/apollo/types/invite';
+import useInviteCompos from 'src/composables/useInviteCompos';
 
 defineOptions({
   name: 'InvitesTab',
@@ -84,6 +85,7 @@ const $q = useQuasar();
 const { showSuccess, showError } = useNotify();
 const invitesStore = useInvitesStore();
 const userStore = useUserStore();
+const { fetchInvites } = useInviteCompos();
 
 const SENT_TAB = 'sent';
 const RECEIVED_TAB = 'received';
@@ -220,6 +222,10 @@ onUpdateInviteError((error) => {
   console.error('Error updating invite', error);
   showError('Something went wrong');
   successMessage.value = '';
+});
+
+onBeforeMount(() => {
+  void fetchInvites();
 });
 </script>
 

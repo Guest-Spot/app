@@ -58,7 +58,21 @@ const useInviteCompos = () => {
   );
 
   const fetchInvites = (filters: unknown = {}) => {
-    void loadInvites(null, { filters }, { fetchPolicy: 'network-only' });
+    void loadInvites(null, { filters: {
+      ...(filters || {}),
+      or: [
+      {
+        sender: {
+          eq: userStore.getUser?.profile?.documentId,
+        },
+      },
+      {
+        recipient: {
+          eq: userStore.getUser?.profile?.documentId,
+        },
+      },
+    ],
+    }}, { fetchPolicy: 'network-only' });
   };
 
   const inviteArtist = (shop: IShop, artist: IArtist) => {

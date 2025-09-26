@@ -28,20 +28,7 @@ watch(
   user,
   (newValue) => {
     if (newValue?.profile?.documentId) {
-      void fetchInvites({
-        or: [
-          {
-            sender: {
-              eq: newValue.profile.documentId,
-            },
-          },
-          {
-            recipient: {
-              eq: newValue.profile.documentId,
-            },
-          },
-        ],
-      });
+      void fetchInvites();
     }
   },
   { immediate: true },
