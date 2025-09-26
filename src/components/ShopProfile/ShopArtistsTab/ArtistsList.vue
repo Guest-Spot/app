@@ -15,6 +15,9 @@
           dense
           color="primary"
           class="bg-block full-width"
+          :loading="removing"
+          :disable="removing"
+          @click.stop="$emit('remove-artist', artist)"
         >
           <div class="flex items-center q-gap-sm">
             <q-icon name="cancel" size="18px" />
@@ -40,10 +43,11 @@
 <script setup lang="ts">
 import { ArtistCard } from 'src/components/SearchPage/index';
 import type { IArtist } from 'src/interfaces/artist';
-import NoResult from 'src/components/NoResult.vue';
+import { NoResult } from 'src/components';
 
 interface Props {
   artists: IArtist[];
+  removing?: boolean;
   noDataTitle?: string;
   noDataDescription?: string;
   noDataButtonLabel?: string;
@@ -53,8 +57,19 @@ interface Emits {
   (e: 'select-artist', artist: IArtist): void;
   (e: 'select-favorite', artistDocumentId: string): void;
   (e: 'open-invite-dialog'): void;
+  (e: 'remove-artist', artist: IArtist): void;
 }
 
 defineProps<Props>();
 defineEmits<Emits>();
+
+defineOptions({
+  name: 'ArtistsList',
+});
+</script>
+
+<script lang="ts">
+export default {
+  name: 'ArtistsList',
+};
 </script>

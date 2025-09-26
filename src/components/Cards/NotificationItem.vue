@@ -15,7 +15,7 @@
       <div class="notification-item-actions flex no-wrap q-gap-sm q-mt-md full-width">
         <q-btn
           label="Reject"
-          color="grey-6"
+          color="grey-9"
           rounded
           size="sm"
           :loading="loadingReject"

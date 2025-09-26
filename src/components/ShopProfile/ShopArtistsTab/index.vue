@@ -38,9 +38,11 @@
       <ArtistsList
         v-show="activeFilter?.tab === ACCEPTED_TAB"
         :artists="artists"
+        :removing="removingArtist"
         @select-artist="handleArtistClick"
         @select-favorite="handleFavoriteToggle"
         @open-invite-dialog="showAddArtistDialog = true"
+        @remove-artist="handleRemoveArtist"
       />
     </div>
 
@@ -59,18 +61,20 @@ import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
 import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
-import { useLazyQuery } from '@vue/apollo-composable';
+import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
 import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
 import { useProfileStore } from 'src/stores/profile';
 import type { ITab } from 'src/interfaces/tabs';
-import ArtistsList from 'src/components/ShopProfile/ShopArtistsTab/ArtistsList.vue';
-import PendingList from 'src/components/ShopProfile/ShopArtistsTab/PendingList.vue';
-import TabsComp from 'src/components/TabsComp.vue';
+import { TabsComp } from 'src/components';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import type { IInvite } from 'src/interfaces/invite';
 import { useInvitesStore } from 'src/stores/invites';
+import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
+import { default as ArtistsList } from './ArtistsList.vue';
+import { default as PendingList } from './PendingList.vue';
+import { useQuasar } from 'quasar';
 
 const ACCEPTED_TAB = 'accepted';
 const PENDING_TAB = 'pending';
@@ -92,12 +96,17 @@ const invitesStore = useInvitesStore();
 const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, sentPendingInvites } =
   useInviteCompos();
 const { showError, showSuccess } = useNotify();
+const $q = useQuasar();
+
+// Setup mutation for removing artist
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
 
 // Artists data
 const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
 const pendingArtists = ref<IArtist[]>([]);
 const documentIdForDelete = ref<string>('');
+const removingArtist = ref(false);
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
 const pendingDocumentIds = computed(() => pendingArtists.value.map((artist) => artist.documentId));
@@ -144,6 +153,46 @@ const handleCancelInvite = (artist: IArtist) => {
   void cancelInvite(shop, artist, inviteDocumentId);
 };
 
+const handleRemoveArtist = (artist: IArtist) => {
+  const shop = profileStore.shopProfile;
+  if (!shop) {
+    showError('Shop profile not found');
+    console.error('Shop profile not found');
+    return;
+  }
+
+  $q.dialog({
+    title: 'Remove Artist',
+    message: `Are you sure you want to remove <strong class="text-primary">${artist.name}</strong> from your shop?`,
+    html: true,
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'No, Keep It',
+    },
+    ok: {
+      color: 'primary',
+      rounded: true,
+      label: 'Yes, Remove',
+    },
+  }).onOk(() => {
+    removingArtist.value = true;
+    documentIdForDelete.value = artist.documentId;
+
+    // Filter out the artist to be removed
+    const updatedArtists = artists.value
+      .filter((a) => a.documentId !== artist.documentId)
+      .map((a) => a.documentId);
+
+    void updateShop({
+      documentId: shop.documentId,
+      data: {
+        artists: updatedArtists,
+      },
+    });
+  });
+};
+
 onResultShopArtists(({ data }) => {
   artists.value = data.shopArtists;
 });
@@ -173,6 +222,25 @@ onDeleteInviteSuccess(({ data }) => {
 
 onDeleteInviteError((error) => {
   console.error('Error canceling invite:', error);
+});
+
+onDoneUpdateShop((result) => {
+  if (result.errors?.length) {
+    console.error('Error updating shop:', result.errors);
+    showError('Error removing artist from shop');
+    removingArtist.value = false;
+    return;
+  }
+
+  if (result.data?.updateShop) {
+    // Remove artist from local state
+    artists.value = artists.value.filter(
+      (artist) => artist.documentId !== documentIdForDelete.value,
+    );
+    showSuccess('Artist removed from shop successfully');
+    removingArtist.value = false;
+    documentIdForDelete.value = '';
+  }
 });
 
 watch(sentPendingInvites, (newPendingInvites) => {
@@ -222,7 +290,7 @@ defineOptions({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 4px 4px 16px;
+  padding: 4px 4px;
 }
 
 .section-title {
