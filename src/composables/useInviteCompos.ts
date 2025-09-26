@@ -58,21 +58,27 @@ const useInviteCompos = () => {
   );
 
   const fetchInvites = (filters: unknown = {}) => {
-    void loadInvites(null, { filters: {
-      ...(filters || {}),
-      or: [
+    void loadInvites(
+      null,
       {
-        sender: {
-          eq: userStore.getUser?.profile?.documentId,
+        filters: {
+          ...(filters || {}),
+          or: [
+            {
+              sender: {
+                eq: userStore.getUser?.profile?.documentId,
+              },
+            },
+            {
+              recipient: {
+                eq: userStore.getUser?.profile?.documentId,
+              },
+            },
+          ],
         },
       },
-      {
-        recipient: {
-          eq: userStore.getUser?.profile?.documentId,
-        },
-      },
-    ],
-    }}, { fetchPolicy: 'network-only' });
+      { fetchPolicy: 'network-only' },
+    );
   };
 
   const inviteArtist = (shop: IShop, artist: IArtist) => {
