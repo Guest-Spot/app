@@ -51,7 +51,9 @@
             v-for="invite in receivedInvites"
             :key="`received-${invite.documentId}`"
             :invite="invite"
-            :loading="updatingInvite && invite.documentId === updatingInviteDocumentId"
+            :loading-accept="loadingAccept && invite.documentId === updatingInviteDocumentId"
+            :loading-reject="loadingReject && invite.documentId === updatingInviteDocumentId"
+            :loading-cancel="loadingCancel && invite.documentId === updatingInviteDocumentId"
             @accept="acceptInvite"
             @reject="rejectInvite"
           />
@@ -93,12 +95,14 @@ const RECEIVED_TAB = 'received';
 // State
 const invites = ref<IInvite[]>([]);
 const updatingInviteDocumentId = ref<string | null>(null);
+const loadingAccept = ref<boolean>(false);
+const loadingReject = ref<boolean>(false);
+const loadingCancel = ref<boolean>(false);
 const successMessage = ref<string>('');
 
 // Mutation for updating invites
 const {
   mutate: updateInviteMutation,
-  loading: updatingInvite,
   onDone: onUpdateInviteSuccess,
   onError: onUpdateInviteError,
 } = useMutation(UPDATE_INVITE_MUTATION);
@@ -118,7 +122,12 @@ const receivedInvites = computed(() => {
 
 const filterTabs = computed<ITab[]>(() => [
   { label: 'Sent', tab: SENT_TAB, count: sentInvites.value.length },
-  { label: 'Received', tab: RECEIVED_TAB, count: receivedInvites.value.length },
+  {
+    label: 'Received',
+    tab: RECEIVED_TAB,
+    count: receivedInvites.value.length,
+    hasNew: receivedInvites.value.some((invite) => invite.reaction === InviteReaction.Pending),
+  },
 ]);
 
 // Filter tabs
@@ -145,6 +154,7 @@ const acceptInvite = (inviteDocumentId: string) => {
       label: 'Accept',
     },
   }).onOk(() => {
+    loadingAccept.value = true;
     void updateInviteMutation({
       documentId: inviteDocumentId,
       data: {
@@ -171,6 +181,7 @@ const rejectInvite = (inviteDocumentId: string) => {
       label: 'Reject',
     },
   }).onOk(() => {
+    loadingReject.value = true;
     void updateInviteMutation({
       documentId: inviteDocumentId,
       data: {
@@ -196,11 +207,13 @@ const cancelInvite = (inviteDocumentId: string) => {
       label: 'Yes, Cancel',
     },
   }).onOk(() => {
+    loadingCancel.value = true;
     const invite = invites.value.find((i) => i.documentId === inviteDocumentId);
     if (invite) {
       invite.reaction = InviteReaction.Rejected;
       invite.updatedAt = new Date().toISOString();
       showSuccess('Invite cancelled');
+      loadingCancel.value = false;
     }
   });
 };
@@ -211,6 +224,9 @@ onUpdateInviteSuccess(() => {
   updatingInviteDocumentId.value = null;
   showSuccess(successMessage.value);
   successMessage.value = '';
+  loadingAccept.value = false;
+  loadingReject.value = false;
+  loadingCancel.value = false;
 });
 
 onUpdateInviteError((error) => {
@@ -218,6 +234,9 @@ onUpdateInviteError((error) => {
   console.error('Error updating invite', error);
   showError('Something went wrong');
   successMessage.value = '';
+  loadingAccept.value = false;
+  loadingReject.value = false;
+  loadingCancel.value = false;
 });
 
 onBeforeMount(() => {

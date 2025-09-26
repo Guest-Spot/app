@@ -153,15 +153,17 @@ const useInviteCompos = () => {
   };
 
   onResultInvites((result) => {
-    const sortedInvites = result?.data?.invites ? [...result.data.invites].sort((a: IInvite, b: IInvite) => {
-      if (a.reaction === InviteReaction.Pending && b.reaction !== InviteReaction.Pending) {
-        return -1; // a comes before b
-      }
-      if (a.reaction !== InviteReaction.Pending && b.reaction === InviteReaction.Pending) {
-        return 1; // b comes before a
-      }
-      return 0; // maintain original order for same reaction types
-    }) : [];
+    const sortedInvites = result?.data?.invites
+      ? [...result.data.invites].sort((a: IInvite, b: IInvite) => {
+          if (a.reaction === InviteReaction.Pending && b.reaction !== InviteReaction.Pending) {
+            return -1; // a comes before b
+          }
+          if (a.reaction !== InviteReaction.Pending && b.reaction === InviteReaction.Pending) {
+            return 1; // b comes before a
+          }
+          return 0; // maintain original order for same reaction types
+        })
+      : [];
     console.log('sortedInvites', sortedInvites);
     invitesStore.setInvites(sortedInvites);
   });

@@ -18,9 +18,12 @@
         >{{ t.label }}
         <template v-if="t.count">&nbsp;({{ t.count }})</template>
       </span>
-      <q-badge v-if="t.newCount" rounded class="tabs-comp-counter text-bold q-ml-xs">{{
-        t.count
-      }}</q-badge>
+      <q-badge
+        v-if="t.hasNew"
+        color="warning"
+        rounded
+        class="tabs-comp-counter text-bold q-ml-xs"
+      />
     </q-btn>
   </div>
 </template>
@@ -80,9 +83,11 @@ onMounted(() => {
 }
 
 .tabs-comp-counter {
+  min-height: 8px;
+  padding: 2px 4px;
   position: absolute;
-  top: -6px;
-  right: 0;
+  top: -2px;
+  right: 2px;
   z-index: 1;
 }
 
