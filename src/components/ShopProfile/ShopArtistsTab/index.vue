@@ -59,7 +59,6 @@ import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
 import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { ARTISTS_QUERY } from 'src/apollo/types/artist';
-import { INVITES_QUERY } from 'src/apollo/types/invite';
 import { useLazyQuery } from '@vue/apollo-composable';
 import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
 import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
@@ -68,9 +67,10 @@ import type { ITab } from 'src/interfaces/tabs';
 import ArtistsList from 'src/components/ShopProfile/ShopArtistsTab/ArtistsList.vue';
 import PendingList from 'src/components/ShopProfile/ShopArtistsTab/PendingList.vue';
 import TabsComp from 'src/components/TabsComp.vue';
-import type { IGraphQLInvitesResult, IInvite } from 'src/interfaces/invite';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
+import type { IInvite } from 'src/interfaces/invite';
+import { useInvitesStore } from 'src/stores/invites';
 
 const ACCEPTED_TAB = 'accepted';
 const PENDING_TAB = 'pending';
@@ -79,31 +79,24 @@ const {
   load: loadShopArtists,
   onResult: onResultShopArtists,
   onError: onErrorShopArtists,
-  refetch: refetchShopArtists,
 } = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
 
 const {
   load: loadPendingShopArtists,
   onResult: onResultPendingShopArtists,
   onError: onErrorPendingShopArtists,
-  refetch: refetchPendingShopArtists,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
-const {
-  load: loadInvites,
-  onResult: onResultInvites,
-  onError: onErrorInvites,
-  refetch: refetchInvites,
-} = useLazyQuery<IGraphQLInvitesResult>(INVITES_QUERY);
 const profileStore = useProfileStore();
-const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError } = useInviteCompos();
+const invitesStore = useInvitesStore();
+const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, sentPendingInvites } =
+  useInviteCompos();
 const { showError, showSuccess } = useNotify();
 
 // Artists data
 const artists = ref<IArtist[]>([]);
 const showAddArtistDialog = ref(false);
 const pendingArtists = ref<IArtist[]>([]);
-const pendingInvites = ref<IInvite[]>([]);
 const documentIdForDelete = ref<string>('');
 
 const invitedDocumentIds = computed(() => artists.value.map((artist) => artist.documentId));
@@ -127,9 +120,9 @@ const handleFavoriteToggle = (artistDocumentId: string) => {
   console.log('Favorite toggled for artist:', artistDocumentId);
 };
 
-const handleArtistInvited = () => {
-  void refetchShopArtists();
-  void refetchInvites();
+const handleArtistInvited = (invite: IInvite, artist: IArtist) => {
+  pendingArtists.value = [...pendingArtists.value, artist];
+  invitesStore.setInvites([...invitesStore.getInvites, invite]);
 };
 
 const handleCancelInvite = (artist: IArtist) => {
@@ -140,7 +133,7 @@ const handleCancelInvite = (artist: IArtist) => {
     console.error('Shop profile not found');
     return;
   }
-  const inviteDocumentId = pendingInvites.value.find(
+  const inviteDocumentId = sentPendingInvites.value.find(
     (invite) => invite.recipient === artist.documentId,
   )?.documentId;
   if (!inviteDocumentId) {
@@ -159,28 +152,6 @@ onErrorShopArtists((error) => {
   console.error('Error fetching invites:', error);
 });
 
-onResultInvites(({ data }) => {
-  if (data.invites.length > 0) {
-    pendingInvites.value = data.invites;
-    void loadPendingShopArtists(
-      null,
-      {
-        filters: {
-          documentId: {
-            in: data.invites.map((invite) => invite.recipient),
-          },
-        },
-      },
-      { fetchPolicy: 'network-only' },
-    );
-    void refetchPendingShopArtists();
-  }
-});
-
-onErrorInvites((error) => {
-  console.error('Error fetching invites:', error);
-});
-
 onResultPendingShopArtists(({ data }) => {
   pendingArtists.value = data?.artists || [];
 });
@@ -189,16 +160,35 @@ onErrorPendingShopArtists((error) => {
   console.error('Error fetching invited artists:', error);
 });
 
-onDeleteInviteSuccess(() => {
+onDeleteInviteSuccess(({ data }) => {
   pendingArtists.value = pendingArtists.value.filter(
     (artist) => artist.documentId !== documentIdForDelete.value,
   );
   showSuccess('Invite canceled successfully');
   documentIdForDelete.value = '';
+  invitesStore.setInvites(
+    invitesStore.getInvites.filter((invite) => invite.documentId !== data.deleteInvite.documentId),
+  );
 });
 
 onDeleteInviteError((error) => {
   console.error('Error canceling invite:', error);
+});
+
+watch(sentPendingInvites, (newPendingInvites) => {
+  if (newPendingInvites.length > 0) {
+    void loadPendingShopArtists(
+      null,
+      {
+        filters: {
+          documentId: {
+            in: newPendingInvites.map((invite) => invite.recipient),
+          },
+        },
+      },
+      { fetchPolicy: 'network-only' },
+    );
+  }
 });
 
 watch(
@@ -209,15 +199,6 @@ watch(
         null,
         {
           documentId: newProfile.documentId,
-        },
-        { fetchPolicy: 'network-only' },
-      );
-      void loadInvites(
-        null,
-        {
-          recipient: {
-            eq: newProfile.documentId,
-          },
         },
         { fetchPolicy: 'network-only' },
       );

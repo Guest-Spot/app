@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { IArtist } from 'src/interfaces/artist';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
@@ -9,13 +9,16 @@ import {
   INVITES_QUERY,
 } from 'src/apollo/types/invite';
 import type { IShop } from 'src/interfaces/shop';
-import { InviteType } from 'src/interfaces/enums';
+import { InviteReaction, InviteType } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
+import { useUserStore } from 'src/stores/user';
+import type { IInvite } from 'src/interfaces/invite';
 
 const useInviteCompos = () => {
   const $q = useQuasar();
   const { showError } = useNotify();
   const invitesStore = useInvitesStore();
+  const userStore = useUserStore();
 
   const {
     mutate: createInviteMutation,
@@ -39,8 +42,45 @@ const useInviteCompos = () => {
 
   const shopArtists = ref<IArtist[]>([]);
 
+  const receivedPendingInvites = computed(() =>
+    invitesStore.getInvites.filter(
+      (invite) =>
+        invite.reaction === InviteReaction.Pending &&
+        invite.recipient === userStore.getUser?.profile?.documentId,
+    ),
+  );
+
+  const sentPendingInvites = computed(() =>
+    invitesStore.getInvites.filter(
+      (invite) =>
+        invite.reaction === InviteReaction.Pending &&
+        invite.sender === userStore.getUser?.profile?.documentId,
+    ),
+  );
+
   const fetchInvites = (filters: unknown = {}) => {
-    void loadInvites(null, { filters }, { fetchPolicy: 'network-only' });
+    void loadInvites(
+      null,
+      {
+        filters: {
+          ...(filters || {}),
+          or: [
+            {
+              sender: {
+                eq: userStore.getUser?.profile?.documentId,
+              },
+            },
+            {
+              recipient: {
+                eq: userStore.getUser?.profile?.documentId,
+              },
+            },
+          ],
+        },
+        sort: ['createdAt:desc'],
+      },
+      { fetchPolicy: 'network-only' },
+    );
   };
 
   const inviteArtist = (shop: IShop, artist: IArtist) => {
@@ -113,7 +153,17 @@ const useInviteCompos = () => {
   };
 
   onResultInvites((result) => {
-    invitesStore.setInvites(result?.data?.invites || []);
+    const sortedInvites = result?.data?.invites ? [...result.data.invites].sort((a: IInvite, b: IInvite) => {
+      if (a.reaction === InviteReaction.Pending && b.reaction !== InviteReaction.Pending) {
+        return -1; // a comes before b
+      }
+      if (a.reaction !== InviteReaction.Pending && b.reaction === InviteReaction.Pending) {
+        return 1; // b comes before a
+      }
+      return 0; // maintain original order for same reaction types
+    }) : [];
+    console.log('sortedInvites', sortedInvites);
+    invitesStore.setInvites(sortedInvites);
   });
 
   return {
@@ -130,6 +180,8 @@ const useInviteCompos = () => {
     refetchInvites,
     onResultInvites,
     onErrorInvites,
+    receivedPendingInvites,
+    sentPendingInvites,
   };
 };
 

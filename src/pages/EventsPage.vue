@@ -16,7 +16,10 @@
       <!-- Main Content Area -->
       <div class="container">
         <div class="main-content flex column q-gap-md">
-          <div v-if="activeTab.tab === TAB_TRIPS" class="tab-content">
+          <div v-if="activeTab.tab === TAB_INVITES" class="tab-content">
+            <InvitesTab />
+          </div>
+          <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
             <TripsTab />
           </div>
           <div v-else-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
@@ -37,11 +40,17 @@ import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
+import InvitesTab from 'src/components/Events/InvitesTab/index.vue';
 
+const TAB_INVITES = 'invites';
 const TAB_TRIPS = 'trips';
 const TAB_BOOKINGS = 'bookings';
 
 const TABS: ITab[] = [
+  {
+    label: 'Invites',
+    tab: TAB_INVITES,
+  },
   {
     label: 'Trips',
     tab: TAB_TRIPS,

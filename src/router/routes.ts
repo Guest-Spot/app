@@ -22,8 +22,8 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Bookmarks' },
       },
       {
-        path: 'trips-bookings',
-        component: () => import('pages/TripsBookingsPage.vue'),
+        path: 'events',
+        component: () => import('src/pages/EventsPage.vue'),
         meta: { title: 'My Trips & Bookings', requiresAuth: true },
       },
       {

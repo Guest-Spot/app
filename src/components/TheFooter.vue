@@ -48,8 +48,8 @@ const LINKS = computed(() => [
   {
     icon: userStore.isShop ? 'event_note' : 'event',
     label: 'Bookings',
-    path: userStore.isShop ? '/bookings' : '/trips-bookings',
-    isActive: route.path === '/bookings' || route.path === '/trips-bookings',
+    path: userStore.isShop ? '/bookings' : '/events',
+    isActive: route.path === '/bookings' || route.path === '/events',
   },
   {
     icon: 'person',

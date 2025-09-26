@@ -112,6 +112,7 @@ import useHelpers from 'src/modules/useHelpers';
 import useNotify from 'src/modules/useNotify';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import { useProfileStore } from 'src/stores/profile';
+import type { IInvite } from 'src/interfaces/invite';
 
 // Sort settings interface
 interface SortSettings {
@@ -133,7 +134,7 @@ interface LocalArtist {
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'artistInvited', artist: IArtist): void;
+  (e: 'artistInvited', invite: IInvite, artist: IArtist): void;
 }
 
 const props = defineProps<Props>();
@@ -362,7 +363,7 @@ onInviteSuccess(({ data }) => {
   );
   if (invitedArtist) {
     showSuccess(`Invitation sent to ${invitedArtist.artist.name}!`);
-    void emit('artistInvited', invitedArtist.artist);
+    void emit('artistInvited', data.createInvite, invitedArtist.artist);
     localArtists.value = localArtists.value.map((a) => ({
       ...a,
       pending: a.artist.documentId === data?.createInvite?.recipient || a.pending,
