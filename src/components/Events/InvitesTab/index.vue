@@ -85,7 +85,7 @@ const $q = useQuasar();
 const { showSuccess, showError } = useNotify();
 const invitesStore = useInvitesStore();
 const userStore = useUserStore();
-const { fetchInvites } = useInviteCompos();
+const { fetchInvites, refetchInvites } = useInviteCompos();
 
 const SENT_TAB = 'sent';
 const RECEIVED_TAB = 'received';
@@ -206,12 +206,8 @@ const cancelInvite = (inviteDocumentId: string) => {
 };
 
 // Mutation handlers
-onUpdateInviteSuccess(({ data }) => {
-  const filteredInvites = invitesStore.getInvites.filter(
-    (invite) => invite.documentId !== data.updateInvite.documentId,
-  );
-  const mergedInvites = [...filteredInvites, data.updateInvite];
-  invitesStore.setInvites(mergedInvites);
+onUpdateInviteSuccess(() => {
+  void refetchInvites();
   updatingInviteDocumentId.value = null;
   showSuccess(successMessage.value);
   successMessage.value = '';
