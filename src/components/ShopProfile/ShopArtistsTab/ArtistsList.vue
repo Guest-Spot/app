@@ -7,7 +7,22 @@
       :artist="artist"
       @click="$emit('select-artist', artist)"
       @favorite="$emit('select-favorite', artist.documentId)"
-    />
+    >
+      <template #footer>
+        <q-btn
+          rounded
+          flat
+          dense
+          color="primary"
+          class="bg-block full-width"
+        >
+          <div class="flex items-center q-gap-sm">
+            <q-icon name="cancel" size="18px" />
+            <span>Remove from shop</span>
+          </div>
+        </q-btn>
+      </template>
+    </ArtistCard>
   </div>
 
   <!-- Empty State -->

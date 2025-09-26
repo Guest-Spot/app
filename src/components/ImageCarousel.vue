@@ -122,7 +122,7 @@ const carouselConfig = computed(() => ({
 // Vue3-carousel pagination styles
 :deep(.carousel__pagination) {
   position: absolute;
-  bottom: 8px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
