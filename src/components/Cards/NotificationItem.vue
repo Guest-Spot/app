@@ -18,6 +18,8 @@
           color="grey-6"
           rounded
           size="sm"
+          :loading="loadingReject"
+          :disable="loadingReject || loadingAccept"
           @click.stop="$emit('reject', invite.documentId)"
           class="bg-block"
         />
@@ -26,6 +28,8 @@
           color="primary"
           rounded
           size="sm"
+          :loading="loadingAccept"
+          :disable="loadingAccept || loadingReject"
           @click.stop="$emit('accept', invite.documentId)"
         />
         <q-btn
@@ -52,6 +56,8 @@ defineOptions({
 
 interface Props {
   invite: IInvite;
+  loadingAccept?: boolean;
+  loadingReject?: boolean;
 }
 
 interface Emits {

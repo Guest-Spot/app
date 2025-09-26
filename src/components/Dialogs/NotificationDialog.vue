@@ -29,7 +29,8 @@
             v-for="invite in receivedPendingInvites"
             :key="invite.documentId"
             :invite="invite"
-            :loading="updatingInvite && invite.documentId === updatingInviteDocumentId"
+            :loading-accept="loadingAccept && invite.documentId === updatingInviteDocumentId"
+            :loading-reject="loadingReject && invite.documentId === updatingInviteDocumentId"
             @accept="handleAccept"
             @reject="handleReject"
           />
@@ -80,7 +81,6 @@ defineOptions({
 
 const {
   mutate: updateInviteMutation,
-  loading: updatingInvite,
   onDone: onUpdateInviteSuccess,
   onError: onUpdateInviteError,
 } = useMutation(UPDATE_INVITE_MUTATION);
@@ -89,6 +89,8 @@ const {
 const isVisible = ref(props.modelValue);
 const updatingInviteDocumentId = ref<string | null>(null);
 const successMessage = ref<string>('');
+const loadingAccept = ref<boolean>(false);
+const loadingReject = ref<boolean>(false);
 
 const handleAccept = (documentId: string) => {
   updatingInviteDocumentId.value = documentId;
@@ -106,6 +108,7 @@ const handleAccept = (documentId: string) => {
       label: 'Accept',
     },
   }).onOk(() => {
+    loadingAccept.value = true;
     void updateInviteMutation({
       documentId,
       data: {
@@ -132,6 +135,7 @@ const handleReject = (documentId: string) => {
       label: 'Reject',
     },
   }).onOk(() => {
+    loadingReject.value = true;
     void updateInviteMutation({
       documentId,
       data: {
@@ -154,12 +158,16 @@ onUpdateInviteSuccess(() => {
   updatingInviteDocumentId.value = null;
   showSuccess(successMessage.value);
   successMessage.value = '';
+  loadingAccept.value = false;
+  loadingReject.value = false;
 });
 
 onUpdateInviteError((error) => {
   updatingInviteDocumentId.value = null;
   console.error('Error updating invite', error);
   successMessage.value = '';
+  loadingAccept.value = false;
+  loadingReject.value = false;
 });
 
 // Watch for props changes
