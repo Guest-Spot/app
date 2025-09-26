@@ -60,3 +60,8 @@ export enum InviteReaction {
   Accepted = 'accepted',
   Rejected = 'rejected',
 }
+
+export enum NotificationType {
+  RemoveArtistFromShop = 'remove_artist_from_shop',
+  AddArtistToShop = 'add_artist_to_shop',
+}
