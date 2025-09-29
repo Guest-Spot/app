@@ -7,24 +7,24 @@
     </div>
 
     <!-- Portfolio Items -->
-    <div class="portfolio-grid">
-      <PortfolioCard v-for="(work, index) in portfolioItems" :key="index" :work="work" />
+    <div v-if="portfoliosLoading" class="loading-state">
+      <q-spinner size="40px" color="primary" />
+      <p>Loading portfolios...</p>
+    </div>
+    <div v-else class="portfolio-grid">
+      <PortfolioCard v-for="work in portfolioItems" :key="work.documentId" :work="work" />
     </div>
 
     <!-- Empty State -->
-    <div v-if="portfolioItems.length === 0" class="empty-state">
-      <q-icon name="photo_library" size="80px" color="grey-5" />
-      <h3 class="empty-title">No portfolio items yet</h3>
-      <p class="empty-description">Start building your portfolio by adding your best work</p>
-      <q-btn
-        color="primary"
-        icon="add"
-        label="Add Your First Work"
-        @click="addNewWork"
-        rounded
-        unelevated
-      />
-    </div>
+    <NoResult
+      v-if="!portfoliosLoading && portfolioItems.length === 0"
+      icon="photo_library"
+      title="No portfolio items yet"
+      description="Start building your portfolio by adding your best work"
+      btn-label="Add Your First Work"
+      btn-icon="add"
+      @click-btn="addNewWork"
+    />
 
     <!-- Portfolio Dialog -->
     <PortfolioDialog
@@ -37,39 +37,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
+import { ref, watch, onMounted } from 'vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
-import PortfolioCard from 'src/components/PortfolioCard.vue';
+import { NoResult, PortfolioCard } from 'src/components';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
+import { useLazyQuery, useMutation } from '@vue/apollo-composable';
+import { PORTFOLIOS_QUERY, CREATE_PORTFOLIO_MUTATION, UPDATE_PORTFOLIO_MUTATION, DELETE_PORTFOLIO_MUTATION } from 'src/apollo/types/portfolio';
+import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
+import { useProfileStore } from 'src/stores/profile';
+import useNotify from 'src/modules/useNotify';
+import { uploadFiles, type UploadFileResponse } from 'src/api';
+import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
+import useUser from 'src/modules/useUser';
 
-// Mock portfolio data
-const portfolioItems = ref<IPortfolio[]>([
-  {
-    documentId: '1',
-    title: 'Live Performance at Club XYZ',
-    description: 'Amazing night performing my latest hits to a sold-out crowd.',
-    pictures: [{ url: 'examples/example1.jpg', id: '1', index: 0 }],
-    tags: [{ name: 'Live' }, { name: 'Performance' }, { name: 'Club' }],
-    ownerDocumentId: '1',
-  },
-  {
-    documentId: '2',
-    title: 'Studio Recording Session',
-    description: 'Recording my new single with professional sound engineers.',
-    pictures: [{ url: 'examples/example2.jpeg', id: '2', index: 0 }],
-    tags: [{ name: 'Studio' }, { name: 'Recording' }, { name: 'Single' }],
-    ownerDocumentId: '1',
-  },
-  {
-    documentId: '3',
-    title: 'Music Festival Appearance',
-    description: 'Performing at the biggest music festival in the city.',
-    pictures: [{ url: 'examples/example3.jpg', id: '3', index: 0 }],
-    tags: [{ name: 'Festival' }, { name: 'Live' }, { name: 'Music' }],
-    ownerDocumentId: '1',
-  },
-]);
+// Store and composables
+const profileStore = useProfileStore();
+const { showSuccess, showError } = useNotify();
+const { fetchMe } = useUser();
+
+// Apollo queries and mutations
+const {
+  load: loadPortfolios,
+  onResult: onResultPortfolios,
+  onError: onErrorPortfolios,
+  loading: portfoliosLoading,
+} = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
+
+const { mutate: createPortfolio, onDone: onDoneCreatePortfolio } = useMutation(CREATE_PORTFOLIO_MUTATION);
+const { mutate: updatePortfolio, onDone: onDoneUpdatePortfolio } = useMutation(UPDATE_PORTFOLIO_MUTATION);
+const { onDone: onDoneDeletePortfolio } = useMutation(DELETE_PORTFOLIO_MUTATION);
+const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
+
+// Portfolio data
+const portfolioItems = ref<IPortfolio[]>([]);
 
 // Dialog state
 const showDialog = ref(false);
@@ -77,26 +80,163 @@ const isEditing = ref(false);
 const currentWork = ref<IPortfolioForm>({
   title: '',
   description: '',
-  imageUrl: '',
-  imageFile: null,
+  pictures: [],
   tags: [],
 });
+const editingPortfolioId = ref<string>('');
 
 const addNewWork = () => {
   isEditing.value = false;
+  editingPortfolioId.value = '';
   currentWork.value = {
     title: '',
     description: '',
-    imageUrl: '',
-    imageFile: null,
+    pictures: [],
     tags: [],
   };
   showDialog.value = true;
 };
 
-const handleWorkConfirm = (work: IPortfolioForm) => {
-  console.log('work', work);
+// Load portfolios from API
+const loadPortfoliosData = () => {
+  const artistProfile = profileStore.getArtistProfile;
+  if (artistProfile?.documentId) {
+    void loadPortfolios(PORTFOLIOS_QUERY, {
+      ownerDocumentId: artistProfile.documentId,
+    });
+  }
 };
+
+// Handle portfolio creation/update
+const handleWorkConfirm = async (work: IPortfolioForm) => {
+  try {
+    const artistProfile = profileStore.getArtistProfile;
+    if (!artistProfile?.documentId) {
+      showError('Artist profile not found');
+      return;
+    }
+
+    // Delete images if any
+    if (work.imagesForRemove?.length) {
+      for (const id of work.imagesForRemove) {
+        await deleteImage({ id });
+      }
+    }
+
+    // Upload new images
+    let uploadedFiles: UploadFileResponse[] = [];
+    if (work.imagesForUpload?.length) {
+      uploadedFiles = await uploadFiles(work.imagesForUpload);
+    }
+
+    // Prepare data for mutation
+    const portfolioData = {
+      title: work.title,
+      description: work.description,
+      pictures: [
+        ...uploadedFiles.map((file) => file.id),
+        ...(work.pictures?.map((picture) => picture.id).filter((id) => !work.imagesForRemove?.includes(id)) || []),
+      ],
+      tags: work.tags.map((tag) => ({ name: tag })),
+    };
+
+    if (isEditing.value && editingPortfolioId.value) {
+      // Update existing portfolio
+      void updatePortfolio({
+        documentId: editingPortfolioId.value,
+        data: portfolioData,
+      });
+    } else {
+      // Create new portfolio
+      void createPortfolio({
+        data: portfolioData,
+      });
+    }
+  } catch (error) {
+    console.error('Error saving portfolio:', error);
+    showError('Error saving portfolio');
+  }
+};
+
+// Apollo query handlers
+onResultPortfolios((result) => {
+  if (result.data?.portfolios) {
+    portfolioItems.value = result.data.portfolios;
+  }
+});
+
+onErrorPortfolios((error) => {
+  console.error('Error loading portfolios:', error);
+  showError('Error loading portfolios');
+});
+
+// Mutation handlers
+onDoneCreatePortfolio((result) => {
+  if (result.errors?.length) {
+    console.error('Error creating portfolio:', result.errors);
+    showError('Error creating portfolio');
+    return;
+  }
+  
+  if (result.data?.createPortfolio) {
+    showSuccess('Portfolio created successfully');
+    loadPortfoliosData(); // Reload portfolios
+    void (async () => {
+      const userData = await fetchMe();
+      if (userData) {
+        profileStore.setUserProfile(userData);
+      }
+    })();
+  }
+});
+
+onDoneUpdatePortfolio((result) => {
+  if (result.errors?.length) {
+    console.error('Error updating portfolio:', result.errors);
+    showError('Error updating portfolio');
+    return;
+  }
+  
+  if (result.data?.updatePortfolio) {
+    showSuccess('Portfolio updated successfully');
+    loadPortfoliosData(); // Reload portfolios
+    void (async () => {
+      const userData = await fetchMe();
+      if (userData) {
+        profileStore.setUserProfile(userData);
+      }
+    })();
+  }
+});
+
+onDoneDeletePortfolio((result) => {
+  if (result.errors?.length) {
+    console.error('Error deleting portfolio:', result.errors);
+    showError('Error deleting portfolio');
+    return;
+  }
+  
+  if (result.data?.deletePortfolio) {
+    showSuccess('Portfolio deleted successfully');
+    loadPortfoliosData(); // Reload portfolios
+  }
+});
+
+// Watch for artist profile changes
+watch(
+  () => profileStore.getArtistProfile,
+  (profile) => {
+    if (profile?.documentId) {
+      loadPortfoliosData();
+    }
+  },
+  { immediate: true }
+);
+
+// Load portfolios on component mount
+onMounted(() => {
+  loadPortfoliosData();
+});
 
 // Expose data for parent component
 defineExpose({
@@ -126,25 +266,14 @@ defineExpose({
   gap: 16px;
 }
 
-.empty-state {
+
+.loading-state {
   text-align: center;
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  border: 1px solid var(--shadow-light);
-}
-
-.empty-title {
-  margin: 20px 0 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   color: var(--brand-dark);
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.empty-description {
-  margin: 0 0 30px 0;
-  color: var(--brand-dark);
-  font-size: 16px;
-  line-height: 1.5;
 }
 </style>

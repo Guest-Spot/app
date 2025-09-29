@@ -12,9 +12,10 @@ export interface IPortfolio {
 export interface IPortfolioForm {
   title: string;
   description: string;
-  imageUrl: string;
-  imageFile: File | null;
+  pictures?: IPicture[];
   tags: string[];
+  imagesForUpload?: File[];
+  imagesForRemove?: string[];
 }
 
 export interface IGraphQLPortfoliosResult {
