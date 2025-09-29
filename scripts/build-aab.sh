@@ -59,6 +59,22 @@ fi
 
 print_status "Signing configuration verified"
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    print_status "Loading environment variables from .env file..."
+    export $(grep -v '^#' .env | xargs)
+    if [ -n "$API_URL" ]; then
+        print_status "API_URL loaded from .env: $API_URL"
+    else
+        print_error "API_URL not found in .env file"
+        exit 1
+    fi
+else
+    print_error ".env file not found in project root"
+    print_error "Please create .env file with API_URL variable"
+    exit 1
+fi
+
 # Step 1: Build Quasar app for Capacitor
 print_status "Step 1: Building Quasar app for Capacitor..."
 npm run capacitor:build:android

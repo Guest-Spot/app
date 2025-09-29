@@ -13,7 +13,15 @@ This guide describes the process of building Android App Bundle (AAB) and APK fi
 
 ## Build Process
 
-### 1. Setup Signing Configuration
+### 1. Setup Configuration
+
+#### Create .env file:
+Create a `.env` file in the project root with your API configuration:
+
+```env
+# API Configuration
+API_URL=https://your-api-url.com
+```
 
 #### Place your keystore file:
 Place your keystore file at `src-capacitor/android/guest-spot-key.jks`
@@ -27,7 +35,7 @@ RELEASE_STORE_PASSWORD=your_keystore_password
 RELEASE_KEY_PASSWORD=your_key_password
 ```
 
-**Important**: Both `local.properties` and `guest-spot-key.jks` files are automatically ignored by Git and should never be committed to version control.
+**Important**: `.env`, `local.properties` and `guest-spot-key.jks` files are automatically ignored by Git and should never be committed to version control.
 
 ### 2. Install Dependencies
 
@@ -148,10 +156,11 @@ The `scripts/build-aab.sh` script automates the entire build process:
 
 ### Script Features
 
+- **Environment variable loading** - Automatically loads API_URL from .env file
 - **Color-coded output** - Easy to read build progress
 - **Error handling** - Stops on any build failure
-- **File validation** - Checks keystore and output files
-- **Secure password handling** - Passwords never stored in version control
+- **File validation** - Checks keystore, .env file and output files
+- **Secure configuration handling** - Passwords and API keys never stored in version control
 - **Automatic cleanup** - Removes previous builds
 - **Size reporting** - Shows final AAB and APK file sizes
 - **Dual output** - Creates both AAB and APK files for different use cases
@@ -162,8 +171,9 @@ The `scripts/build-aab.sh` script automates the entire build process:
 
 1. **Keystore not found**: Ensure the keystore file exists at `src-capacitor/android/guest-spot-key.jks`
 2. **Wrong password**: Verify the keystore password in `src-capacitor/android/local.properties`
-3. **Build tools version**: Make sure you have the correct Android build tools installed
-4. **Java version**: Ensure you're using a compatible JDK version
+3. **API_URL not found**: Ensure the `.env` file exists in project root with `API_URL` variable
+4. **Build tools version**: Make sure you have the correct Android build tools installed
+5. **Java version**: Ensure you're using a compatible JDK version
 
 ### Build Errors
 
@@ -174,6 +184,15 @@ The `scripts/build-aab.sh` script automates the entire build process:
 #### "Keystore password was incorrect"
 - Verify the password in `src-capacitor/android/local.properties`
 - Try recreating the keystore if necessary
+
+#### ".env file not found"
+- Create `.env` file in the project root directory
+- Add `API_URL=https://your-api-url.com` to the file
+
+#### "API_URL not found in .env file"
+- Ensure `.env` file contains `API_URL=your-api-url`
+- Check that there are no spaces around the `=` sign
+- Verify the `.env` file is in the project root directory
 
 #### "Build failed with an exception"
 - Check the full error message in the terminal
