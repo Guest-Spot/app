@@ -171,7 +171,7 @@ const confirmWork = () => {
   emit('confirm', {
     ...formData,
     imagesForUpload: imagesForUpload.value,
-    imagesForRemove: imagesForRemove.value
+    imagesForRemove: imagesForRemove.value,
   });
   isVisible.value = false;
 };

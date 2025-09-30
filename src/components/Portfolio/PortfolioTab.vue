@@ -3,7 +3,9 @@
     <!-- Portfolio Header -->
     <div class="portfolio-header bg-block border-radius-lg">
       <h3 class="text-subtitle1 text-bold q-my-none">
-        {{ profileType === 'shop' ? 'Shop Portfolio' : 'My Portfolio' }} ({{ portfolioItems.length }})
+        {{ profileType === 'shop' ? 'Shop Portfolio' : 'My Portfolio' }} ({{
+          portfolioItems.length
+        }})
       </h3>
       <q-btn color="primary" icon="add" size="sm" @click="addNewWork" round unelevated />
     </div>
@@ -14,7 +16,8 @@
       <p>Loading portfolios...</p>
     </div>
     <div v-else class="portfolio-grid">
-      <PortfolioCard v-for="(work, index) in portfolioItems"
+      <PortfolioCard
+        v-for="(work, index) in portfolioItems"
         editable
         :key="`work-${index}`"
         :work="work"
@@ -28,7 +31,11 @@
       v-if="!portfoliosLoading && portfolioItems.length === 0"
       icon="photo_library"
       :title="profileType === 'shop' ? 'No portfolio items yet' : 'No portfolio items yet'"
-      :description="profileType === 'shop' ? 'Start building your shop portfolio by adding your best work' : 'Start building your portfolio by adding your best work'"
+      :description="
+        profileType === 'shop'
+          ? 'Start building your shop portfolio by adding your best work'
+          : 'Start building your portfolio by adding your best work'
+      "
       :btn-label="profileType === 'shop' ? 'Add Your First Work' : 'Add Your First Work'"
       btn-icon="add"
       @click-btn="addNewWork"
@@ -54,7 +61,12 @@ import { useQuasar } from 'quasar';
 // @ts-ignore
 import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
-import { PORTFOLIOS_QUERY, CREATE_PORTFOLIO_MUTATION, UPDATE_PORTFOLIO_MUTATION, DELETE_PORTFOLIO_MUTATION } from 'src/apollo/types/portfolio';
+import {
+  PORTFOLIOS_QUERY,
+  CREATE_PORTFOLIO_MUTATION,
+  UPDATE_PORTFOLIO_MUTATION,
+  DELETE_PORTFOLIO_MUTATION,
+} from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useProfileStore } from 'src/stores/profile';
 import useNotify from 'src/modules/useNotify';
@@ -68,7 +80,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  profileType: 'artist'
+  profileType: 'artist',
 });
 
 // Store and composables
@@ -86,9 +98,12 @@ const {
   refetch: refetchPortfolios,
 } = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
-const { mutate: createPortfolio, onDone: onDoneCreatePortfolio } = useMutation(CREATE_PORTFOLIO_MUTATION);
-const { mutate: updatePortfolio, onDone: onDoneUpdatePortfolio } = useMutation(UPDATE_PORTFOLIO_MUTATION);
-const { mutate: deletePortfolio, onDone: onDoneDeletePortfolio } = useMutation(DELETE_PORTFOLIO_MUTATION);
+const { mutate: createPortfolio, onDone: onDoneCreatePortfolio } =
+  useMutation(CREATE_PORTFOLIO_MUTATION);
+const { mutate: updatePortfolio, onDone: onDoneUpdatePortfolio } =
+  useMutation(UPDATE_PORTFOLIO_MUTATION);
+const { mutate: deletePortfolio, onDone: onDoneDeletePortfolio } =
+  useMutation(DELETE_PORTFOLIO_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Portfolio data
@@ -108,9 +123,7 @@ const workFoEdit = ref<IPortfolio>({
 
 // Computed properties
 const currentProfile = computed(() => {
-  return props.profileType === 'shop'
-    ? profileStore.getShopProfile
-    : profileStore.getArtistProfile;
+  return props.profileType === 'shop' ? profileStore.getShopProfile : profileStore.getArtistProfile;
 });
 
 const clearWorkFoEdit = () => {
@@ -138,7 +151,7 @@ const addNewWork = () => {
 };
 
 const editWork = (portfolioId: string) => {
-  const work = portfolioItems.value.find(item => item.documentId === portfolioId);
+  const work = portfolioItems.value.find((item) => item.documentId === portfolioId);
   if (!work) {
     showError('Portfolio item not found');
     return;
@@ -157,7 +170,7 @@ const editWork = (portfolioId: string) => {
 };
 
 const deleteWork = (portfolioId: string) => {
-  const work = portfolioItems.value.find(item => item.documentId === portfolioId);
+  const work = portfolioItems.value.find((item) => item.documentId === portfolioId);
   if (!work) {
     showError('Portfolio item not found');
     return;
@@ -223,7 +236,9 @@ const handleWorkConfirm = async (work: IPortfolioForm) => {
       description: work.description,
       pictures: [
         ...uploadedFiles.map((file) => file.id),
-        ...(work.pictures?.map((picture) => picture.id).filter((id) => !work.imagesForRemove?.includes(id)) || []),
+        ...(work.pictures
+          ?.map((picture) => picture.id)
+          .filter((id) => !work.imagesForRemove?.includes(id)) || []),
       ],
       tags: work.tags.map((tag) => ({ name: tag.name })),
     };
@@ -322,7 +337,7 @@ watch(
       loadPortfoliosData();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Load portfolios on component mount

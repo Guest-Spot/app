@@ -26,7 +26,11 @@
         <!-- Tab Content -->
         <AboutShopTab v-if="activeTab.tab === TAB_ABOUT" class="tab-content" />
         <ShopArtistsTab v-if="activeTab.tab === TAB_ARTISTS" class="tab-content" />
-        <PortfolioTab v-if="activeTab.tab === TAB_PORTFOLIO" profile-type="shop" class="tab-content" />
+        <PortfolioTab
+          v-if="activeTab.tab === TAB_PORTFOLIO"
+          profile-type="shop"
+          class="tab-content"
+        />
       </div>
     </div>
   </q-page>

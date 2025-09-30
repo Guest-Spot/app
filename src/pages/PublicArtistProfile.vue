@@ -311,7 +311,7 @@ const loadPortfolioData = () => {
         ownerDocumentId: {
           eq: documentId,
         },
-      }
+      },
     });
   }
 };
