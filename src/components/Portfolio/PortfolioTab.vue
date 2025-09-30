@@ -185,7 +185,11 @@ const loadPortfoliosData = () => {
   const profile = currentProfile.value;
   if (profile?.documentId) {
     void loadPortfolios(PORTFOLIOS_QUERY, {
-      ownerDocumentId: profile.documentId,
+      filters: {
+        ownerDocumentId: {
+          eq: profile.documentId,
+        },
+      },
     });
   }
 };
