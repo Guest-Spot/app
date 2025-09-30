@@ -73,10 +73,47 @@
                 Sign in
               </q-btn>
             </div>
+
+            <!-- Social Auth Section -->
+            <div class="social-auth-section flex items-center column justify-center q-mt-lg full-width q-gap-md">
+              <div class="text-center full-width flex items-center justify-center q-gap-md no-wrap">
+                <div class="divider-line"></div>
+                <span class="divider-text text-grey-6">or continue with</span>
+                <div class="divider-line"></div>
+              </div>
+              <div class="social-buttons flex row justify-center q-gap-md">
+                <q-btn
+                  round
+                  unelevated
+                  outline
+                  color="primary"
+                  @click="handleGoogleAuth"
+                  :loading="socialLoading.google"
+                >
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <GoogleIcon width="16px" height="16px" />
+                  </div>
+                </q-btn>
+
+                <q-btn
+                  round
+                  unelevated
+                  outline
+                  color="primary"
+                  @click="handleFacebookAuth"
+                  :loading="socialLoading.facebook"
+                >
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <FacebookIcon width="18px" height="18px" />
+                  </div>
+                </q-btn>
+              </div>
+            </div>
           </q-form>
         </div>
 
-        <!-- TODO: Add actions section -->
+
+        <!-- Actions section -->
         <div class="actions-section q-mt-xl">
           <div class="text-subtitle1 flex column items-center justify-center q-gap-sm">
             <span>Don't have an account?</span>
@@ -94,14 +131,22 @@ import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import useUser from 'src/modules/useUser';
 import { useProfileStore } from 'src/stores/profile';
+import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
+import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
+import useNotify from 'src/modules/useNotify';
 
 const router = useRouter();
 const $q = useQuasar();
 const { login, isAuthenticated, fetchMe } = useUser();
 const profileStore = useProfileStore();
+const { showError, showSuccess } = useNotify();
 
 const loading = ref(false);
 const showPassword = ref(false);
+const socialLoading = ref({
+  google: false,
+  facebook: false,
+});
 const form = ref({
   login: '',
   password: '',
@@ -160,6 +205,34 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+const handleGoogleAuth = () => {
+  socialLoading.value.google = true;
+
+  try {
+    // TODO: Implement Google OAuth integration
+    showSuccess('Coming soon...');
+  } catch (error) {
+    console.error('Google auth error:', error);
+    showError('Google authentication failed');
+  } finally {
+    socialLoading.value.google = false;
+  }
+};
+
+const handleFacebookAuth = () => {
+  socialLoading.value.facebook = true;
+
+  try {
+    // TODO: Implement Facebook OAuth integration
+    showSuccess('Coming soon...');
+  } catch (error) {
+    console.error('Facebook auth error:', error);
+    showError('Facebook authentication failed');
+  } finally {
+    socialLoading.value.facebook = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -185,5 +258,15 @@ const handleLogin = async () => {
   letter-spacing: 0.6px;
   height: 32px;
   text-transform: none;
+}
+
+.divider-line {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.divider-text {
+  white-space: nowrap;
 }
 </style>
