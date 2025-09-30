@@ -70,7 +70,7 @@ import {
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useProfileStore } from 'src/stores/profile';
 import useNotify from 'src/modules/useNotify';
-import { uploadFiles, type UploadFileResponse } from 'src/api';
+import { uploadFiles, type UploadFileResponse, deleteFile } from 'src/api';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 
@@ -176,20 +176,35 @@ const deleteWork = (portfolioId: string) => {
     return;
   }
 
+  const deleteItem = async () => {
+    for (const picture of work.pictures) {
+      await deleteFile(picture.id);
+    }
+    void deletePortfolio({ documentId: portfolioId });
+  };
+
   $q.dialog({
     title: 'Confirm Delete',
-    message: `Are you sure you want to delete "${work.title}"? This action cannot be undone.`,
+    message: `Are you sure you want to delete portfolio item: <strong class="text-primary">${work.title}</strong>?`,
     persistent: true,
-    ok: {
-      label: 'Delete',
-      color: 'negative',
-    },
+    html: true,
     cancel: {
-      label: 'Cancel',
-      color: 'grey',
+      color: 'grey-9',
+      rounded: true,
+      label: 'No, Keep It',
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Yes, Delete',
     },
   }).onOk(() => {
-    void deletePortfolio({ documentId: portfolioId });
+    try {
+      void deleteItem();
+    } catch (error) {
+      console.error('Error deleting portfolio:', error);
+      showError('Error deleting portfolio');
+    }
   });
 };
 
