@@ -47,7 +47,6 @@
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@quasar/extras": "^1.16.4",
-    "@vitejs/plugin-vue": "^5.0.0",
     "@vue/apollo-composable": "^4.0.0",
     "axios": "^1.2.1",
     "browser-image-compression": "^2.0.2",
@@ -55,7 +54,6 @@
     "jwt-decode": "^4.0.0",
     "pinia": "^3.0.1",
     "quasar": "^2.16.0",
-    "vite": "^5.0.12",
     "vue": "^3.4.18",
     "vue-advanced-cropper": "^2.8.9",
     "vue-draggable-next": "^2.3.0",
@@ -70,6 +68,7 @@
     "@quasar/cli": "^2.0.0",
     "@quasar/quasar-app-extension-apollo": "^2.2.4",
     "@types/node": "^20.5.9",
+    "@vitejs/plugin-vue": "^5.2.4",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.6.0",
     "autoprefixer": "^10.4.2",
@@ -79,6 +78,7 @@
     "globals": "^15.12.0",
     "prettier": "^3.3.3",
     "typescript": "~5.5.3",
+    "vite": "^5.4.20",
     "vite-plugin-checker": "^0.9.0",
     "vue-tsc": "^2.0.29"
   },
@@ -86,7 +86,7 @@
     "@rollup/rollup-linux-x64-gnu": "4.50.1"
   },
   "engines": {
-    "node": "^28 || ^26 || ^24 || ^22 || ^20 || ^18",
+    "node": "^28 || ^26 || ^24 || ^22 || ^20.19.0",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   }

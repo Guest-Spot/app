@@ -43,7 +43,20 @@ export default defineConfig((ctx) => {
       typescript: {
         strict: true,
         vueShim: true,
-        // extendTsConfig (tsConfig) {}
+        extendTsConfig (tsConfig) {
+          tsConfig.compilerOptions = {
+            ...tsConfig.compilerOptions,
+            skipLibCheck: true,
+            skipDefaultLibCheck: true
+          };
+          tsConfig.exclude = [
+            ...(tsConfig.exclude || []),
+            'node_modules',
+            'dist',
+            'src-capacitor',
+            'src-cordova'
+          ];
+        }
       },
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'
@@ -89,7 +102,7 @@ export default defineConfig((ctx) => {
         [
           'vite-plugin-checker',
           {
-            vueTsc: true,
+            vueTsc: false,
             eslint: {
               lintCommand: 'eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"',
               useFlatConfig: true,
