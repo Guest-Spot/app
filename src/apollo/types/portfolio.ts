@@ -28,6 +28,7 @@ export const PORTFOLIO_QUERY = gql`
       description
       pictures {
         url
+        id
       }
       tags {
         name
@@ -35,6 +36,54 @@ export const PORTFOLIO_QUERY = gql`
       ownerDocumentId
       createdAt
       updatedAt
+    }
+  }
+`;
+
+export const CREATE_PORTFOLIO_MUTATION = gql`
+  mutation CreatePortfolio($data: PortfolioInput!) {
+    createPortfolio(data: $data) {
+      documentId
+      title
+      description
+      pictures {
+        url
+        id
+      }
+      tags {
+        name
+      }
+      ownerDocumentId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_PORTFOLIO_MUTATION = gql`
+  mutation UpdatePortfolio($documentId: ID!, $data: PortfolioInput!) {
+    updatePortfolio(documentId: $documentId, data: $data) {
+      documentId
+      title
+      description
+      pictures {
+        url
+        id
+      }
+      tags {
+        name
+      }
+      ownerDocumentId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_PORTFOLIO_MUTATION = gql`
+  mutation DeletePortfolio($documentId: ID!) {
+    deletePortfolio(documentId: $documentId) {
+      documentId
     }
   }
 `;

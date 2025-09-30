@@ -42,11 +42,15 @@
         </div>
 
         <div class="input-group">
-          <label class="input-label">Image</label>
+          <label class="input-label">Images</label>
           <ImageUploader
-            v-bind="formData.imageFile ? { image: formData.imageFile } : {}"
-            @on-change="onImageChange"
-            @clear="onImageClear"
+            :images="formData.pictures || []"
+            placeholder="Upload images"
+            multiple
+            placeholderIcon="photo_library"
+            @on-upload="imagesForUpload = $event"
+            @on-remove="imagesForRemove = $event"
+            @on-update="onUpdateImages"
           />
         </div>
 
@@ -57,12 +61,12 @@
             outlined
             dense
             rounded
-            placeholder="Enter tag and press Enter"
+            placeholder="Enter tag"
             class="custom-input"
             @keyup.enter="addTag"
           >
             <template v-slot:append>
-              <q-btn round dense icon="add" color="dark" size="sm" @click="addTag" />
+              <q-btn round dense icon="add" color="primary" size="sm" @click="addTag" />
             </template>
           </q-input>
           <div class="tags-container">
@@ -89,8 +93,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
+import ImageUploader from 'src/components/ImageUploader/index.vue';
 
 defineOptions({
   name: 'PortfolioDialog',
@@ -113,6 +117,10 @@ const emit = defineEmits<Emits>();
 const isVisible = ref(props.modelValue);
 const formData = ref<IPortfolioForm>({ ...props.work });
 const newTag = ref('');
+
+// Image upload state
+const imagesForUpload = ref<File[]>([]);
+const imagesForRemove = ref<string[]>([]);
 
 // Watch for external changes to modelValue
 watch(
@@ -140,22 +148,23 @@ const closeDialog = () => {
   // Reset form to original values when canceling
   formData.value = { ...props.work };
   newTag.value = '';
+  // Reset image upload state
+  imagesForUpload.value = [];
+  imagesForRemove.value = [];
 };
 
 const confirmWork = () => {
-  emit('confirm', { ...formData.value });
+  emit('confirm', { 
+    ...formData.value,
+    imagesForUpload: imagesForUpload.value,
+    imagesForRemove: imagesForRemove.value
+  });
   isVisible.value = false;
 };
 
-const onImageChange = (file: File) => {
-  formData.value.imageFile = file;
-  // Create a temporary URL for preview
-  formData.value.imageUrl = URL.createObjectURL(file);
-};
-
-const onImageClear = () => {
-  formData.value.imageFile = null;
-  formData.value.imageUrl = '';
+const onUpdateImages = (files: { id: string; file: File }[]) => {
+  imagesForRemove.value = files.map((file) => file.id);
+  imagesForUpload.value = files.map((file) => file.file);
 };
 
 const addTag = () => {
