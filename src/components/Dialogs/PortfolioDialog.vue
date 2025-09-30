@@ -141,7 +141,11 @@ watch(
     formData.title = newValue.title;
     formData.description = newValue.description;
     formData.tags = newValue.tags;
-    formData.pictures = newValue.pictures;
+    formData.pictures = newValue.pictures.map((picture, index) => ({
+      index,
+      url: picture.url,
+      id: picture.id,
+    }));
   },
 );
 
