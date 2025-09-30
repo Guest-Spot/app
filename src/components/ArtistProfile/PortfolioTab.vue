@@ -72,6 +72,7 @@ const {
   onResult: onResultPortfolios,
   onError: onErrorPortfolios,
   loading: portfoliosLoading,
+  refetch: refetchPortfolios,
 } = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
 const { mutate: createPortfolio, onDone: onDoneCreatePortfolio } = useMutation(CREATE_PORTFOLIO_MUTATION);
@@ -194,8 +195,6 @@ const handleWorkConfirm = async (work: IPortfolioForm) => {
       tags: work.tags.map((tag) => ({ name: tag.name })),
     };
 
-    debugger;
-
     if (isEditing.value && workFoEdit.value.documentId) {
       // Update existing portfolio
       void updatePortfolio({
@@ -236,7 +235,7 @@ onDoneCreatePortfolio((result) => {
 
   if (result.data?.createPortfolio) {
     showSuccess('Portfolio created successfully');
-    loadPortfoliosData(); // Reload portfolios
+    void refetchPortfolios();
     void (async () => {
       const userData = await fetchMe();
       if (userData) {
@@ -255,7 +254,7 @@ onDoneUpdatePortfolio((result) => {
 
   if (result.data?.updatePortfolio) {
     showSuccess('Portfolio updated successfully');
-    loadPortfoliosData(); // Reload portfolios
+    void refetchPortfolios();
     void (async () => {
       const userData = await fetchMe();
       if (userData) {
@@ -274,7 +273,7 @@ onDoneDeletePortfolio((result) => {
 
   if (result.data?.deletePortfolio) {
     showSuccess('Portfolio deleted successfully');
-    loadPortfoliosData(); // Reload portfolios
+    void refetchPortfolios();
   }
 });
 
