@@ -14,6 +14,12 @@ defineOptions({
 });
 </script>
 
+<script lang="ts">
+export default {
+  name: 'GoogleIcon',
+};
+</script>
+
 <style scoped>
 svg {
   fill: currentColor;

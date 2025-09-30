@@ -87,8 +87,7 @@
                   unelevated
                   outline
                   color="primary"
-                  @click="handleGoogleAuth"
-                  :loading="socialLoading.google"
+                  :href="`${API_URL}/api/connect/google`"
                 >
                   <div class="flex items-center justify-center q-gap-sm">
                     <GoogleIcon width="16px" height="16px" />
@@ -100,11 +99,22 @@
                   unelevated
                   outline
                   color="primary"
-                  @click="handleFacebookAuth"
-                  :loading="socialLoading.facebook"
+                  disabled
                 >
                   <div class="flex items-center justify-center q-gap-sm">
                     <FacebookIcon width="18px" height="18px" />
+                  </div>
+                </q-btn>
+
+                <q-btn
+                  round
+                  unelevated
+                  outline
+                  color="primary"
+                  disabled
+                >
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <AppleIcon width="18px" height="18px" />
                   </div>
                 </q-btn>
               </div>
@@ -133,20 +143,16 @@ import useUser from 'src/modules/useUser';
 import { useProfileStore } from 'src/stores/profile';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
-import useNotify from 'src/modules/useNotify';
+import AppleIcon from 'src/components/Icons/AppleIcon.vue';
+import { API_URL } from 'src/config/constants';
 
 const router = useRouter();
 const $q = useQuasar();
 const { login, isAuthenticated, fetchMe } = useUser();
 const profileStore = useProfileStore();
-const { showError, showSuccess } = useNotify();
 
 const loading = ref(false);
 const showPassword = ref(false);
-const socialLoading = ref({
-  google: false,
-  facebook: false,
-});
 const form = ref({
   login: '',
   password: '',
@@ -203,34 +209,6 @@ const handleLogin = async () => {
     });
   } finally {
     loading.value = false;
-  }
-};
-
-const handleGoogleAuth = () => {
-  socialLoading.value.google = true;
-
-  try {
-    // TODO: Implement Google OAuth integration
-    showSuccess('Coming soon...');
-  } catch (error) {
-    console.error('Google auth error:', error);
-    showError('Google authentication failed');
-  } finally {
-    socialLoading.value.google = false;
-  }
-};
-
-const handleFacebookAuth = () => {
-  socialLoading.value.facebook = true;
-
-  try {
-    // TODO: Implement Facebook OAuth integration
-    showSuccess('Coming soon...');
-  } catch (error) {
-    console.error('Facebook auth error:', error);
-    showError('Facebook authentication failed');
-  } finally {
-    socialLoading.value.facebook = false;
   }
 };
 </script>

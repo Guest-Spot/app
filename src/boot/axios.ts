@@ -45,7 +45,7 @@ api.interceptors.response.use(
   async (error) => {
     const { getStoredTokens, clearTokens, storeTokens } = useTokens();
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error?.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
       try {
         const tokens = getStoredTokens();
