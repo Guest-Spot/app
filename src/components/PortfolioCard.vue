@@ -14,7 +14,6 @@
           v-for="(tag, index) in work.tags"
           :key="`tag-${index}`"
           :label="tag.name"
-          size="sm"
           class="portfolio-tag bg-block"
         />
       </div>

@@ -73,8 +73,7 @@
             <q-chip
               v-for="(tag, index) in formData.tags"
               :key="index"
-              :label="tag"
-              size="sm"
+              :label="tag.name"
               removable
               @remove="removeTag(index)"
               class="work-tag bg-block"
@@ -92,8 +91,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import type { IPortfolioForm } from 'src/interfaces/portfolio';
+import { ref, watch, computed, reactive } from 'vue';
+import type { IPortfolioForm, IPortfolio } from 'src/interfaces/portfolio';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 
 defineOptions({
@@ -102,7 +101,7 @@ defineOptions({
 
 interface Props {
   modelValue: boolean;
-  work: IPortfolioForm;
+  work: IPortfolio;
   isEditing: boolean;
 }
 
@@ -115,7 +114,12 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const isVisible = ref(props.modelValue);
-const formData = ref<IPortfolioForm>({ ...props.work });
+const formData = reactive<IPortfolioForm>({
+  title: props.work.title,
+  description: props.work.description,
+  tags: props.work.tags,
+  pictures: props.work.pictures,
+});
 const newTag = ref('');
 
 // Image upload state
@@ -134,7 +138,10 @@ watch(
 watch(
   () => props.work,
   (newValue) => {
-    formData.value = { ...newValue };
+    formData.title = newValue.title;
+    formData.description = newValue.description;
+    formData.tags = newValue.tags;
+    formData.pictures = newValue.pictures;
   },
 );
 
@@ -146,7 +153,10 @@ watch(isVisible, (newValue) => {
 const closeDialog = () => {
   isVisible.value = false;
   // Reset form to original values when canceling
-  formData.value = { ...props.work };
+  formData.title = props.work.title;
+  formData.description = props.work.description;
+  formData.tags = props.work.tags;
+  formData.pictures = props.work.pictures;
   newTag.value = '';
   // Reset image upload state
   imagesForUpload.value = [];
@@ -154,8 +164,8 @@ const closeDialog = () => {
 };
 
 const confirmWork = () => {
-  emit('confirm', { 
-    ...formData.value,
+  emit('confirm', {
+    ...formData,
     imagesForUpload: imagesForUpload.value,
     imagesForRemove: imagesForRemove.value
   });
@@ -168,14 +178,14 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
 };
 
 const addTag = () => {
-  if (newTag.value.trim() && !formData.value.tags.includes(newTag.value.trim())) {
-    formData.value.tags.push(newTag.value.trim());
+  if (newTag.value.trim() && !formData.tags.map((tag) => tag.name).includes(newTag.value.trim())) {
+    formData.tags = [...formData.tags, { name: newTag.value.trim() }];
     newTag.value = '';
   }
 };
 
 const removeTag = (index: number) => {
-  formData.value.tags.splice(index, 1);
+  formData.tags = formData.tags.filter((_, i) => i !== index);
 };
 
 // Computed property for title
@@ -220,7 +230,6 @@ const title = computed(() => (props.isEditing ? 'Edit Portfolio Work' : 'Add New
     .tags-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
       margin-top: 12px;
 
       .work-tag {

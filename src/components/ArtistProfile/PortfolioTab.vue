@@ -12,7 +12,13 @@
       <p>Loading portfolios...</p>
     </div>
     <div v-else class="portfolio-grid">
-      <PortfolioCard v-for="work in portfolioItems" :key="work.documentId" :work="work" />
+      <PortfolioCard v-for="(work, index) in portfolioItems"
+        editable
+        :key="`work-${index}`"
+        :work="work"
+        @edit="editWork(work.documentId)"
+        @delete="deleteWork(work.documentId)"
+      />
     </div>
 
     <!-- Empty State -->
@@ -29,7 +35,7 @@
     <!-- Portfolio Dialog -->
     <PortfolioDialog
       v-model="showDialog"
-      :work="currentWork"
+      :work="workFoEdit"
       :is-editing="isEditing"
       @confirm="handleWorkConfirm"
     />
@@ -41,6 +47,7 @@ import { ref, watch, onMounted } from 'vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 import { NoResult, PortfolioCard } from 'src/components';
+import { useQuasar } from 'quasar';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
@@ -57,6 +64,7 @@ import useUser from 'src/modules/useUser';
 const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
 const { fetchMe } = useUser();
+const $q = useQuasar();
 
 // Apollo queries and mutations
 const {
@@ -68,7 +76,7 @@ const {
 
 const { mutate: createPortfolio, onDone: onDoneCreatePortfolio } = useMutation(CREATE_PORTFOLIO_MUTATION);
 const { mutate: updatePortfolio, onDone: onDoneUpdatePortfolio } = useMutation(UPDATE_PORTFOLIO_MUTATION);
-const { onDone: onDoneDeletePortfolio } = useMutation(DELETE_PORTFOLIO_MUTATION);
+const { mutate: deletePortfolio, onDone: onDoneDeletePortfolio } = useMutation(DELETE_PORTFOLIO_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Portfolio data
@@ -77,24 +85,69 @@ const portfolioItems = ref<IPortfolio[]>([]);
 // Dialog state
 const showDialog = ref(false);
 const isEditing = ref(false);
-const currentWork = ref<IPortfolioForm>({
+const workFoEdit = ref<IPortfolio>({
+  documentId: '',
+  ownerDocumentId: '',
   title: '',
   description: '',
   pictures: [],
   tags: [],
 });
-const editingPortfolioId = ref<string>('');
 
 const addNewWork = () => {
   isEditing.value = false;
-  editingPortfolioId.value = '';
-  currentWork.value = {
+  workFoEdit.value = {
+    documentId: '',
+    ownerDocumentId: '',
     title: '',
     description: '',
     pictures: [],
     tags: [],
   };
   showDialog.value = true;
+};
+
+const editWork = (portfolioId: string) => {
+  const work = portfolioItems.value.find(item => item.documentId === portfolioId);
+  if (!work) {
+    showError('Portfolio item not found');
+    return;
+  }
+
+  isEditing.value = true;
+  workFoEdit.value = {
+    documentId: work.documentId,
+    ownerDocumentId: work.ownerDocumentId,
+    title: work.title,
+    description: work.description || '',
+    pictures: work.pictures || [],
+    tags: work.tags || [],
+  };
+  showDialog.value = true;
+};
+
+const deleteWork = (portfolioId: string) => {
+  const work = portfolioItems.value.find(item => item.documentId === portfolioId);
+  if (!work) {
+    showError('Portfolio item not found');
+    return;
+  }
+
+  $q.dialog({
+    title: 'Confirm Delete',
+    message: `Are you sure you want to delete "${work.title}"? This action cannot be undone.`,
+    persistent: true,
+    ok: {
+      label: 'Delete',
+      color: 'negative',
+    },
+    cancel: {
+      label: 'Cancel',
+      color: 'grey',
+    },
+  }).onOk(() => {
+    void deletePortfolio({ documentId: portfolioId });
+  });
 };
 
 // Load portfolios from API
@@ -131,19 +184,22 @@ const handleWorkConfirm = async (work: IPortfolioForm) => {
 
     // Prepare data for mutation
     const portfolioData = {
+      ownerDocumentId: artistProfile.documentId,
       title: work.title,
       description: work.description,
       pictures: [
         ...uploadedFiles.map((file) => file.id),
         ...(work.pictures?.map((picture) => picture.id).filter((id) => !work.imagesForRemove?.includes(id)) || []),
       ],
-      tags: work.tags.map((tag) => ({ name: tag })),
+      tags: work.tags.map((tag) => ({ name: tag.name })),
     };
 
-    if (isEditing.value && editingPortfolioId.value) {
+    debugger;
+
+    if (isEditing.value && workFoEdit.value.documentId) {
       // Update existing portfolio
       void updatePortfolio({
-        documentId: editingPortfolioId.value,
+        documentId: workFoEdit.value.documentId,
         data: portfolioData,
       });
     } else {
@@ -177,7 +233,7 @@ onDoneCreatePortfolio((result) => {
     showError('Error creating portfolio');
     return;
   }
-  
+
   if (result.data?.createPortfolio) {
     showSuccess('Portfolio created successfully');
     loadPortfoliosData(); // Reload portfolios
@@ -196,7 +252,7 @@ onDoneUpdatePortfolio((result) => {
     showError('Error updating portfolio');
     return;
   }
-  
+
   if (result.data?.updatePortfolio) {
     showSuccess('Portfolio updated successfully');
     loadPortfoliosData(); // Reload portfolios
@@ -215,7 +271,7 @@ onDoneDeletePortfolio((result) => {
     showError('Error deleting portfolio');
     return;
   }
-  
+
   if (result.data?.deletePortfolio) {
     showSuccess('Portfolio deleted successfully');
     loadPortfoliosData(); // Reload portfolios
@@ -241,6 +297,9 @@ onMounted(() => {
 // Expose data for parent component
 defineExpose({
   portfolioItems,
+  addNewWork,
+  editWork,
+  deleteWork,
 });
 </script>
 
