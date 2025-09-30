@@ -88,7 +88,6 @@ defineExpose({});
 .portfolio-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
 }
 
 .portfolio-tag {

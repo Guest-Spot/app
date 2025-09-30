@@ -95,6 +95,17 @@ const workFoEdit = ref<IPortfolio>({
   tags: [],
 });
 
+const clearWorkFoEdit = () => {
+  workFoEdit.value = {
+    documentId: '',
+    ownerDocumentId: '',
+    title: '',
+    description: '',
+    pictures: [],
+    tags: [],
+  };
+};
+
 const addNewWork = () => {
   isEditing.value = false;
   workFoEdit.value = {
@@ -217,6 +228,7 @@ const handleWorkConfirm = async (work: IPortfolioForm) => {
 onResultPortfolios((result) => {
   if (result.data?.portfolios) {
     portfolioItems.value = result.data.portfolios;
+    clearWorkFoEdit();
   }
 });
 
@@ -242,6 +254,7 @@ onDoneCreatePortfolio((result) => {
         profileStore.setUserProfile(userData);
       }
     })();
+    clearWorkFoEdit();
   }
 });
 
@@ -261,6 +274,7 @@ onDoneUpdatePortfolio((result) => {
         profileStore.setUserProfile(userData);
       }
     })();
+    clearWorkFoEdit();
   }
 });
 
@@ -274,6 +288,7 @@ onDoneDeletePortfolio((result) => {
   if (result.data?.deletePortfolio) {
     showSuccess('Portfolio deleted successfully');
     void refetchPortfolios();
+    clearWorkFoEdit();
   }
 });
 
