@@ -22,14 +22,15 @@
     <div class="container">
       <!-- Tab Content -->
       <AboutMeTab v-if="activeTab.tab === TAB_ABOUT" />
-      <PortfolioTab v-else-if="activeTab.tab === TAB_PORTFOLIO" />
+      <PortfolioTab v-else-if="activeTab.tab === TAB_PORTFOLIO" profile-type="artist" />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { AboutMeTab, PortfolioTab } from 'src/components/ArtistProfile';
+import { AboutMeTab } from 'src/components/ArtistProfile';
+import { PortfolioTab } from 'src/components';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';

@@ -26,6 +26,11 @@
         <!-- Tab Content -->
         <AboutShopTab v-if="activeTab.tab === TAB_ABOUT" class="tab-content" />
         <ShopArtistsTab v-if="activeTab.tab === TAB_ARTISTS" class="tab-content" />
+        <PortfolioTab
+          v-if="activeTab.tab === TAB_PORTFOLIO"
+          profile-type="shop"
+          class="tab-content"
+        />
       </div>
     </div>
   </q-page>
@@ -34,7 +39,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
-import { TabsComp } from 'src/components';
+import { TabsComp, PortfolioTab } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import { useProfileStore } from 'src/stores/profile';
@@ -45,6 +50,7 @@ const profile = computed(() => profileStore.getShopProfile);
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
+const TAB_PORTFOLIO = 'portfolio';
 
 const TABS: ITab[] = [
   {
@@ -54,6 +60,10 @@ const TABS: ITab[] = [
   {
     label: 'Shop Artists',
     tab: TAB_ARTISTS,
+  },
+  {
+    label: 'Portfolio',
+    tab: TAB_PORTFOLIO,
   },
 ];
 

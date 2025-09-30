@@ -59,6 +59,22 @@ fi
 
 print_status "Signing configuration verified"
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    print_status "Loading environment variables from .env file..."
+    export $(grep -v '^#' .env | xargs)
+    if [ -n "$API_URL" ]; then
+        print_status "API_URL loaded from .env: $API_URL"
+    else
+        print_error "API_URL not found in .env file"
+        exit 1
+    fi
+else
+    print_error ".env file not found in project root"
+    print_error "Please create .env file with API_URL variable"
+    exit 1
+fi
+
 # Step 1: Build Quasar app for Capacitor
 print_status "Step 1: Building Quasar app for Capacitor..."
 npm run capacitor:build:android
@@ -108,9 +124,10 @@ print_status "APK build completed successfully!"
 # Navigate back to project root
 cd ../..
 
-# Step 3: Locate and verify the AAB and APK files
+# Step 3: Locate and verify the AAB, APK, and mapping files
 AAB_PATH="src-capacitor/android/app/build/outputs/bundle/release/app-release.aab"
 APK_PATH="src-capacitor/android/app/build/outputs/apk/release/app-release.apk"
+MAPPING_PATH="src-capacitor/android/app/build/outputs/mapping/release/mapping.txt"
 
 # Create temp directory if it doesn't exist
 mkdir -p temp
@@ -153,6 +170,21 @@ else
     exit 1
 fi
 
+# Check and copy mapping file for deobfuscation
+if [ -f "$MAPPING_PATH" ]; then
+    print_status "✅ Mapping file created successfully!"
+    print_status "📁 Location: $MAPPING_PATH"
+    
+    # Copy to temp directory for easy access
+    cp "$MAPPING_PATH" "temp/mapping.txt"
+    print_status "📋 Mapping file copied to: temp/mapping.txt"
+    print_status "💡 Upload this mapping file to Google Play Console for deobfuscation"
+    
+else
+    print_warning "Mapping file not found at expected location: $MAPPING_PATH"
+    print_warning "This may indicate that obfuscation was not applied properly"
+fi
+
 print_status "🎉 Build process completed successfully!"
 print_status "The AAB file is ready for Google Play Store upload"
 print_status "The APK file is ready for local testing"
@@ -186,3 +218,4 @@ echo ""
 print_status "📁 Files created:"
 print_status "   • AAB file: temp/app-release-signed.aab (for Google Play Store)"
 print_status "   • APK file: temp/app-release-signed.apk (for local testing)"
+print_status "   • Mapping file: temp/mapping.txt (for deobfuscation - upload to Play Console)"

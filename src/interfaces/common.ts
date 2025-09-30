@@ -20,6 +20,7 @@ export interface ILink {
 
 export interface ITag {
   name: string;
+  id?: string;
 }
 
 export interface IOpeningHours {

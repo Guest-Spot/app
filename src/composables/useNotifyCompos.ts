@@ -1,8 +1,6 @@
 import { computed } from 'vue';
 import { useLazyQuery } from '@vue/apollo-composable';
-import {
-  NOTIFICATIONS_QUERY,
-} from 'src/apollo/types/notify';
+import { NOTIFICATIONS_QUERY } from 'src/apollo/types/notify';
 import { useNotifiesStore } from 'src/stores/notifies';
 import { useUserStore } from 'src/stores/user';
 

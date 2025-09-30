@@ -13,7 +13,7 @@ export interface IPortfolioForm {
   title: string;
   description: string;
   pictures?: IPicture[];
-  tags: string[];
+  tags: ITag[];
   imagesForUpload?: File[];
   imagesForRemove?: string[];
 }

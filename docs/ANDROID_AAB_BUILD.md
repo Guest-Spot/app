@@ -13,7 +13,15 @@ This guide describes the process of building Android App Bundle (AAB) and APK fi
 
 ## Build Process
 
-### 1. Setup Signing Configuration
+### 1. Setup Configuration
+
+#### Create .env file:
+Create a `.env` file in the project root with your API configuration:
+
+```env
+# API Configuration
+API_URL=https://your-api-url.com
+```
 
 #### Place your keystore file:
 Place your keystore file at `src-capacitor/android/guest-spot-key.jks`
@@ -27,7 +35,7 @@ RELEASE_STORE_PASSWORD=your_keystore_password
 RELEASE_KEY_PASSWORD=your_key_password
 ```
 
-**Important**: Both `local.properties` and `guest-spot-key.jks` files are automatically ignored by Git and should never be committed to version control.
+**Important**: `.env`, `local.properties` and `guest-spot-key.jks` files are automatically ignored by Git and should never be committed to version control.
 
 ### 2. Install Dependencies
 
@@ -50,6 +58,7 @@ This command will:
 - Generate the Android project
 - Create a signed AAB file for Google Play Store distribution
 - Create a signed APK file for local testing
+- Generate a mapping file for deobfuscation (R8/ProGuard)
 
 ### 4. Alternative Build Methods
 
@@ -88,15 +97,56 @@ The signed files will be located at:
 ```
 temp/app-release-signed.aab  # For Google Play Store
 temp/app-release-signed.apk  # For local testing
+temp/mapping.txt             # For deobfuscation (upload to Play Console)
 ```
 
 Original locations:
 ```
 src-capacitor/android/app/build/outputs/bundle/release/app-release.aab
 src-capacitor/android/app/build/outputs/apk/release/app-release.apk
+src-capacitor/android/app/build/outputs/mapping/release/mapping.txt
 ```
 
 ## Configuration
+
+### Code Obfuscation and Deobfuscation
+
+The app uses R8/ProGuard for code obfuscation to:
+- Reduce app size
+- Protect code from reverse engineering
+- Improve performance
+
+#### Obfuscation Configuration
+
+The obfuscation is configured in `src-capacitor/android/app/build.gradle`:
+
+```gradle
+buildTypes {
+    release {
+        minifyEnabled true          // Enable code obfuscation
+        shrinkResources true        // Remove unused resources
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        signingConfig signingConfigs.release
+    }
+}
+```
+
+#### ProGuard Rules
+
+Custom ProGuard rules are defined in `src-capacitor/android/app/proguard-rules.pro` to ensure:
+- Capacitor plugins work correctly
+- WebView JavaScript interfaces are preserved
+- Essential Android classes are kept
+- Mapping file is generated for deobfuscation
+
+#### Deobfuscation File
+
+A mapping file (`mapping.txt`) is automatically generated during the build process. This file is essential for:
+- Debugging crashes and ANRs in Google Play Console
+- Converting obfuscated stack traces to readable format
+- Analyzing crash reports
+
+**Important**: Always upload the mapping file to Google Play Console when uploading a new AAB file.
 
 ### Signing Configuration
 
@@ -126,9 +176,13 @@ signingConfigs {
 
 buildTypes {
     release {
-        minifyEnabled false
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         signingConfig signingConfigs.release
+        
+        // Generate mapping file for deobfuscation
+        buildConfigField "boolean", "DEBUG", "false"
     }
 }
 ```
@@ -148,10 +202,11 @@ The `scripts/build-aab.sh` script automates the entire build process:
 
 ### Script Features
 
+- **Environment variable loading** - Automatically loads API_URL from .env file
 - **Color-coded output** - Easy to read build progress
 - **Error handling** - Stops on any build failure
-- **File validation** - Checks keystore and output files
-- **Secure password handling** - Passwords never stored in version control
+- **File validation** - Checks keystore, .env file and output files
+- **Secure configuration handling** - Passwords and API keys never stored in version control
 - **Automatic cleanup** - Removes previous builds
 - **Size reporting** - Shows final AAB and APK file sizes
 - **Dual output** - Creates both AAB and APK files for different use cases
@@ -162,8 +217,9 @@ The `scripts/build-aab.sh` script automates the entire build process:
 
 1. **Keystore not found**: Ensure the keystore file exists at `src-capacitor/android/guest-spot-key.jks`
 2. **Wrong password**: Verify the keystore password in `src-capacitor/android/local.properties`
-3. **Build tools version**: Make sure you have the correct Android build tools installed
-4. **Java version**: Ensure you're using a compatible JDK version
+3. **API_URL not found**: Ensure the `.env` file exists in project root with `API_URL` variable
+4. **Build tools version**: Make sure you have the correct Android build tools installed
+5. **Java version**: Ensure you're using a compatible JDK version
 
 ### Build Errors
 
@@ -174,6 +230,15 @@ The `scripts/build-aab.sh` script automates the entire build process:
 #### "Keystore password was incorrect"
 - Verify the password in `src-capacitor/android/local.properties`
 - Try recreating the keystore if necessary
+
+#### ".env file not found"
+- Create `.env` file in the project root directory
+- Add `API_URL=https://your-api-url.com` to the file
+
+#### "API_URL not found in .env file"
+- Ensure `.env` file contains `API_URL=your-api-url`
+- Check that there are no spaces around the `=` sign
+- Verify the `.env` file is in the project root directory
 
 #### "Build failed with an exception"
 - Check the full error message in the terminal
@@ -204,14 +269,16 @@ GuestSpot/
 │   └── build-aab.sh                # Build script
 ├── temp/
 │   ├── app-release-signed.aab      # Signed AAB file (Google Play Store)
-│   └── app-release-signed.apk      # Signed APK file (Local testing)
+│   ├── app-release-signed.apk      # Signed APK file (Local testing)
+│   └── mapping.txt                 # Deobfuscation mapping file
 ├── src-capacitor/
 │   └── android/
 │       ├── guest-spot-key.jks      # Keystore file
 │       ├── local.properties        # Signing passwords
 │       ├── gradle.properties       # Signing configuration
 │       └── app/
-│           └── build.gradle        # Build configuration
+│           ├── build.gradle        # Build configuration
+│           └── proguard-rules.pro  # ProGuard obfuscation rules
 └── package.json                    # NPM scripts configuration
 ```
 
@@ -223,11 +290,23 @@ To verify the files were built correctly:
 # Check file sizes
 ls -la temp/app-release-signed.aab
 ls -la temp/app-release-signed.apk
+ls -la temp/mapping.txt
 
 # Expected sizes:
 # AAB: ~6.2MB (for Google Play Store)
 # APK: ~8-12MB (for local testing)
+# Mapping: ~50-200KB (for deobfuscation)
 # Expected location: temp/
 ```
+
+### Uploading to Google Play Console
+
+When uploading your AAB file to Google Play Console:
+
+1. **Upload the AAB file**: `temp/app-release-signed.aab`
+2. **Upload the mapping file**: `temp/mapping.txt` (in the "App bundle explorer" section)
+3. **Verify deobfuscation**: The Play Console will show "Deobfuscation file uploaded" status
+
+This ensures that crash reports and ANRs will be properly deobfuscated for easier debugging.
 
 For more information about Android app distribution, refer to the [Google Play Console documentation](https://support.google.com/googleplay/android-developer).

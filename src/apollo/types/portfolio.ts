@@ -8,9 +8,11 @@ export const PORTFOLIOS_QUERY = gql`
       description
       pictures {
         url
+        id
       }
       tags {
         name
+        id
       }
       ownerDocumentId
       createdAt
@@ -32,6 +34,7 @@ export const PORTFOLIO_QUERY = gql`
       }
       tags {
         name
+        id
       }
       ownerDocumentId
       createdAt
@@ -52,6 +55,7 @@ export const CREATE_PORTFOLIO_MUTATION = gql`
       }
       tags {
         name
+        id
       }
       ownerDocumentId
       createdAt
@@ -72,6 +76,7 @@ export const UPDATE_PORTFOLIO_MUTATION = gql`
       }
       tags {
         name
+        id
       }
       ownerDocumentId
       createdAt
