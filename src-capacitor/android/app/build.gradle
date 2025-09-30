@@ -11,12 +11,15 @@ if (localPropertiesFile.exists()) {
 
 android {
     namespace "org.guestspot.app"
+    buildFeatures {
+        buildConfig true
+    }
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "org.guestspot.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
+        versionCode 3
         versionName "0.1.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -36,9 +39,13 @@ android {
     
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            
+            // Generate mapping file for deobfuscation
+            buildConfigField "boolean", "DEBUG", "false"
         }
     }
 }

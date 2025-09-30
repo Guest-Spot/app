@@ -58,6 +58,7 @@ This command will:
 - Generate the Android project
 - Create a signed AAB file for Google Play Store distribution
 - Create a signed APK file for local testing
+- Generate a mapping file for deobfuscation (R8/ProGuard)
 
 ### 4. Alternative Build Methods
 
@@ -96,15 +97,56 @@ The signed files will be located at:
 ```
 temp/app-release-signed.aab  # For Google Play Store
 temp/app-release-signed.apk  # For local testing
+temp/mapping.txt             # For deobfuscation (upload to Play Console)
 ```
 
 Original locations:
 ```
 src-capacitor/android/app/build/outputs/bundle/release/app-release.aab
 src-capacitor/android/app/build/outputs/apk/release/app-release.apk
+src-capacitor/android/app/build/outputs/mapping/release/mapping.txt
 ```
 
 ## Configuration
+
+### Code Obfuscation and Deobfuscation
+
+The app uses R8/ProGuard for code obfuscation to:
+- Reduce app size
+- Protect code from reverse engineering
+- Improve performance
+
+#### Obfuscation Configuration
+
+The obfuscation is configured in `src-capacitor/android/app/build.gradle`:
+
+```gradle
+buildTypes {
+    release {
+        minifyEnabled true          // Enable code obfuscation
+        shrinkResources true        // Remove unused resources
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        signingConfig signingConfigs.release
+    }
+}
+```
+
+#### ProGuard Rules
+
+Custom ProGuard rules are defined in `src-capacitor/android/app/proguard-rules.pro` to ensure:
+- Capacitor plugins work correctly
+- WebView JavaScript interfaces are preserved
+- Essential Android classes are kept
+- Mapping file is generated for deobfuscation
+
+#### Deobfuscation File
+
+A mapping file (`mapping.txt`) is automatically generated during the build process. This file is essential for:
+- Debugging crashes and ANRs in Google Play Console
+- Converting obfuscated stack traces to readable format
+- Analyzing crash reports
+
+**Important**: Always upload the mapping file to Google Play Console when uploading a new AAB file.
 
 ### Signing Configuration
 
@@ -134,9 +176,13 @@ signingConfigs {
 
 buildTypes {
     release {
-        minifyEnabled false
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         signingConfig signingConfigs.release
+        
+        // Generate mapping file for deobfuscation
+        buildConfigField "boolean", "DEBUG", "false"
     }
 }
 ```
@@ -223,14 +269,16 @@ GuestSpot/
 │   └── build-aab.sh                # Build script
 ├── temp/
 │   ├── app-release-signed.aab      # Signed AAB file (Google Play Store)
-│   └── app-release-signed.apk      # Signed APK file (Local testing)
+│   ├── app-release-signed.apk      # Signed APK file (Local testing)
+│   └── mapping.txt                 # Deobfuscation mapping file
 ├── src-capacitor/
 │   └── android/
 │       ├── guest-spot-key.jks      # Keystore file
 │       ├── local.properties        # Signing passwords
 │       ├── gradle.properties       # Signing configuration
 │       └── app/
-│           └── build.gradle        # Build configuration
+│           ├── build.gradle        # Build configuration
+│           └── proguard-rules.pro  # ProGuard obfuscation rules
 └── package.json                    # NPM scripts configuration
 ```
 
@@ -242,11 +290,23 @@ To verify the files were built correctly:
 # Check file sizes
 ls -la temp/app-release-signed.aab
 ls -la temp/app-release-signed.apk
+ls -la temp/mapping.txt
 
 # Expected sizes:
 # AAB: ~6.2MB (for Google Play Store)
 # APK: ~8-12MB (for local testing)
+# Mapping: ~50-200KB (for deobfuscation)
 # Expected location: temp/
 ```
+
+### Uploading to Google Play Console
+
+When uploading your AAB file to Google Play Console:
+
+1. **Upload the AAB file**: `temp/app-release-signed.aab`
+2. **Upload the mapping file**: `temp/mapping.txt` (in the "App bundle explorer" section)
+3. **Verify deobfuscation**: The Play Console will show "Deobfuscation file uploaded" status
+
+This ensures that crash reports and ANRs will be properly deobfuscated for easier debugging.
 
 For more information about Android app distribution, refer to the [Google Play Console documentation](https://support.google.com/googleplay/android-developer).
