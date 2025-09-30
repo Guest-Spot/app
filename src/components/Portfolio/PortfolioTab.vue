@@ -2,7 +2,9 @@
   <div class="portfolio-tab flex column q-gap-md">
     <!-- Portfolio Header -->
     <div class="portfolio-header bg-block border-radius-lg">
-      <h3 class="text-subtitle1 text-bold q-my-none">My Portfolio ({{ portfolioItems.length }})</h3>
+      <h3 class="text-subtitle1 text-bold q-my-none">
+        {{ profileType === 'shop' ? 'Shop Portfolio' : 'My Portfolio' }} ({{ portfolioItems.length }})
+      </h3>
       <q-btn color="primary" icon="add" size="sm" @click="addNewWork" round unelevated />
     </div>
 
@@ -25,9 +27,9 @@
     <NoResult
       v-if="!portfoliosLoading && portfolioItems.length === 0"
       icon="photo_library"
-      title="No portfolio items yet"
-      description="Start building your portfolio by adding your best work"
-      btn-label="Add Your First Work"
+      :title="profileType === 'shop' ? 'No portfolio items yet' : 'No portfolio items yet'"
+      :description="profileType === 'shop' ? 'Start building your shop portfolio by adding your best work' : 'Start building your portfolio by adding your best work'"
+      :btn-label="profileType === 'shop' ? 'Add Your First Work' : 'Add Your First Work'"
       btn-icon="add"
       @click-btn="addNewWork"
     />
@@ -43,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 import { NoResult, PortfolioCard } from 'src/components';
@@ -59,6 +61,15 @@ import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
+
+// Props
+interface Props {
+  profileType: 'artist' | 'shop';
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  profileType: 'artist'
+});
 
 // Store and composables
 const profileStore = useProfileStore();
@@ -93,6 +104,13 @@ const workFoEdit = ref<IPortfolio>({
   description: '',
   pictures: [],
   tags: [],
+});
+
+// Computed properties
+const currentProfile = computed(() => {
+  return props.profileType === 'shop'
+    ? profileStore.getShopProfile
+    : profileStore.getArtistProfile;
 });
 
 const clearWorkFoEdit = () => {
@@ -164,10 +182,10 @@ const deleteWork = (portfolioId: string) => {
 
 // Load portfolios from API
 const loadPortfoliosData = () => {
-  const artistProfile = profileStore.getArtistProfile;
-  if (artistProfile?.documentId) {
+  const profile = currentProfile.value;
+  if (profile?.documentId) {
     void loadPortfolios(PORTFOLIOS_QUERY, {
-      ownerDocumentId: artistProfile.documentId,
+      ownerDocumentId: profile.documentId,
     });
   }
 };
@@ -175,9 +193,9 @@ const loadPortfoliosData = () => {
 // Handle portfolio creation/update
 const handleWorkConfirm = async (work: IPortfolioForm) => {
   try {
-    const artistProfile = profileStore.getArtistProfile;
-    if (!artistProfile?.documentId) {
-      showError('Artist profile not found');
+    const profile = currentProfile.value;
+    if (!profile?.documentId) {
+      showError(`${props.profileType === 'shop' ? 'Shop' : 'Artist'} profile not found`);
       return;
     }
 
@@ -196,7 +214,7 @@ const handleWorkConfirm = async (work: IPortfolioForm) => {
 
     // Prepare data for mutation
     const portfolioData = {
-      ownerDocumentId: artistProfile.documentId,
+      ownerDocumentId: profile.documentId,
       title: work.title,
       description: work.description,
       pictures: [
@@ -292,9 +310,9 @@ onDoneDeletePortfolio((result) => {
   }
 });
 
-// Watch for artist profile changes
+// Watch for profile changes
 watch(
-  () => profileStore.getArtistProfile,
+  () => currentProfile.value,
   (profile) => {
     if (profile?.documentId) {
       loadPortfoliosData();
@@ -338,7 +356,6 @@ defineExpose({
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
-
 
 .loading-state {
   text-align: center;

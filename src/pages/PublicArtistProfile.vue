@@ -307,7 +307,11 @@ const loadPortfolioData = () => {
   const documentId = route.params.documentId as string;
   if (documentId) {
     void loadPortfolio(null, {
-      ownerDocumentId: documentId,
+      filters: {
+        ownerDocumentId: {
+          eq: documentId,
+        },
+      }
     });
   }
 };
