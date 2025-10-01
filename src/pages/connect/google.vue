@@ -3,7 +3,9 @@
     <div class="container column q-pa-md full-width">
       <q-card class="bg-block full-width border-radius-md">
         <q-card-section class="flex items-center bg-primary">
-          <h4 class="text-h6 text-white q-my-none">Connecting...</h4>
+          <h4 class="text-h6 text-white q-my-none q-py-none">
+            {{ error ? 'Error' : 'Connecting...' }}
+          </h4>
         </q-card-section>
         <q-card-section v-if="!error">
           <div class="flex items-center">
@@ -14,7 +16,7 @@
         <q-card-section v-else>
           <div class="flex items-start column q-gap-xs">
             <p>{{ error }}</p>
-            <q-btn push color="primary" icon="refresh" label="Try later" rounded to="/sign-in" />
+            <q-btn push color="primary" label="Try again later" rounded to="/sign-in" />
           </div>
         </q-card-section>
       </q-card>
@@ -28,8 +30,9 @@ import { connect } from 'src/api/auth';
 import { useRoute, useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
+import { AxiosError } from 'axios';
 
-const { showError } = useNotify();
+const { showSuccess } = useNotify();
 const router = useRouter();
 const route = useRoute();
 const { fetchMe } = useUser();
@@ -49,13 +52,12 @@ onBeforeMount(async () => {
       const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}&provider=google`;
       await connect(url);
       await fetchMe();
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : errorMessage;
-      showError('Something went wrong. Please try again later.');
-    } finally {
+      showSuccess('Login successful');
       setTimeout(() => {
         void router.push('/profile');
       }, 500);
+    } catch (e) {
+      error.value = e instanceof AxiosError ? e?.response?.data?.error?.details?.message : errorMessage;
     }
   } else {
     error.value = errorMessage;
