@@ -25,9 +25,14 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
 import { connect } from 'src/api/auth';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import useUser from 'src/modules/useUser';
+import useNotify from 'src/modules/useNotify';
 
+const { showError } = useNotify();
+const router = useRouter();
 const route = useRoute();
+const { fetchMe } = useUser();
 
 defineOptions({
   name: 'ConnectGoogle',
@@ -43,9 +48,14 @@ onBeforeMount(async () => {
     try {
       const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}&provider=google`;
       await connect(url);
-      window.location.href = window.location.origin;
+      await fetchMe();
     } catch (e) {
       error.value = e instanceof Error ? e.message : errorMessage;
+      showError('Something went wrong. Please try again later.');
+    } finally {
+      setTimeout(() => {
+        void router.push('/profile');
+      }, 500);
     }
   } else {
     error.value = errorMessage;
