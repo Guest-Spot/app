@@ -1,7 +1,5 @@
 <template>
-  <q-page
-    class="flex justify-center items-center"
-  >
+  <q-page class="flex justify-center items-center">
     <div class="container column q-pa-md full-width">
       <q-card class="bg-block full-width border-radius-md">
         <q-card-section class="flex items-center bg-primary">
@@ -25,32 +23,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
-import { connect } from 'src/api/auth'
-import { useRoute } from 'vue-router'
+import { ref, onBeforeMount } from 'vue';
+import { connect } from 'src/api/auth';
+import { useRoute } from 'vue-router';
 
-const route = useRoute()
+const route = useRoute();
 
 defineOptions({
   name: 'ConnectGoogle',
-})
+});
 
-const error = ref('')
-const access_token = ref(route?.query?.access_token || '')
+const error = ref('');
+const access_token = ref(route?.query?.access_token || '');
 
 onBeforeMount(async () => {
-  const errorMessage = 'Something went wrong. Please try again later.'
+  const errorMessage = 'Something went wrong. Please try again later.';
   // Register new user by google mail
   if (access_token.value) {
     try {
-      const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}&provider=google`
-      await connect(url)
-      window.location.href = window.location.origin
-    } catch(e) {
-      error.value = e instanceof Error ? e.message : errorMessage
+      const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}&provider=google`;
+      await connect(url);
+      window.location.href = window.location.origin;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : errorMessage;
     }
   } else {
-    error.value = errorMessage
+    error.value = errorMessage;
   }
-})
+});
 </script>

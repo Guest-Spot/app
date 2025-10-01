@@ -75,7 +75,9 @@
             </div>
 
             <!-- Social Auth Section -->
-            <div class="social-auth-section flex items-center column justify-center q-mt-lg full-width q-gap-md">
+            <div
+              class="social-auth-section flex items-center column justify-center q-mt-lg full-width q-gap-md"
+            >
               <div class="text-center full-width flex items-center justify-center q-gap-md no-wrap">
                 <div class="divider-line"></div>
                 <span class="divider-text text-grey-6">or continue with</span>
@@ -94,25 +96,13 @@
                   </div>
                 </q-btn>
 
-                <q-btn
-                  round
-                  unelevated
-                  outline
-                  color="primary"
-                  disabled
-                >
+                <q-btn round unelevated outline color="primary" disabled>
                   <div class="flex items-center justify-center q-gap-sm">
                     <FacebookIcon width="18px" height="18px" />
                   </div>
                 </q-btn>
 
-                <q-btn
-                  round
-                  unelevated
-                  outline
-                  color="primary"
-                  disabled
-                >
+                <q-btn round unelevated outline color="primary" disabled>
                   <div class="flex items-center justify-center q-gap-sm">
                     <AppleIcon width="18px" height="18px" />
                   </div>
@@ -121,7 +111,6 @@
             </div>
           </q-form>
         </div>
-
 
         <!-- Actions section -->
         <div class="actions-section q-mt-lg">

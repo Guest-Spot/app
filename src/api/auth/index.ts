@@ -3,7 +3,6 @@ import type { IJWTTokens } from 'src/interfaces/user';
 import { useTokens } from 'src/modules/useTokens';
 import { useUserStore } from 'src/stores/user';
 
-
 /**
  * Connect with Google
  * @param url - Google URL
@@ -38,7 +37,7 @@ export async function connect(url: string) {
     userStore.setIsAuthenticated(true);
 
     return { success: true };
-  }  catch (error) {
+  } catch (error) {
     console.error('Login error:', error);
     return {
       success: false,

@@ -3,15 +3,20 @@
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
-        :name="profile?.email || ''"
+        :name="profile?.name || 'Guest'"
         @openPublicProfile="openPublicProfile"
       />
+    </div>
+
+    <div class="container">
+      <AboutMeTab />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import AboutMeTab from 'src/components/GuestProfile/AboutMeTab.vue';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import { useProfileStore } from 'src/stores/profile';
 import { useRouter } from 'vue-router';
