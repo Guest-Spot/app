@@ -73,11 +73,47 @@
                 Sign in
               </q-btn>
             </div>
+
+            <!-- Social Auth Section -->
+            <div
+              class="social-auth-section flex items-center column justify-center q-mt-lg full-width q-gap-md"
+            >
+              <div class="text-center full-width flex items-center justify-center q-gap-md no-wrap">
+                <div class="divider-line"></div>
+                <span class="divider-text text-grey-6">or continue with</span>
+                <div class="divider-line"></div>
+              </div>
+              <div class="social-buttons flex row justify-center q-gap-md">
+                <q-btn
+                  round
+                  unelevated
+                  outline
+                  color="primary"
+                  :href="`${API_URL}/api/connect/google`"
+                >
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <GoogleIcon width="16px" height="16px" />
+                  </div>
+                </q-btn>
+
+                <q-btn round unelevated outline color="primary" disabled>
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <FacebookIcon width="18px" height="18px" />
+                  </div>
+                </q-btn>
+
+                <q-btn round unelevated outline color="primary" disabled>
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <AppleIcon width="18px" height="18px" />
+                  </div>
+                </q-btn>
+              </div>
+            </div>
           </q-form>
         </div>
 
-        <!-- TODO: Add actions section -->
-        <div class="actions-section q-mt-xl">
+        <!-- Actions section -->
+        <div class="actions-section q-mt-lg">
           <div class="text-subtitle1 flex column items-center justify-center q-gap-sm">
             <span>Don't have an account?</span>
             <q-btn flat dense color="primary" rounded label="Contact Support" class="q-px-md" />
@@ -94,6 +130,10 @@ import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import useUser from 'src/modules/useUser';
 import { useProfileStore } from 'src/stores/profile';
+import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
+import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
+import AppleIcon from 'src/components/Icons/AppleIcon.vue';
+import { API_URL } from 'src/config/constants';
 
 const router = useRouter();
 const $q = useQuasar();
@@ -185,5 +225,15 @@ const handleLogin = async () => {
   letter-spacing: 0.6px;
   height: 32px;
   text-transform: none;
+}
+
+.divider-line {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.divider-text {
+  white-space: nowrap;
 }
 </style>

@@ -3,7 +3,7 @@
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
-        :name="profile?.name || ''"
+        :name="profile?.name || 'Shop'"
         @openPublicProfile="openPublicProfile"
       />
     </div>

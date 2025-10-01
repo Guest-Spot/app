@@ -7,6 +7,7 @@
     </div>
     <div class="flex items-center q-gap-sm">
       <q-btn
+        v-if="!isGuest"
         text-color="primary"
         icon="notifications"
         round
@@ -26,7 +27,7 @@
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
         <q-menu style="width: 150px">
           <q-list>
-            <q-item v-close-popup clickable @click="handlePublicProfile">
+            <q-item v-if="!isGuest" v-close-popup clickable @click="handlePublicProfile">
               <q-item-section>
                 <div class="flex items-center no-wrap q-gap-sm">
                   <q-icon name="public" size="18px" />
@@ -50,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
@@ -57,8 +59,7 @@ import useNotify from 'src/modules/useNotify';
 import NotificationDialog from 'src/components/Dialogs/NotificationDialog.vue';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import { useInvitesStore } from 'src/stores/invites';
-
-const { receivedPendingInvites } = useInviteCompos();
+import { useUserStore } from 'src/stores/user';
 
 defineOptions({
   name: 'ProfileHeader',
@@ -78,6 +79,10 @@ const $q = useQuasar();
 const { logout } = useUser();
 const { showSuccess } = useNotify();
 const invitesStore = useInvitesStore();
+const { receivedPendingInvites } = useInviteCompos();
+const userStore = useUserStore();
+
+const isGuest = computed(() => userStore.getIsGuest);
 
 const handleLogout = () => {
   $q.dialog({

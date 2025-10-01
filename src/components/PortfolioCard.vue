@@ -5,7 +5,13 @@
     </div>
     <div v-if="editable" class="portfolio-edit q-z-2">
       <q-btn round color="dark" icon="edit" size="sm" @click="$emit('edit', work.documentId)" />
-      <q-btn round color="negative" icon="delete" size="sm" @click="$emit('delete', work.documentId)" />
+      <q-btn
+        round
+        color="negative"
+        icon="delete"
+        size="sm"
+        @click="$emit('delete', work.documentId)"
+      />
     </div>
     <div class="portfolio-details">
       <h4 class="portfolio-title">{{ work.title }}</h4>

@@ -164,7 +164,6 @@ const useInviteCompos = () => {
           return 0; // maintain original order for same reaction types
         })
       : [];
-    console.log('sortedInvites', sortedInvites);
     invitesStore.setInvites(sortedInvites);
   });
 
