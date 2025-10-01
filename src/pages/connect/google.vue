@@ -57,7 +57,8 @@ onBeforeMount(async () => {
         void router.push('/profile');
       }, 500);
     } catch (e) {
-      error.value = e instanceof AxiosError ? e?.response?.data?.error?.details?.message : errorMessage;
+      error.value =
+        e instanceof AxiosError ? e?.response?.data?.error?.details?.message : errorMessage;
     }
   } else {
     error.value = errorMessage;

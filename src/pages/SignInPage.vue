@@ -127,16 +127,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
 import useUser from 'src/modules/useUser';
 import { useProfileStore } from 'src/stores/profile';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
 import { API_URL } from 'src/config/constants';
+import useNotify from 'src/modules/useNotify';
 
+const { showError, showSuccess } = useNotify();
 const router = useRouter();
-const $q = useQuasar();
 const { login, isAuthenticated, fetchMe } = useUser();
 const profileStore = useProfileStore();
 
@@ -158,44 +158,17 @@ const handleLogin = async () => {
       if (userData) {
         profileStore.setUserProfile(userData);
       }
-      $q.notify({
-        type: 'primary',
-        message: 'Login successful',
-        position: 'top',
-        timeout: 1500,
-        color: 'dark',
-        progress: true,
-        actions: [
-          {
-            icon: 'close',
-            color: 'white',
-          },
-        ],
-      });
-
+      showSuccess('Login successful');
       // Redirect to artist profile
       setTimeout(() => {
         void router.push('/profile');
       }, 500);
     } else {
-      throw new Error(result.error || 'Invalid credentials');
+      showError(result?.error || 'Invalid login credentials');
     }
   } catch (error) {
-    console.error('Login error:', error);
-    $q.notify({
-      type: 'negative',
-      message: error instanceof Error ? error.message : 'Invalid login credentials',
-      position: 'top',
-      timeout: 1500,
-      color: 'negative',
-      progress: true,
-      actions: [
-        {
-          icon: 'close',
-          color: 'white',
-        },
-      ],
-    });
+    console.log(error);
+    showError('Invalid login credentials');
   } finally {
     loading.value = false;
   }

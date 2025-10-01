@@ -49,7 +49,7 @@ const useUser = () => {
       });
 
       if (!result?.data?.loginWithRefresh) {
-        throw new Error('Login failed: No data received');
+        throw new Error(result?.errors?.[0]?.message || 'Login failed');
       }
 
       const { jwt, refreshToken, user: userData } = result.data.loginWithRefresh;
@@ -66,7 +66,6 @@ const useUser = () => {
 
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Login failed',
