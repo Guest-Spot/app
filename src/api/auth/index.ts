@@ -39,10 +39,7 @@ export async function connect(url: string) {
     return { success: true };
   } catch (error) {
     console.error('Login error:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Login failed',
-    };
+    throw error;
   } finally {
     userStore.setIsLoading(false);
   }
