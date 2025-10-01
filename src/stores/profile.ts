@@ -7,6 +7,7 @@ import { UserType } from 'src/interfaces/enums';
 interface IProfileState {
   shopProfile: IShop | null;
   artistProfile: IArtist | null;
+  guestProfile: IUser | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -15,6 +16,7 @@ export const useProfileStore = defineStore('profile', {
   state: (): IProfileState => ({
     shopProfile: null,
     artistProfile: null,
+    guestProfile: null,
     isLoading: false,
     error: null,
   }),
@@ -22,6 +24,7 @@ export const useProfileStore = defineStore('profile', {
   getters: {
     getShopProfile: (state) => state.shopProfile,
     getArtistProfile: (state) => state.artistProfile,
+    getGuestProfile: (state) => state.guestProfile,
     getIsLoading: (state) => state.isLoading,
     getError: (state) => state.error,
   },
@@ -35,6 +38,8 @@ export const useProfileStore = defineStore('profile', {
         this.setShopProfile((user.profile as IShop) || null);
       } else if (user.type === UserType.Artist) {
         this.setArtistProfile((user.profile as IArtist) || null);
+      } else if (user.type === UserType.Guest) {
+        this.setGuestProfile(user);
       }
     },
 
@@ -50,6 +55,13 @@ export const useProfileStore = defineStore('profile', {
      */
     setArtistProfile(profile: IArtist | null) {
       this.artistProfile = profile;
+    },
+
+    /**
+     * Set guest profile data
+     */
+    setGuestProfile(profile: IUser | null) {
+      this.guestProfile = profile;
     },
 
     /**
@@ -72,6 +84,7 @@ export const useProfileStore = defineStore('profile', {
     clearProfile() {
       this.shopProfile = null;
       this.artistProfile = null;
+      this.guestProfile = null;
       this.error = null;
     },
   },

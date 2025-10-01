@@ -2,8 +2,8 @@
   <q-page
     class="flex justify-center items-center"
   >
-    <div class="column q-pa-md full-width">
-      <q-card class="bg-block full-width">
+    <div class="container column q-pa-md full-width">
+      <q-card class="bg-block full-width border-radius-md">
         <q-card-section class="flex items-center bg-primary">
           <h4 class="text-h6 text-white q-my-none">Connecting...</h4>
         </q-card-section>
@@ -39,17 +39,18 @@ const error = ref('')
 const access_token = ref(route?.query?.access_token || '')
 
 onBeforeMount(async () => {
+  const errorMessage = 'Something went wrong. Please try again later.'
   // Register new user by google mail
   if (access_token.value) {
     try {
-      const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}`
+      const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}&provider=google`
       await connect(url)
       window.location.href = window.location.origin
     } catch(e) {
-      error.value = e instanceof Error ? e.message : 'Auth error'
+      error.value = e instanceof Error ? e.message : errorMessage
     }
   } else {
-    error.value = 'Auth error'
+    error.value = errorMessage
   }
 })
 </script>
