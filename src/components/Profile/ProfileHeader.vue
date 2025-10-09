@@ -25,13 +25,21 @@
         >
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
-        <q-menu style="width: 150px">
+        <q-menu style="width: 200px" self="bottom end" anchor="top end" :offset="[0, 4]">
           <q-list>
             <q-item v-if="!isGuest" v-close-popup clickable @click="handlePublicProfile">
               <q-item-section>
                 <div class="flex items-center no-wrap q-gap-sm">
                   <q-icon name="public" size="18px" />
                   <q-item-label>Public profile</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="handleChangePassword">
+              <q-item-section>
+                <div class="flex items-center q-gap-sm">
+                  <q-icon name="lock_reset" size="18px" />
+                  <q-item-label>Change password</q-item-label>
                 </div>
               </q-item-section>
             </q-item>
@@ -108,6 +116,10 @@ const handleLogout = () => {
 
 const handlePublicProfile = () => {
   emit('openPublicProfile');
+};
+
+const handleChangePassword = () => {
+  void router.push('/change-password');
 };
 
 const showNotificationDialog = () => {

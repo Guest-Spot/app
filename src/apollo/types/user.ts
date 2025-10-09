@@ -50,6 +50,14 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const CHANGE_PASSWORD_MUTATION = gql`
+  mutation ChangePassword($currentPassword: String!, $password: String!, $passwordConfirmation: String!) {
+    changePassword(currentPassword: $currentPassword, password: $password, passwordConfirmation: $passwordConfirmation) {
+      jwt
+    }
+  }
+`;
+
 // IMPORTANT: DO NOT use gql for this mutation, it will used in the error link
 export const LOGOUT_MUTATION = `
   mutation LogoutWithRefresh($input: RefreshTokenInput!) {

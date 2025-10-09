@@ -7,6 +7,8 @@ import {
 } from 'vue-router';
 import routes from './routes';
 import { useScrollStore } from 'src/stores/scroll';
+import { useUserStore } from 'src/stores/user';
+import { useTokens } from 'src/modules/useTokens';
 
 /*
  * If not building with SSR mode, you can
@@ -36,6 +38,18 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   });
 
   Router.beforeEach((to, from, next) => {
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    if (requiresAuth) {
+      const userStore = useUserStore();
+      const { isAuthenticated } = useTokens();
+      const hasSession = userStore.getIsAuthenticated || isAuthenticated();
+
+      if (!hasSession) {
+        next({ path: '/sign-in', query: { redirect: to.fullPath } });
+        return;
+      }
+    }
+
     const QApp = document.querySelector('#q-app');
     const scrollY = QApp?.scrollTop;
     setTimeout(() => {

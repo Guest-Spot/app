@@ -56,6 +56,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/PrivacyPage.vue'),
         meta: { title: 'Privacy Policy' },
       },
+      {
+        path: 'change-password',
+        component: () => import('pages/ChangePasswordPage.vue'),
+        meta: { title: 'Change Password', requiresAuth: true },
+      },
     ],
   },
   {
