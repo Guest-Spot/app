@@ -38,7 +38,7 @@ const route = useRoute();
 const { fetchMe } = useUser();
 
 defineOptions({
-  name: 'ConnectGoogle',
+  name: 'ConnectProvider',
 });
 
 const error = ref('');
@@ -49,7 +49,7 @@ onBeforeMount(async () => {
   // Register new user by google mail
   if (access_token.value) {
     try {
-      const url = `/api/auth/google/callback?access_token=${String(access_token.value || '')}&provider=google`;
+      const url = `/api/auth/${route.params.provider as string}/callback?access_token=${String(access_token.value || '')}&provider=${route.params.provider as string}`;
       await connect(url);
       await fetchMe();
       showSuccess('Login successful');
