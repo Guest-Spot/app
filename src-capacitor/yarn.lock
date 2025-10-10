@@ -35,7 +35,7 @@
     tslib "^2.8.1"
     xml2js "^0.6.2"
 
-"@capacitor/core@^7.0.0", "@capacitor/core@^7.4.0", "@capacitor/core@>=7.0.0":
+"@capacitor/core@^7.0.0":
   version "7.4.3"
   resolved "https://registry.npmjs.org/@capacitor/core/-/core-7.4.3.tgz"
   integrity sha512-wCWr8fQ9Wxn0466vPg7nMn0tivbNVjNy1yL4GvDSIZuZx7UpU2HeVGNe9QjN/quEd+YLRFeKEBLBw619VqUiNg==
@@ -46,6 +46,11 @@
   version "7.4.3"
   resolved "https://registry.npmjs.org/@capacitor/ios/-/ios-7.4.3.tgz"
   integrity sha512-VNm7cHODgh3KK/4ZC2rXU9gBlvHii/mYFLI+XMXwq24nhB679QxHhz+pUuI7PatYoM2q4MAL0NR/dRgehKCaSA==
+
+"@codetrix-studio/capacitor-google-auth@^3.4.0-rc.4":
+  version "3.4.0-rc.4"
+  resolved "https://registry.npmjs.org/@codetrix-studio/capacitor-google-auth/-/capacitor-google-auth-3.4.0-rc.4.tgz"
+  integrity sha512-d548/xKrbMHHbzMYSWnlgZCLZYo2zzY7Onrh3x8ujojrb7atkNK68I6su5WgmaBt4E+R4gxBsWams4554aOFjA==
 
 "@ionic/cli-framework-output@^2.2.8":
   version "2.2.8"

@@ -70,7 +70,10 @@ export default defineConfig((ctx) => {
       // analyze: true,
       env: {
         API_URL: process.env.API_URL,
-        API_KEY: process.env.API_KEY,
+        GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
+        GOOGLE_IOS_CLIENT_ID: process.env.GOOGLE_IOS_CLIENT_ID,
+        GOOGLE_ANDROID_CLIENT_ID: process.env.GOOGLE_ANDROID_CLIENT_ID,
+        GOOGLE_SERVER_CLIENT_ID: process.env.GOOGLE_SERVER_CLIENT_ID,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

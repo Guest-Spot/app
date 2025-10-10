@@ -89,7 +89,8 @@
                   unelevated
                   outline
                   color="primary"
-                  :href="`${API_URL}/api/connect/google`"
+                  :loading="googleLoading"
+                  @click="handleGoogleSignIn"
                 >
                   <div class="flex items-center justify-center q-gap-sm">
                     <GoogleIcon width="16px" height="16px" />
@@ -134,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useProfileStore } from 'src/stores/profile';
@@ -143,6 +144,7 @@ import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
 import { API_URL } from 'src/config/constants';
 import useNotify from 'src/modules/useNotify';
+import useGoogleAuth from 'src/modules/auth/useGoogleAuth';
 
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
@@ -154,6 +156,10 @@ const showPassword = ref(false);
 const form = ref({
   login: '',
   password: '',
+});
+const googleLoading = ref(false);
+const { initializeGoogleAuth, handleGoogleSignIn } = useGoogleAuth({
+  loadingRef: googleLoading,
 });
 
 const handleLogin = async () => {
@@ -182,6 +188,10 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  void initializeGoogleAuth();
+});
 </script>
 
 <style scoped>
