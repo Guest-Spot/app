@@ -3,7 +3,13 @@ import { Capacitor } from '@capacitor/core';
 import { useRouter } from 'vue-router';
 import { type Ref } from 'vue';
 import { GoogleAuth, type InitOptions } from '@codetrix-studio/capacitor-google-auth';
-import { API_URL, GOOGLE_WEB_CLIENT_ID } from 'src/config/constants';
+import {
+  API_URL,
+  GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+  GOOGLE_ANDROID_CLIENT_ID,
+  GOOGLE_SERVER_CLIENT_ID,
+} from 'src/config/constants';
 import { connect } from 'src/api/auth';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
@@ -27,6 +33,20 @@ const isNativeGoogleAuth = () => Capacitor.isNativePlatform() && isPluginAvailab
 
 const buildRedirectUrl = () => `${API_URL}/api/connect/google`;
 
+const resolveClientId = () => {
+  const platform = Capacitor.getPlatform();
+
+  if (platform === 'ios') {
+    return GOOGLE_IOS_CLIENT_ID || GOOGLE_WEB_CLIENT_ID;
+  }
+
+  if (platform === 'android') {
+    return GOOGLE_ANDROID_CLIENT_ID || GOOGLE_WEB_CLIENT_ID;
+  }
+
+  return GOOGLE_WEB_CLIENT_ID;
+};
+
 const initializeGoogleAuth = async () => {
   if (!isPluginAvailable()) {
     return;
@@ -36,8 +56,14 @@ const initializeGoogleAuth = async () => {
     scopes: GOOGLE_SCOPES,
   };
 
-  if (GOOGLE_WEB_CLIENT_ID) {
-    options.clientId = GOOGLE_WEB_CLIENT_ID;
+  const clientId = resolveClientId();
+
+  if (clientId) {
+    options.clientId = clientId;
+  }
+
+  if (GOOGLE_SERVER_CLIENT_ID) {
+    options.grantOfflineAccess = true;
   }
 
   try {

@@ -58,13 +58,13 @@
         "profile",
         "email"
       ],
-      "forceCodeForRefreshToken": true
+      "forceCodeForRefreshToken": false
     }
   },
   "ios": {
     "limitsNavigationsToAppBoundDomains": true,
     "scheme": "org.guestspot.app",
-    "webContentsDebuggingEnabled": false
+    "webContentsDebuggingEnabled": true
   },
   "android": {
     "allowMixedContent": false,

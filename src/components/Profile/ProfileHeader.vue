@@ -25,7 +25,7 @@
         >
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
-        <q-menu style="width: 200px" self="bottom end" anchor="top end" :offset="[0, 4]">
+        <q-menu style="width: 200px" anchor="bottom right" self="top right" :offset="[0, 4]">
           <q-list>
             <q-item v-if="!isGuest" v-close-popup clickable @click="handlePublicProfile">
               <q-item-section>

@@ -17,6 +17,14 @@
 			<string>org.guestspot.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>com.googleusercontent.apps.98698152935-6euspec4r470nitlciq2p3a3cpu384aj</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>org.guestspot.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>org.guestspot.app</string>
 			</array>
 		</dict>
