@@ -8,13 +8,13 @@
     <!-- Pull to refresh indicator -->
     <div
       v-if="isPulling"
-      class="pull-indicator bg-block border-radius-md z-max q-pa-sm"
+      class="pull-indicator bg-block z-max"
       :style="{
         opacity: pullOpacity,
         transform: `translateY(${pullVerticalOffset}px) rotate(${pullRotation}deg)`,
       }"
     >
-      <RefreshIcon />
+      <q-icon name="refresh" size="32px" color="primary" />
     </div>
 
     <slot />
@@ -31,7 +31,6 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed } from 'vue'
-import RefreshIcon from 'src/components/Icons/RefreshIcon.vue'
 
 interface TouchPosition {
   x: number
@@ -42,15 +41,15 @@ interface TouchPosition {
 const ANIMATION_CONFIG = {
   // Opacity animation
   OPACITY_MAX_DISTANCE: 500,
-  OPACITY_THRESHOLD: 150, // Opacity starts appearing only after this distance
+  OPACITY_THRESHOLD: 50, // Opacity starts appearing earlier
 
   // Rotation animation
   ROTATION_MAX_DEGREES: 100, // 360 / 100 for slower rotation
   ROTATION_MAX_DISTANCE: 150,
 
   // Movement animation
-  MOVE_MULTIPLIER: 0.2, // How much icon moves relative to swipe distance
-  MAX_MOVE_DISTANCE: 20, // Maximum pixels icon can move down
+  MOVE_MULTIPLIER: 0.5, // How much icon moves relative to swipe distance (increased for better visibility)
+  MAX_MOVE_DISTANCE: 100, // Maximum pixels icon can move down (increased)
 
   // Timing
   RELOAD_DELAY: 500, // Delay before actual reload
@@ -212,20 +211,15 @@ const triggerReload = () => {
 
 .pull-indicator {
   position: fixed;
-  top: 20px;
-  left: calc(50% - 12px);
+  top: -40px; // Start above the screen
+  left: calc(50% - 16px);
   transform-origin: center;
   z-index: 0;
-  color: var(--primary-blue);
-  width: 32px;
-  height: 32px;
   transition: opacity 0.1s ease-out;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    color: var(--primary-blue);
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
 }
 
 .reload-overlay {
