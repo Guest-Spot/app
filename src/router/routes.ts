@@ -30,17 +30,17 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'events',
         component: () => import('src/pages/EventsPage.vue'),
-        meta: { title: 'My Trips & Bookings', requiresAuth: true },
+        meta: { title: 'My Trips & Bookings' },
       },
       {
         path: 'bookings',
         component: () => import('pages/BookingsPage.vue'),
-        meta: { title: 'Shop Bookings', requiresAuth: true },
+        meta: { title: 'Shop Bookings' },
       },
       {
         path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
-        meta: { title: 'My Profile', requiresAuth: true },
+        meta: { title: 'My Profile' },
       },
       {
         path: 'faq',
