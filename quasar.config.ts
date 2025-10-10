@@ -4,9 +4,32 @@
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
 import { configDotenv } from 'dotenv';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 configDotenv();
 
 export default defineConfig((ctx) => {
+  const sentryRelease =
+    process.env.SENTRY_RELEASE ||
+    (process.env.npm_package_version
+      ? `guest-spot@${process.env.npm_package_version}`
+      : undefined);
+
+  const sentryEnvironment = process.env.SENTRY_ENVIRONMENT || process.env.MODE;
+
+  const shouldUploadSourceMaps =
+    !ctx.dev &&
+    Boolean(
+      process.env.SENTRY_AUTH_TOKEN &&
+        process.env.SENTRY_ORG &&
+        process.env.SENTRY_PROJECT &&
+        sentryRelease,
+    );
+
+  const sentrySourcemapAssets =
+    ctx.modeName === 'capacitor'
+      ? ['./dist/capacitor/**/*.js', './dist/capacitor/**/*.map']
+      : ['./dist/spa/assets/**/*.js', './dist/spa/assets/**/*.map'];
+
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
@@ -14,7 +37,7 @@ export default defineConfig((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['theme', 'i18n', 'axios', 'apollo'],
+    boot: ['sentry', 'theme', 'i18n', 'axios', 'apollo'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],
@@ -74,6 +97,12 @@ export default defineConfig((ctx) => {
         GOOGLE_IOS_CLIENT_ID: process.env.GOOGLE_IOS_CLIENT_ID,
         GOOGLE_ANDROID_CLIENT_ID: process.env.GOOGLE_ANDROID_CLIENT_ID,
         GOOGLE_SERVER_CLIENT_ID: process.env.GOOGLE_SERVER_CLIENT_ID,
+        APP_VERSION: process.env.APP_VERSION || process.env.npm_package_version,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        SENTRY_ENVIRONMENT: sentryEnvironment,
+        SENTRY_RELEASE: sentryRelease,
+        SENTRY_TRACES_SAMPLE_RATE: process.env.SENTRY_TRACES_SAMPLE_RATE,
+        SENTRY_DEBUG: process.env.SENTRY_DEBUG,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
@@ -113,6 +142,34 @@ export default defineConfig((ctx) => {
           },
           { server: false },
         ],
+        ...(shouldUploadSourceMaps
+          ? [
+              [
+                sentryVitePlugin,
+                {
+                  org: process.env.SENTRY_ORG,
+                  project: process.env.SENTRY_PROJECT,
+                  authToken: process.env.SENTRY_AUTH_TOKEN,
+                  release: sentryRelease,
+                  deploy: sentryEnvironment
+                    ? {
+                        env: sentryEnvironment,
+                      }
+                    : undefined,
+                  setCommits: {
+                    auto: true,
+                    ignoreMissing: true,
+                    ignoreEmpty: true,
+                  },
+                  sourcemaps: {
+                    assets: sentrySourcemapAssets,
+                    ignore: ['**/*.html'],
+                  },
+                  telemetry: false,
+                },
+              ],
+            ]
+          : []),
       ],
     },
 

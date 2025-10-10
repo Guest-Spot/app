@@ -21,12 +21,17 @@ PODS:
     - AppAuth/Core (~> 1.6)
     - GTMSessionFetcher/Core (< 3.0, >= 1.5)
   - GTMSessionFetcher/Core (2.3.0)
+  - Sentry/HybridSDK (8.55.0)
+  - SentryCapacitor (2.3.1):
+    - Capacitor
+    - Sentry/HybridSDK (= 8.55.0)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CodetrixStudioCapacitorGoogleAuth (from `../../node_modules/@codetrix-studio/capacitor-google-auth`)"
+  - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
   trunk:
@@ -34,6 +39,7 @@ SPEC REPOS:
     - GoogleSignIn
     - GTMAppAuth
     - GTMSessionFetcher
+    - Sentry
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -44,6 +50,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CodetrixStudioCapacitorGoogleAuth:
     :path: "../../node_modules/@codetrix-studio/capacitor-google-auth"
+  SentryCapacitor:
+    :path: "../../node_modules/@sentry/capacitor"
 
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
@@ -54,7 +62,9 @@ SPEC CHECKSUMS:
   GoogleSignIn: 5651ce3a61e56ca864160e79b484cd9ed3f49b7a
   GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
   GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
+  Sentry: f7dddfabe691274d6d630f04621e1345f9d6b9e0
+  SentryCapacitor: 09d18680bd9366850de59dc3859af859ad4116fa
 
-PODFILE CHECKSUM: 33160c5c32adf174d475fc7b990315df56bae9ed
+PODFILE CHECKSUM: f7c2140dcd899797f8b9a1fbed59315fdf927eaa
 
 COCOAPODS: 1.16.2

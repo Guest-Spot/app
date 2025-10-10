@@ -59,6 +59,11 @@
         "email"
       ],
       "forceCodeForRefreshToken": false
+    },
+    "Sentry": {
+      "dsn": "https://3f83002c1f5bc60a34470709dcb1d353@o565662.ingest.us.sentry.io/4510164379303936",
+      "debug": true,
+      "environment": "production"
     }
   },
   "ios": {
