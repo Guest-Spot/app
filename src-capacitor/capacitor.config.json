@@ -10,9 +10,14 @@
     "allowNavigation": [
       "*.yourdomain.com",
       "*.googleapis.com"
-    ]
+    ],
+    "url": "http://192.168.20.51:9500"
   },
   "plugins": {
+    "App": {
+      "urlScheme": "org.guestspot.app",
+      "deepLinkScheme": "org.guestspot.app"
+    },
     "SplashScreen": {
       "launchShowDuration": 3000,
       "launchAutoHide": true,
@@ -47,7 +52,7 @@
   },
   "ios": {
     "limitsNavigationsToAppBoundDomains": true,
-    "scheme": "guestspot",
+    "scheme": "org.guestspot.app",
     "webContentsDebuggingEnabled": false
   },
   "android": {

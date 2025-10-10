@@ -32,6 +32,7 @@
     "capacitor:dev": "quasar dev -m capacitor",
     "capacitor:build": "quasar build -m capacitor",
     "capacitor:build:ios": "quasar build -m capacitor -T ios",
+    "capacitor:build:ios:simulator": "quasar build -m capacitor -T ios && cd src-capacitor/ios/App && xcrun xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' clean build CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO",
     "capacitor:build:android": "quasar build -m capacitor -T android",
     "capacitor:sync:ios": "quasar dev -m capacitor --sync -T ios",
     "capacitor:sync:android": "quasar dev -m capacitor --sync -T android",
