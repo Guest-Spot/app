@@ -3,11 +3,19 @@
 
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { configDotenv } from 'dotenv';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-configDotenv();
 
 export default defineConfig((ctx) => {
+  configDotenv({ path: '.env' });
+
+  if (ctx.prod === true) {
+    if (existsSync('.env.production')) {
+      configDotenv({ path: '.env.production', override: true });
+    }
+  }
+
   const sentryRelease =
     process.env.SENTRY_RELEASE ||
     (process.env.npm_package_version
