@@ -35,7 +35,7 @@
                 </div>
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="handleChangePassword">
+            <q-item v-if="!isGuest" clickable v-close-popup @click="handleChangePassword">
               <q-item-section>
                 <div class="flex items-center q-gap-sm">
                   <q-icon name="lock_reset" size="18px" />
