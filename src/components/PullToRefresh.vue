@@ -67,7 +67,7 @@ const props = defineProps({
   },
   maxStartPosition: {
     type: Number,
-    default: 50, // Maximum Y position where swipe can start (from top of screen)
+    default: 100, // Maximum Y position where swipe can start (from top of screen)
   },
   minVerticalRatio: {
     type: Number,
