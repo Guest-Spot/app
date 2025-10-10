@@ -3,6 +3,7 @@
     <ImageUploader
       :images="artistData.avatar ? [artistData.avatar] : []"
       placeholder-icon="person"
+      class="artist-avatar"
       placeholder="Upload avatar"
       @on-upload="imagesForUpload = $event"
       @on-remove="imagesForRemove = $event"
@@ -375,5 +376,9 @@ defineExpose({
     position: sticky;
     bottom: 90px;
   }
+}
+
+.artist-avatar {
+  min-height: 300px;
 }
 </style>
