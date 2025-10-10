@@ -11,7 +11,7 @@
     "format": "prettier --write \"./src/**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
-    "build": "MODE=production quasar build -m spa",
+    "build": "quasar build -m spa",
     "postinstall": "quasar prepare",
     "mobile:add": "quasar mode add cordova",
     "mobile:remove": "quasar mode remove cordova",

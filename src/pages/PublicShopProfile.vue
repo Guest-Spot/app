@@ -28,7 +28,9 @@
             :pictures="shopPictures"
             height="300px"
           />
-          <div v-else class="bg-block" style="height: 300px" />
+          <div v-else class="bg-block" style="height: 300px">
+            <q-icon name="no_photography" size="48px" color="grey-9" class="absolute-center" />
+          </div>
         </div>
 
         <!-- User Details -->

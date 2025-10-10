@@ -3,7 +3,7 @@
     <div class="shop-image">
       <ImageCarousel v-if="shopPictures.length" :pictures="shopPictures" />
       <div v-else class="bg-block border-radius-md shop-image-placeholder">
-        <q-icon name="no_photography" size="48px" color="grey-6" class="absolute-center" />
+        <q-icon name="no_photography" size="48px" color="grey-9" class="absolute-center" />
       </div>
     </div>
     <div class="shop-details">
