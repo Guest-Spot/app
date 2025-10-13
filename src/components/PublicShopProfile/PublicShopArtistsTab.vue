@@ -40,12 +40,12 @@
 <script setup lang="ts">
 import { ArtistCard } from '../SearchPage/index';
 import { useRouter } from 'vue-router';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IUser } from 'src/interfaces/user';
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResult from 'src/components/NoResult.vue';
 
 interface Props {
-  artists: IArtist[];
+  artists: IUser[];
   loading: boolean;
 }
 
@@ -53,7 +53,7 @@ const router = useRouter();
 
 defineProps<Props>();
 
-const handleArtistClick = (artist: IArtist) => {
+const handleArtistClick = (artist: IUser) => {
   void router.push(`/artist/${artist.documentId}`);
 };
 

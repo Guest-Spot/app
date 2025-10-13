@@ -108,8 +108,7 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IBooking } from 'src/interfaces/booking';
-import type { IShop, IGraphQLShopResult, IGraphQLShopArtistsResult } from 'src/interfaces/shop';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
@@ -121,9 +120,10 @@ import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue'
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
-import { SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
+import { USER_QUERY, USERS_QUERY } from 'src/apollo/types/user';
 import { useShopsStore } from 'src/stores/shops';
 import ExpandableText from 'src/components/ExpandableText.vue';
+import { UserType } from 'src/interfaces/enums';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -135,14 +135,14 @@ const {
   onError: onErrorShop,
   onResult: onResultShop,
   loading: isLoadingShop,
-} = useLazyQuery<IGraphQLShopResult>(SHOP_QUERY);
+} = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
 const {
   load: loadShopArtists,
   onError: onErrorShopArtists,
   onResult: onResultShopArtists,
   loading: isLoadingShopArtists,
-} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 const {
   load: loadPortfolio,
@@ -155,7 +155,7 @@ const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
 
-const shopData = ref<IShop>({
+const shopData = ref<IUser>({
   documentId: '',
   createdAt: '',
   updatedAt: '',
@@ -167,12 +167,19 @@ const shopData = ref<IShop>({
   phone: '',
   email: '',
   openingHours: [],
-  links: [],
   pictures: [],
+  avatar: {
+    url: '',
+    id: '',
+  },
+  confirmed: false,
+  blocked: false,
+  type: UserType.Shop,
+  id: '',
 });
 
 // Artists data
-const artists = ref<IArtist[]>([]);
+const artists = ref<IUser[]>([]);
 
 // Portfolio data
 const portfolioItems = ref<IPortfolio[]>([]);
@@ -234,8 +241,8 @@ const loadShopData = () => {
 
 // Handle shop query result
 onResultShop((result) => {
-  if (result.data?.shop) {
-    shopData.value = result.data.shop;
+  if (result.data?.usersPermissionsUser) {
+    shopData.value = result.data.usersPermissionsUser;
   }
 });
 
@@ -245,8 +252,8 @@ onErrorShop((error) => {
 
 // Handle shop artists query result
 onResultShopArtists((result) => {
-  if (result.data?.shopArtists) {
-    artists.value = result.data.shopArtists;
+  if (result.data?.usersPermissionsUsers) {
+    artists.value = result.data.usersPermissionsUsers;
   }
 });
 
@@ -269,7 +276,18 @@ onBeforeMount(() => {
   void loadPortfolio(null, {
     filters: { ownerDocumentId: { eq: route.params.documentId as string } },
   });
-  void loadShopArtists(null, { documentId: route.params.documentId as string });
+  void loadShopArtists(null,
+    {
+      filters: {
+        parent: {
+          documentId: {
+            eq: route.params.documentId as string,
+          },
+        },
+      },
+    },
+    { fetchPolicy: 'network-only' },
+  );
 });
 </script>
 

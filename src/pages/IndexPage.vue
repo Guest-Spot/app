@@ -111,8 +111,7 @@ import {
   TAB_SHOPS,
   TAB_ARTISTS,
 } from '../components/SearchPage';
-import type { IShop } from 'src/interfaces/shop';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IUser } from 'src/interfaces/user';
 import { NoResult, LoadingState } from 'src/components';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
@@ -124,6 +123,7 @@ import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+import type { UserType } from 'src/interfaces/enums';
 
 // Sort settings
 interface SortSettings {
@@ -172,6 +172,7 @@ const showSortDialog = ref(false);
 const searchQuery = ref(route.query.search as string | null);
 
 const activeFilters = ref<IFilters>({
+  type: route.query.type as UserType | null,
   city: route.query.city as string | null,
 });
 
@@ -203,11 +204,11 @@ const artistsTitle = computed(() => {
   return `Artists (${artists.value.length}/${totalArtists.value})`;
 });
 
-const selectShop = (shop: IShop) => {
+const selectShop = (shop: IUser) => {
   void router.push(`/shop/${shop.documentId}`);
 };
 
-const selectArtist = (artist: IArtist) => {
+const selectArtist = (artist: IUser) => {
   void router.push(`/artist/${artist.documentId}`);
 };
 

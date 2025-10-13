@@ -99,8 +99,8 @@
 import { ref, watch, computed, onMounted } from 'vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { ArtistCard, SearchHeader } from 'src/components/SearchPage';
-import { ARTISTS_QUERY } from 'src/apollo/types/artist';
-import type { IArtist, IGraphQLArtistsResult } from 'src/interfaces/artist';
+import { USERS_QUERY } from 'src/apollo/types/user';
+import type { IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import InfiniteScrollWrapper from '../InfiniteScrollWrapper.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
@@ -111,8 +111,9 @@ import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useHelpers from 'src/modules/useHelpers';
 import useNotify from 'src/modules/useNotify';
 import useInviteCompos from 'src/composables/useInviteCompos';
-import { useProfileStore } from 'src/stores/profile';
 import type { IInvite } from 'src/interfaces/invite';
+import { UserType } from 'src/interfaces/enums';
+import useUser from 'src/modules/useUser';
 
 // Sort settings interface
 interface SortSettings {
@@ -127,14 +128,14 @@ interface Props {
 }
 
 interface LocalArtist {
-  artist: IArtist;
+  artist: IUser;
   invited: boolean;
   pending: boolean;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'artistInvited', invite: IInvite, artist: IArtist): void;
+  (e: 'artistInvited', invite: IInvite, artist: IUser): void;
 }
 
 const props = defineProps<Props>();
@@ -143,7 +144,7 @@ const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useInvi
 const citiesStore = useCitiesStore();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showSuccess, showError } = useNotify();
-const profileStore = useProfileStore();
+const { user } = useUser();
 
 const isVisible = ref(props.modelValue);
 const searchQuery = ref('');
@@ -155,6 +156,7 @@ const showSortDialog = ref(false);
 
 // Filters and sort state
 const activeFilters = ref<IFilters>({
+  type: UserType.Artist,
   city: null,
 });
 
@@ -175,7 +177,7 @@ const {
   loading: isLoadingQuery,
   onResult: onArtistsResult,
   onError: onArtistsError,
-} = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 // Cities query for filters
 const {
@@ -242,14 +244,13 @@ const getInviteBtnIcon = (artist: LocalArtist) => {
   return 'person_add';
 };
 
-const sendInvitation = (artist: IArtist) => {
-  const shop = profileStore.shopProfile;
-  if (!shop) {
+const sendInvitation = (artist: IUser) => {
+  if (!user.value?.documentId) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
   }
-  void inviteArtist(shop, artist);
+  void inviteArtist(user.value, artist);
 };
 
 const resetPagination = () => {
@@ -263,7 +264,7 @@ const closeDialog = () => {
   // Reset search when closing dialog
   searchQuery.value = '';
   // Reset filters and sort
-  activeFilters.value = { city: null };
+  activeFilters.value = { type: UserType.Artist, city: null };
   sortSettings.value = { sortBy: null, sortDirection: 'asc' };
   // Reset dialogs
   showSearchDialog.value = false;
@@ -279,10 +280,15 @@ const loadArtistsList = (resetData = false) => {
   // Only load if we don't have artists data yet or we're resetting
   if ((localArtists.value.length === 0 || resetData) && !isLoadingQuery.value) {
     void loadArtistsQuery(null, {
-      filters: convertFiltersToGraphQLFilters({
-        ...activeFilters.value,
-        name: searchQuery.value || null,
-      }),
+      filters: {
+        type: {
+          eq: UserType.Artist,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters.value,
+          name: searchQuery.value || null,
+        }),
+      },
       sort: sortSettings.value.sortBy
         ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
         : ['name:asc'],
@@ -298,10 +304,15 @@ const loadMoreArtists = () => {
   if (!isLoadingQuery.value && hasMoreArtists.value) {
     currentPage.value += 1;
     void loadArtistsQuery(null, {
-      filters: convertFiltersToGraphQLFilters({
-        ...activeFilters.value,
-        name: searchQuery.value || null,
-      }),
+      filters: {
+        type: {
+          eq: UserType.Artist,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters.value,
+          name: searchQuery.value || null,
+        }),
+      },
       sort: sortSettings.value.sortBy
         ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
         : ['name:asc'],
@@ -318,15 +329,15 @@ const refetchArtistsData = () => {
   loadArtistsList(true);
 };
 
-const selectArtist = (artist: IArtist) => {
+const selectArtist = (artist: IUser) => {
   // Optional: handle artist selection if needed
   console.log('Artist selected:', artist);
 };
 
 // Handle query results
 onArtistsResult(({ data, loading }) => {
-  if (!loading && data?.artists) {
-    const newArtists = data.artists;
+  if (!loading && data?.usersPermissionsUsers) {
+    const newArtists = data.usersPermissionsUsers;
 
     const newLocalArtists = newArtists.map((artist) => ({
       artist,
@@ -337,7 +348,7 @@ onArtistsResult(({ data, loading }) => {
     localArtists.value = [...(localArtists.value || []), ...newLocalArtists];
 
     // Update pagination info
-    totalArtists.value = data.artists_connection?.pageInfo?.total || 0;
+    totalArtists.value = data.usersPermissionsUsers_connection?.pageInfo?.total || 0;
     hasMoreArtists.value = newArtists.length === PAGINATION_PAGE_SIZE;
   }
 });

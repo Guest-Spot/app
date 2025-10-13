@@ -36,16 +36,16 @@
 import { computed } from 'vue';
 import { useFavorites } from 'src/modules/useFavorites';
 import useDate from 'src/modules/useDate';
-import type { IShop } from 'src/interfaces/shop';
+import type { IUser } from 'src/interfaces/user';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import { OpeningHoursIndexDays } from 'src/interfaces/enums';
 
 interface Props {
-  shop: IShop;
+  shop: IUser;
 }
 
 interface Emits {
-  (e: 'click', shop: IShop): void;
+  (e: 'click', shop: IUser): void;
   (e: 'favorite', shopDocumentId: string): void;
 }
 

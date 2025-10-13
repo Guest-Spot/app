@@ -59,22 +59,20 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
-import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
-import { ARTISTS_QUERY } from 'src/apollo/types/artist';
+import { USERS_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
-import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
-import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
-import { useProfileStore } from 'src/stores/profile';
+import type { IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { ITab } from 'src/interfaces/tabs';
 import { TabsComp } from 'src/components';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import type { IInvite } from 'src/interfaces/invite';
 import { useInvitesStore } from 'src/stores/invites';
-import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import { default as ArtistsList } from './ArtistsList.vue';
 import { default as PendingList } from './PendingList.vue';
 import { useQuasar } from 'quasar';
+import useUser from 'src/modules/useUser';
 
 const ACCEPTED_TAB = 'accepted';
 const PENDING_TAB = 'pending';
@@ -83,28 +81,28 @@ const {
   load: loadShopArtists,
   onResult: onResultShopArtists,
   onError: onErrorShopArtists,
-} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 const {
   load: loadPendingShopArtists,
   onResult: onResultPendingShopArtists,
   onError: onErrorPendingShopArtists,
-} = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
-const profileStore = useProfileStore();
 const invitesStore = useInvitesStore();
 const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, sentPendingInvites } =
   useInviteCompos();
 const { showError, showSuccess } = useNotify();
 const $q = useQuasar();
+const { user } = useUser();
 
 // Setup mutation for removing artist
-const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_USER_MUTATION);
 
 // Artists data
-const artists = ref<IArtist[]>([]);
+const artists = ref<IUser[]>([]);
 const showAddArtistDialog = ref(false);
-const pendingArtists = ref<IArtist[]>([]);
+const pendingArtists = ref<IUser[]>([]);
 const documentIdForDelete = ref<string>('');
 const removingArtist = ref(false);
 
@@ -121,7 +119,7 @@ const setActiveFilter = (filter: ITab) => {
   activeFilter.value = filter;
 };
 
-const handleArtistClick = (artist: IArtist) => {
+const handleArtistClick = (artist: IUser) => {
   console.log('Artist clicked:', artist);
 };
 
@@ -129,15 +127,14 @@ const handleFavoriteToggle = (artistDocumentId: string) => {
   console.log('Favorite toggled for artist:', artistDocumentId);
 };
 
-const handleArtistInvited = (invite: IInvite, artist: IArtist) => {
+const handleArtistInvited = (invite: IInvite, artist: IUser) => {
   pendingArtists.value = [...pendingArtists.value, artist];
   invitesStore.setInvites([...invitesStore.getInvites, invite]);
 };
 
-const handleCancelInvite = (artist: IArtist) => {
-  const shop = profileStore.shopProfile;
+const handleCancelInvite = (artist: IUser) => {
   documentIdForDelete.value = artist.documentId;
-  if (!shop) {
+  if (!user.value) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
@@ -150,12 +147,11 @@ const handleCancelInvite = (artist: IArtist) => {
     console.error('Invite document ID not found');
     return;
   }
-  void cancelInvite(shop, artist, inviteDocumentId);
+  void cancelInvite(user.value, artist, inviteDocumentId);
 };
 
-const handleRemoveArtist = (artist: IArtist) => {
-  const shop = profileStore.shopProfile;
-  if (!shop) {
+const handleRemoveArtist = (artist: IUser) => {
+  if (!user.value) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
@@ -185,7 +181,7 @@ const handleRemoveArtist = (artist: IArtist) => {
       .map((a) => a.documentId);
 
     void updateShop({
-      documentId: shop.documentId,
+      id: user.value?.id,
       data: {
         artists: updatedArtists,
       },
@@ -194,7 +190,7 @@ const handleRemoveArtist = (artist: IArtist) => {
 };
 
 onResultShopArtists(({ data }) => {
-  artists.value = data.shopArtists;
+  artists.value = data.usersPermissionsUsers;
 });
 
 onErrorShopArtists((error) => {
@@ -202,7 +198,7 @@ onErrorShopArtists((error) => {
 });
 
 onResultPendingShopArtists(({ data }) => {
-  pendingArtists.value = data?.artists || [];
+  pendingArtists.value = data?.usersPermissionsUsers || [];
 });
 
 onErrorPendingShopArtists((error) => {
@@ -232,7 +228,7 @@ onDoneUpdateShop((result) => {
     return;
   }
 
-  if (result.data?.updateShop) {
+  if (result.data?.updateUsersPermissionsUser) {
     // Remove artist from local state
     const artistForRemove = artists.value.find(
       (artist) => artist.documentId === documentIdForDelete.value,
@@ -263,13 +259,19 @@ watch(sentPendingInvites, (newPendingInvites) => {
 });
 
 watch(
-  () => profileStore.getShopProfile,
+  user,
   (newProfile) => {
     if (newProfile) {
       void loadShopArtists(
         null,
         {
-          documentId: newProfile.documentId,
+          filters: {
+            parent: {
+              documentId: {
+                eq: newProfile.documentId,
+              },
+            },
+          },
         },
         { fetchPolicy: 'network-only' },
       );

@@ -138,7 +138,6 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
-import { useProfileStore } from 'src/stores/profile';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
@@ -149,7 +148,6 @@ import useGoogleAuth from 'src/modules/auth/useGoogleAuth';
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
 const { login, isAuthenticated, fetchMe } = useUser();
-const profileStore = useProfileStore();
 
 const loading = ref(false);
 const showPassword = ref(false);
@@ -177,10 +175,7 @@ const handleLogin = async () => {
     const result = await login(form.value.login, form.value.password);
 
     if (result.success && isAuthenticated.value) {
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
+      void fetchMe();
       showSuccess('Login successful');
       // Redirect to artist profile
       setTimeout(() => {

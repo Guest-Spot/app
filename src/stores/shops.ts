@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import type { IShop } from 'src/interfaces/shop';
+import type { IUser } from 'src/interfaces/user';
 
 export const useShopsStore = defineStore('shops', {
   state: () => ({
-    shops: [] as IShop[],
+    shops: [] as IUser[],
     total: 0,
     page: 1,
     pageSize: 15,
@@ -17,7 +17,7 @@ export const useShopsStore = defineStore('shops', {
     getHasMore: (state) => state.hasMore,
   },
   actions: {
-    setShops(shops: IShop[]) {
+    setShops(shops: IUser[]) {
       this.shops = shops;
     },
     setTotal(total: number) {

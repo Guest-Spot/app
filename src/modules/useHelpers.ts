@@ -9,10 +9,8 @@ const useHelpers = () => {
         },
       }),
       ...(filters.city && {
-        location: {
-          city: {
-            containsi: filters.city || null,
-          },
+        city: {
+          containsi: filters.city || null,
         },
       }),
     };

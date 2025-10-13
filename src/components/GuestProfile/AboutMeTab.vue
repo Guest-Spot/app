@@ -87,21 +87,19 @@ import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IGuestFormData } from 'src/interfaces/guest';
-import { useProfileStore } from 'src/stores/profile';
 import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_GUEST_MUTATION } from 'src/apollo/types/guest';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 
-const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
-const { fetchMe } = useUser();
+const { fetchMe, user } = useUser();
 
 // Setup mutation
-const { mutate: updateGuest, onDone: onDoneUpdateGuest } = useMutation(UPDATE_GUEST_MUTATION);
+const { mutate: updateGuest, onDone: onDoneUpdateGuest } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
@@ -168,8 +166,7 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
 const saveChanges = async () => {
   saveLoading.value = true;
   try {
-    const guestProfile = profileStore.getGuestProfile;
-    if (!guestProfile?.documentId) {
+    if (!user.value?.documentId) {
       throw new Error('Guest profile not found');
     }
 
@@ -178,8 +175,8 @@ const saveChanges = async () => {
 
     const data = prepareDataForMutation(uploadedFiles);
 
-    void updateGuest({
-      documentId: guestProfile.documentId,
+    await updateGuest({
+      id: user.value.id,
       data,
     });
   } catch (error) {
@@ -197,13 +194,8 @@ onDoneUpdateGuest((result) => {
     return;
   }
 
-  if (result.data?.updateGuest) {
-    void (async () => {
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
-    })();
+  if (result.data?.updateUsersPermissionsUser) {
+    void fetchMe();
     Object.assign(guestDataOriginal, { ...guestData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
@@ -212,7 +204,7 @@ onDoneUpdateGuest((result) => {
 });
 
 watch(
-  () => profileStore.getGuestProfile,
+  user,
   (profile) => {
     Object.assign(guestData, {
       ...profile,

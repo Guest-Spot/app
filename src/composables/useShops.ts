@@ -1,10 +1,11 @@
 import { computed } from 'vue';
 import { useLazyQuery } from '@vue/apollo-composable';
-import { SHOPS_QUERY } from 'src/apollo/types/shop';
-import type { IGraphQLShopsResult } from 'src/interfaces/shop';
+import { USERS_QUERY } from 'src/apollo/types/user';
+import type { IGraphQLUsersResult } from 'src/interfaces/user';
 import type { IFilters } from 'src/interfaces/filters';
 import { useShopsStore } from 'src/stores/shops';
 import useHelpers from 'src/modules/useHelpers';
+import { UserType } from 'src/interfaces/enums';
 
 interface SortSettings {
   sortBy: string | null;
@@ -21,7 +22,7 @@ export default function useShops() {
     loading: isLoadingShops,
     onResult: onResultShops,
     onError: onErrorShops,
-  } = useLazyQuery<IGraphQLShopsResult>(SHOPS_QUERY);
+  } = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
   const shops = computed(() => shopsStore.getShops);
   const totalShops = computed(() => shopsStore.getTotal);
@@ -37,10 +38,15 @@ export default function useShops() {
     }
 
     void loadShops(null, {
-      filters: convertFiltersToGraphQLFilters({
-        ...activeFilters,
-        name: searchQuery || null,
-      }),
+      filters: {
+        type: {
+          eq: UserType.Shop,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters,
+          name: searchQuery || null,
+        }),
+      },
       sort: sortSettings.sortBy
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
         : undefined,
@@ -65,7 +71,12 @@ export default function useShops() {
     sortSettings: SortSettings,
   ) => {
     void refetchShops({
-      filters: convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
+      filters: {
+        type: {
+          eq: UserType.Shop,
+        },
+        ...convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
+      },
       sort: sortSettings.sortBy
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
         : undefined,
@@ -78,11 +89,11 @@ export default function useShops() {
 
   // Result handlers
   onResultShops(({ data, loading }) => {
-    if (!loading && data?.shops) {
-      shopsStore.setTotal(data.shops_connection.pageInfo.total);
+    if (!loading && data?.usersPermissionsUsers) {
+      shopsStore.setTotal(data.usersPermissionsUsers_connection.pageInfo.total);
       // Append new data for load more
-      if (data.shops.length > 0) {
-        shopsStore.setShops([...shopsStore.getShops, ...data.shops]);
+      if (data.usersPermissionsUsers.length > 0) {
+        shopsStore.setShops([...shopsStore.getShops, ...data.usersPermissionsUsers]);
         shopsStore.setPage(shopsStore.getPage + 1);
       } else {
         shopsStore.setHasMore(false);

@@ -6,30 +6,25 @@
 import { onMounted, watch } from 'vue';
 import useUser from 'src/modules/useUser';
 import useTokens from 'src/modules/useTokens';
-import { useProfileStore } from 'src/stores/profile';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 
 const { fetchMe, user } = useUser();
 const { getStoredTokens } = useTokens();
-const profileStore = useProfileStore();
 const { fetchInvites } = useInviteCompos();
 const { fetchNotifies } = useNotifyCompos();
 
-const fetchCurrentUser = async (): Promise<void> => {
+const fetchCurrentUser = (): void => {
   const tokens = getStoredTokens();
   if (tokens?.accessToken) {
-    const result = await fetchMe();
-    if (result) {
-      profileStore.setUserProfile(result);
-    }
+    void fetchMe();
   }
 };
 
 watch(
   user,
   (newValue) => {
-    if (newValue?.profile?.documentId) {
+    if (newValue?.documentId) {
       void fetchInvites();
       void fetchNotifies();
     }

@@ -173,21 +173,19 @@ import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
-import { useProfileStore } from 'src/stores/profile';
 import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_ARTIST_MUTATION } from 'src/apollo/types/mutations/artist';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 
-const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
-const { fetchMe } = useUser();
+const { fetchMe, user } = useUser();
 
 // Setup mutation
-const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_ARTIST_MUTATION);
+const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
@@ -259,8 +257,7 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
 const saveChanges = async () => {
   saveLoading.value = true;
   try {
-    const artistProfile = profileStore.getArtistProfile;
-    if (!artistProfile?.documentId) {
+    if (!user.value?.documentId) {
       throw new Error('Artist profile not found');
     }
 
@@ -269,8 +266,8 @@ const saveChanges = async () => {
 
     const data = prepareDataForMutation(uploadedFiles);
 
-    void updateArtist({
-      documentId: artistProfile.documentId,
+    await updateArtist({
+      id: user.value.id,
       data,
     });
   } catch (error) {
@@ -288,13 +285,8 @@ onDoneUpdateArtist((result) => {
     return;
   }
 
-  if (result.data?.updateArtist) {
-    void (async () => {
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
-    })();
+  if (result.data?.updateUsersPermissionsUser) {
+    void fetchMe();
     Object.assign(artistDataOriginal, { ...artistData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
@@ -303,7 +295,7 @@ onDoneUpdateArtist((result) => {
 });
 
 watch(
-  () => profileStore.getArtistProfile,
+  user,
   (profile) => {
     Object.assign(artistData, {
       ...profile,

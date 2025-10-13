@@ -13,7 +13,6 @@ import {
 import { connect } from 'src/api/auth';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
-import { useProfileStore } from 'src/stores/profile';
 
 export type GoogleSignInResult =
   | {
@@ -106,7 +105,6 @@ const DEFAULT_SUCCESS_REDIRECT = '/profile';
 export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {
   const { loadingRef, fallbackMessage = DEFAULT_FALLBACK_MESSAGE, successRedirect = DEFAULT_SUCCESS_REDIRECT } = options;
   const { fetchMe } = useUser();
-  const profileStore = useProfileStore();
   const { showSuccess, showError } = useNotify();
   const router = useRouter();
 
@@ -137,10 +135,7 @@ export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {
       const url = `/api/auth/google/callback?access_token=${encodeURIComponent(accessToken)}&provider=google`;
       await connect(url);
 
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
+      void fetchMe();
 
       showSuccess('Login successful');
       setTimeout(() => {

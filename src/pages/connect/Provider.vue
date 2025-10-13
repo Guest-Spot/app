@@ -31,13 +31,11 @@ import { useRoute, useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
 import { AxiosError } from 'axios';
-import { useProfileStore } from 'src/stores/profile';
 
 const { showSuccess } = useNotify();
 const router = useRouter();
 const route = useRoute();
 const { fetchMe } = useUser();
-const profileStore = useProfileStore();
 
 defineOptions({
   name: 'ConnectProvider',
@@ -53,10 +51,7 @@ onBeforeMount(async () => {
     try {
       const url = `/api/auth/${route.params.provider as string}/callback?access_token=${String(access_token.value || '')}&provider=${route.params.provider as string}`;
       await connect(url);
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
+      void fetchMe();
       showSuccess('Login successful');
       setTimeout(() => {
         void router.push('/profile');

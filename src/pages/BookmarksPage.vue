@@ -62,8 +62,7 @@ import { ref } from 'vue';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import { useFavorites } from '../modules/useFavorites';
 import { useRouter } from 'vue-router';
-import type { IShop } from '../interfaces/shop';
-import type { IArtist } from '../interfaces/artist';
+import type { IUser } from '../interfaces/user';
 import NoResult from 'src/components/NoResult.vue';
 
 // Tab management
@@ -75,11 +74,11 @@ const { favoriteShops, favoriteArtists } = useFavorites();
 const router = useRouter();
 
 // Methods
-const selectShop = (shop: IShop) => {
+const selectShop = (shop: IUser) => {
   void router.push(`/shop/${shop.documentId}`);
 };
 
-const selectArtist = (artist: IArtist) => {
+const selectArtist = (artist: IUser) => {
   void router.push(`/artist/${artist.documentId}`);
 };
 
