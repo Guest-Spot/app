@@ -62,11 +62,11 @@ const props = defineProps({
   },
   swipeThreshold: {
     type: Number,
-    default: 160, // Minimum vertical distance in pixels for swipe (увеличено в 2 раза)
+    default: 240, // Minimum vertical distance in pixels for swipe (увеличено для меньшей чувствительности)
   },
   maxStartPosition: {
     type: Number,
-    default: 100, // Maximum Y position where swipe can start (from top of screen)
+    default: Number.POSITIVE_INFINITY, // Maximum Y position where swipe can start (defaults to full screen)
   },
   minVerticalRatio: {
     type: Number,
@@ -81,6 +81,22 @@ const touchStart = reactive<TouchPosition>({ x: 0, y: 0 })
 const touchCurrent = reactive<TouchPosition>({ x: 0, y: 0 })
 const touchStartTime = ref(0)
 const isSwiping = ref(false)
+
+const pageHasScroll = () => {
+  const root = document.querySelector('#q-app')
+
+  if (!root) {
+    return false
+  }
+
+  const scrollOffset = Math.max(
+    window.scrollY ?? 0,
+    window.pageYOffset ?? 0,
+    root.scrollTop ?? 0
+  )
+
+  return scrollOffset > 0
+}
 
 // Computed properties for pull indicator animation
 const pullOpacity = computed(() => {
@@ -108,10 +124,18 @@ const pullVerticalOffset = computed(() => {
 
 const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1 || isReloading.value) return
+  if (pageHasScroll()) {
+    isSwiping.value = false
+    isPulling.value = false
+    pullDistance.value = 0
+    return
+  }
 
   const touch = event.touches[0]
   touchStart.x = touch.clientX
   touchStart.y = touch.clientY
+  touchCurrent.x = touch.clientX
+  touchCurrent.y = touch.clientY
   touchStartTime.value = Date.now()
   isSwiping.value = true
 
@@ -122,6 +146,12 @@ const handleTouchStart = (event: TouchEvent) => {
 
 const handleTouchMove = (event: TouchEvent) => {
   if (!isSwiping.value || event.touches.length !== 1 || isReloading.value) return
+  if (pageHasScroll()) {
+    isSwiping.value = false
+    isPulling.value = false
+    pullDistance.value = 0
+    return
+  }
 
   const touch = event.touches[0]
   touchCurrent.x = touch.clientX
@@ -154,6 +184,14 @@ const handleTouchMove = (event: TouchEvent) => {
 
 const handleTouchEnd = () => {
   if (!isSwiping.value) return
+  if (pageHasScroll()) {
+    isSwiping.value = false
+    isPulling.value = false
+    pullDistance.value = 0
+    touchCurrent.x = touchStart.x
+    touchCurrent.y = touchStart.y
+    return
+  }
 
   isSwiping.value = false
 
@@ -186,6 +224,10 @@ const handleTouchEnd = () => {
     isPulling.value = false
     pullDistance.value = 0
   }
+
+  // Sync current touch position with start to avoid stale deltas on next tap
+  touchCurrent.x = touchStart.x
+  touchCurrent.y = touchStart.y
 }
 
 const triggerReload = () => {
@@ -205,7 +247,7 @@ const triggerReload = () => {
 .pull-to-refresh {
   position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   touch-action: pan-y; // Allow vertical scrolling but optimize for swipe detection
 }
 
