@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
-      <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
+      <q-btn round unelevated text-color="grey-6" @click="goBack" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
       <h2 class="text-h5 q-my-none">Sign in to <span class="text-primary">your account</span></h2>
@@ -161,6 +161,14 @@ const googleLoading = ref(false);
 const { initializeGoogleAuth, handleGoogleSignIn } = useGoogleAuth({
   loadingRef: googleLoading,
 });
+
+const goBack = () => {
+  if (router.currentRoute.value.path === '/sign-in') {
+    void router.push('/');
+  } else {
+    void router.back();
+  }
+};
 
 const handleLogin = async () => {
   loading.value = true;

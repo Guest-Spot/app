@@ -23,6 +23,7 @@
                 :rules="currentPasswordRules"
                 class="full-width"
                 bg-color="transparent"
+                tabindex="1"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" color="grey-6" />
@@ -51,6 +52,7 @@
                 :rules="passwordRules"
                 class="full-width"
                 bg-color="transparent"
+                tabindex="2"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" color="grey-6" />
@@ -80,6 +82,7 @@
                 :rules="confirmPasswordRules"
                 class="full-width"
                 bg-color="transparent"
+                tabindex="3"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" color="grey-6" />
@@ -104,6 +107,7 @@
                 :loading="loading"
                 rounded
                 unelevated
+                tabindex="4"
               >
                 Change password
               </q-btn>
@@ -119,10 +123,10 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
-import type { ApolloError } from '@apollo/client/errors';
 import { CHANGE_PASSWORD_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
+import getMutationErrorMessage from 'src/helpers/getMutationErrorMessage';
 
 type ChangePasswordResponse = {
   changePassword: {
@@ -173,29 +177,28 @@ const handleChangePassword = async () => {
 
   loading.value = true;
 
+
+  const fallbackMessage = 'Failed to change password. Please try again.';
+
   try {
-    const { data } = await changePasswordMutation({
+    const result = await changePasswordMutation({
       currentPassword: form.value.currentPassword,
       password: form.value.password,
       passwordConfirmation: form.value.confirmPassword,
     });
 
-    if (!data?.changePassword?.jwt) {
-      throw new Error('Unable to change password');
+    if (!result?.errors?.length) {
+      await logout();
+      showSuccess('Password successfully changed');
+      form.value.password = '';
+      form.value.confirmPassword = '';
+      form.value.currentPassword = '';
+      void router.push('/sign-in');
+    } else {
+      showError(getMutationErrorMessage(result.errors, fallbackMessage));
     }
-
-    await logout();
-    showSuccess('Password successfully changed');
-    form.value.password = '';
-    form.value.confirmPassword = '';
-    form.value.currentPassword = '';
-    void router.push('/sign-in');
   } catch (error) {
-    const parsedError =
-      error instanceof Error
-        ? (error as ApolloError).graphQLErrors?.[0]?.message || error.message
-        : 'Failed to change password. Please try again.';
-    showError(parsedError);
+    showError(getMutationErrorMessage(error, fallbackMessage));
   } finally {
     loading.value = false;
   }

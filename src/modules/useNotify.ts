@@ -25,7 +25,7 @@ const useNotify = () => {
       type: 'negative',
       message,
       position: 'top',
-      timeout: 2000,
+      timeout: 3000,
       progress: true,
       actions: [
         {
