@@ -152,7 +152,7 @@ onUpdateInviteSuccess(() => {
       eq: InviteReaction.Pending,
     },
     recipient: {
-      eq: user.value?.profile?.documentId,
+      eq: user.value?.documentId,
     },
   });
   updatingInviteDocumentId.value = null;

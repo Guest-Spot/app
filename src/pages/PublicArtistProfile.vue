@@ -35,7 +35,7 @@
             <q-icon v-else name="person" size="58px" color="grey-9" />
           </q-avatar>
           <div class="flex column items-center full-width">
-            <template v-if="artistData.name || artistData.status">
+            <template v-if="artistData.name">
               <span class="full-name text-h6">{{ artistData.name }}</span>
             </template>
             <template v-else>
@@ -103,8 +103,8 @@ import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
 import { CreateBookingDialog } from 'src/components/Dialogs';
-import type { IArtist, IGraphQLArtistResult } from 'src/interfaces/artist';
-import { ARTIST_QUERY } from 'src/apollo/types/artist';
+import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
+import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
 import type { IGraphQLTripsResult } from 'src/interfaces/trip';
 import { TRIPS_QUERY } from 'src/apollo/types/trip';
@@ -113,13 +113,14 @@ import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
+import { UserType } from 'src/interfaces/enums';
 
 const {
   load: loadArtist,
   onError: onErrorArtist,
   onResult: onResultArtist,
   loading: isLoadingArtist,
-} = useLazyQuery<IGraphQLArtistResult>(ARTIST_QUERY);
+} = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 const {
   load: loadTrips,
   onError: onErrorTrips,
@@ -143,12 +144,11 @@ const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';
 
-const artistData = ref<IArtist>({
+const artistData = ref<IUser>({
   documentId: '',
   createdAt: '',
   updatedAt: '',
   name: '',
-  status: '',
   description: '',
   avatar: {
     url: '',
@@ -156,13 +156,15 @@ const artistData = ref<IArtist>({
   },
   phone: '',
   email: '',
-  links: [],
-  location: {
-    city: '',
-    address: '',
-    latitude: '',
-    longitude: '',
-  },
+  link: '',
+  city: '',
+  address: '',
+  experience: 0,
+  openingHours: [],
+  pictures: [],
+  confirmed: false,
+  blocked: false,
+  type: UserType.Artist,
 });
 
 // Portfolio data
@@ -206,20 +208,21 @@ const toggleFavorite = () => {
     updatedAt: artistData.value.updatedAt,
     name: artistData.value.name,
     description: artistData.value.description,
-    status: artistData.value.status || '',
+    experience: artistData.value.experience || 0,
     avatar: artistData.value.avatar || {
       url: '',
       id: '',
     },
     phone: artistData.value.phone || '',
     email: artistData.value.email || '',
-    links: artistData.value.links || [],
-    location: artistData.value.location || {
-      city: '',
-      address: '',
-      latitude: '',
-      longitude: '',
-    },
+    link: artistData.value.link || '',
+    city: artistData.value.city || '',
+    address: artistData.value.address || '',
+    openingHours: artistData.value.openingHours || [],
+    pictures: artistData.value.pictures || [],
+    confirmed: artistData.value.confirmed || false,
+    blocked: artistData.value.blocked || false,
+    type: artistData.value.type || UserType.Artist,
   });
 };
 
@@ -273,8 +276,8 @@ const loadTripsData = () => {
 };
 
 onResultArtist((result) => {
-  if (result.data?.artist) {
-    artistData.value = result.data.artist;
+  if (result.data?.usersPermissionsUser) {
+    artistData.value = result.data.usersPermissionsUser;
   }
 });
 

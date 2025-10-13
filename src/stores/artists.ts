@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IUser } from 'src/interfaces/user';
 
 export const useArtistsStore = defineStore('artists', {
   state: () => ({
-    artists: [] as IArtist[],
+    artists: [] as IUser[],
     total: 0,
     page: 1,
     pageSize: 15,
@@ -17,7 +17,7 @@ export const useArtistsStore = defineStore('artists', {
     getHasMore: (state) => state.hasMore,
   },
   actions: {
-    setArtists(artists: IArtist[]) {
+    setArtists(artists: IUser[]) {
       this.artists = artists;
     },
     setTotal(total: number) {

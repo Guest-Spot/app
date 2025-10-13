@@ -110,7 +110,6 @@ import { useRoute } from 'vue-router';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IGraphQLUserResult, IGraphQLUserChildsResult } from 'src/interfaces/user';
 import type { IUser } from 'src/interfaces/user';
-import type { IArtist } from 'src/interfaces/artist';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
@@ -180,7 +179,7 @@ const shopData = ref<IUser>({
 });
 
 // Artists data
-const artists = ref<IArtist[]>([]);
+const artists = ref<IUser[]>([]);
 
 // Portfolio data
 const portfolioItems = ref<IPortfolio[]>([]);

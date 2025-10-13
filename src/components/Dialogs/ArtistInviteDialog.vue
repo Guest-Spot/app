@@ -99,8 +99,8 @@
 import { ref, watch, computed, onMounted } from 'vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { ArtistCard, SearchHeader } from 'src/components/SearchPage';
-import { ARTISTS_QUERY } from 'src/apollo/types/artist';
-import type { IArtist, IGraphQLArtistsResult } from 'src/interfaces/artist';
+import { USERS_QUERY } from 'src/apollo/types/user';
+import type { IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import InfiniteScrollWrapper from '../InfiniteScrollWrapper.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
@@ -128,14 +128,14 @@ interface Props {
 }
 
 interface LocalArtist {
-  artist: IArtist;
+  artist: IUser;
   invited: boolean;
   pending: boolean;
 }
 
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'artistInvited', invite: IInvite, artist: IArtist): void;
+  (e: 'artistInvited', invite: IInvite, artist: IUser): void;
 }
 
 const props = defineProps<Props>();
@@ -177,7 +177,7 @@ const {
   loading: isLoadingQuery,
   onResult: onArtistsResult,
   onError: onArtistsError,
-} = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 // Cities query for filters
 const {
@@ -244,7 +244,7 @@ const getInviteBtnIcon = (artist: LocalArtist) => {
   return 'person_add';
 };
 
-const sendInvitation = (artist: IArtist) => {
+const sendInvitation = (artist: IUser) => {
   if (!user.value?.documentId) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
@@ -319,7 +319,7 @@ const refetchArtistsData = () => {
   loadArtistsList(true);
 };
 
-const selectArtist = (artist: IArtist) => {
+const selectArtist = (artist: IUser) => {
   // Optional: handle artist selection if needed
   console.log('Artist selected:', artist);
 };

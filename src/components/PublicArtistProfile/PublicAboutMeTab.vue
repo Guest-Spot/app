@@ -15,10 +15,10 @@
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType } from 'src/interfaces/enums';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IUser } from 'src/interfaces/user';
 
 interface Props {
-  artistData: IArtist;
+  artistData: IUser;
 }
 
 const props = defineProps<Props>();

@@ -24,7 +24,7 @@ const useNotifyCompos = () => {
         filters: {
           ...(filters || {}),
           recipientDocumentId: {
-            eq: userStore.getUser?.profile?.documentId,
+            eq: userStore.getUser?.documentId,
           },
         },
         sort: ['createdAt:desc'],

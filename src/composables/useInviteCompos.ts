@@ -1,5 +1,4 @@
 import { computed, ref } from 'vue';
-import type { IArtist } from 'src/interfaces/artist';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import { useMutation, useLazyQuery } from '@vue/apollo-composable';
@@ -8,7 +7,7 @@ import {
   DELETE_INVITE_MUTATION,
   INVITES_QUERY,
 } from 'src/apollo/types/invite';
-import type { IShop } from 'src/interfaces/shop';
+import type { IUser } from 'src/interfaces/user';
 import { InviteReaction, InviteType } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
 import { useUserStore } from 'src/stores/user';
@@ -40,13 +39,13 @@ const useInviteCompos = () => {
     refetch: refetchInvites,
   } = useLazyQuery(INVITES_QUERY);
 
-  const shopArtists = ref<IArtist[]>([]);
+  const shopArtists = ref<IUser[]>([]);
 
   const receivedPendingInvites = computed(() =>
     invitesStore.getInvites.filter(
       (invite) =>
         invite.reaction === InviteReaction.Pending &&
-        invite.recipient === userStore.getUser?.profile?.documentId,
+        invite.recipient === userStore.getUser?.documentId,
     ),
   );
 
@@ -54,7 +53,7 @@ const useInviteCompos = () => {
     invitesStore.getInvites.filter(
       (invite) =>
         invite.reaction === InviteReaction.Pending &&
-        invite.sender === userStore.getUser?.profile?.documentId,
+        invite.sender === userStore.getUser?.documentId,
     ),
   );
 
@@ -67,12 +66,12 @@ const useInviteCompos = () => {
           or: [
             {
               sender: {
-                eq: userStore.getUser?.profile?.documentId,
+                eq: userStore.getUser?.documentId,
               },
             },
             {
               recipient: {
-                eq: userStore.getUser?.profile?.documentId,
+                eq: userStore.getUser?.documentId,
               },
             },
           ],
@@ -83,7 +82,7 @@ const useInviteCompos = () => {
     );
   };
 
-  const inviteArtist = (shop: IShop, artist: IArtist) => {
+  const inviteArtist = (shop: IUser, artist: IUser) => {
     $q.dialog({
       title: 'Invite Artist',
       message: `Are you sure you want to invite <strong class="text-primary">${artist.name}</strong> to your shop?`,
@@ -118,7 +117,7 @@ const useInviteCompos = () => {
     });
   };
 
-  const cancelInvite = (shop: IShop, artist: IArtist, inviteDocumentId: string) => {
+  const cancelInvite = (shop: IUser, artist: IUser, inviteDocumentId: string) => {
     $q.dialog({
       title: 'Cancel Invite',
       message: `Are you sure you want to cancel the invite for <strong class="text-primary">${artist.name}</strong>?`,

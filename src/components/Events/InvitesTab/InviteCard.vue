@@ -96,9 +96,9 @@ defineEmits<Emits>();
 const userStore = useUserStore();
 const { formatTimeAgo } = useDate();
 
-const isSent = computed(() => props.invite.sender === userStore.getUser?.profile?.documentId);
+const isSent = computed(() => props.invite.sender === userStore.getUser?.documentId);
 const isReceived = computed(
-  () => props.invite.recipient === userStore.getUser?.profile?.documentId,
+  () => props.invite.recipient === userStore.getUser?.documentId,
 );
 
 // Methods

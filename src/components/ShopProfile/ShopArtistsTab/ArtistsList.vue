@@ -42,11 +42,11 @@
 
 <script setup lang="ts">
 import { ArtistCard } from 'src/components/SearchPage/index';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IUser } from 'src/interfaces/user';
 import { NoResult } from 'src/components';
 
 interface Props {
-  artists: IArtist[];
+  artists: IUser[];
   removing?: boolean;
   noDataTitle?: string;
   noDataDescription?: string;
@@ -54,10 +54,10 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'select-artist', artist: IArtist): void;
+  (e: 'select-artist', artist: IUser): void;
   (e: 'select-favorite', artistDocumentId: string): void;
   (e: 'open-invite-dialog'): void;
-  (e: 'remove-artist', artist: IArtist): void;
+  (e: 'remove-artist', artist: IUser): void;
 }
 
 defineProps<Props>();

@@ -59,11 +59,11 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
-import { SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
-import { ARTISTS_QUERY } from 'src/apollo/types/artist';
+import { USER_CHILDS_QUERY } from 'src/apollo/types/user';
+import { USERS_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
-import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
-import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
+import type { IGraphQLUserChildsResult } from 'src/interfaces/user';
+import type { IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { ITab } from 'src/interfaces/tabs';
 import { TabsComp } from 'src/components';
 import useInviteCompos from 'src/composables/useInviteCompos';
@@ -83,13 +83,13 @@ const {
   load: loadShopArtists,
   onResult: onResultShopArtists,
   onError: onErrorShopArtists,
-} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUserChildsResult>(USER_CHILDS_QUERY);
 
 const {
   load: loadPendingShopArtists,
   onResult: onResultPendingShopArtists,
   onError: onErrorPendingShopArtists,
-} = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 const invitesStore = useInvitesStore();
 const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, sentPendingInvites } =
@@ -102,9 +102,9 @@ const { user } = useUser();
 const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
 
 // Artists data
-const artists = ref<IArtist[]>([]);
+const artists = ref<IUser[]>([]);
 const showAddArtistDialog = ref(false);
-const pendingArtists = ref<IArtist[]>([]);
+const pendingArtists = ref<IUser[]>([]);
 const documentIdForDelete = ref<string>('');
 const removingArtist = ref(false);
 
@@ -121,7 +121,7 @@ const setActiveFilter = (filter: ITab) => {
   activeFilter.value = filter;
 };
 
-const handleArtistClick = (artist: IArtist) => {
+const handleArtistClick = (artist: IUser) => {
   console.log('Artist clicked:', artist);
 };
 
@@ -129,12 +129,12 @@ const handleFavoriteToggle = (artistDocumentId: string) => {
   console.log('Favorite toggled for artist:', artistDocumentId);
 };
 
-const handleArtistInvited = (invite: IInvite, artist: IArtist) => {
+const handleArtistInvited = (invite: IInvite, artist: IUser) => {
   pendingArtists.value = [...pendingArtists.value, artist];
   invitesStore.setInvites([...invitesStore.getInvites, invite]);
 };
 
-const handleCancelInvite = (artist: IArtist) => {
+const handleCancelInvite = (artist: IUser) => {
   documentIdForDelete.value = artist.documentId;
   if (!user.value) {
     showError('Shop profile not found');
@@ -152,7 +152,7 @@ const handleCancelInvite = (artist: IArtist) => {
   void cancelInvite(user.value, artist, inviteDocumentId);
 };
 
-const handleRemoveArtist = (artist: IArtist) => {
+const handleRemoveArtist = (artist: IUser) => {
   if (!user.value) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
@@ -200,7 +200,7 @@ onErrorShopArtists((error) => {
 });
 
 onResultPendingShopArtists(({ data }) => {
-  pendingArtists.value = data?.artists || [];
+  pendingArtists.value = data?.usersPermissionsUsers || [];
 });
 
 onErrorPendingShopArtists((error) => {
