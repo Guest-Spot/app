@@ -106,40 +106,6 @@ export const USER_QUERY = gql`
   }
 `;
 
-export const USER_CHILDS_QUERY = gql`
-  query UserChilds($documentId: ID!) {
-    userChilds(documentId: $documentId) {
-      documentId
-      name
-      createdAt
-      updatedAt
-      type
-      pictures {
-        id
-        documentId
-        url
-      }
-      avatar {
-        id
-        documentId
-        url
-      }
-      description
-      city
-      address
-      link
-      phone
-      email
-      experience
-      openingHours {
-        day
-        start
-        end
-      }
-    }
-  }
-`;
-
 export const LOGIN_MUTATION = gql`
   mutation LoginWithRefresh($input: LoginInput!) {
     loginWithRefresh(input: $input) {

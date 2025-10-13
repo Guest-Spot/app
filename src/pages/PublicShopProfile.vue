@@ -71,7 +71,7 @@
           <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <PublicShopArtistsTab :artists="artists" :loading="isLoadingUserChilds" />
+          <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicShopPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
@@ -108,8 +108,7 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IBooking } from 'src/interfaces/booking';
-import type { IGraphQLUserResult, IGraphQLUserChildsResult } from 'src/interfaces/user';
-import type { IUser } from 'src/interfaces/user';
+import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
 import PublicShopArtistsTab from 'src/components/PublicShopProfile/PublicShopArtistsTab.vue';
@@ -121,7 +120,7 @@ import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue'
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
-import { USER_QUERY, USER_CHILDS_QUERY } from 'src/apollo/types/user';
+import { USER_QUERY, USERS_QUERY } from 'src/apollo/types/user';
 import { useShopsStore } from 'src/stores/shops';
 import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
@@ -139,11 +138,11 @@ const {
 } = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
 const {
-  load: loadUserChilds,
-  onError: onErrorUserChilds,
-  onResult: onResultUserChilds,
-  loading: isLoadingUserChilds,
-} = useLazyQuery<IGraphQLUserChildsResult>(USER_CHILDS_QUERY);
+  load: loadShopArtists,
+  onError: onErrorShopArtists,
+  onResult: onResultShopArtists,
+  loading: isLoadingShopArtists,
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 const {
   load: loadPortfolio,
@@ -251,13 +250,13 @@ onErrorShop((error) => {
 });
 
 // Handle shop artists query result
-onResultUserChilds((result) => {
-  if (result.data?.userChilds) {
-    artists.value = result.data.userChilds;
+onResultShopArtists((result) => {
+  if (result.data?.usersPermissionsUsers) {
+    artists.value = result.data.usersPermissionsUsers;
   }
 });
 
-onErrorUserChilds((error) => {
+onErrorShopArtists((error) => {
   console.error('Error fetching shop artists:', error);
 });
 
@@ -276,7 +275,8 @@ onBeforeMount(() => {
   void loadPortfolio(null, {
     filters: { ownerDocumentId: { eq: route.params.documentId as string } },
   });
-  void loadUserChilds(null, { documentId: route.params.documentId as string });
+  void loadShopArtists(null,
+    { filters: { documentId: { ne: route.params.documentId as string } } });
 });
 </script>
 

@@ -59,10 +59,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { ArtistInviteDialog } from 'src/components/Dialogs';
-import { USER_CHILDS_QUERY } from 'src/apollo/types/user';
 import { USERS_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
-import type { IGraphQLUserChildsResult } from 'src/interfaces/user';
 import type { IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { ITab } from 'src/interfaces/tabs';
 import { TabsComp } from 'src/components';
@@ -83,7 +81,7 @@ const {
   load: loadShopArtists,
   onResult: onResultShopArtists,
   onError: onErrorShopArtists,
-} = useLazyQuery<IGraphQLUserChildsResult>(USER_CHILDS_QUERY);
+} = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
 const {
   load: loadPendingShopArtists,

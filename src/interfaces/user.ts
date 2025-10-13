@@ -46,10 +46,6 @@ export interface IGraphQLUserResult {
   usersPermissionsUser: IUser;
 }
 
-export interface IGraphQLUserChildsResult {
-  userChilds: IUser[];
-}
-
 // Enhanced User interface for GraphQL
 export interface IUser {
   documentId: string;
