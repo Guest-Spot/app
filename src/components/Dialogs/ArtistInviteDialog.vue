@@ -280,10 +280,15 @@ const loadArtistsList = (resetData = false) => {
   // Only load if we don't have artists data yet or we're resetting
   if ((localArtists.value.length === 0 || resetData) && !isLoadingQuery.value) {
     void loadArtistsQuery(null, {
-      filters: convertFiltersToGraphQLFilters({
-        ...activeFilters.value,
-        name: searchQuery.value || null,
-      }),
+      filters: {
+        type: {
+          eq: UserType.Artist,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters.value,
+          name: searchQuery.value || null,
+        }),
+      },
       sort: sortSettings.value.sortBy
         ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
         : ['name:asc'],
@@ -299,10 +304,15 @@ const loadMoreArtists = () => {
   if (!isLoadingQuery.value && hasMoreArtists.value) {
     currentPage.value += 1;
     void loadArtistsQuery(null, {
-      filters: convertFiltersToGraphQLFilters({
-        ...activeFilters.value,
-        name: searchQuery.value || null,
-      }),
+      filters: {
+        type: {
+          eq: UserType.Artist,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters.value,
+          name: searchQuery.value || null,
+        }),
+      },
       sort: sortSettings.value.sortBy
         ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
         : ['name:asc'],
@@ -326,8 +336,8 @@ const selectArtist = (artist: IUser) => {
 
 // Handle query results
 onArtistsResult(({ data, loading }) => {
-  if (!loading && data?.artists) {
-    const newArtists = data.artists;
+  if (!loading && data?.usersPermissionsUsers) {
+    const newArtists = data.usersPermissionsUsers;
 
     const newLocalArtists = newArtists.map((artist) => ({
       artist,
@@ -338,7 +348,7 @@ onArtistsResult(({ data, loading }) => {
     localArtists.value = [...(localArtists.value || []), ...newLocalArtists];
 
     // Update pagination info
-    totalArtists.value = data.artists_connection?.pageInfo?.total || 0;
+    totalArtists.value = data.usersPermissionsUsers_connection?.pageInfo?.total || 0;
     hasMoreArtists.value = newArtists.length === PAGINATION_PAGE_SIZE;
   }
 });
