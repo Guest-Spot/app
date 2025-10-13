@@ -1,5 +1,6 @@
 import { ref, computed, watch } from 'vue';
 import type { IUser } from 'src/interfaces/user';
+import { useUserStore } from 'src/stores/user';
 
 const STORAGE_KEY_SHOPS = 'guestspot_favorite_shops';
 const STORAGE_KEY_ARTISTS = 'guestspot_favorite_artists';
@@ -8,37 +9,127 @@ const STORAGE_KEY_ARTISTS = 'guestspot_favorite_artists';
 const favoriteShops = ref<IUser[]>([]);
 const favoriteArtists = ref<IUser[]>([]);
 
-// Load favorites from localStorage on initialization
-const loadFavorites = () => {
-  try {
-    const shopsData = localStorage.getItem(STORAGE_KEY_SHOPS);
-    const artistsData = localStorage.getItem(STORAGE_KEY_ARTISTS);
+const userStore = useUserStore();
+const currentUserId = computed(() => userStore.getUser?.documentId || 'guest');
 
-    if (shopsData) {
-      favoriteShops.value = JSON.parse(shopsData);
+const favoritesShopsByUser = ref<Record<string, IUser[]>>({});
+const favoritesArtistsByUser = ref<Record<string, IUser[]>>({});
+
+let hasLoaded = false;
+let isSyncingFavorites = false;
+
+const cloneUsersList = (list: IUser[]): IUser[] => list.map((user) => ({ ...user })) as IUser[];
+
+const parseStoredFavorites = (
+  data: string | null,
+  fallbackUserId: string,
+): Record<string, IUser[]> => {
+  if (!data) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(data) as unknown;
+
+    if (Array.isArray(parsed)) {
+      return { [fallbackUserId]: parsed as IUser[] };
     }
 
-    if (artistsData) {
-      favoriteArtists.value = JSON.parse(artistsData);
+    if (parsed && typeof parsed === 'object') {
+      return parsed as Record<string, IUser[]>;
     }
   } catch (error) {
-    console.error('Error loading favorites from localStorage:', error);
+    console.error('Error parsing favorites from localStorage:', error);
   }
+
+  return {};
 };
 
-// Save favorites to localStorage
 const saveFavorites = () => {
   try {
-    localStorage.setItem(STORAGE_KEY_SHOPS, JSON.stringify(favoriteShops.value));
-    localStorage.setItem(STORAGE_KEY_ARTISTS, JSON.stringify(favoriteArtists.value));
+    localStorage.setItem(STORAGE_KEY_SHOPS, JSON.stringify(favoritesShopsByUser.value));
+    localStorage.setItem(STORAGE_KEY_ARTISTS, JSON.stringify(favoritesArtistsByUser.value));
   } catch (error) {
     console.error('Error saving favorites to localStorage:', error);
   }
 };
 
-// Watch for changes and save to localStorage
-watch(favoriteShops, saveFavorites, { deep: true });
-watch(favoriteArtists, saveFavorites, { deep: true });
+const syncFavoritesForCurrentUser = () => {
+  const userId = currentUserId.value;
+
+  const shops = favoritesShopsByUser.value[userId] || [];
+  const artists = favoritesArtistsByUser.value[userId] || [];
+
+  isSyncingFavorites = true;
+  favoriteShops.value = cloneUsersList(shops);
+  favoriteArtists.value = cloneUsersList(artists);
+
+  setTimeout(() => {
+    isSyncingFavorites = false;
+  }, 0);
+};
+
+const ensureFavoritesLoaded = () => {
+  if (!hasLoaded) {
+    const userId = currentUserId.value;
+
+    favoritesShopsByUser.value = parseStoredFavorites(localStorage.getItem(STORAGE_KEY_SHOPS), userId);
+    favoritesArtistsByUser.value = parseStoredFavorites(
+      localStorage.getItem(STORAGE_KEY_ARTISTS),
+      userId,
+    );
+
+    hasLoaded = true;
+  }
+
+  syncFavoritesForCurrentUser();
+};
+
+watch(
+  currentUserId,
+  () => {
+    ensureFavoritesLoaded();
+  },
+  { immediate: true },
+);
+
+watch(
+  favoriteShops,
+  (newShops) => {
+    if (!hasLoaded || isSyncingFavorites) {
+      return;
+    }
+
+    const userId = currentUserId.value;
+
+    favoritesShopsByUser.value = {
+      ...favoritesShopsByUser.value,
+      [userId]: cloneUsersList(newShops),
+    };
+
+    saveFavorites();
+  },
+  { deep: true },
+);
+
+watch(
+  favoriteArtists,
+  (newArtists) => {
+    if (!hasLoaded || isSyncingFavorites) {
+      return;
+    }
+
+    const userId = currentUserId.value;
+
+    favoritesArtistsByUser.value = {
+      ...favoritesArtistsByUser.value,
+      [userId]: cloneUsersList(newArtists),
+    };
+
+    saveFavorites();
+  },
+  { deep: true },
+);
 
 // Computed properties
 const totalFavorites = computed(() => favoriteShops.value.length + favoriteArtists.value.length);
@@ -102,9 +193,6 @@ const clearAllFavorites = () => {
   favoriteShops.value = [];
   favoriteArtists.value = [];
 };
-
-// Initialize on module load
-loadFavorites();
 
 export function useFavorites() {
   return {
