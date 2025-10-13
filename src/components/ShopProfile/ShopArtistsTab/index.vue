@@ -68,7 +68,7 @@ import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import type { IInvite } from 'src/interfaces/invite';
 import { useInvitesStore } from 'src/stores/invites';
-import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import { default as ArtistsList } from './ArtistsList.vue';
 import { default as PendingList } from './PendingList.vue';
 import { useQuasar } from 'quasar';
@@ -97,7 +97,7 @@ const $q = useQuasar();
 const { user } = useUser();
 
 // Setup mutation for removing artist
-const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_USER_MUTATION);
 
 // Artists data
 const artists = ref<IUser[]>([]);
@@ -181,7 +181,7 @@ const handleRemoveArtist = (artist: IUser) => {
       .map((a) => a.documentId);
 
     void updateShop({
-      documentId: user.value?.documentId,
+      id: user.value?.id,
       data: {
         artists: updatedArtists,
       },
@@ -190,7 +190,7 @@ const handleRemoveArtist = (artist: IUser) => {
 };
 
 onResultShopArtists(({ data }) => {
-  artists.value = data.shopArtists;
+  artists.value = data.usersPermissionsUsers;
 });
 
 onErrorShopArtists((error) => {
@@ -228,7 +228,7 @@ onDoneUpdateShop((result) => {
     return;
   }
 
-  if (result.data?.updateShop) {
+  if (result.data?.updateUsersPermissionsUser) {
     // Remove artist from local state
     const artistForRemove = artists.value.find(
       (artist) => artist.documentId === documentIdForDelete.value,

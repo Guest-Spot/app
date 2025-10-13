@@ -88,7 +88,7 @@ import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IGuestFormData } from 'src/interfaces/guest';
 import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_GUEST_MUTATION } from 'src/apollo/types/guest';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
@@ -99,7 +99,7 @@ const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
 
 // Setup mutation
-const { mutate: updateGuest, onDone: onDoneUpdateGuest } = useMutation(UPDATE_GUEST_MUTATION);
+const { mutate: updateGuest, onDone: onDoneUpdateGuest } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
@@ -175,8 +175,8 @@ const saveChanges = async () => {
 
     const data = prepareDataForMutation(uploadedFiles);
 
-    void updateGuest({
-      documentId: user.value.documentId,
+    await updateGuest({
+      id: user.value.id,
       data,
     });
   } catch (error) {
@@ -194,7 +194,7 @@ onDoneUpdateGuest((result) => {
     return;
   }
 
-  if (result.data?.updateGuest) {
+  if (result.data?.updateUsersPermissionsUser) {
     void fetchMe();
     Object.assign(guestDataOriginal, { ...guestData });
     imagesForUpload.value = [];

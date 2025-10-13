@@ -48,6 +48,7 @@ export interface IGraphQLUserResult {
 
 // Enhanced User interface for GraphQL
 export interface IUser {
+  id: string;
   documentId: string;
   email: string;
   username?: string;

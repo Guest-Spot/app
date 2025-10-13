@@ -166,7 +166,7 @@ import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
 import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
@@ -179,7 +179,7 @@ const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
 
 // Setup mutation
-const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
+const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
@@ -260,8 +260,8 @@ const saveChanges = async () => {
 
     const data = prepareDataForMutation(uploadedFiles);
 
-    void updateShop({
-      documentId: user.value.documentId,
+    await updateShop({
+      id: user.value.id,
       data,
     });
   } catch (error) {
@@ -279,7 +279,7 @@ onDoneUpdateShop((result) => {
     return;
   }
 
-  if (result.data?.updateShop) {
+  if (result.data?.updateUsersPermissionsUser) {
     void fetchMe();
     Object.assign(shopDataOriginal, { ...shopData });
     imagesForUpload.value = [];

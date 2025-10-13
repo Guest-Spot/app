@@ -3,6 +3,7 @@ import { gql } from '@apollo/client/core';
 export const ME_QUERY = gql`
   query Me {
     me {
+      id
       documentId
       username
       type
@@ -101,6 +102,42 @@ export const USER_QUERY = gql`
         day
         start
         end
+      }
+    }
+  }
+`;
+
+export const UPDATE_USER_MUTATION = gql`
+  mutation UpdateUsersPermissionsUser($id: ID!, $data: UsersPermissionsUserInput!) {
+    updateUsersPermissionsUser(id: $id, data: $data) {
+      data {
+        documentId
+        name
+        createdAt
+        updatedAt
+        type
+        pictures {
+          id
+          documentId
+          url
+        }
+        avatar {
+          id
+          documentId
+          url
+        }
+        description
+        city
+        address
+        link
+        phone
+        email
+        experience
+        openingHours {
+          day
+          start
+          end
+        }
       }
     }
   }

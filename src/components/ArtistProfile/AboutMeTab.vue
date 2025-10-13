@@ -174,7 +174,7 @@ import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
 import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_ARTIST_MUTATION } from 'src/apollo/types/mutations/artist';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
@@ -185,7 +185,7 @@ const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
 
 // Setup mutation
-const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_ARTIST_MUTATION);
+const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 // Form data
@@ -266,8 +266,8 @@ const saveChanges = async () => {
 
     const data = prepareDataForMutation(uploadedFiles);
 
-    void updateArtist({
-      documentId: user.value.documentId,
+    await updateArtist({
+      id: user.value.id,
       data,
     });
   } catch (error) {
@@ -285,7 +285,7 @@ onDoneUpdateArtist((result) => {
     return;
   }
 
-  if (result.data?.updateArtist) {
+  if (result.data?.updateUsersPermissionsUser) {
     void fetchMe();
     Object.assign(artistDataOriginal, { ...artistData });
     imagesForUpload.value = [];
