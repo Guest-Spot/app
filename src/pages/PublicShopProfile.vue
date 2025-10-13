@@ -175,6 +175,7 @@ const shopData = ref<IUser>({
   confirmed: false,
   blocked: false,
   type: UserType.Shop,
+  id: '',
 });
 
 // Artists data
@@ -276,7 +277,17 @@ onBeforeMount(() => {
     filters: { ownerDocumentId: { eq: route.params.documentId as string } },
   });
   void loadShopArtists(null,
-    { filters: { documentId: { ne: route.params.documentId as string } } });
+    {
+      filters: {
+        parent: {
+          documentId: {
+            eq: route.params.documentId as string,
+          },
+        },
+      },
+    },
+    { fetchPolicy: 'network-only' },
+  );
 });
 </script>
 

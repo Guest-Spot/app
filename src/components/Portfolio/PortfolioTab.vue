@@ -1,5 +1,5 @@
 <template>
-  <div class="portfolio-tab flex column q-gap-md">
+  <div class="portfolio-tab flex column q-gap-sm">
     <!-- Portfolio Header -->
     <div class="portfolio-header bg-block border-radius-lg">
       <h3 class="text-subtitle1 text-bold q-my-none">

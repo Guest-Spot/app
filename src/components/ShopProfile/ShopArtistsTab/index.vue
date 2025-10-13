@@ -265,7 +265,13 @@ watch(
       void loadShopArtists(
         null,
         {
-          documentId: newProfile.documentId,
+          filters: {
+            parent: {
+              documentId: {
+                eq: newProfile.documentId,
+              },
+            },
+          },
         },
         { fetchPolicy: 'network-only' },
       );

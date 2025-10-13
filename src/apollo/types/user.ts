@@ -36,7 +36,7 @@ export const ME_QUERY = gql`
 
 export const USERS_QUERY = gql`
   query UsersPermissionsUsers($filters: UsersPermissionsUserFiltersInput, $sort: [String], $pagination: PaginationArg) {
-    usersPermissionsUsers_connection {
+    usersPermissionsUsers_connection(filters: $filters, sort: $sort, pagination: $pagination) {
       pageInfo {
         total
       }
