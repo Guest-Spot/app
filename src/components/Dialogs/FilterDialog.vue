@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="isVisible" no-route-dismiss position="bottom" seamless>
+  <q-dialog v-model="isVisible" no-route-dismiss position="bottom">
     <q-card class="filter-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">Filters</div>

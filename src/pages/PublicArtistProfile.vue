@@ -14,8 +14,8 @@
         @click="toggleFavorite"
         class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
       >
-        <q-icon v-if="isFavorite" name="favorite" size="22px" color="red" />
-        <q-icon v-else name="favorite_border" size="22px" color="red" />
+        <q-icon v-if="isFavorite" name="bookmark" size="22px" color="red" />
+        <q-icon v-else name="bookmark_border" size="22px" color="red" />
       </q-btn>
       <!-- Profile Header Section -->
       <div class="profile-header q-mb-md">

@@ -32,7 +32,7 @@
           round
           flat
           dense
-          :icon="isFavorite ? 'favorite' : 'favorite_border'"
+          :icon="isFavorite ? 'bookmark' : 'bookmark_border'"
           :color="isFavorite ? 'red' : 'grey-6'"
           @click.stop="toggleFavorite"
         />
