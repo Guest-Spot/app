@@ -26,7 +26,7 @@
         <a v-else-if="item.type === InfoItemType.Link" target="_blank" :href="item.value">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
-        <span v-else class="info-value text-grey-6">{{ item.value }}</span>
+        <ExpandableText v-else :text="item.value" collapsible class="info-value text-grey-6" />
         <q-btn
           v-if="item.value && item.type === InfoItemType.Link"
           icon="content_copy"
@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import { copyToClipboard, useQuasar } from 'quasar';
 import { InfoItemType } from 'src/interfaces/enums';
+import ExpandableText from 'src/components/ExpandableText.vue';
 
 interface Props {
   title: string;
@@ -109,7 +110,7 @@ const copyLink = (value: string) => {
 
 .info-row {
   display: flex;
-  align-items: center;
+  align-items: start;
   margin-bottom: 16px;
   gap: 12px;
 

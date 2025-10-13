@@ -17,13 +17,15 @@
       <div class="artist-content q-pr-md">
         <div class="artist-name q-mb-sm">{{ artist.name }}</div>
         <div class="artist-info">
-          <div class="artist-location text-grey-6">
+          <div v-if="artist.city || artist.address" class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
-            <span>{{ artist.city }} {{ artist.address }}</span>
+            <span v-if="artist.city && artist.address">{{ artist.city }} {{ artist.address }}</span>
+            <span v-else-if="artist.city">{{ artist.city }}</span>
+            <span v-else>{{ artist.address }}</span>
           </div>
-          <div class="artist-experience text-grey-6">
+          <div v-if="artist.experience" class="artist-experience text-grey-6">
             <q-icon name="work" size="14px" />
-            <span>{{ artist.experience ? `${artist.experience}+ years` : 'n/a years' }}</span>
+            <span>{{ `${artist.experience}+ years` }}</span>
           </div>
         </div>
       </div>

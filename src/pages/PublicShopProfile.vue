@@ -36,31 +36,16 @@
         <!-- User Details -->
         <div class="container">
           <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
-            <div class="flex column items-center full-width">
-              <template v-if="shopData.name || shopData.description">
+            <div class="flex column items-start full-width">
+              <div v-if="shopData.name || shopData.description" class="flex column items-start q-gap-sm">
                 <span class="full-name text-h6">{{ shopData.name }}</span>
-                <span class="status text-body2 text-center text-grey-6">{{
-                  shopData.description
-                }}</span>
-              </template>
+                <ExpandableText collapsible :text="shopData.description" class="status text-body2 text-left text-grey-6" />
+              </div>
               <template v-else>
                 <q-skeleton type="text" width="50%" height="20px" />
                 <q-skeleton type="text" width="100%" height="20px" />
                 <q-skeleton type="text" width="100%" height="20px" />
               </template>
-            </div>
-            <div class="flex justify-center q-gap-sm full-width no-wrap">
-              <q-btn
-                class="bg-block"
-                text-color="primary"
-                unelevated
-                rounded
-                :disable="!shopData.documentId"
-                @click="openBookingDialog"
-              >
-                <span class="text-body2">Booking request</span>
-                <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
-              </q-btn>
             </div>
           </div>
         </div>
@@ -91,6 +76,21 @@
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicShopPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
         </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons flex justify-center q-gap-sm full-width no-wrap q-mt-lg">
+        <q-btn
+          class="bg-block"
+          text-color="primary"
+          unelevated
+          rounded
+          :disable="!shopData.documentId"
+          @click="openBookingDialog"
+        >
+          <span class="text-body2">Booking request</span>
+          <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+        </q-btn>
       </div>
     </div>
 
@@ -123,6 +123,7 @@ import { useLazyQuery } from '@vue/apollo-composable';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import { SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
 import { useShopsStore } from 'src/stores/shops';
+import ExpandableText from 'src/components/ExpandableText.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -339,5 +340,10 @@ onBeforeMount(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
+}
+
+.action-buttons {
+  position: sticky;
+  bottom: 98px;
 }
 </style>

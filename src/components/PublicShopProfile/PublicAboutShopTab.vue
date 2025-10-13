@@ -62,6 +62,8 @@ const workingHours = computed(() => {
     return orderA - orderB;
   });
 
+  console.log(times);
+
   return times.map((time) => ({
     label: OpeningHoursDays[time.day],
     value:
@@ -84,6 +86,8 @@ const links = computed(() =>
 <style scoped lang="scss">
 .opening-times-card {
   :deep(.info-row) {
+    align-items: center;
+
     &::before {
       content: '';
       display: block;

@@ -48,6 +48,8 @@ export default function useShops() {
         page: shopsStore.getPage,
         pageSize: shopsStore.getPageSize,
       },
+    }, {
+      fetchPolicy: 'network-only',
     });
   };
 

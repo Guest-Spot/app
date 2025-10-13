@@ -48,6 +48,8 @@ export default function useArtists() {
         page: artistsStore.getPage,
         pageSize: artistsStore.getPageSize,
       },
+    }, {
+      fetchPolicy: 'network-only',
     });
   };
 

@@ -24,15 +24,15 @@
         >
           <!-- Avatar -->
           <q-avatar size="150px" class="profile-avatar bg-block">
+            <q-skeleton v-if="isLoadingArtist" width="150px" height="150px" square />
             <q-img
-              v-if="artistData.avatar?.url"
+              v-else-if="artistData.avatar?.url"
               :src="artistData.avatar?.url"
               :ratio="1"
               spinner-color="dark"
               spinner-size="32px"
             />
-            <!-- <q-icon v-else name="person" size="60px" color="grey-6" /> -->
-            <q-skeleton v-else width="150px" height="150px" square />
+            <q-icon v-else name="person" size="58px" color="grey-9" />
           </q-avatar>
           <div class="flex column items-center full-width">
             <template v-if="artistData.name || artistData.status">
@@ -78,35 +78,6 @@
           <span class="text-body2">Booking request</span>
           <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
         </q-btn>
-        <q-btn
-          v-if="menuItems.length"
-          unelevated
-          round
-          class="bg-block"
-          text-color="primary"
-          icon="more_horiz"
-        >
-          <q-menu anchor="top end" self="bottom end" :offset="[0, 4]" style="width: 210px">
-            <q-list>
-              <q-item
-                clickable
-                v-ripple
-                v-for="item in menuItems"
-                :key="item.label"
-                :loading="!!item.loading"
-                :disable="!!item.loading"
-                @click="item.onClick"
-              >
-                <q-item-section>
-                  <q-item-label>{{ item.label }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-icon :name="item.icon" size="16px" color="primary" />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
       </div>
     </div>
 
@@ -140,15 +111,14 @@ import { TRIPS_QUERY } from 'src/apollo/types/trip';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
-import { useUserStore } from 'src/stores/user';
 import useInviteCompos from 'src/composables/useInviteCompos';
-import { useProfileStore } from 'src/stores/profile';
 import useNotify from 'src/modules/useNotify';
 
 const {
   load: loadArtist,
   onError: onErrorArtist,
   onResult: onResultArtist,
+  loading: isLoadingArtist,
 } = useLazyQuery<IGraphQLArtistResult>(ARTIST_QUERY);
 const {
   load: loadTrips,
@@ -166,9 +136,7 @@ const {
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const route = useRoute();
 const artistsStore = useArtistsStore();
-const userStore = useUserStore();
-const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useInviteCompos();
-const profileStore = useProfileStore();
+const { onInviteSuccess, onInviteError } = useInviteCompos();
 const { showError, showSuccess } = useNotify();
 
 const TAB_ABOUT = 'about';
@@ -205,26 +173,6 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
-
-const menuItems = computed(() =>
-  [
-    {
-      label: 'Invite to my shop',
-      icon: 'person_add',
-      visible: userStore.isShop,
-      loading: invitingArtist.value,
-      onClick: () => {
-        const shop = profileStore.shopProfile;
-        if (!shop) {
-          showError('Shop profile not found');
-          console.error('Shop profile not found');
-          return;
-        }
-        void inviteArtist(shop, artistData.value);
-      },
-    },
-  ].filter((item) => item.visible),
-);
 
 const TABS = computed<ITab[]>(() => [
   {
