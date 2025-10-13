@@ -9,19 +9,18 @@
       class="opening-times-card"
     />
     <InfoCard v-if="contacts.length" title="Contacts" icon="location_on" :data="contacts" />
-    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType, LinkType, OpeningHoursDays } from 'src/interfaces/enums';
-import type { IShop } from 'src/interfaces/shop';
+import { InfoItemType, OpeningHoursDays } from 'src/interfaces/enums';
+import type { IUser } from 'src/interfaces/user';
 import useDate from 'src/modules/useDate';
 
 interface Props {
-  shopData: IShop;
+  shopData: IUser;
   loading: boolean;
 }
 
@@ -71,16 +70,6 @@ const workingHours = computed(() => {
     className: time.start && time.end ? '' : 'opening-times--closed',
   }));
 });
-
-const links = computed(() =>
-  [
-    {
-      label: 'Instagram',
-      value: props.shopData.links?.find((link) => link.type === LinkType.Instagram)?.value || '',
-      type: InfoItemType.Link,
-    },
-  ].filter((link) => !!link.value),
-);
 </script>
 
 <style scoped lang="scss">

@@ -111,8 +111,9 @@ import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useHelpers from 'src/modules/useHelpers';
 import useNotify from 'src/modules/useNotify';
 import useInviteCompos from 'src/composables/useInviteCompos';
-import { useProfileStore } from 'src/stores/profile';
 import type { IInvite } from 'src/interfaces/invite';
+import { UserType } from 'src/interfaces/enums';
+import useUser from 'src/modules/useUser';
 
 // Sort settings interface
 interface SortSettings {
@@ -143,7 +144,7 @@ const { inviteArtist, invitingArtist, onInviteSuccess, onInviteError } = useInvi
 const citiesStore = useCitiesStore();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showSuccess, showError } = useNotify();
-const profileStore = useProfileStore();
+const { user } = useUser();
 
 const isVisible = ref(props.modelValue);
 const searchQuery = ref('');
@@ -155,6 +156,7 @@ const showSortDialog = ref(false);
 
 // Filters and sort state
 const activeFilters = ref<IFilters>({
+  type: UserType.Artist,
   city: null,
 });
 
@@ -243,13 +245,12 @@ const getInviteBtnIcon = (artist: LocalArtist) => {
 };
 
 const sendInvitation = (artist: IArtist) => {
-  const shop = profileStore.shopProfile;
-  if (!shop) {
+  if (!user.value?.documentId) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
   }
-  void inviteArtist(shop, artist);
+  void inviteArtist(user.value, artist);
 };
 
 const resetPagination = () => {
@@ -263,7 +264,7 @@ const closeDialog = () => {
   // Reset search when closing dialog
   searchQuery.value = '';
   // Reset filters and sort
-  activeFilters.value = { city: null };
+  activeFilters.value = { type: UserType.Artist, city: null };
   sortSettings.value = { sortBy: null, sortDirection: 'asc' };
   // Reset dialogs
   showSearchDialog.value = false;

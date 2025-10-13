@@ -3,35 +3,138 @@ import { gql } from '@apollo/client/core';
 export const ME_QUERY = gql`
   query Me {
     me {
-      id
       documentId
-      email
+      username
       type
-      profile {
+      name
+      pictures {
+        id
         documentId
-        name
-        pictures {
-          id
-          documentId
-          url
-        }
-        avatar {
-          id
-          documentId
-          url
-        }
-        description
-        city
-        address
-        link
-        phone
-        email
-        experience
-        openingHours {
-          day
-          start
-          end
-        }
+        url
+      }
+      avatar {
+        id
+        documentId
+        url
+      }
+      description
+      city
+      address
+      link
+      phone
+      email
+      experience
+      openingHours {
+        day
+        start
+        end
+      }
+    }
+  }
+`;
+
+export const USERS_QUERY = gql`
+  query UsersPermissionsUsers($filters: UsersPermissionsUserFiltersInput, $sort: [String], $pagination: PaginationArg) {
+    usersPermissionsUsers_connection {
+      pageInfo {
+        total
+      }
+    }
+    usersPermissionsUsers(filters: $filters, sort: $sort, pagination: $pagination) {
+      documentId
+      name
+      createdAt
+      updatedAt
+      type
+      pictures {
+        id
+        documentId
+        url
+      }
+      avatar {
+        id
+        documentId
+        url
+      }
+      description
+      city
+      address
+      link
+      phone
+      email
+      experience
+      openingHours {
+        day
+        start
+        end
+      }
+    }
+  }
+`;
+
+export const USER_QUERY = gql`
+  query UsersPermissionsUser($documentId: ID!) {
+    usersPermissionsUser(documentId: $documentId) {
+      documentId
+      name
+      createdAt
+      updatedAt
+      type
+      pictures {
+        id
+        documentId
+        url
+      }
+      avatar {
+        id
+        documentId
+        url
+      }
+      description
+      city
+      address
+      link
+      phone
+      email
+      experience
+      openingHours {
+        day
+        start
+        end
+      }
+    }
+  }
+`;
+
+export const USER_CHILDS_QUERY = gql`
+  query UserChilds($documentId: ID!) {
+    userChilds(documentId: $documentId) {
+      documentId
+      name
+      createdAt
+      updatedAt
+      type
+      pictures {
+        id
+        documentId
+        url
+      }
+      avatar {
+        id
+        documentId
+        url
+      }
+      description
+      city
+      address
+      link
+      phone
+      email
+      experience
+      openingHours {
+        day
+        start
+        end
       }
     }
   }

@@ -52,13 +52,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 import { NoResult, PortfolioCard } from 'src/components';
 import { useQuasar } from 'quasar';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import PortfolioDialog from 'src/components/Dialogs/PortfolioDialog.vue';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import {
@@ -68,7 +66,6 @@ import {
   DELETE_PORTFOLIO_MUTATION,
 } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
-import { useProfileStore } from 'src/stores/profile';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse, deleteFile } from 'src/api';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
@@ -84,9 +81,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Store and composables
-const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
-const { fetchMe } = useUser();
+const { fetchMe, user } = useUser();
 const $q = useQuasar();
 
 // Apollo queries and mutations
@@ -119,11 +115,6 @@ const workFoEdit = ref<IPortfolio>({
   description: '',
   pictures: [],
   tags: [],
-});
-
-// Computed properties
-const currentProfile = computed(() => {
-  return props.profileType === 'shop' ? profileStore.getShopProfile : profileStore.getArtistProfile;
 });
 
 const clearWorkFoEdit = () => {
@@ -210,7 +201,7 @@ const deleteWork = (portfolioId: string) => {
 
 // Load portfolios from API
 const loadPortfoliosData = () => {
-  const profile = currentProfile.value;
+  const profile = user.value;
   if (profile?.documentId) {
     void loadPortfolios(PORTFOLIOS_QUERY, {
       filters: {
@@ -225,7 +216,7 @@ const loadPortfoliosData = () => {
 // Handle portfolio creation/update
 const handleWorkConfirm = async (work: IPortfolioForm) => {
   try {
-    const profile = currentProfile.value;
+    const profile = user.value;
     if (!profile?.documentId) {
       showError(`${props.profileType === 'shop' ? 'Shop' : 'Artist'} profile not found`);
       return;
@@ -300,12 +291,7 @@ onDoneCreatePortfolio((result) => {
   if (result.data?.createPortfolio) {
     showSuccess('Portfolio created successfully');
     void refetchPortfolios();
-    void (async () => {
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
-    })();
+    void fetchMe();
     clearWorkFoEdit();
   }
 });
@@ -320,12 +306,7 @@ onDoneUpdatePortfolio((result) => {
   if (result.data?.updatePortfolio) {
     showSuccess('Portfolio updated successfully');
     void refetchPortfolios();
-    void (async () => {
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
-    })();
+    void fetchMe();
     clearWorkFoEdit();
   }
 });
@@ -346,7 +327,7 @@ onDoneDeletePortfolio((result) => {
 
 // Watch for profile changes
 watch(
-  () => currentProfile.value,
+  user,
   (profile) => {
     if (profile?.documentId) {
       loadPortfoliosData();

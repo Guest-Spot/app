@@ -64,7 +64,6 @@ import { ARTISTS_QUERY } from 'src/apollo/types/artist';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import type { IGraphQLShopArtistsResult } from 'src/interfaces/shop';
 import type { IGraphQLArtistsResult, IArtist } from 'src/interfaces/artist';
-import { useProfileStore } from 'src/stores/profile';
 import type { ITab } from 'src/interfaces/tabs';
 import { TabsComp } from 'src/components';
 import useInviteCompos from 'src/composables/useInviteCompos';
@@ -75,6 +74,7 @@ import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import { default as ArtistsList } from './ArtistsList.vue';
 import { default as PendingList } from './PendingList.vue';
 import { useQuasar } from 'quasar';
+import useUser from 'src/modules/useUser';
 
 const ACCEPTED_TAB = 'accepted';
 const PENDING_TAB = 'pending';
@@ -91,12 +91,12 @@ const {
   onError: onErrorPendingShopArtists,
 } = useLazyQuery<IGraphQLArtistsResult>(ARTISTS_QUERY);
 
-const profileStore = useProfileStore();
 const invitesStore = useInvitesStore();
 const { cancelInvite, onDeleteInviteSuccess, onDeleteInviteError, sentPendingInvites } =
   useInviteCompos();
 const { showError, showSuccess } = useNotify();
 const $q = useQuasar();
+const { user } = useUser();
 
 // Setup mutation for removing artist
 const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
@@ -135,9 +135,8 @@ const handleArtistInvited = (invite: IInvite, artist: IArtist) => {
 };
 
 const handleCancelInvite = (artist: IArtist) => {
-  const shop = profileStore.shopProfile;
   documentIdForDelete.value = artist.documentId;
-  if (!shop) {
+  if (!user.value) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
@@ -150,12 +149,11 @@ const handleCancelInvite = (artist: IArtist) => {
     console.error('Invite document ID not found');
     return;
   }
-  void cancelInvite(shop, artist, inviteDocumentId);
+  void cancelInvite(user.value, artist, inviteDocumentId);
 };
 
 const handleRemoveArtist = (artist: IArtist) => {
-  const shop = profileStore.shopProfile;
-  if (!shop) {
+  if (!user.value) {
     showError('Shop profile not found');
     console.error('Shop profile not found');
     return;
@@ -185,7 +183,7 @@ const handleRemoveArtist = (artist: IArtist) => {
       .map((a) => a.documentId);
 
     void updateShop({
-      documentId: shop.documentId,
+      documentId: user.value?.documentId,
       data: {
         artists: updatedArtists,
       },
@@ -263,7 +261,7 @@ watch(sentPendingInvites, (newPendingInvites) => {
 });
 
 watch(
-  () => profileStore.getShopProfile,
+  user,
   (newProfile) => {
     if (newProfile) {
       void loadShopArtists(

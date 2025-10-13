@@ -1,5 +1,4 @@
-import type { IArtist } from 'src/interfaces/artist';
-import type { IShop } from 'src/interfaces/shop';
+import type { IUser } from 'src/interfaces/user';
 
 type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
 type BookingType = 'shop-to-artist' | 'artist-to-shop';
@@ -17,8 +16,8 @@ export interface IBooking {
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
-  shop?: Partial<IShop>;
-  artist?: Partial<IArtist>;
+  shop?: Partial<IUser>;
+  artist?: Partial<IUser>;
   type: BookingType;
 }
 

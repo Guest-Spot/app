@@ -51,14 +51,14 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFavorites } from 'src/modules/useFavorites';
-import type { IArtist } from 'src/interfaces/artist';
+import type { IUser } from 'src/interfaces/user';
 
 interface Props {
-  artist: IArtist;
+  artist: IUser;
 }
 
 interface Emits {
-  (e: 'click', artist: IArtist): void;
+  (e: 'click', artist: IUser): void;
   (e: 'favorite', artistDocumentId: string): void;
 }
 

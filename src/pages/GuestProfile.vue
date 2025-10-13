@@ -3,7 +3,7 @@
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
-        :name="profile?.name || 'Guest'"
+        :name="user?.name || 'Guest'"
         @openPublicProfile="openPublicProfile"
       />
     </div>
@@ -15,18 +15,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import AboutMeTab from 'src/components/GuestProfile/AboutMeTab.vue';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
-import { useProfileStore } from 'src/stores/profile';
+import useUser from 'src/modules/useUser';
 import { useRouter } from 'vue-router';
 
-const profileStore = useProfileStore();
-const profile = computed(() => profileStore.getGuestProfile);
+const { user } = useUser();
 
 const router = useRouter();
 
 const openPublicProfile = () => {
-  void router.push(`/artist/${profile.value?.documentId}`);
+  void router.push(`/artist/${user.value?.documentId}`);
 };
 </script>

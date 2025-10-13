@@ -1,12 +1,12 @@
 import { ref, computed, watch } from 'vue';
-import type { IShop } from 'src/interfaces/shop';
+import type { IUser } from 'src/interfaces/user';
 import type { IArtist } from 'src/interfaces/artist';
 
 const STORAGE_KEY_SHOPS = 'guestspot_favorite_shops';
 const STORAGE_KEY_ARTISTS = 'guestspot_favorite_artists';
 
 // Reactive state
-const favoriteShops = ref<IShop[]>([]);
+const favoriteShops = ref<IUser[]>([]);
 const favoriteArtists = ref<IArtist[]>([]);
 
 // Load favorites from localStorage on initialization
@@ -45,8 +45,8 @@ watch(favoriteArtists, saveFavorites, { deep: true });
 const totalFavorites = computed(() => favoriteShops.value.length + favoriteArtists.value.length);
 
 // Methods
-const addShopToFavorites = (shop: IShop) => {
-  const favoriteShop: IShop = shop;
+const addShopToFavorites = (shop: IUser) => {
+  const favoriteShop: IUser = shop;
 
   if (!favoriteShops.value.find((s) => s.documentId === shop.documentId)) {
     favoriteShops.value.push(favoriteShop);
@@ -83,7 +83,7 @@ const isArtistFavorite = (artistId: string) => {
   return favoriteArtists.value.some((a) => a.documentId === artistId);
 };
 
-const toggleShopFavorite = (shop: IShop) => {
+const toggleShopFavorite = (shop: IUser) => {
   if (isShopFavorite(shop.documentId)) {
     removeShopFromFavorites(shop.documentId);
   } else {

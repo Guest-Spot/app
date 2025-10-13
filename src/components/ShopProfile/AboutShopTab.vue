@@ -123,6 +123,7 @@
 
     <!-- Working Hours -->
     <q-expansion-item
+      v-if="user?.openingHours"
       icon="schedule"
       label="Working Hours"
       header-class="expansion-header"
@@ -164,7 +165,6 @@ import { ref, defineAsyncComponent, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
-import { useProfileStore } from 'src/stores/profile';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_SHOP_MUTATION } from 'src/apollo/types/mutations/shop';
 import useNotify from 'src/modules/useNotify';
@@ -175,9 +175,8 @@ import useUser from 'src/modules/useUser';
 
 const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
 
-const profileStore = useProfileStore();
 const { showSuccess, showError } = useNotify();
-const { fetchMe } = useUser();
+const { fetchMe, user } = useUser();
 
 // Setup mutation
 const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_SHOP_MUTATION);
@@ -252,8 +251,7 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
 const saveChanges = async () => {
   saveLoading.value = true;
   try {
-    const shopProfile = profileStore.getShopProfile;
-    if (!shopProfile?.documentId) {
+    if (!user.value?.documentId) {
       throw new Error('Shop profile not found');
     }
 
@@ -263,7 +261,7 @@ const saveChanges = async () => {
     const data = prepareDataForMutation(uploadedFiles);
 
     void updateShop({
-      documentId: shopProfile.documentId,
+      documentId: user.value.documentId,
       data,
     });
   } catch (error) {
@@ -282,12 +280,7 @@ onDoneUpdateShop((result) => {
   }
 
   if (result.data?.updateShop) {
-    void (async () => {
-      const userData = await fetchMe();
-      if (userData) {
-        profileStore.setUserProfile(userData);
-      }
-    })();
+    void fetchMe();
     Object.assign(shopDataOriginal, { ...shopData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
@@ -296,7 +289,7 @@ onDoneUpdateShop((result) => {
 });
 
 watch(
-  () => profileStore.getShopProfile,
+  user,
   (profile) => {
     Object.assign(shopData, {
       ...profile,

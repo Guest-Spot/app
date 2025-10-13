@@ -1,6 +1,4 @@
 import type { IOpeningHours, ILink, IPicture } from 'src/interfaces/common';
-import type { IArtist } from 'src/interfaces/artist';
-import type { IShop } from 'src/interfaces/shop';
 import type { UserType } from 'src/interfaces/enums';
 
 export interface IProfile {
@@ -35,16 +33,43 @@ export interface IMeResponse {
   me: IUser;
 }
 
+export interface IGraphQLUsersResult {
+  usersPermissionsUsers: IUser[];
+  usersPermissionsUsers_connection: {
+    pageInfo: {
+      total: number;
+    };
+  };
+}
+
+export interface IGraphQLUserResult {
+  usersPermissionsUser: IUser;
+}
+
+export interface IGraphQLUserChildsResult {
+  userChilds: IUser[];
+}
+
 // Enhanced User interface for GraphQL
 export interface IUser {
-  id: string;
   documentId: string;
   email: string;
   username?: string;
   confirmed: boolean;
   blocked: boolean;
   type: UserType;
-  profile: IShop | IArtist | null;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  city?: string;
+  address?: string;
+  link?: string;
+  description: string;
+  pictures?: IPicture[];
+  avatar?: IPicture;
+  phone?: string;
+  openingHours?: IOpeningHours[];
+  experience?: number;
 }
 
 // Auth state interface

@@ -71,7 +71,7 @@
           <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
-          <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
+          <PublicShopArtistsTab :artists="artists" :loading="isLoadingUserChilds" />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicShopPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
@@ -108,7 +108,8 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import type { IBooking } from 'src/interfaces/booking';
-import type { IShop, IGraphQLShopResult, IGraphQLShopArtistsResult } from 'src/interfaces/shop';
+import type { IGraphQLUserResult, IGraphQLUserChildsResult } from 'src/interfaces/user';
+import type { IUser } from 'src/interfaces/user';
 import type { IArtist } from 'src/interfaces/artist';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -121,9 +122,10 @@ import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue'
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
-import { SHOP_QUERY, SHOP_ARTISTS_QUERY } from 'src/apollo/types/shop';
+import { USER_QUERY, USER_CHILDS_QUERY } from 'src/apollo/types/user';
 import { useShopsStore } from 'src/stores/shops';
 import ExpandableText from 'src/components/ExpandableText.vue';
+import { UserType } from 'src/interfaces/enums';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -135,14 +137,14 @@ const {
   onError: onErrorShop,
   onResult: onResultShop,
   loading: isLoadingShop,
-} = useLazyQuery<IGraphQLShopResult>(SHOP_QUERY);
+} = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
 const {
-  load: loadShopArtists,
-  onError: onErrorShopArtists,
-  onResult: onResultShopArtists,
-  loading: isLoadingShopArtists,
-} = useLazyQuery<IGraphQLShopArtistsResult>(SHOP_ARTISTS_QUERY);
+  load: loadUserChilds,
+  onError: onErrorUserChilds,
+  onResult: onResultUserChilds,
+  loading: isLoadingUserChilds,
+} = useLazyQuery<IGraphQLUserChildsResult>(USER_CHILDS_QUERY);
 
 const {
   load: loadPortfolio,
@@ -155,7 +157,7 @@ const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
 
-const shopData = ref<IShop>({
+const shopData = ref<IUser>({
   documentId: '',
   createdAt: '',
   updatedAt: '',
@@ -167,8 +169,14 @@ const shopData = ref<IShop>({
   phone: '',
   email: '',
   openingHours: [],
-  links: [],
   pictures: [],
+  avatar: {
+    url: '',
+    id: '',
+  },
+  confirmed: false,
+  blocked: false,
+  type: UserType.Shop,
 });
 
 // Artists data
@@ -234,8 +242,8 @@ const loadShopData = () => {
 
 // Handle shop query result
 onResultShop((result) => {
-  if (result.data?.shop) {
-    shopData.value = result.data.shop;
+  if (result.data?.usersPermissionsUser) {
+    shopData.value = result.data.usersPermissionsUser;
   }
 });
 
@@ -244,13 +252,13 @@ onErrorShop((error) => {
 });
 
 // Handle shop artists query result
-onResultShopArtists((result) => {
-  if (result.data?.shopArtists) {
-    artists.value = result.data.shopArtists;
+onResultUserChilds((result) => {
+  if (result.data?.userChilds) {
+    artists.value = result.data.userChilds;
   }
 });
 
-onErrorShopArtists((error) => {
+onErrorUserChilds((error) => {
   console.error('Error fetching shop artists:', error);
 });
 
@@ -269,7 +277,7 @@ onBeforeMount(() => {
   void loadPortfolio(null, {
     filters: { ownerDocumentId: { eq: route.params.documentId as string } },
   });
-  void loadShopArtists(null, { documentId: route.params.documentId as string });
+  void loadUserChilds(null, { documentId: route.params.documentId as string });
 });
 </script>
 

@@ -3,7 +3,7 @@
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
-        :name="profile?.name || 'Shop'"
+        :name="user?.name || 'Shop'"
         @openPublicProfile="openPublicProfile"
       />
     </div>
@@ -37,16 +37,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { AboutShopTab, ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp, PortfolioTab } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
-import { useProfileStore } from 'src/stores/profile';
 import { useRouter } from 'vue-router';
+import useUser from 'src/modules/useUser';
 
-const profileStore = useProfileStore();
-const profile = computed(() => profileStore.getShopProfile);
+const { user } = useUser();
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -76,7 +75,7 @@ const setActiveTab = (tab: ITab) => {
 };
 
 const openPublicProfile = () => {
-  void router.push(`/shop/${profile.value?.documentId}`);
+  void router.push(`/shop/${user.value?.documentId}`);
 };
 </script>
 
