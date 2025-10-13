@@ -19,11 +19,13 @@
     <div class="bookings-list">
       <!-- Sent Bookings -->
       <div v-if="activeFilter.tab === SENT_TAB" class="bookings-section">
-        <div v-if="!sentBookings.length" class="empty-state">
-          <q-icon name="send" size="48px" color="grey-6" />
-          <p class="empty-text">No sent requests to shops yet</p>
-          <p class="empty-subtext">When you send requests to shops, they will appear here</p>
-        </div>
+        <NoResults
+          v-if="!sentBookings.length"
+          icon="send"
+          title="No sent requests to shops yet"
+          description="When you send requests to shops, they will appear here"
+          no-btn
+        />
 
         <div v-else class="bookings-grid">
           <BookingCard
@@ -37,11 +39,13 @@
 
       <!-- Received Bookings -->
       <div v-if="activeFilter.tab === RECEIVED_TAB" class="bookings-section">
-        <div v-if="!receivedBookings.length" class="empty-state">
-          <q-icon name="inbox" size="48px" color="grey-6" />
-          <p class="empty-text">No invitations from shops yet</p>
-          <p class="empty-subtext">When shops send you invitations, they will appear here</p>
-        </div>
+        <NoResults
+          v-if="!receivedBookings.length"
+          icon="inbox"
+          title="No invitations from shops yet"
+          description="When shops send you invitations, they will appear here"
+          no-btn
+        />
 
         <div v-else class="bookings-grid">
           <BookingCard
@@ -58,12 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
 import BookingCard from 'src/components/Bookings/Artist/BookingCard.vue';
 import TabsComp from 'src/components/TabsComp.vue';
 import type { ITab } from 'src/interfaces/tabs';
+import NoResults from 'src/components/NoResult.vue';
 
 const $q = useQuasar();
 
@@ -172,93 +177,6 @@ const cancelBooking = (bookingDocumentId: string) => {
     }
   });
 };
-
-// Load mock data on mount
-onMounted(() => {
-  // Mock data for demonstration
-  bookings.value = [
-    {
-      documentId: '1',
-      title: 'Tattoo Session Request',
-      description: 'I would like to visit your shop and ...',
-      shopDocumentId: '1',
-      artistDocumentId: '2',
-      location: '123 Main St, Anytown, USA',
-      startTime: '10:00',
-      endTime: '14:00',
-      date: '2024-02-15',
-      status: 'pending',
-      createdAt: '2024-01-20T10:00:00Z',
-      updatedAt: '2024-01-20T10:00:00Z',
-      type: 'shop-to-artist',
-      shop: {
-        documentId: '1',
-        name: 'Tattoo Studio',
-        pictures: [{ url: 'shops/shop1.jpg', id: '1', index: 0 }],
-      },
-    },
-    {
-      documentId: '2',
-      title: 'Art Commission',
-      description: 'Need artwork for shop decoration',
-      shopDocumentId: '3',
-      artistDocumentId: '1',
-      location: '123 Main St, Anytown, USA',
-      startTime: '09:00',
-      endTime: '17:00',
-      date: '2024-02-20',
-      status: 'accepted',
-      createdAt: '2024-01-18T14:00:00Z',
-      updatedAt: '2024-01-19T09:00:00Z',
-      type: 'artist-to-shop',
-      shop: {
-        documentId: '3',
-        name: 'Art Gallery',
-        pictures: [{ url: 'shops/shop2.jpg', id: '2', index: 0 }],
-      },
-    },
-    {
-      documentId: '3',
-      title: 'Master Class',
-      description: 'Need a master class in tattooing',
-      shopDocumentId: '2',
-      artistDocumentId: '2',
-      location: '123 Main St, Anytown, USA',
-      startTime: '09:00',
-      endTime: '17:00',
-      date: '2024-02-20',
-      status: 'pending',
-      createdAt: '2024-01-18T14:00:00Z',
-      updatedAt: '2024-01-19T09:00:00Z',
-      type: 'artist-to-shop',
-      shop: {
-        documentId: '3',
-        name: 'Art Gallery',
-        pictures: [{ url: 'shops/shop3.webp', id: '3', index: 0 }],
-      },
-    },
-    {
-      documentId: '4',
-      title: 'Art Commission',
-      description: 'Need artwork for shop decoration',
-      shopDocumentId: '3',
-      artistDocumentId: '2',
-      location: '123 Main St, Anytown, USA',
-      startTime: '09:00',
-      endTime: '17:00',
-      date: '2024-02-20',
-      status: 'rejected',
-      createdAt: '2024-01-18T14:00:00Z',
-      updatedAt: '2024-01-19T09:00:00Z',
-      type: 'artist-to-shop',
-      shop: {
-        documentId: '5',
-        name: 'Tattoo Studio',
-        pictures: [{ url: 'shops/shop4.jpg', id: '4', index: 0 }],
-      },
-    },
-  ];
-});
 </script>
 
 <style scoped lang="scss">
