@@ -284,7 +284,7 @@ onDoneUpdateShop((result) => {
     Object.assign(shopDataOriginal, { ...shopData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
-    showSuccess('Shop successfully updated');
+    showSuccess('Your profile successfully updated');
   }
 });
 

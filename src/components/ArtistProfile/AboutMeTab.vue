@@ -281,7 +281,7 @@ const saveChanges = async () => {
 onDoneUpdateArtist((result) => {
   if (result.errors?.length) {
     console.error('Error updating artist:', result.errors);
-    showError('Error updating artist');
+    showError('Error updating profile');
     return;
   }
 
@@ -290,7 +290,7 @@ onDoneUpdateArtist((result) => {
     Object.assign(artistDataOriginal, { ...artistData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
-    showSuccess('Artist profile successfully updated');
+    showSuccess('Your profile successfully updated');
   }
 });
 

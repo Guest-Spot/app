@@ -190,7 +190,7 @@ const saveChanges = async () => {
 onDoneUpdateGuest((result) => {
   if (result.errors?.length) {
     console.error('Error updating guest:', result.errors);
-    showError('Error updating guest');
+    showError('Error updating profile');
     return;
   }
 
@@ -199,7 +199,7 @@ onDoneUpdateGuest((result) => {
     Object.assign(guestDataOriginal, { ...guestData });
     imagesForUpload.value = [];
     imagesForRemove.value = [];
-    showSuccess('Guest profile successfully updated');
+    showSuccess('Your profile successfully updated');
   }
 });
 
