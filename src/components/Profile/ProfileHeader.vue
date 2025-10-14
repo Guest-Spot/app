@@ -43,6 +43,14 @@
                 </div>
               </q-item-section>
             </q-item>
+            <q-item clickable v-close-popup @click="handleFeedback">
+              <q-item-section>
+                <div class="flex items-center q-gap-sm">
+                  <q-icon name="feedback" size="18px" />
+                  <q-item-label>Send feedback</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
             <q-item clickable @click="handleLogout" v-close-popup>
               <q-item-section>
                 <div class="flex items-center q-gap-sm text-negative">
@@ -126,5 +134,9 @@ const showNotificationDialog = () => {
   $q.dialog({
     component: NotificationDialog,
   });
+};
+
+const handleFeedback = () => {
+  void router.push('/feedback');
 };
 </script>
