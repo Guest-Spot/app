@@ -5,7 +5,7 @@
         >, <span class="text-primary">{{ name }}</span></template
       >
     </div>
-    <div class="flex items-center q-gap-sm">
+    <div class="flex items-center no-wrap q-gap-sm">
       <q-btn
         v-if="!isGuest"
         text-color="primary"

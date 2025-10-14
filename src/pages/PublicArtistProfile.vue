@@ -74,9 +74,8 @@
 
       <!-- Booking Button -->
       <div class="action-buttons flex justify-center q-mt-lg q-gap-sm">
-        <q-btn unelevated rounded class="bg-block" text-color="primary" @click="openBookingDialog">
-          <span class="text-body2">Booking request</span>
-          <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+        <q-btn round class="bg-block" size="lg" text-color="primary" @click="openBookingDialog">
+          <q-icon name="event" color="primary" />
         </q-btn>
       </div>
     </div>
@@ -165,6 +164,7 @@ const artistData = ref<IUser>({
   confirmed: false,
   blocked: false,
   type: UserType.Artist,
+  id: '',
 });
 
 // Portfolio data
@@ -223,6 +223,7 @@ const toggleFavorite = () => {
     confirmed: artistData.value.confirmed || false,
     blocked: artistData.value.blocked || false,
     type: artistData.value.type || UserType.Artist,
+    id: artistData.value.id || '',
   });
 };
 
@@ -387,7 +388,8 @@ onBeforeMount(() => {
 }
 
 .action-buttons {
-  position: sticky;
+  position: fixed;
   bottom: 98px;
+  right: 16px;
 }
 </style>

@@ -79,17 +79,16 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="action-buttons flex justify-center q-gap-sm full-width no-wrap q-mt-lg">
+      <div class="action-buttons flex justify-center q-gap-sm no-wrap q-mt-lg">
         <q-btn
           class="bg-block"
           text-color="primary"
-          unelevated
-          rounded
+          round
+          size="lg"
           :disable="!shopData.documentId"
           @click="openBookingDialog"
         >
-          <span class="text-body2">Booking request</span>
-          <q-icon name="send" size="16px" color="primary" class="q-ml-sm" />
+          <q-icon name="event" color="primary" />
         </q-btn>
       </div>
     </div>
@@ -361,7 +360,8 @@ onBeforeMount(() => {
 }
 
 .action-buttons {
-  position: sticky;
+  position: fixed;
+  right: 16px;
   bottom: 98px;
 }
 </style>

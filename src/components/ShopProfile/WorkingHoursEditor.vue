@@ -107,9 +107,10 @@ const dialogs = reactive(localHours.map(() => ({ start: false, end: false })));
 watch(
   () => props.modelValue,
   (val) => {
-    for (const item of val) {
+    for (const item of val || []) {
       const localItem = localHours.find((d) => d.day === item.day);
       if (localItem) {
+        localItem.id = item.id || '';
         localItem.start = item.start;
         localItem.end = item.end;
       }
