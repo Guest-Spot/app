@@ -62,7 +62,7 @@ const props = defineProps({
   },
   swipeThreshold: {
     type: Number,
-    default: 240, // Minimum vertical distance in pixels for swipe (увеличено для меньшей чувствительности)
+    default: 320, // Minimum vertical distance in pixels for swipe (ещё больше для меньшей чувствительности)
   },
   maxStartPosition: {
     type: Number,
@@ -247,7 +247,6 @@ const triggerReload = () => {
 .pull-to-refresh {
   position: relative;
   width: 100%;
-  min-height: 100vh;
   touch-action: pan-y; // Allow vertical scrolling but optimize for swipe detection
 }
 
