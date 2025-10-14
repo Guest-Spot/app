@@ -18,44 +18,6 @@
             class="flex column items-start q-gap-sm full-width"
           >
             <div class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">Your name</label>
-              <q-input
-                v-model="form.name"
-                type="text"
-                placeholder="Name"
-                outlined
-                rounded
-                size="lg"
-                :rules="nameRules"
-                class="full-width"
-                bg-color="transparent"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person" color="grey-6" />
-                </template>
-              </q-input>
-            </div>
-
-            <div class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">Email</label>
-              <q-input
-                v-model="form.email"
-                type="email"
-                placeholder="Email"
-                outlined
-                rounded
-                size="lg"
-                :rules="emailRules"
-                class="full-width"
-                bg-color="transparent"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="email" color="grey-6" />
-                </template>
-              </q-input>
-            </div>
-
-            <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Subject</label>
               <q-input
                 v-model="form.subject"
@@ -121,8 +83,12 @@ import { useMutation } from '@vue/apollo-composable';
 import { CREATE_FEEDBACK_MUTATION } from 'src/apollo/types/mutations/feedback';
 import useNotify from 'src/modules/useNotify';
 import getMutationErrorMessage from 'src/helpers/getMutationErrorMessage';
+import { useUserStore } from 'src/stores/user';
+import { useRouter } from 'vue-router';
 
 const { showSuccess, showError } = useNotify();
+const userStore = useUserStore();
+const router = useRouter();
 
 type CreateFeedbackVariables = {
   data: {
@@ -142,24 +108,12 @@ type CreateFeedbackResponse = {
 const formRef = ref<QForm | null>(null);
 
 const form = ref({
-  name: '',
-  email: '',
   subject: '',
   message: '',
 });
 
 const requiredRule = (field: string) => (val: string) =>
   val?.trim().length > 0 || `${field} is required`;
-
-const nameRules = [requiredRule('Name')];
-
-const emailRules = [
-  requiredRule('Email'),
-  (val: string) => {
-    const trimmed = val?.trim() ?? '';
-    return /.+@.+\..+/.test(trimmed) || 'Enter a valid email';
-  },
-];
 
 const messageRules = [requiredRule('Message')];
 const subjectRules = [requiredRule('Subject')];
@@ -175,8 +129,8 @@ const handleSubmit = async () => {
   try {
     const result = await createFeedbackMutation({
       data: {
-        name: form.value.name.trim(),
-        email: form.value.email.trim(),
+        name: userStore.getUser?.name || '',
+        email: userStore.getUser?.email || '',
         subject: form.value.subject.trim(),
         message: form.value.message.trim(),
       },
@@ -192,12 +146,11 @@ const handleSubmit = async () => {
       return;
     }
 
-    form.value.name = '';
-    form.value.email = '';
     form.value.subject = '';
     form.value.message = '';
     setTimeout(() => {
       formRef.value?.resetValidation();
+      void router.back();
     }, 0);
     showSuccess('Feedback submitted successfully');
   } catch (error) {
