@@ -8,6 +8,7 @@ export { default as NoResult } from './NoResult.vue';
 export { default as LoadingState } from './LoadingState.vue';
 export { default as ListHeader } from './ListHeader.vue';
 export { default as ExpandableText } from './ExpandableText.vue';
+export { default as InfoCard } from './InfoCard.vue';
 
 // Booking components
 export { default as BookingCalendar } from './Bookings/BookingCalendar.vue';

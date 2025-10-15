@@ -12,7 +12,7 @@
         :key="`${item.label}-${item.value}`"
         :class="item.className"
       >
-        <span class="info-label">{{ item.label }}:</span>
+        <span v-if="item.label" class="info-label">{{ item.label }}:</span>
         <a v-if="item.type === InfoItemType.Phone" target="_blank" :href="`tel:${item.value}`">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>

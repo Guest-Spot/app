@@ -138,8 +138,9 @@ A dedicated dialog component for displaying detailed booking information.
 
 - **Professional Layout**: Clean, organized layout following app design patterns
 - **Artist Card Integration**: Uses `ArtistCard` component for consistent artist display with avatar, name, location, and experience
-- **Session Information**: Date, time, and location details
-- **Tattoo Description**: Full description section
+- **InfoCard Components**: Uses `InfoCard` component for displaying session details and tattoo description in a structured, reusable format
+- **Session Information**: Date, time, and location details displayed in InfoCard
+- **Tattoo Description**: Full description section with expandable text support
 - **Status Badge**: Color-coded status indicator
 - **Interactive Artist**: Click on artist card to navigate to profile
 - **Responsive**: Adapts to different screen sizes

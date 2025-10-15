@@ -16,7 +16,7 @@
 
       <q-card-section v-if="booking" class="dialog-content">
         <!-- Title -->
-        <div class="title-section q-mb-md">
+        <div class="title-section flex no-wrap items-start justify-between q-gap-sm q-mb-md">
           <h3 class="booking-title">{{ booking.title }}</h3>
           <div
             class="status-badge text-caption text-bold"
@@ -27,41 +27,32 @@
         </div>
 
         <!-- Artist Info -->
-        <div v-if="artist" class="artist-section q-mb-md">
-          <div class="section-label text-caption text-grey-6 q-mb-sm">ARTIST</div>
+        <div v-if="artist" class="artist-section flex column q-gap-sm q-mb-md">
+          <div class="section-label text-grey-6 q-mb-sm">Artist</div>
           <ArtistCard
             :artist="artist"
             @click="viewArtistProfile"
           />
         </div>
 
-        <q-separator class="q-my-md" />
+        <div class="flex column q-gap-sm">
+          <div class="section-label text-grey-6 q-mb-sm">Session Details</div>
 
-        <!-- Session Details -->
-        <div class="details-section q-mb-md">
-          <div class="section-label text-caption text-grey-6 q-mb-sm">SESSION DETAILS</div>
-          <div class="details-list">
-            <div class="detail-item">
-              <q-icon name="event" size="20px" class="text-grey-6" />
-              <span class="text-weight-medium">{{ formatDate(booking.date) }}</span>
-            </div>
-            <div class="detail-item">
-              <q-icon name="schedule" size="20px" class="text-grey-6" />
-              <span>{{ formatTimeRange(booking.startTime, booking.endTime) }}</span>
-            </div>
-            <div v-if="booking.location" class="detail-item">
-              <q-icon name="location_on" size="20px" class="text-grey-6" />
-              <span>{{ booking.location }}</span>
-            </div>
-          </div>
-        </div>
+          <!-- Session Details -->
+          <InfoCard
+            title="Session Details"
+            icon="event"
+            :data="sessionDetailsData"
+            class="q-mb-sm"
+          />
 
-        <q-separator class="q-my-md" />
-
-        <!-- Tattoo Description -->
-        <div v-if="booking.description" class="description-section">
-          <div class="section-label text-caption text-grey-6 q-mb-sm">TATTOO DESCRIPTION</div>
-          <p class="description-text">{{ booking.description }}</p>
+          <!-- Tattoo Description -->
+          <InfoCard
+            v-if="booking.description"
+            title="Tattoo Description"
+            icon="description"
+            :data="descriptionData"
+          />
         </div>
       </q-card-section>
 
@@ -83,6 +74,7 @@ import { ref, watch, computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IUser } from 'src/interfaces/user';
 import { ArtistCard } from 'src/components/SearchPage';
+import { InfoCard } from 'src/components';
 import useDate from 'src/modules/useDate';
 
 interface Props {
@@ -105,6 +97,43 @@ const isVisible = ref(props.modelValue);
 const artist = computed<IUser | null>(() => {
   if (!props.booking?.artist) return null;
   return props.booking.artist as IUser;
+});
+
+// Session details data for InfoCard
+const sessionDetailsData = computed(() => {
+  if (!props.booking) return [];
+
+  const data = [
+    {
+      label: 'Date',
+      value: formatDate(props.booking.date),
+    },
+    {
+      label: 'Time',
+      value: formatTimeRange(props.booking.startTime, props.booking.endTime),
+    },
+  ];
+
+  if (props.booking.location) {
+    data.push({
+      label: 'Location',
+      value: props.booking.location,
+    });
+  }
+
+  return data;
+});
+
+// Description data for InfoCard
+const descriptionData = computed(() => {
+  if (!props.booking?.description) return [];
+
+  return [
+    {
+      label: 'Details',
+      value: props.booking.description,
+    },
+  ];
 });
 
 const getStatusLabel = (status: IBooking['status']): string => {
@@ -214,48 +243,10 @@ watch(isVisible, (newValue) => {
       }
     }
 
-    .artist-section {
-      .section-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
-    }
-
-    .details-section {
-      .section-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
-
-      .details-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        .detail-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 4px 0;
-        }
-      }
-    }
-
-    .description-section {
-      .section-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
-
-      .description-text {
-        font-size: 15px;
-        line-height: 1.6;
-        margin: 0;
-        color: var(--q-dark);
-      }
+    .section-label {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
   }
 
@@ -279,12 +270,6 @@ watch(isVisible, (newValue) => {
       .title-section {
         .booking-title {
           color: #fff;
-        }
-      }
-
-      .description-section {
-        .description-text {
-          color: rgba(255, 255, 255, 0.9);
         }
       }
     }
