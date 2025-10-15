@@ -43,8 +43,8 @@
             @load-more="loadMoreShopsWrapper"
           >
             <ShopCard
-              v-for="shop in shops"
-              :key="shop.documentId"
+              v-for="(shop, index) in shops"
+              :key="`shop-${index}`"
               :shop="shop"
               @click="selectShop"
             />
@@ -76,8 +76,8 @@
             class="flex column q-gap-md"
           >
             <ArtistCard
-              v-for="artist in artists"
-              :key="artist.documentId"
+              v-for="(artist, index) in artists"
+              :key="`artist-${index}`"
               :artist="artist"
               @click="selectArtist"
             />
