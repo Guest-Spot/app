@@ -81,21 +81,13 @@
 
       <div class="input-group">
         <label class="input-label">Reference Pictures</label>
-        <q-file
-          v-model="referencesModel"
-          outlined
-          rounded
+        <ImageUploader
+          :key="uploaderKey"
+          placeholder="Upload reference pictures"
+          placeholder-icon="image"
           multiple
-          use-chips
-          counter
-          accept="image/*"
-          :hint="referenceHint"
-          :counter-label="fileCounterLabel"
-        >
-          <template #prepend>
-            <q-icon name="image" />
-          </template>
-        </q-file>
+          @on-upload="onReferenceUpload"
+        />
       </div>
     </q-form>
   </div>
@@ -104,6 +96,7 @@
 <script setup lang="ts">
 import { computed, ref, type PropType } from 'vue';
 import type { QForm } from 'quasar';
+import ImageUploader from 'src/components/ImageUploader/index.vue';
 
 type Rules = {
   required: (field: string) => (val: string | null | undefined) => true | string;
@@ -195,26 +188,19 @@ const sizeModel = computed({
   set: (val: string) => emit('update:size', val),
 });
 
-const referencesModel = computed({
-  get: () => (props.referenceFiles.length ? props.referenceFiles : null),
-  set: (value: File | File[] | null) => {
-    if (!value) {
-      emit('update:referenceFiles', []);
-    } else if (Array.isArray(value)) {
-      emit('update:referenceFiles', value);
-    } else {
-      emit('update:referenceFiles', [value]);
-    }
-  },
-});
+const uploaderKey = ref(0);
 
-const fileCounterLabel = ({ filesNumber }: { filesNumber: number }) =>
-  filesNumber ? `${filesNumber} selected` : '';
+const onReferenceUpload = (files: (File | null)[]) => {
+  const sanitized = files.filter((file): file is File => file instanceof File);
+  emit('update:referenceFiles', sanitized);
+};
 
 const validateForm = () => formRef.value?.validate();
 const resetForm = () => {
   formRef.value?.resetValidation();
   formRef.value?.reset();
+  uploaderKey.value += 1;
+  emit('update:referenceFiles', []);
 };
 
 defineExpose({

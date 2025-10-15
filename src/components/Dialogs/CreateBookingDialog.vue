@@ -621,13 +621,16 @@ onMounted(() => {
       padding: 20px 0 16px;
       flex-shrink: 0;
       overflow-x: auto;
+      flex-wrap: nowrap;
     }
 
     .stepper-item {
+      width: 100%;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 16px;
+      padding: 4px 16px;
+      min-height: 32px;
       border-radius: 999px;
       background: rgba(0, 0, 0, 0.06);
       color: rgba(0, 0, 0, 0.6);
@@ -636,19 +639,23 @@ onMounted(() => {
       transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 
       &.active {
-        background: var(--q-primary);
+        border: 1px solid var(--q-primary);
         color: #fff;
         transform: translateY(-1px);
       }
 
       &.completed {
-        background: rgba(0, 0, 0, 0.12);
-        color: rgba(0, 0, 0, 0.75);
+        background: var(--q-primary) !important;
+        color: #fff;
       }
 
       &:hover {
         background: rgba(0, 0, 0, 0.12);
         color: rgba(0, 0, 0, 0.75);
+      }
+
+      span {
+        font-size: 12px;
       }
     }
   }
@@ -678,21 +685,6 @@ onMounted(() => {
       .stepper-item {
         background: rgba(255, 255, 255, 0.08);
         color: rgba(255, 255, 255, 0.7);
-
-        &.completed {
-          background: rgba(255, 255, 255, 0.14);
-          color: rgba(255, 255, 255, 0.85);
-        }
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.14);
-          color: rgba(255, 255, 255, 0.85);
-        }
-      }
-
-      .stepper-item.active {
-        background: var(--q-primary);
-        color: #fff;
       }
     }
   }

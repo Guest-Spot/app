@@ -42,9 +42,10 @@
     <!-- Calendar Events List -->
     <div v-else-if="groupedBookings.length > 0" class="calendar-events">
       <div
-        v-for="group in groupedBookings"
+        v-for="(group, index) in groupedBookings"
         :key="group.weekLabel"
-        class="week-group q-mb-lg"
+        class="week-group"
+        :class="{ 'q-mb-xl': (groupedBookings.length - 1) !== index }"
       >
         <!-- Week Separator -->
         <div v-if="group.weekLabel" class="week-separator text-grey-6 text-weight-medium q-mb-md">

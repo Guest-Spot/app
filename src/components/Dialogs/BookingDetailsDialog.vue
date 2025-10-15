@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="isVisible" position="bottom">
+  <q-dialog v-model="isVisible" position="bottom" maximized no-route-dismiss>
     <q-card class="booking-details-dialog">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">Booking Details</div>
@@ -27,35 +27,12 @@
         </div>
 
         <!-- Artist Info -->
-        <div class="artist-section bg-block border-radius-md q-pa-md q-mb-md">
+        <div v-if="artist" class="artist-section q-mb-md">
           <div class="section-label text-caption text-grey-6 q-mb-sm">ARTIST</div>
-          <div class="flex items-center q-gap-md">
-            <q-avatar size="48px">
-              <q-img
-                v-if="booking.artist?.avatar?.url"
-                :src="booking.artist.avatar.url"
-                fit="cover"
-                spinner-color="primary"
-                spinner-size="20px"
-              />
-              <q-icon v-else name="person" size="28px" color="grey-6" />
-            </q-avatar>
-            <div class="flex-1">
-              <div class="artist-name text-subtitle2 text-bold">
-                {{ booking.artist?.name || 'Artist' }}
-              </div>
-              <q-btn
-                label="View Profile"
-                size="sm"
-                flat
-                dense
-                color="primary"
-                icon-right="arrow_forward"
-                class="q-pa-none q-mt-xs view-profile-btn"
-                @click="viewArtistProfile"
-              />
-            </div>
-          </div>
+          <ArtistCard
+            :artist="artist"
+            @click="viewArtistProfile"
+          />
         </div>
 
         <q-separator class="q-my-md" />
@@ -102,8 +79,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
+import type { IUser } from 'src/interfaces/user';
+import { ArtistCard } from 'src/components/SearchPage';
 import useDate from 'src/modules/useDate';
 
 interface Props {
@@ -121,6 +100,12 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 
 const isVisible = ref(props.modelValue);
+
+// Convert partial artist to full artist for ArtistCard
+const artist = computed<IUser | null>(() => {
+  if (!props.booking?.artist) return null;
+  return props.booking.artist as IUser;
+});
 
 const getStatusLabel = (status: IBooking['status']): string => {
   const labels = {
@@ -150,9 +135,7 @@ const formatTimeRange = (startTime: string, endTime: string): string => {
 };
 
 const viewArtistProfile = () => {
-  if (props.booking?.artist?.documentId) {
-    window.location.href = `/artist/${props.booking.artist.documentId}`;
-  }
+  // Artist card handles navigation internally
 };
 
 const closeDialog = () => {
@@ -236,15 +219,6 @@ watch(isVisible, (newValue) => {
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.5px;
-      }
-
-      .artist-name {
-        line-height: 1.3;
-      }
-
-      .view-profile-btn {
-        font-size: 13px;
-        font-weight: 600;
       }
     }
 
