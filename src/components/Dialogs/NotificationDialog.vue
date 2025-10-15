@@ -53,7 +53,7 @@ import { ref, watch } from 'vue';
 import NotificationItem from 'src/components/Cards/NotificationItem.vue';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_INVITE_MUTATION } from 'src/apollo/types/invite';
-import { InviteReaction } from 'src/interfaces/enums';
+import { EReactions } from 'src/interfaces/enums';
 import useNotify from 'src/modules/useNotify';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useUser from 'src/modules/useUser';
@@ -112,7 +112,7 @@ const handleAccept = (documentId: string) => {
     void updateInviteMutation({
       documentId,
       data: {
-        reaction: InviteReaction.Accepted,
+        reaction: EReactions.Accepted,
       },
     });
     successMessage.value = 'Invitation accepted successfully';
@@ -139,7 +139,7 @@ const handleReject = (documentId: string) => {
     void updateInviteMutation({
       documentId,
       data: {
-        reaction: InviteReaction.Rejected,
+        reaction: EReactions.Rejected,
       },
     });
     successMessage.value = 'Invitation rejected successfully';
@@ -149,7 +149,7 @@ const handleReject = (documentId: string) => {
 onUpdateInviteSuccess(() => {
   void fetchInvites({
     reaction: {
-      eq: InviteReaction.Pending,
+      eq: EReactions.Pending,
     },
     recipient: {
       eq: user.value?.documentId,

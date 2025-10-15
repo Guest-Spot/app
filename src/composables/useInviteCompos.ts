@@ -8,7 +8,7 @@ import {
   INVITES_QUERY,
 } from 'src/apollo/types/invite';
 import type { IUser } from 'src/interfaces/user';
-import { InviteReaction, InviteType } from 'src/interfaces/enums';
+import { EReactions, InviteType } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
 import { useUserStore } from 'src/stores/user';
 import type { IInvite } from 'src/interfaces/invite';
@@ -44,7 +44,7 @@ const useInviteCompos = () => {
   const receivedPendingInvites = computed(() =>
     invitesStore.getInvites.filter(
       (invite) =>
-        invite.reaction === InviteReaction.Pending &&
+        invite.reaction === EReactions.Pending &&
         invite.recipient === userStore.getUser?.documentId,
     ),
   );
@@ -52,7 +52,7 @@ const useInviteCompos = () => {
   const sentPendingInvites = computed(() =>
     invitesStore.getInvites.filter(
       (invite) =>
-        invite.reaction === InviteReaction.Pending &&
+        invite.reaction === EReactions.Pending &&
         invite.sender === userStore.getUser?.documentId,
     ),
   );
@@ -154,10 +154,10 @@ const useInviteCompos = () => {
   onResultInvites((result) => {
     const sortedInvites = result?.data?.invites
       ? [...result.data.invites].sort((a: IInvite, b: IInvite) => {
-          if (a.reaction === InviteReaction.Pending && b.reaction !== InviteReaction.Pending) {
+          if (a.reaction === EReactions.Pending && b.reaction !== EReactions.Pending) {
             return -1; // a comes before b
           }
-          if (a.reaction !== InviteReaction.Pending && b.reaction === InviteReaction.Pending) {
+          if (a.reaction !== EReactions.Pending && b.reaction === EReactions.Pending) {
             return 1; // b comes before a
           }
           return 0; // maintain original order for same reaction types

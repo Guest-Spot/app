@@ -38,6 +38,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Shop Bookings' },
       },
       {
+        path: 'my-bookings',
+        component: () => import('pages/MyBookingsPage.vue'),
+        meta: { title: 'My Booking Requests' },
+      },
+      {
         path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
         meta: { title: 'My Profile' },

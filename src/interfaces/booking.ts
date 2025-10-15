@@ -1,4 +1,6 @@
 import type { IUser } from 'src/interfaces/user';
+import type { EReactions } from 'src/interfaces/enums';
+import type { IPicture } from './common';
 
 type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
 type BookingType = 'shop-to-artist' | 'artist-to-shop';
@@ -54,4 +56,32 @@ export interface IBookingCreateResponse {
   start: string;
   references?: { url: string }[];
   artist?: Pick<IUser, 'documentId' | 'name'> | null;
+}
+
+export interface IGuestBooking {
+  documentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  location?: string | null;
+  description: string;
+  placement?: string | null;
+  size?: string | null;
+  day: string;
+  reaction: EReactions;
+  start: string;
+  references?: { url: string }[];
+  artist: {
+    documentId: string;
+    avatar: IPicture;
+    name: string;
+  };
+  owner: {
+    documentId: string;
+    name: string;
+  };
+}
+
+export interface IBookingsQueryResponse {
+  bookings: IGuestBooking[];
 }

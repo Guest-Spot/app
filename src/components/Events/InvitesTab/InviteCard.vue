@@ -4,7 +4,7 @@
     :class="{
       sent: isSent,
       received: isReceived,
-      pending: invite.reaction === InviteReaction.Pending,
+      pending: invite.reaction === EReactions.Pending,
     }"
   >
     <div class="card-content">
@@ -23,7 +23,7 @@
 
     <div class="card-actions">
       <!-- Accept/Reject buttons for pending invitations -->
-      <div v-if="isReceived && invite.reaction === InviteReaction.Pending" class="action-buttons">
+      <div v-if="isReceived && invite.reaction === EReactions.Pending" class="action-buttons">
         <q-btn
           label="Reject"
           color="negative"
@@ -47,7 +47,7 @@
 
       <!-- Cancel button for pending requests -->
       <q-btn
-        v-else-if="isSent && invite.reaction === InviteReaction.Pending"
+        v-else-if="isSent && invite.reaction === EReactions.Pending"
         label="Cancel Request"
         color="negative"
         flat
@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { IInvite } from 'src/interfaces/invite';
-import { InviteReaction } from 'src/interfaces/enums';
+import { EReactions } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import useDate from 'src/modules/useDate';
 
@@ -104,9 +104,9 @@ const isReceived = computed(
 // Methods
 const getStatusLabel = (status: IInvite['reaction']) => {
   const statusMap = {
-    [InviteReaction.Pending]: 'Pending',
-    [InviteReaction.Accepted]: 'Accepted',
-    [InviteReaction.Rejected]: 'Rejected',
+    [EReactions.Pending]: 'Pending',
+    [EReactions.Accepted]: 'Accepted',
+    [EReactions.Rejected]: 'Rejected',
   };
   return statusMap[status as keyof typeof statusMap];
 };

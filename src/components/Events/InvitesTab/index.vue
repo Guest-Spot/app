@@ -72,7 +72,7 @@ import TabsComp from 'src/components/TabsComp.vue';
 import type { ITab } from 'src/interfaces/tabs';
 import useNotify from 'src/modules/useNotify';
 import NoResults from 'src/components/NoResult.vue';
-import { InviteReaction } from 'src/interfaces/enums';
+import { EReactions } from 'src/interfaces/enums';
 import { useInvitesStore } from 'src/stores/invites';
 import { useUserStore } from 'src/stores/user';
 import { useMutation } from '@vue/apollo-composable';
@@ -126,7 +126,7 @@ const filterTabs = computed<ITab[]>(() => [
     label: 'Received',
     tab: RECEIVED_TAB,
     count: receivedInvites.value.length,
-    hasNew: receivedInvites.value.some((invite) => invite.reaction === InviteReaction.Pending),
+    hasNew: receivedInvites.value.some((invite) => invite.reaction === EReactions.Pending),
   },
 ]);
 
@@ -158,7 +158,7 @@ const acceptInvite = (inviteDocumentId: string) => {
     void updateInviteMutation({
       documentId: inviteDocumentId,
       data: {
-        reaction: InviteReaction.Accepted,
+        reaction: EReactions.Accepted,
       },
     });
     successMessage.value = 'Invitation accepted successfully';
@@ -185,7 +185,7 @@ const rejectInvite = (inviteDocumentId: string) => {
     void updateInviteMutation({
       documentId: inviteDocumentId,
       data: {
-        reaction: InviteReaction.Rejected,
+        reaction: EReactions.Rejected,
       },
     });
     successMessage.value = 'Invitation rejected successfully';
@@ -210,7 +210,7 @@ const cancelInvite = (inviteDocumentId: string) => {
     loadingCancel.value = true;
     const invite = invites.value.find((i) => i.documentId === inviteDocumentId);
     if (invite) {
-      invite.reaction = InviteReaction.Rejected;
+      invite.reaction = EReactions.Rejected;
       invite.updatedAt = new Date().toISOString();
       showSuccess('Invite cancelled');
       loadingCancel.value = false;

@@ -55,7 +55,7 @@ export enum InviteType {
   ArtistToShop = 'artist_to_shop',
 }
 
-export enum InviteReaction {
+export enum EReactions {
   Pending = 'pending',
   Accepted = 'accepted',
   Rejected = 'rejected',

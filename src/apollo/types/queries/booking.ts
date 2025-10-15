@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client/core';
 
-export const CREATE_BOOKING_MUTATION = gql`
-  mutation CreateBooking($data: BookingInput!) {
-    createBooking(data: $data) {
+export const BOOKINGS_QUERY = gql`
+  query Bookings {
+    bookings {
       documentId
       name
       email
@@ -13,12 +13,18 @@ export const CREATE_BOOKING_MUTATION = gql`
       size
       day
       start
+      reaction
       references {
         url
       }
       artist {
         documentId
         name
+        city
+        experience
+        avatar {
+          url
+        }
       }
       owner {
         documentId
@@ -27,3 +33,4 @@ export const CREATE_BOOKING_MUTATION = gql`
     }
   }
 `;
+
