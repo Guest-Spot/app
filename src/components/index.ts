@@ -9,5 +9,8 @@ export { default as LoadingState } from './LoadingState.vue';
 export { default as ListHeader } from './ListHeader.vue';
 export { default as ExpandableText } from './ExpandableText.vue';
 
+// Booking components
+export { default as BookingCalendar } from './Bookings/BookingCalendar.vue';
+
 // Portfolio components
 export * from './Portfolio';

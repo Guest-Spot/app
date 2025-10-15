@@ -83,8 +83,7 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-id="0"
-      :artist-id="artistData.documentId"
+      :artist-document-id="artistData.documentId"
       type="artist-to-shop"
       @submit="handleBookingSubmit"
     />
@@ -97,7 +96,7 @@ import { useRoute } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
-import type { IBooking } from 'src/interfaces/booking';
+import type { IBookingCreateResponse } from 'src/interfaces/booking';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
@@ -234,8 +233,8 @@ const openBookingDialog = () => {
   showBookingDialog.value = true;
 };
 
-const handleBookingSubmit = (data: Partial<IBooking>) => {
-  console.log('Booking submitted:', data);
+const handleBookingSubmit = (booking: IBookingCreateResponse) => {
+  console.log('Booking submitted:', booking);
   showBookingDialog.value = false;
 };
 

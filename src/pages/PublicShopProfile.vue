@@ -96,7 +96,7 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-documentId="shopData.documentId"
+      :shop-document-id="shopData.documentId"
       type="shop-to-artist"
       @submit="handleBookingSubmit"
     />
@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import type { IBooking } from 'src/interfaces/booking';
+import type { IBookingCreateResponse } from 'src/interfaces/booking';
 import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -221,8 +221,8 @@ const openBookingDialog = () => {
   showBookingDialog.value = true;
 };
 
-const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
-  console.log('Booking submitted:', bookingData);
+const handleBookingSubmit = (booking: IBookingCreateResponse) => {
+  console.log('Booking submitted:', booking);
   showBookingDialog.value = false;
 };
 

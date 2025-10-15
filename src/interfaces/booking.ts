@@ -26,3 +26,33 @@ export interface IBookingFilters {
   type?: IBooking['type'];
   date?: string;
 }
+
+export interface IBookingRequestPayload {
+  name: string;
+  email: string;
+  phone: string;
+  location?: string;
+  description: string;
+  placement: string;
+  size: string;
+  day: string;
+  start: string;
+  references: string[];
+  artistDocumentId: string;
+  shopDocumentId?: string;
+}
+
+export interface IBookingCreateResponse {
+  documentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  location?: string | null;
+  description: string;
+  placement?: string | null;
+  size?: string | null;
+  day: string;
+  start: string;
+  references?: { url: string }[];
+  artist?: Pick<IUser, 'documentId' | 'name'> | null;
+}
