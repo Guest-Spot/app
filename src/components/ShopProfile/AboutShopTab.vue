@@ -334,10 +334,8 @@ const saveChanges = async () => {
       });
     } else {
       // If only opening hours changed, still trigger success
-      void fetchMe();
-      void refetchOpeningHours();
-      // Copy current data to original to reset change detection
-      Object.assign(shopDataOriginal, JSON.parse(JSON.stringify(shopData)));
+      await Promise.all([fetchMe(), refetchOpeningHours()]);
+      // After refetch, data will be synced via onResultOpeningHours
       imagesForUpload.value = [];
       imagesForRemove.value = [];
       showSuccess('Your profile successfully updated');
@@ -358,13 +356,12 @@ onDoneUpdateShop((result) => {
   }
 
   if (result.data?.updateUsersPermissionsUser) {
-    void fetchMe();
-    void refetchOpeningHours();
-    // Copy current data to original to reset change detection
-    Object.assign(shopDataOriginal, JSON.parse(JSON.stringify(shopData)));
-    imagesForUpload.value = [];
-    imagesForRemove.value = [];
-    showSuccess('Your profile successfully updated');
+    // Trigger refetch - data will be synced via watchers and onResultOpeningHours
+    void Promise.all([fetchMe(), refetchOpeningHours()]).then(() => {
+      imagesForUpload.value = [];
+      imagesForRemove.value = [];
+      showSuccess('Your profile successfully updated');
+    });
   }
 });
 
@@ -372,6 +369,10 @@ watch(
   user,
   (profile) => {
     if (profile) {
+      // Preserve existing openingHours as they are managed separately
+      const currentOpeningHours = shopData.openingHours;
+      const originalOpeningHours = shopDataOriginal.openingHours;
+
       const userData = {
         ...profile,
         pictures:
@@ -381,10 +382,15 @@ watch(
             index,
           })) || [],
         // Don't include openingHours from user profile, use separate query
-        openingHours: shopData.openingHours, // Keep existing openingHours
+        openingHours: currentOpeningHours,
       };
+
       Object.assign(shopData, userData);
-      Object.assign(shopDataOriginal, userData);
+      // Preserve original openingHours separately
+      Object.assign(shopDataOriginal, {
+        ...userData,
+        openingHours: originalOpeningHours,
+      });
     }
   },
   { immediate: true },
@@ -392,8 +398,10 @@ watch(
 
 onResultOpeningHours((result) => {
   if (result.data?.openingHours) {
-    shopData.openingHours = [...result.data.openingHours];
-    shopDataOriginal.openingHours = [...result.data.openingHours];
+    const hours = [...result.data.openingHours];
+    shopData.openingHours = hours;
+    // Create a deep copy for original to ensure proper change detection reset
+    shopDataOriginal.openingHours = JSON.parse(JSON.stringify(hours));
   }
 });
 
