@@ -25,11 +25,6 @@ export const ME_QUERY = gql`
       phone
       email
       experience
-      openingHours {
-        day
-        start
-        end
-      }
     }
   }
 `;

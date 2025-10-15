@@ -110,7 +110,7 @@ watch(
     for (const item of val || []) {
       const localItem = localHours.find((d) => d.day === item.day);
       if (localItem) {
-        localItem.id = item.id || '';
+        localItem.documentId = item.documentId || '';
         localItem.start = item.start;
         localItem.end = item.end;
       }

@@ -123,7 +123,6 @@
 
     <!-- Working Hours -->
     <q-expansion-item
-      v-if="user?.openingHours"
       icon="schedule"
       label="Working Hours"
       header-class="expansion-header"
@@ -161,10 +160,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, watch, reactive, computed } from 'vue';
+import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
+import WorkingHoursEditor from './WorkingHoursEditor.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
+import type { IOpeningHours } from 'src/interfaces/common';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
@@ -172,15 +173,18 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
-
-const WorkingHoursEditor = defineAsyncComponent(() => import('./WorkingHoursEditor.vue'));
+import useOpeningHours from 'src/modules/useOpeningHours';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
+const { fetchOpeningHours, handleOpeningHoursChanges } = useOpeningHours();
 
 // Setup mutation
 const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
+
+// Fetch opening hours separately
+const { refetch: refetchOpeningHours, onResult: onResultOpeningHours } = fetchOpeningHours();
 
 // Form data
 const shopData = reactive<IShopFormData>({
@@ -192,22 +196,73 @@ const shopData = reactive<IShopFormData>({
   phone: '',
   email: '',
   openingHours: [],
-  links: [],
 });
-// NOTE: This variable is used to compare the original data with the new data
-const shopDataOriginal = { ...shopData };
+const shopDataOriginal = reactive<IShopFormData>({...shopData});
 // ------------------------------------------------------------------------//
 
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
-const hasChanges = computed(
-  () =>
-    Object.keys(compareAndReturnDifferences(shopDataOriginal, shopData)).length > 0 ||
+const hasChanges = computed(() => {
+  // Exclude openingHours from comparison as it's handled separately
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { openingHours: _originalHours, ...originalWithoutHours } = shopDataOriginal;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { openingHours: _currentHours, ...currentWithoutHours } = shopData;
+
+  return (
+    Object.keys(compareAndReturnDifferences(originalWithoutHours, currentWithoutHours)).length > 0 ||
     imagesForUpload.value.length > 0 ||
-    imagesForRemove.value.length > 0,
-);
+    imagesForRemove.value.length > 0 ||
+    openingHoursChanges.value
+  );
+});
+
+// Helper function to build hours map (defined outside computed for better performance)
+const buildHoursMap = (hours: IOpeningHours[] = []): Record<string, { start: string | null; end: string | null }> => {
+  return hours.reduce<Record<string, { start: string | null; end: string | null }>>((acc, hour) => {
+    if (!hour) return acc;
+
+    const hasStart = hour.start !== null && hour.start !== '';
+    const hasEnd = hour.end !== null && hour.end !== '';
+
+    if (hasStart || hasEnd) {
+      acc[hour.day] = { start: hour.start, end: hour.end };
+    }
+
+    return acc;
+  }, {});
+};
+
+const openingHoursChanges = computed(() => {
+  const currentHours = buildHoursMap(shopData.openingHours);
+  const originalHours = buildHoursMap(shopDataOriginal.openingHours);
+
+  // Check all days from both current and original hours
+  const currentDays = Object.keys(currentHours);
+  const originalDays = Object.keys(originalHours);
+
+  // Early return: if length differs, there are changes
+  if (currentDays.length !== originalDays.length) return true;
+
+  // Check each day for changes
+  for (const day of currentDays) {
+    const current = currentHours[day];
+    const original = originalHours[day];
+
+    if (!current || !original || current.start !== original.start || current.end !== original.end) {
+      return true;
+    }
+  }
+
+  // Check for removed days
+  for (const day of originalDays) {
+    if (!currentHours[day]) return true;
+  }
+
+  return false;
+});
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
@@ -223,6 +278,8 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
     }),
   };
   const differences = compareAndReturnDifferences(shopDataOriginal, preparedData);
+  // Exclude openingHours from the main mutation as it's handled separately
+  delete differences.openingHours;
   return differences;
 };
 
@@ -255,15 +312,36 @@ const saveChanges = async () => {
       throw new Error('Shop profile not found');
     }
 
+    // Handle images
     await deleteImages();
     const uploadedFiles: UploadFileResponse[] = await upload();
 
+    // Handle opening hours separately
+    await handleOpeningHoursChanges(
+      shopDataOriginal.openingHours || [],
+      shopData.openingHours || [],
+      user.value.id
+    );
+
+    // Update main shop data (excluding opening hours)
     const data = prepareDataForMutation(uploadedFiles);
 
-    await updateShop({
-      id: user.value.id,
-      data,
-    });
+    // Only update main data if there are changes
+    if (Object.keys(data).length > 0) {
+      await updateShop({
+        id: user.value.id,
+        data,
+      });
+    } else {
+      // If only opening hours changed, still trigger success
+      void fetchMe();
+      void refetchOpeningHours();
+      // Copy current data to original to reset change detection
+      Object.assign(shopDataOriginal, JSON.parse(JSON.stringify(shopData)));
+      imagesForUpload.value = [];
+      imagesForRemove.value = [];
+      showSuccess('Your profile successfully updated');
+    }
   } catch (error) {
     console.error('Error updating data:', error);
     showError('Error updating data');
@@ -281,7 +359,9 @@ onDoneUpdateShop((result) => {
 
   if (result.data?.updateUsersPermissionsUser) {
     void fetchMe();
-    Object.assign(shopDataOriginal, { ...shopData });
+    void refetchOpeningHours();
+    // Copy current data to original to reset change detection
+    Object.assign(shopDataOriginal, JSON.parse(JSON.stringify(shopData)));
     imagesForUpload.value = [];
     imagesForRemove.value = [];
     showSuccess('Your profile successfully updated');
@@ -291,19 +371,31 @@ onDoneUpdateShop((result) => {
 watch(
   user,
   (profile) => {
-    Object.assign(shopData, {
-      ...profile,
-      pictures:
-        profile?.pictures?.map((picture, index) => ({
-          url: picture.url,
-          id: picture.id,
-          index,
-        })) || [],
-    });
-    Object.assign(shopDataOriginal, { ...shopData });
+    if (profile) {
+      const userData = {
+        ...profile,
+        pictures:
+          profile?.pictures?.map((picture, index) => ({
+            url: picture.url,
+            id: picture.id,
+            index,
+          })) || [],
+        // Don't include openingHours from user profile, use separate query
+        openingHours: shopData.openingHours, // Keep existing openingHours
+      };
+      Object.assign(shopData, userData);
+      Object.assign(shopDataOriginal, userData);
+    }
   },
   { immediate: true },
 );
+
+onResultOpeningHours((result) => {
+  if (result.data?.openingHours) {
+    shopData.openingHours = [...result.data.openingHours];
+    shopDataOriginal.openingHours = [...result.data.openingHours];
+  }
+});
 
 // Expose data for parent component
 defineExpose({

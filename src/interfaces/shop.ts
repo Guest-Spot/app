@@ -1,4 +1,4 @@
-import type { IPicture, ILink, IOpeningHours } from 'src/interfaces/common';
+import type { IPicture, IOpeningHours } from 'src/interfaces/common';
 
 export interface IShopFormData {
   pictures: IPicture[];
@@ -9,5 +9,4 @@ export interface IShopFormData {
   phone: '';
   email: '';
   openingHours: IOpeningHours[];
-  links: ILink[];
 }

@@ -4,7 +4,6 @@ export const CREATE_OPENING_HOUR_MUTATION = gql`
   mutation CreateOpeningHour($data: OpeningHourInput!) {
     createOpeningHour(data: $data) {
       documentId
-      id
       day
       start
       end
@@ -16,10 +15,6 @@ export const UPDATE_OPENING_HOUR_MUTATION = gql`
   mutation UpdateOpeningHour($documentId: ID!, $data: OpeningHourInput!) {
     updateOpeningHour(documentId: $documentId, data: $data) {
       documentId
-      id
-      day
-      start
-      end
     }
   }
 `;
