@@ -82,9 +82,6 @@
               @click="openBookingDetails(booking)"
             >
             <div class="flex items-start justify-between q-gap-sm">
-                <div class="event-title text-weight-bold">
-                  {{ booking.title || 'Tattoo Session' }}
-                </div>
                 <div class="flex items-start q-gap-sm no-wrap flex-1">
                   <!-- Avatar (if artist available) -->
                   <q-avatar
@@ -111,13 +108,13 @@
 
                   <!-- Event Info -->
                   <div class="event-info flex-1">
-                    <div class="event-meta text-caption text-grey-7">
+                    <div class="event-meta">
                       <div class="flex items-center q-gap-xs q-mb-xs">
                         <q-icon name="person" size="14px" />
-                        <span class="text-grey-6">{{ booking.artist?.name || 'Artist' }}</span>
+                        <span class="text-bold">{{ booking.artist?.name || 'Artist' }}</span>
                       </div>
                       <div class="flex items-center q-gap-xs">
-                        <q-icon name="schedule" size="14px" />
+                        <q-icon name="schedule" size="14px" color="grey-6" />
                         <span class="text-grey-6">{{ formatTime(booking.startTime) }}</span>
                       </div>
                     </div>

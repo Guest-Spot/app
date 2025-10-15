@@ -51,7 +51,6 @@
             >
               <q-time
                 v-model="startTimeModel"
-                format24h
                 class="bg-block"
                 @update:model-value="() => startTimeProxy?.hide()"
               />
@@ -130,7 +129,6 @@ defineExpose({
 .input-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
 }
 
 .input-group {

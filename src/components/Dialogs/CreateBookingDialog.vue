@@ -114,7 +114,7 @@
           />
           <q-btn
             v-else
-            label="Submit"
+            label="Submit Request"
             color="primary"
             rounded
             unelevated
@@ -149,6 +149,7 @@ import useHelpers from 'src/modules/useHelpers';
 import useNotify from 'src/modules/useNotify';
 import { useCitiesStore } from 'src/stores/cities';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: boolean;
@@ -168,6 +169,7 @@ const emit = defineEmits<Emits>();
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
+const { formatToFullTime } = useDate();
 
 const steps = [
   { id: 1, title: 'Artist', icon: 'person' },
@@ -367,51 +369,23 @@ const validateCurrentStep = async (): Promise<boolean> => {
   return true;
 };
 
-const validateAllSteps = async () => {
-  if (!selectedArtistId.value) {
-    currentStep.value = 1;
-    showError('Please select an artist to continue.');
-    return false;
-  }
-
-  const detailsValid = await detailsStepRef.value?.validateForm();
-  if (!detailsValid) {
-    currentStep.value = 2;
-    return false;
-  }
-
-  const scheduleValid = await scheduleStepRef.value?.validateForm();
-  if (!scheduleValid) {
-    currentStep.value = 3;
-    return false;
-  }
-
-  return true;
-};
-
 const buildBookingPayload = (references: UploadFileResponse[]): IBookingRequestPayload => {
   return {
     name: bookingDetails.name,
     email: bookingDetails.email,
     phone: bookingDetails.phone,
-    location: bookingDetails.location || undefined,
+    location: bookingDetails.location,
     description: bookingDetails.description,
     placement: bookingDetails.placement,
     size: bookingDetails.size,
     day: schedule.day,
-    start: schedule.startTime,
+    start: formatToFullTime(schedule.startTime),
     references: references.map((file) => file.documentId),
-    artistDocumentId: selectedArtistId.value || '',
-    shopDocumentId: props.shopDocumentId || undefined,
+    artist: selectedArtistId.value || '',
   };
 };
 
 const onSubmit = async () => {
-  const isValid = await validateAllSteps();
-  if (!isValid) {
-    return;
-  }
-
   if (!selectedArtistId.value) {
     showError('Please select an artist before submitting.');
     return;
@@ -437,8 +411,7 @@ const onSubmit = async () => {
         size: input.size,
         day: input.day,
         start: input.start,
-        artist: input.artistDocumentId,
-        shop: input.shopDocumentId,
+        artist: input.artist,
         references: input.references,
       },
     };

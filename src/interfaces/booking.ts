@@ -38,8 +38,7 @@ export interface IBookingRequestPayload {
   day: string;
   start: string;
   references: string[];
-  artistDocumentId: string;
-  shopDocumentId?: string;
+  artist: string;
 }
 
 export interface IBookingCreateResponse {

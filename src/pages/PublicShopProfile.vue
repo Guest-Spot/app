@@ -1,5 +1,8 @@
 <template>
-  <q-page class="page q-pb-4xl flex column items-start q-gap-md">
+  <q-page
+    class="page q-pb-lg flex column items-start q-gap-md"
+    :class="{ 'q-pb-4xl': isGuest }"
+  >
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -79,7 +82,7 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="action-buttons flex justify-center q-gap-sm no-wrap q-mt-lg">
+      <div v-if="isGuest" class="action-buttons flex justify-center q-gap-sm no-wrap q-mt-lg">
         <q-btn
           class="bg-block"
           text-color="primary"
@@ -123,10 +126,12 @@ import { USER_QUERY, USERS_QUERY } from 'src/apollo/types/user';
 import { useShopsStore } from 'src/stores/shops';
 import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
+import { useUserStore } from 'src/stores/user';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
 const shopsStore = useShopsStore();
+const userStore = useUserStore();
 
 // Apollo queries
 const {
@@ -186,6 +191,7 @@ const portfolioItems = ref<IPortfolio[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
+const isGuest = computed(() => userStore.getIsGuest);
 
 const TABS = computed<ITab[]>(() => [
   {

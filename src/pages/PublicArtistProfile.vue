@@ -1,5 +1,8 @@
 <template>
-  <q-page class="page q-pb-4xl q-pt-lg flex column items-start q-gap-md">
+  <q-page
+    class="page q-pb-lg flex column items-start q-gap-md"
+    :class="{ 'q-pb-4xl': isGuest }"
+  >
     <div class="container">
       <!-- Back Button -->
       <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
@@ -73,7 +76,7 @@
       </div>
 
       <!-- Booking Button -->
-      <div class="action-buttons flex justify-center q-mt-lg q-gap-sm">
+      <div v-if="isGuest" class="action-buttons flex justify-center q-mt-lg q-gap-sm">
         <q-btn round class="bg-block" size="lg" text-color="primary" @click="openBookingDialog">
           <q-icon name="event" color="primary" />
         </q-btn>
@@ -112,6 +115,7 @@ import { useArtistsStore } from 'src/stores/artists';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
+import { useUserStore } from 'src/stores/user';
 
 const {
   load: loadArtist,
@@ -137,6 +141,7 @@ const route = useRoute();
 const artistsStore = useArtistsStore();
 const { onInviteSuccess, onInviteError } = useInviteCompos();
 const { showError, showSuccess } = useNotify();
+const userStore = useUserStore();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -174,6 +179,7 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
+const isGuest = computed(() => userStore.getIsGuest);
 
 const TABS = computed<ITab[]>(() => [
   {
