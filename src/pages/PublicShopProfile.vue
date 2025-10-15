@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-xl flex column items-start q-gap-md">
+  <q-page class="page q-pb-4xl flex column items-start q-gap-md">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->

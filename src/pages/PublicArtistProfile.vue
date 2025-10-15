@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-4xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
       <!-- Back Button -->
       <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">

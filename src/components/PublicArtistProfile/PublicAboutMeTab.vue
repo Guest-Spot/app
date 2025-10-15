@@ -6,6 +6,7 @@
       icon="person"
       :data="basicInformation"
     />
+    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
     <InfoCard v-if="location.length" title="Location" icon="location_on" :data="location" />
     <InfoCard v-if="contacts.length" title="Contacts" icon="contact_phone" :data="contacts" />
   </div>
@@ -63,4 +64,12 @@ const contacts = computed(() =>
     },
   ].filter((item) => item.value),
 );
+
+const links = computed(() => [
+  {
+    label: 'Portfolio',
+    value: props.artistData.link || '',
+    type: InfoItemType.Link,
+  },
+]);
 </script>

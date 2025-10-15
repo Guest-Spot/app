@@ -8,6 +8,7 @@
       :loading="loading"
       class="opening-times-card"
     />
+    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
     <InfoCard v-if="contacts.length" title="Contacts" icon="location_on" :data="contacts" />
   </div>
 </template>
@@ -50,6 +51,14 @@ const contacts = computed(() =>
     },
   ].filter((contact) => !!contact.value),
 );
+
+const links = computed(() => [
+  {
+    label: 'Portfolio',
+    value: props.shopData.link || '',
+    type: InfoItemType.Link,
+  },
+]);
 
 const workingHours = computed(() => {
   const times = [...(props.shopData.openingHours || [])];
