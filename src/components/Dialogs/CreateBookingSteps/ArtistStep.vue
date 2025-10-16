@@ -168,7 +168,10 @@ const innerSearchQuery = computed({
   .artist-option {
     cursor: pointer;
     border: 1px solid transparent;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
     position: relative;
 
     &.selected {

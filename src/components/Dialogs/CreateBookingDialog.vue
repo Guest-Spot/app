@@ -94,14 +94,7 @@
           class="bg-block"
           @click="closeDialog"
         />
-        <q-btn
-          v-else
-          label="Back"
-          rounded
-          unelevated
-          class="bg-block"
-          @click="goToPrevStep"
-        />
+        <q-btn v-else label="Back" rounded unelevated class="bg-block" @click="goToPrevStep" />
         <div class="actions-right flex q-gap-sm">
           <q-btn
             v-if="currentStep < 3"
@@ -205,10 +198,7 @@ const schedule = reactive({
 const referenceFiles = ref<File[]>([]);
 
 const rules = {
-  required:
-    (field: string) =>
-    (val: string | null | undefined) =>
-      !!val || `${field} is required`,
+  required: (field: string) => (val: string | null | undefined) => !!val || `${field} is required`,
   email: (val: string | null | undefined) => {
     if (!val) return 'Email is required';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -429,11 +419,7 @@ const onSubmit = async () => {
     // Remove undefined fields to avoid GraphQL errors
     Object.keys(mutationVariables.data).forEach((key) => {
       const value = mutationVariables.data[key as keyof typeof mutationVariables.data];
-      if (
-        value === undefined ||
-        value === null ||
-        (Array.isArray(value) && value.length === 0)
-      ) {
+      if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
         delete mutationVariables.data[key as keyof typeof mutationVariables.data];
       }
     });
@@ -623,7 +609,10 @@ onMounted(() => {
       color: rgba(0, 0, 0, 0.4);
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 
       &.active {
         border: 1px solid var(--q-primary);

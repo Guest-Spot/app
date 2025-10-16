@@ -97,9 +97,7 @@ const userStore = useUserStore();
 const { formatTimeAgo } = useDate();
 
 const isSent = computed(() => props.invite.sender === userStore.getUser?.documentId);
-const isReceived = computed(
-  () => props.invite.recipient === userStore.getUser?.documentId,
-);
+const isReceived = computed(() => props.invite.recipient === userStore.getUser?.documentId);
 
 // Methods
 const getStatusLabel = (status: IInvite['reaction']) => {

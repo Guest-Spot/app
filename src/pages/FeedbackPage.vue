@@ -4,9 +4,7 @@
       <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
-      <h2 class="text-h5 q-my-none">
-        Share your <span class="text-primary">feedback</span>
-      </h2>
+      <h2 class="text-h5 q-my-none">Share your <span class="text-primary">feedback</span></h2>
     </div>
 
     <div class="q-my-auto full-width">

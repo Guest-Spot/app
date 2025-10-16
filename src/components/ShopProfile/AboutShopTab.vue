@@ -197,7 +197,7 @@ const shopData = reactive<IShopFormData>({
   email: '',
   openingHours: [],
 });
-const shopDataOriginal = reactive<IShopFormData>({...shopData});
+const shopDataOriginal = reactive<IShopFormData>({ ...shopData });
 // ------------------------------------------------------------------------//
 
 const imagesForRemove = ref<string[]>([]);
@@ -212,7 +212,8 @@ const hasChanges = computed(() => {
   const { openingHours: _currentHours, ...currentWithoutHours } = shopData;
 
   return (
-    Object.keys(compareAndReturnDifferences(originalWithoutHours, currentWithoutHours)).length > 0 ||
+    Object.keys(compareAndReturnDifferences(originalWithoutHours, currentWithoutHours)).length >
+      0 ||
     imagesForUpload.value.length > 0 ||
     imagesForRemove.value.length > 0 ||
     openingHoursChanges.value
@@ -220,7 +221,9 @@ const hasChanges = computed(() => {
 });
 
 // Helper function to build hours map (defined outside computed for better performance)
-const buildHoursMap = (hours: IOpeningHours[] = []): Record<string, { start: string | null; end: string | null }> => {
+const buildHoursMap = (
+  hours: IOpeningHours[] = [],
+): Record<string, { start: string | null; end: string | null }> => {
   return hours.reduce<Record<string, { start: string | null; end: string | null }>>((acc, hour) => {
     if (!hour) return acc;
 
@@ -320,7 +323,7 @@ const saveChanges = async () => {
     await handleOpeningHoursChanges(
       shopDataOriginal.openingHours || [],
       shopData.openingHours || [],
-      user.value.id
+      user.value.id,
     );
 
     // Update main shop data (excluding opening hours)

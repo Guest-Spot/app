@@ -28,7 +28,7 @@ export default function useOpeningHours() {
   async function handleOpeningHoursChanges(
     originalHours: IOpeningHours[],
     currentHours: IOpeningHours[],
-    userId: string
+    userId: string,
   ): Promise<void> {
     // Find hours to create, update, or delete
     const hoursToCreate: IOpeningHours[] = [];
@@ -37,7 +37,7 @@ export default function useOpeningHours() {
 
     // Check for new or updated hours
     for (const currentHour of currentHours) {
-      const originalHour = originalHours.find(h => h.day === currentHour.day);
+      const originalHour = originalHours.find((h) => h.day === currentHour.day);
 
       if (!originalHour && (currentHour.start || currentHour.end)) {
         // New hour to create
@@ -67,7 +67,7 @@ export default function useOpeningHours() {
 
     // Check for deleted hours (days that existed in original but not in current)
     for (const originalHour of originalHours) {
-      const currentHour = currentHours.find(h => h.day === originalHour.day);
+      const currentHour = currentHours.find((h) => h.day === originalHour.day);
       if (!currentHour && originalHour.documentId) {
         hoursToDelete.push(originalHour.documentId);
       }
@@ -86,7 +86,7 @@ export default function useOpeningHours() {
             end: hour.end,
             user: userId, // Associate with user
           },
-        })
+        }),
       );
     }
 
@@ -100,7 +100,7 @@ export default function useOpeningHours() {
             start: hour.start,
             end: hour.end,
           },
-        })
+        }),
       );
     }
 
@@ -109,7 +109,7 @@ export default function useOpeningHours() {
       promises.push(
         deleteOpeningHour({
           documentId: hourId,
-        })
+        }),
       );
     }
 
@@ -125,7 +125,7 @@ export default function useOpeningHours() {
    */
   async function createSingleOpeningHour(
     data: Omit<IOpeningHours, 'documentId'>,
-    userId: string
+    userId: string,
   ): Promise<unknown> {
     return createOpeningHour({
       data: {
@@ -142,7 +142,7 @@ export default function useOpeningHours() {
    */
   async function updateSingleOpeningHour(
     documentId: string,
-    data: Omit<IOpeningHours, 'documentId'>
+    data: Omit<IOpeningHours, 'documentId'>,
   ): Promise<unknown> {
     return updateOpeningHour({
       documentId,

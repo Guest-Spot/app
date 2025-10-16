@@ -1,8 +1,5 @@
 <template>
-  <q-page
-    class="page q-pb-lg flex column items-start q-gap-md"
-    :class="{ 'q-pb-4xl': isGuest }"
-  >
+  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-4xl': isGuest }">
     <div class="container">
       <!-- Back Button -->
       <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">

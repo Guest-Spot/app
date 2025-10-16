@@ -1,18 +1,18 @@
-import { ApolloError } from "@apollo/client/errors";
+import { ApolloError } from '@apollo/client/errors';
 
-import { type ApolloServerError } from "src/interfaces/apollo";
+import { type ApolloServerError } from 'src/interfaces/apollo';
 
 const isApolloServerError = (error: unknown): error is ApolloServerError => {
-  if (!error || typeof error !== "object") {
+  if (!error || typeof error !== 'object') {
     return false;
   }
 
   const extensions =
-    "extensions" in error && typeof (error as Record<string, unknown>).extensions === "object"
+    'extensions' in error && typeof (error as Record<string, unknown>).extensions === 'object'
       ? (error as { extensions: unknown }).extensions
       : null;
 
-  if (!extensions || typeof extensions !== "object" || !("error" in extensions)) {
+  if (!extensions || typeof extensions !== 'object' || !('error' in extensions)) {
     return false;
   }
 
@@ -20,9 +20,9 @@ const isApolloServerError = (error: unknown): error is ApolloServerError => {
 
   return Boolean(
     nestedError &&
-      typeof nestedError === "object" &&
-      "message" in nestedError &&
-      typeof (nestedError as { message: unknown }).message === "string"
+      typeof nestedError === 'object' &&
+      'message' in nestedError &&
+      typeof (nestedError as { message: unknown }).message === 'string',
   );
 };
 

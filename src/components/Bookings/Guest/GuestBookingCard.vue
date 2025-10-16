@@ -7,8 +7,10 @@
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm bg-block">
-          <q-img :src="booking.artist?.avatar?.url"
-            spinner-color="dark" spinner-size="16px"
+          <q-img
+            :src="booking.artist?.avatar?.url"
+            spinner-color="dark"
+            spinner-size="16px"
             :ratio="0.85"
             v-if="booking.artist?.avatar?.url"
           />
@@ -48,13 +50,7 @@
         v-if="booking.references && booking.references.length > 0"
         class="references-count q-mt-sm"
       >
-        <q-chip
-          size="sm"
-          icon="image"
-          color="primary"
-          text-color="white"
-          dense
-        >
+        <q-chip size="sm" icon="image" color="primary" text-color="white" dense>
           {{ booking.references.length }} reference{{ booking.references.length > 1 ? 's' : '' }}
         </q-chip>
       </div>
@@ -205,4 +201,3 @@ const handleClick = () => {
   }
 }
 </style>
-

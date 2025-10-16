@@ -30,11 +30,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed } from 'vue';
 
 interface TouchPosition {
-  x: number
-  y: number
+  x: number;
+  y: number;
 }
 
 // Animation and behavior constants
@@ -53,7 +53,7 @@ const ANIMATION_CONFIG = {
 
   // Timing
   RELOAD_DELAY: 500, // Delay before actual reload
-} as const
+} as const;
 
 const props = defineProps({
   reloadText: {
@@ -72,175 +72,171 @@ const props = defineProps({
     type: Number,
     default: 2, // Minimum ratio of vertical to horizontal movement
   },
-})
+});
 
-const isReloading = ref(false)
-const isPulling = ref(false)
-const pullDistance = ref(0)
-const touchStart = reactive<TouchPosition>({ x: 0, y: 0 })
-const touchCurrent = reactive<TouchPosition>({ x: 0, y: 0 })
-const touchStartTime = ref(0)
-const isSwiping = ref(false)
+const isReloading = ref(false);
+const isPulling = ref(false);
+const pullDistance = ref(0);
+const touchStart = reactive<TouchPosition>({ x: 0, y: 0 });
+const touchCurrent = reactive<TouchPosition>({ x: 0, y: 0 });
+const touchStartTime = ref(0);
+const isSwiping = ref(false);
 
 const pageHasScroll = () => {
-  const root = document.querySelector('#q-app')
+  const root = document.querySelector('#q-app');
 
   if (!root) {
-    return false
+    return false;
   }
 
-  const scrollOffset = Math.max(
-    window.scrollY ?? 0,
-    window.pageYOffset ?? 0,
-    root.scrollTop ?? 0
-  )
+  const scrollOffset = Math.max(window.scrollY ?? 0, window.pageYOffset ?? 0, root.scrollTop ?? 0);
 
-  return scrollOffset > 0
-}
+  return scrollOffset > 0;
+};
 
 // Computed properties for pull indicator animation
 const pullOpacity = computed(() => {
   const opacity = Math.min(
     (pullDistance.value - ANIMATION_CONFIG.OPACITY_THRESHOLD) /
       (ANIMATION_CONFIG.OPACITY_MAX_DISTANCE - ANIMATION_CONFIG.OPACITY_THRESHOLD),
-    1
-  )
-  return Math.max(0, opacity)
-})
+    1,
+  );
+  return Math.max(0, opacity);
+});
 
 const pullRotation = computed(() => {
   return (
     (pullDistance.value / ANIMATION_CONFIG.ROTATION_MAX_DISTANCE) *
     ANIMATION_CONFIG.ROTATION_MAX_DEGREES
-  )
-})
+  );
+});
 
 const pullVerticalOffset = computed(() => {
   return Math.min(
     pullDistance.value * ANIMATION_CONFIG.MOVE_MULTIPLIER,
-    ANIMATION_CONFIG.MAX_MOVE_DISTANCE
-  )
-})
+    ANIMATION_CONFIG.MAX_MOVE_DISTANCE,
+  );
+});
 
 const handleTouchStart = (event: TouchEvent) => {
-  if (event.touches.length !== 1 || isReloading.value) return
+  if (event.touches.length !== 1 || isReloading.value) return;
   if (pageHasScroll()) {
-    isSwiping.value = false
-    isPulling.value = false
-    pullDistance.value = 0
-    return
+    isSwiping.value = false;
+    isPulling.value = false;
+    pullDistance.value = 0;
+    return;
   }
 
-  const touch = event.touches[0]
-  touchStart.x = touch.clientX
-  touchStart.y = touch.clientY
-  touchCurrent.x = touch.clientX
-  touchCurrent.y = touch.clientY
-  touchStartTime.value = Date.now()
-  isSwiping.value = true
+  const touch = event.touches[0];
+  touchStart.x = touch.clientX;
+  touchStart.y = touch.clientY;
+  touchCurrent.x = touch.clientX;
+  touchCurrent.y = touch.clientY;
+  touchStartTime.value = Date.now();
+  isSwiping.value = true;
 
   // Reset pull state
-  isPulling.value = false
-  pullDistance.value = 0
-}
+  isPulling.value = false;
+  pullDistance.value = 0;
+};
 
 const handleTouchMove = (event: TouchEvent) => {
-  if (!isSwiping.value || event.touches.length !== 1 || isReloading.value) return
+  if (!isSwiping.value || event.touches.length !== 1 || isReloading.value) return;
   if (pageHasScroll()) {
-    isSwiping.value = false
-    isPulling.value = false
-    pullDistance.value = 0
-    return
+    isSwiping.value = false;
+    isPulling.value = false;
+    pullDistance.value = 0;
+    return;
   }
 
-  const touch = event.touches[0]
-  touchCurrent.x = touch.clientX
-  touchCurrent.y = touch.clientY
+  const touch = event.touches[0];
+  touchCurrent.x = touch.clientX;
+  touchCurrent.y = touch.clientY;
 
-  const deltaX = touchCurrent.x - touchStart.x
-  const deltaY = touchCurrent.y - touchStart.y
+  const deltaX = touchCurrent.x - touchStart.x;
+  const deltaY = touchCurrent.y - touchStart.y;
 
   // Check if swipe started near the top of the screen
-  const startedFromTop = touchStart.y <= props.maxStartPosition
+  const startedFromTop = touchStart.y <= props.maxStartPosition;
 
   // Check if it's a downward swipe
-  const isDownwardSwipe = deltaY > 0
-  const verticalDistance = Math.abs(deltaY)
-  const horizontalDistance = Math.abs(deltaX)
+  const isDownwardSwipe = deltaY > 0;
+  const verticalDistance = Math.abs(deltaY);
+  const horizontalDistance = Math.abs(deltaX);
 
   // Check if it's vertical enough
   const isVerticalEnough =
-    horizontalDistance === 0 || verticalDistance / horizontalDistance >= props.minVerticalRatio
+    horizontalDistance === 0 || verticalDistance / horizontalDistance >= props.minVerticalRatio;
 
   // Show pull indicator if conditions are met
   if (startedFromTop && isDownwardSwipe && isVerticalEnough) {
-    isPulling.value = true
-    pullDistance.value = verticalDistance
+    isPulling.value = true;
+    pullDistance.value = verticalDistance;
   } else {
-    isPulling.value = false
-    pullDistance.value = 0
+    isPulling.value = false;
+    pullDistance.value = 0;
   }
-}
+};
 
 const handleTouchEnd = () => {
-  if (!isSwiping.value) return
+  if (!isSwiping.value) return;
   if (pageHasScroll()) {
-    isSwiping.value = false
-    isPulling.value = false
-    pullDistance.value = 0
-    touchCurrent.x = touchStart.x
-    touchCurrent.y = touchStart.y
-    return
+    isSwiping.value = false;
+    isPulling.value = false;
+    pullDistance.value = 0;
+    touchCurrent.x = touchStart.x;
+    touchCurrent.y = touchStart.y;
+    return;
   }
 
-  isSwiping.value = false
+  isSwiping.value = false;
 
-  const deltaX = touchCurrent.x - touchStart.x
-  const deltaY = touchCurrent.y - touchStart.y
+  const deltaX = touchCurrent.x - touchStart.x;
+  const deltaY = touchCurrent.y - touchStart.y;
 
   // Check if swipe started near the top of the screen
-  const startedFromTop = touchStart.y <= props.maxStartPosition
+  const startedFromTop = touchStart.y <= props.maxStartPosition;
 
   // Check if it's a downward swipe with sufficient vertical distance
-  const isDownwardSwipe = deltaY > 0
-  const verticalDistance = Math.abs(deltaY)
-  const horizontalDistance = Math.abs(deltaX)
+  const isDownwardSwipe = deltaY > 0;
+  const verticalDistance = Math.abs(deltaY);
+  const horizontalDistance = Math.abs(deltaX);
 
   // More strict vertical ratio check
   const isVerticalEnough =
-    horizontalDistance === 0 || verticalDistance / horizontalDistance >= props.minVerticalRatio
+    horizontalDistance === 0 || verticalDistance / horizontalDistance >= props.minVerticalRatio;
 
   // Check minimum vertical distance
-  const hasMinimalVerticalDistance = verticalDistance >= props.swipeThreshold
+  const hasMinimalVerticalDistance = verticalDistance >= props.swipeThreshold;
 
   // Combine all conditions for a valid pull-to-refresh gesture
   const isValidPullToRefresh =
-    startedFromTop && isDownwardSwipe && isVerticalEnough && hasMinimalVerticalDistance
+    startedFromTop && isDownwardSwipe && isVerticalEnough && hasMinimalVerticalDistance;
 
   if (isValidPullToRefresh) {
-    triggerReload()
+    triggerReload();
   } else {
     // Reset pull state
-    isPulling.value = false
-    pullDistance.value = 0
+    isPulling.value = false;
+    pullDistance.value = 0;
   }
 
   // Sync current touch position with start to avoid stale deltas on next tap
-  touchCurrent.x = touchStart.x
-  touchCurrent.y = touchStart.y
-}
+  touchCurrent.x = touchStart.x;
+  touchCurrent.y = touchStart.y;
+};
 
 const triggerReload = () => {
-  isPulling.value = false
-  pullDistance.value = 0
-  isReloading.value = true
+  isPulling.value = false;
+  pullDistance.value = 0;
+  isReloading.value = true;
 
   // Add a small delay to show the spinner before reload
   setTimeout(() => {
     // Perform hard reload
-    window.location.reload()
-  }, ANIMATION_CONFIG.RELOAD_DELAY)
-}
+    window.location.reload();
+  }, ANIMATION_CONFIG.RELOAD_DELAY);
+};
 </script>
 
 <style scoped lang="scss">

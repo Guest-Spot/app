@@ -19,17 +19,11 @@
         <div v-if="artist" class="artist-section flex column q-gap-sm q-mb-md">
           <div class="artist-header flex items-center justify-between">
             <div class="section-label text-grey-6">Artist</div>
-            <div
-              class="status-badge text-caption text-bold"
-              :class="booking.reaction"
-            >
+            <div class="status-badge text-caption text-bold" :class="booking.reaction">
               {{ getStatusLabel(booking.reaction) }}
             </div>
           </div>
-          <ArtistCard
-            :artist="artist"
-            @click="viewArtistProfile"
-          />
+          <ArtistCard :artist="artist" @click="viewArtistProfile" />
         </div>
 
         <div class="flex column q-gap-sm">
@@ -38,23 +32,13 @@
           <div class="flex column q-gap-md">
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
 
-            <InfoCard
-              title="Tattoo Description"
-              icon="description"
-              :data="descriptionData"
-            />
+            <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
           </div>
         </div>
       </q-card-section>
 
       <q-card-actions class="dialog-actions bg-block">
-        <q-btn
-          label="Close"
-          rounded
-          unelevated
-          class="full-width bg-block"
-          @click="closeDialog"
-        />
+        <q-btn label="Close" rounded unelevated class="full-width bg-block" @click="closeDialog" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -132,7 +116,6 @@ const descriptionData = computed(() => {
     },
   ].filter(Boolean);
 });
-
 
 const getStatusLabel = (reaction: IBooking['reaction']): string => {
   const labels = {

@@ -58,13 +58,7 @@
             </div>
             <div class="input-group">
               <label class="input-label">My Location</label>
-              <q-input
-                v-model="locationModel"
-                outlined
-                dense
-                rounded
-                placeholder="City, country"
-              />
+              <q-input v-model="locationModel" outlined dense rounded placeholder="City, country" />
             </div>
           </div>
         </div>

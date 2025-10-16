@@ -52,8 +52,7 @@ const useInviteCompos = () => {
   const sentPendingInvites = computed(() =>
     invitesStore.getInvites.filter(
       (invite) =>
-        invite.reaction === EReactions.Pending &&
-        invite.sender === userStore.getUser?.documentId,
+        invite.reaction === EReactions.Pending && invite.sender === userStore.getUser?.documentId,
     ),
   );
 

@@ -1,8 +1,5 @@
 <template>
-  <q-page
-    class="page q-pb-lg flex column items-start q-gap-md"
-    :class="{ 'q-pb-4xl': isGuest }"
-  >
+  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-4xl': isGuest }">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -40,9 +37,16 @@
         <div class="container">
           <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
             <div class="flex column items-start full-width">
-              <div v-if="shopData.name || shopData.description" class="flex column items-start q-gap-sm">
+              <div
+                v-if="shopData.name || shopData.description"
+                class="flex column items-start q-gap-sm"
+              >
                 <span class="full-name text-h6">{{ shopData.name }}</span>
-                <ExpandableText collapsible :text="shopData.description" class="status text-body2 text-left text-grey-6" />
+                <ExpandableText
+                  collapsible
+                  :text="shopData.description"
+                  class="status text-body2 text-left text-grey-6"
+                />
               </div>
               <template v-else>
                 <q-skeleton type="text" width="50%" height="20px" />
@@ -281,7 +285,8 @@ onBeforeMount(() => {
   void loadPortfolio(null, {
     filters: { ownerDocumentId: { eq: route.params.documentId as string } },
   });
-  void loadShopArtists(null,
+  void loadShopArtists(
+    null,
     {
       filters: {
         parent: {

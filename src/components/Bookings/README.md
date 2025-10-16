@@ -22,10 +22,7 @@ A calendar-style view for displaying tattoo session bookings organized by date a
 
 ```vue
 <template>
-  <BookingCalendar 
-    :bookings="bookings" 
-    :loading="isLoading" 
-  />
+  <BookingCalendar :bookings="bookings" :loading="isLoading" />
 </template>
 
 <script setup lang="ts">
@@ -40,10 +37,10 @@ const isLoading = ref(false);
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `bookings` | `IBooking[]` | `[]` | Array of booking objects to display in the calendar |
-| `loading` | `boolean` | `false` | Shows loading spinner when true |
+| Prop       | Type         | Default | Description                                         |
+| ---------- | ------------ | ------- | --------------------------------------------------- |
+| `bookings` | `IBooking[]` | `[]`    | Array of booking objects to display in the calendar |
+| `loading`  | `boolean`    | `false` | Shows loading spinner when true                     |
 
 ### Booking Object Structure
 
@@ -52,13 +49,13 @@ The component expects bookings to follow the `IBooking` interface. For tattoo se
 ```typescript
 interface IBooking {
   documentId: string;
-  title: string;              // Tattoo title (e.g., "Dragon Sleeve Tattoo")
-  description: string;        // Detailed description of the tattoo
-  date: string;              // Format: YYYY-MM-DD or ISO date string
-  startTime: string;         // Session start time (Format: HH:mm:ss)
-  endTime: string;           // Session end time (Format: HH:mm:ss)
+  title: string; // Tattoo title (e.g., "Dragon Sleeve Tattoo")
+  description: string; // Detailed description of the tattoo
+  date: string; // Format: YYYY-MM-DD or ISO date string
+  startTime: string; // Session start time (Format: HH:mm:ss)
+  endTime: string; // Session end time (Format: HH:mm:ss)
   status: 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
-  location?: string;         // Shop/studio location
+  location?: string; // Shop/studio location
   artist?: {
     documentId: string;
     name: string;
@@ -105,6 +102,7 @@ interface IBooking {
 ### Interaction
 
 **Card View:**
+
 - Each booking card displays:
   - Artist avatar (or placeholder if not available)
   - Tattoo session title
@@ -115,6 +113,7 @@ interface IBooking {
 
 **Details Dialog:**
 When clicking the "Details" button, a comprehensive dialog appears showing:
+
 - Session title and status
 - Artist information with "View Profile" link
 - Session details (date, time range, location)
@@ -150,10 +149,7 @@ A dedicated dialog component for displaying detailed booking information.
 
 ```vue
 <template>
-  <BookingDetailsDialog
-    v-model="showDialog"
-    :booking="selectedBooking"
-  />
+  <BookingDetailsDialog v-model="showDialog" :booking="selectedBooking" />
 </template>
 
 <script setup lang="ts">
@@ -168,19 +164,18 @@ const selectedBooking = ref<IBooking | null>(null);
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `modelValue` | `boolean` | - | Controls dialog visibility (v-model) |
-| `booking` | `IBooking \| null` | - | Booking object to display details for |
+| Prop         | Type               | Default | Description                           |
+| ------------ | ------------------ | ------- | ------------------------------------- |
+| `modelValue` | `boolean`          | -       | Controls dialog visibility (v-model)  |
+| `booking`    | `IBooking \| null` | -       | Booking object to display details for |
 
 ### Events
 
-| Event | Payload | Description |
-|-------|---------|-------------|
+| Event               | Payload   | Description                            |
+| ------------------- | --------- | -------------------------------------- |
 | `update:modelValue` | `boolean` | Emitted when dialog visibility changes |
 
 ## Other Components
 
 - **BookingsList**: List view of bookings with filtering
 - **BookingCard**: Individual booking card component
-

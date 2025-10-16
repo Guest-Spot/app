@@ -30,9 +30,7 @@
     <div v-else class="fixed-center full-width text-center q-px-lg">
       <q-icon name="info" size="64px" color="grey-6" class="q-mb-md" />
       <h3 class="text-h6 text-bold q-mb-sm">Access Restricted</h3>
-      <p class="text-body2 text-grey-7">
-        This page is only available for guest users.
-      </p>
+      <p class="text-body2 text-grey-7">This page is only available for guest users.</p>
     </div>
   </q-page>
 </template>
@@ -61,4 +59,3 @@ const { isAuthenticated, isGuest } = useUser();
   min-height: 400px;
 }
 </style>
-

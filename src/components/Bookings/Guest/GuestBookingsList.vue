@@ -29,10 +29,7 @@
     </div>
 
     <!-- Booking Details Dialog -->
-    <BookingDetailsDialog
-      v-model="showDetailsDialog"
-      :booking="selectedBooking"
-    />
+    <BookingDetailsDialog v-model="showDetailsDialog" :booking="selectedBooking" />
   </div>
 </template>
 
@@ -46,9 +43,13 @@ import BookingDetailsDialog from 'src/components/Dialogs/BookingDetailsDialog.vu
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResults from 'src/components/NoResult.vue';
 
-const { result, loading } = useQuery<IBookingsQueryResponse>(BOOKINGS_QUERY, {}, {
-  fetchPolicy: 'network-only',
-});
+const { result, loading } = useQuery<IBookingsQueryResponse>(
+  BOOKINGS_QUERY,
+  {},
+  {
+    fetchPolicy: 'network-only',
+  },
+);
 
 const bookings = ref<IBooking[]>([]);
 const showDetailsDialog = ref<boolean>(false);
@@ -62,13 +63,13 @@ watch(
       bookings.value = newBookings;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const openBookingDetails = (booking: IBooking) => {
   selectedBooking.value = booking;
   showDetailsDialog.value = true;
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -79,4 +80,3 @@ const openBookingDetails = (booking: IBooking) => {
   }
 }
 </style>
-

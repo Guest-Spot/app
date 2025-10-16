@@ -103,7 +103,13 @@
                   </div>
                 </q-btn>
 
-                <q-btn round unelevated outline color="primary" :href="`${API_URL}/api/connect/apple`">
+                <q-btn
+                  round
+                  unelevated
+                  outline
+                  color="primary"
+                  :href="`${API_URL}/api/connect/apple`"
+                >
                   <div class="flex items-center justify-center q-gap-sm">
                     <AppleIcon width="18px" height="18px" />
                   </div>

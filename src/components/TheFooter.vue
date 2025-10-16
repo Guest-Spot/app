@@ -49,35 +49,36 @@ const bookings = {
     label: 'My Bookings',
     path: '/my-bookings',
   },
-}
+};
 
 const LINKS = computed(() => {
   return [
-  {
-    icon: 'search',
-    label: 'Search',
-    path: '/',
-    isActive: route.path === '/',
-  },
-  {
-    icon: 'bookmark',
-    label: 'Bookmarks',
-    path: '/bookmarks',
-    isActive: route.path === '/bookmarks',
-  },
-  {
-    icon: bookings[userStore.user?.type || UserType.Guest]?.icon,
-    label: bookings[userStore.user?.type || UserType.Guest]?.label,
-    path: bookings[userStore.user?.type || UserType.Guest]?.path,
-    isActive: route.path === bookings[userStore.user?.type || UserType.Guest]?.path,
-  },
-  {
-    icon: 'person',
-    label: 'Profile',
-    path: '/profile',
-    isActive: route.path === '/profile',
-  },
-]});
+    {
+      icon: 'search',
+      label: 'Search',
+      path: '/',
+      isActive: route.path === '/',
+    },
+    {
+      icon: 'bookmark',
+      label: 'Bookmarks',
+      path: '/bookmarks',
+      isActive: route.path === '/bookmarks',
+    },
+    {
+      icon: bookings[userStore.user?.type || UserType.Guest]?.icon,
+      label: bookings[userStore.user?.type || UserType.Guest]?.label,
+      path: bookings[userStore.user?.type || UserType.Guest]?.path,
+      isActive: route.path === bookings[userStore.user?.type || UserType.Guest]?.path,
+    },
+    {
+      icon: 'person',
+      label: 'Profile',
+      path: '/profile',
+      isActive: route.path === '/profile',
+    },
+  ];
+});
 </script>
 
 <style scoped lang="scss">

@@ -4,31 +4,13 @@
     <div class="calendar-header bg-block border-radius-lg q-px-md q-py-sm q-mb-md">
       <div class="flex items-center no-wrap justify-between q-gap-md full-width">
         <div class="flex items-center no-wrap q-gap-md">
-          <q-btn
-            icon="chevron_left"
-            flat
-            round
-            dense
-            @click="previousMonth"
-          />
+          <q-btn icon="chevron_left" flat round dense @click="previousMonth" />
           <div class="header-title text-h6 text-bold">
             {{ currentMonthYear }}
           </div>
-          <q-btn
-            icon="chevron_right"
-            flat
-            round
-            dense
-            @click="nextMonth"
-          />
+          <q-btn icon="chevron_right" flat round dense @click="nextMonth" />
         </div>
-        <q-btn
-          icon="today"
-          flat
-          round
-          dense
-          @click="goToToday"
-        >
+        <q-btn icon="today" flat round dense @click="goToToday">
           <q-tooltip>Go to today</q-tooltip>
         </q-btn>
       </div>
@@ -45,7 +27,7 @@
         v-for="(group, index) in groupedBookings"
         :key="group.weekLabel"
         class="week-group"
-        :class="{ 'q-mb-xl': (groupedBookings.length - 1) !== index }"
+        :class="{ 'q-mb-xl': groupedBookings.length - 1 !== index }"
       >
         <!-- Week Separator -->
         <div v-if="group.weekLabel" class="week-separator text-grey-6 text-weight-medium q-mb-md">
@@ -53,11 +35,7 @@
         </div>
 
         <!-- Days in Week -->
-        <div
-          v-for="day in group.days"
-          :key="day.date"
-          class="day-group q-mb-md"
-        >
+        <div v-for="day in group.days" :key="day.date" class="day-group q-mb-md">
           <div class="day-header flex items-center q-gap-md q-mb-sm">
             <div class="day-label">
               <div class="day-name text-grey-6 text-uppercase text-weight-medium">
@@ -81,14 +59,10 @@
               :class="getEventClass(booking)"
               @click="openBookingDetails(booking)"
             >
-            <div class="flex items-start justify-between q-gap-sm">
+              <div class="flex items-start justify-between q-gap-sm">
                 <div class="flex items-start q-gap-sm no-wrap flex-1">
                   <!-- Avatar (if artist available) -->
-                  <q-avatar
-                    v-if="booking.artist?.avatar?.url"
-                    size="40px"
-                    class="event-avatar"
-                  >
+                  <q-avatar v-if="booking.artist?.avatar?.url" size="40px" class="event-avatar">
                     <q-img
                       :src="booking.artist.avatar.url"
                       fit="cover"
@@ -137,10 +111,7 @@
     />
 
     <!-- Booking Details Dialog -->
-    <BookingDetailsDialog
-      v-model="showDetailsDialog"
-      :booking="selectedBooking"
-    />
+    <BookingDetailsDialog v-model="showDetailsDialog" :booking="selectedBooking" />
   </div>
 </template>
 
@@ -197,8 +168,9 @@ watch(
 
     if (!bookingsWithDate.length) return;
 
-    const firstBooking = bookingsWithDate
-      .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime())[0];
+    const firstBooking = bookingsWithDate.sort(
+      (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime(),
+    )[0];
 
     if (!firstBooking) return;
 
@@ -509,7 +481,6 @@ const goToToday = () => {
       }
     }
   }
-
 }
 
 .body--dark {
