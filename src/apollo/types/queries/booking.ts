@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client/core';
 
 export const BOOKINGS_QUERY = gql`
-  query Bookings {
-    bookings {
+  query Bookings($filters: BookingFiltersInput) {
+    bookings(filters: $filters) {
       documentId
       name
       email
@@ -25,6 +25,10 @@ export const BOOKINGS_QUERY = gql`
         avatar {
           url
         }
+        parent {
+          documentId
+          name
+        }
       }
       owner {
         documentId
@@ -33,4 +37,3 @@ export const BOOKINGS_QUERY = gql`
     }
   }
 `;
-

@@ -4,17 +4,39 @@ import type { IPicture } from './common';
 
 export interface IBooking {
   documentId: string;
-  title: string;
+  name: string;
+  email: string;
+  phone: string;
+  title?: string | null;
   description: string;
-  start: string;
-  day: string;
-  placement: string;
-  size: string;
-  location?: string;
+  placement?: string | null;
+  size?: string | null;
+  day?: string | null;
+  start?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  date?: string | null;
+  location?: string | null;
   reaction: EReactions;
-  artist: Pick<IUser, 'documentId' | 'name'>;
-  owner: Pick<IUser, 'documentId' | 'name'>;
+  status?: string | null;
+  type?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  artistDocumentId?: string | null;
+  shopDocumentId?: string | null;
   references: IPicture[];
+  artist?:
+    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience'> & {
+        avatar?: IPicture | null;
+        parent?: Pick<IUser, 'documentId' | 'name'> | null;
+      })
+    | null;
+  owner?: Pick<IUser, 'documentId' | 'name'> | null;
+  shop?:
+    | (Pick<IUser, 'documentId' | 'name'> & {
+        pictures?: IPicture[] | null;
+      })
+    | null;
 }
 
 export interface IBookingFilters {

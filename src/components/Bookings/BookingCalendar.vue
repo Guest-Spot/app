@@ -146,13 +146,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { useQuery } from '@vue/apollo-composable';
-import type { IBooking, IBookingsQueryResponse } from 'src/interfaces/booking';
+import type { IBooking } from 'src/interfaces/booking';
 import { NoResult } from 'src/components';
 import { BookingDetailsDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
-import { useUserStore } from 'src/stores/user';
-import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 import { EReactions } from 'src/interfaces/enums';
 
 interface DayGroup {
@@ -167,7 +164,16 @@ interface WeekGroup {
   days: DayGroup[];
 }
 
-const userStore = useUserStore();
+interface Props {
+  bookings: IBooking[];
+  loading: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  bookings: () => [],
+  loading: false,
+});
+
 const { formatTime } = useDate();
 
 // State
@@ -176,25 +182,8 @@ const showDetailsDialog = ref(false);
 const selectedBooking = ref<IBooking | null>(null);
 const hasInitializedDate = ref(false);
 
-const { result, loading } = useQuery<IBookingsQueryResponse>(
-  BOOKINGS_QUERY,
-  {},
-  {
-    fetchPolicy: 'network-only',
-  },
-);
-
-const userDocumentId = computed(() => userStore.getUser?.documentId);
-
 const shopBookings = computed<IBooking[]>(() => {
-  const allBookings = result.value?.bookings ?? [];
-  const documentId = userDocumentId.value;
-
-  if (!documentId) {
-    return allBookings;
-  }
-
-  return allBookings.filter((booking) => booking.owner?.documentId === documentId);
+  return props.bookings ?? [];
 });
 
 watch(
@@ -202,8 +191,13 @@ watch(
   (newBookings) => {
     if (hasInitializedDate.value || !newBookings.length) return;
 
-    const firstBooking = [...newBookings]
-      .filter((booking) => Boolean(booking.day))
+    const bookingsWithDate = [...newBookings].filter(
+      (booking): booking is IBooking & { day: string } => Boolean(booking.day),
+    );
+
+    if (!bookingsWithDate.length) return;
+
+    const firstBooking = bookingsWithDate
       .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime())[0];
 
     if (!firstBooking) return;
@@ -310,7 +304,7 @@ const groupedBookings = computed<WeekGroup[]>(() => {
   return weeks;
 });
 
-const isLoading = computed(() => loading.value);
+const isLoading = computed(() => props.loading);
 
 // Methods
 const getWeekStart = (date: Date): Date => {
