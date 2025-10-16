@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
-import type { IBooking, IBookingsQueryResponse, IBooking } from 'src/interfaces/booking';
+import type { IBooking, IBookingsQueryResponse } from 'src/interfaces/booking';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 import GuestBookingCard from './GuestBookingCard.vue';
 import BookingDetailsDialog from 'src/components/Dialogs/BookingDetailsDialog.vue';

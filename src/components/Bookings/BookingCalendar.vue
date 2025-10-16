@@ -115,7 +115,7 @@
                       </div>
                       <div class="flex items-center q-gap-xs">
                         <q-icon name="schedule" size="14px" color="grey-6" />
-                        <span class="text-grey-6">{{ formatTime(booking.startTime) }}</span>
+                        <span class="text-grey-6">{{ formatTime(booking.start) }}</span>
                       </div>
                     </div>
                   </div>
@@ -145,16 +145,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import type { IBooking } from 'src/interfaces/booking';
+import { ref, computed, watch } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
+import type { IBooking, IBookingsQueryResponse } from 'src/interfaces/booking';
 import { NoResult } from 'src/components';
 import { BookingDetailsDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
-
-interface Props {
-  bookings?: IBooking[];
-  loading?: boolean;
-}
+import { useUserStore } from 'src/stores/user';
+import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
+import { EReactions } from 'src/interfaces/enums';
 
 interface DayGroup {
   date: string;
@@ -168,18 +167,70 @@ interface WeekGroup {
   days: DayGroup[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  bookings: () => [],
-  loading: false,
-});
-
+const userStore = useUserStore();
 const { formatTime } = useDate();
 
 // State
 const currentDate = ref(new Date());
 const showDetailsDialog = ref(false);
 const selectedBooking = ref<IBooking | null>(null);
-const isLoading = computed(() => props.loading);
+const hasInitializedDate = ref(false);
+
+const { result, loading } = useQuery<IBookingsQueryResponse>(
+  BOOKINGS_QUERY,
+  {},
+  {
+    fetchPolicy: 'network-only',
+  },
+);
+
+const userDocumentId = computed(() => userStore.getUser?.documentId);
+
+const shopBookings = computed<IBooking[]>(() => {
+  const allBookings = result.value?.bookings ?? [];
+  const documentId = userDocumentId.value;
+
+  if (!documentId) {
+    return allBookings;
+  }
+
+  return allBookings.filter((booking) => booking.owner?.documentId === documentId);
+});
+
+watch(
+  shopBookings,
+  (newBookings) => {
+    if (hasInitializedDate.value || !newBookings.length) return;
+
+    const firstBooking = [...newBookings]
+      .filter((booking) => Boolean(booking.day))
+      .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime())[0];
+
+    if (!firstBooking) return;
+
+    const targetDate = new Date(firstBooking.day);
+
+    if (!Number.isNaN(targetDate.getTime())) {
+      currentDate.value = targetDate;
+      hasInitializedDate.value = true;
+    }
+  },
+  { immediate: true },
+);
+
+const bookingsForCurrentMonth = computed<IBooking[]>(() => {
+  const month = currentDate.value.getMonth();
+  const year = currentDate.value.getFullYear();
+
+  return shopBookings.value.filter((booking) => {
+    if (!booking.day) return false;
+
+    const bookingDate = new Date(booking.day);
+    if (Number.isNaN(bookingDate.getTime())) return false;
+
+    return bookingDate.getMonth() === month && bookingDate.getFullYear() === year;
+  });
+});
 
 // Computed
 const currentMonthYear = computed(() => {
@@ -190,17 +241,25 @@ const currentMonthYear = computed(() => {
 });
 
 const groupedBookings = computed<WeekGroup[]>(() => {
-  if (!props.bookings || props.bookings.length === 0) return [];
+  if (!bookingsForCurrentMonth.value.length) return [];
 
   // Sort bookings by date
-  const sortedBookings = [...props.bookings].sort((a, b) => {
-    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  const sortedBookings = [...bookingsForCurrentMonth.value].sort((a, b) => {
+    const dateDifference = new Date(a.day).getTime() - new Date(b.day).getTime();
+
+    if (dateDifference !== 0) {
+      return dateDifference;
+    }
+
+    return (a.start || '').localeCompare(b.start || '');
   });
 
   // Group by date
   const bookingsByDate = new Map<string, IBooking[]>();
   sortedBookings.forEach((booking) => {
-    const dateKey = booking.date.split('T')[0] || booking.date; // Get YYYY-MM-DD
+    if (!booking.day) return;
+
+    const dateKey = booking.day.split('T')[0] || booking.day; // Get YYYY-MM-DD
     if (!bookingsByDate.has(dateKey)) {
       bookingsByDate.set(dateKey, []);
     }
@@ -214,6 +273,8 @@ const groupedBookings = computed<WeekGroup[]>(() => {
 
   Array.from(bookingsByDate.entries()).forEach(([dateStr, bookings]) => {
     const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return;
+
     const weekStart = getWeekStart(date);
 
     // If new week, save previous week and start new one
@@ -249,12 +310,16 @@ const groupedBookings = computed<WeekGroup[]>(() => {
   return weeks;
 });
 
+const isLoading = computed(() => loading.value);
+
 // Methods
 const getWeekStart = (date: Date): Date => {
   const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
   const day = d.getDay();
   const diff = d.getDate() - day; // adjust when day is sunday
-  return new Date(d.setDate(diff));
+  d.setDate(diff);
+  return d;
 };
 
 const getWeekLabel = (weekStart: Date): string => {
@@ -284,22 +349,18 @@ const isToday = (dateStr: string): boolean => {
 };
 
 const getEventClass = (booking: IBooking): string => {
-  const classes = ['event-status-' + booking.status];
+  const classes = [];
 
   // Color based on status
-  switch (booking.status) {
-    case 'accepted':
+  switch (booking.reaction) {
+    case EReactions.Accepted:
       classes.push('event-primary');
       break;
-    case 'pending':
+    case EReactions.Pending:
       classes.push('event-warning');
       break;
-    case 'rejected':
-    case 'cancelled':
+    case EReactions.Rejected:
       classes.push('event-negative');
-      break;
-    case 'completed':
-      classes.push('event-positive');
       break;
   }
 
@@ -326,10 +387,6 @@ const nextMonth = () => {
 const goToToday = () => {
   currentDate.value = new Date();
 };
-
-onMounted(() => {
-  // Component mounted
-});
 </script>
 
 <style scoped lang="scss">
@@ -485,4 +542,3 @@ onMounted(() => {
   }
 }
 </style>
-

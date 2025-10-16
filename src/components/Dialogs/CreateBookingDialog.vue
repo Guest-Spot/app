@@ -235,7 +235,7 @@ const localArtists = ref<IUser[]>([]);
 const currentPage = ref(1);
 const totalArtists = ref(0);
 const hasMoreArtists = ref(true);
-const selectedArtistId = ref<string | null>(props.artistDocumentId ?? null);
+const selectedArtistId = ref<string | null>(props.artistDocumentId || null);
 
 const {
   load: loadArtistsQuery,
@@ -271,11 +271,10 @@ const resetPagination = () => {
   currentPage.value = 1;
   totalArtists.value = 0;
   hasMoreArtists.value = true;
-  localArtists.value = [];
 };
 
 const buildQueryVariables = () => {
-  const filters = {
+  const filters: Record<string, unknown> = {
     type: {
       eq: UserType.Artist,
     },
@@ -284,6 +283,15 @@ const buildQueryVariables = () => {
       name: searchQuery.value || null,
     }),
   };
+
+  // If shopDocumentId is provided, filter artists by parent shop
+  if (props.shopDocumentId) {
+    filters.parent = {
+      documentId: {
+        eq: props.shopDocumentId,
+      },
+    };
+  }
 
   const sort = sortSettings.value.sortBy
     ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
@@ -304,7 +312,7 @@ const loadArtistsList = (resetData = false) => {
     resetPagination();
   }
 
-  if ((localArtists.value.length === 0 || resetData) && !isLoadingQuery.value) {
+  if (!isLoadingQuery.value) {
     void loadArtistsQuery(null, buildQueryVariables());
   }
 };
@@ -454,7 +462,7 @@ const resetFormState = () => {
   activeFilters.value = { type: UserType.Artist, city: null, name: null };
   sortSettings.value = { sortBy: null, sortDirection: 'asc' };
   referenceFiles.value = [];
-  selectedArtistId.value = props.artistDocumentId ?? null;
+  selectedArtistId.value = props.artistDocumentId || null;
 
   Object.assign(bookingDetails, {
     name: '',
@@ -490,6 +498,8 @@ watch(
     isVisible.value = newValue;
     if (newValue) {
       resetFormState();
+      // Force reload artists on dialog open
+      resetPagination();
       loadArtistsList(true);
       void loadCities();
     }
@@ -549,6 +559,7 @@ onErrorCities((error) => {
 
 onMounted(() => {
   if (props.modelValue) {
+    resetPagination();
     loadArtistsList(true);
     void loadCities();
   }
@@ -605,26 +616,22 @@ onMounted(() => {
       padding: 4px 16px;
       min-height: 32px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.06);
-      color: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.03);
+      color: rgba(0, 0, 0, 0.4);
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 
       &.active {
         border: 1px solid var(--q-primary);
-        color: #fff;
+        background: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.6);
         transform: translateY(-1px);
       }
 
       &.completed {
         background: var(--q-primary) !important;
         color: #fff;
-      }
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.12);
-        color: rgba(0, 0, 0, 0.75);
       }
 
       span {
@@ -656,8 +663,13 @@ onMounted(() => {
 
     .custom-stepper {
       .stepper-item {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.4);
+
+        &.active {
+          background: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.7);
+        }
       }
     }
   }

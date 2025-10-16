@@ -28,6 +28,7 @@
             v-model="phoneModel"
             outlined
             rounded
+            mask="+(###) ### - ####"
             placeholder="Enter your phone"
             :rules="[rules.required('Phone')]"
           />

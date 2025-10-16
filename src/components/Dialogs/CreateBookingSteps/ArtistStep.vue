@@ -94,7 +94,7 @@ const props = defineProps({
     default: () => [],
   },
   selectedArtistId: {
-    type: String,
+    type: [String, null] as PropType<string | null | undefined>,
     default: null,
   },
   searchQuery: {
