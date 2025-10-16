@@ -144,7 +144,7 @@ const bookingFilters = computed(() => {
   };
 });
 
-const { result, loading } = useQuery<IBookingsQueryResponse>(
+const { result, loading, refetch: refetchBookings } = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
   () => {
     const filters = bookingFilters.value;
@@ -161,6 +161,10 @@ const isLoading = computed(() => loading.value);
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
+
+  if (tab.tab === TAB_BOOKINGS) {
+    void refetchBookings();
+  }
 };
 </script>
 

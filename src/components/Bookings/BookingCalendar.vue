@@ -1,20 +1,13 @@
 <template>
   <div class="booking-calendar">
-    <!-- Calendar Header -->
-    <div class="calendar-header bg-block border-radius-lg q-px-md q-py-sm q-mb-md">
-      <div class="flex items-center no-wrap justify-between q-gap-md full-width">
-        <div class="flex items-center no-wrap q-gap-md">
-          <q-btn icon="chevron_left" flat round dense @click="previousMonth" />
-          <div class="header-title text-h6 text-bold">
-            {{ currentMonthYear }}
-          </div>
-          <q-btn icon="chevron_right" flat round dense @click="nextMonth" />
-        </div>
-        <q-btn icon="today" flat round dense @click="goToToday">
-          <q-tooltip>Go to today</q-tooltip>
-        </q-btn>
-      </div>
-    </div>
+    <BookingCalendarHeader
+      :current-month-label="currentMonthYear"
+      :can-go-prev="canGoPrev"
+      :can-go-next="canGoNext"
+      @previous="previousMonth"
+      @next="nextMonth"
+      @today="goToToday"
+    />
 
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-container">
@@ -129,6 +122,7 @@ import useDate from 'src/modules/useDate';
 import { EReactions } from 'src/interfaces/enums';
 import { UPDATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 import useNotify from 'src/modules/useNotify';
+import BookingCalendarHeader from './BookingCalendarHeader.vue';
 
 interface DayGroup {
   date: string;
@@ -167,6 +161,10 @@ const showDetailsDialog = ref(false);
 const selectedBooking = ref<IBooking | null>(null);
 const hasInitializedDate = ref(false);
 const internalBookings = ref<IBooking[]>([]);
+
+const getMonthStartDate = (date: Date): Date => {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+};
 
 watch(
   () => props.bookings,
@@ -229,6 +227,90 @@ const bookingsForCurrentMonth = computed<IBooking[]>(() => {
 
     return bookingDate.getMonth() === month && bookingDate.getFullYear() === year;
   });
+});
+
+const availableMonths = computed<Date[]>(() => {
+  const monthMap = new Map<string, Date>();
+
+  shopBookings.value.forEach((booking) => {
+    if (!booking.day) return;
+
+    const bookingDate = new Date(booking.day);
+    if (Number.isNaN(bookingDate.getTime())) return;
+
+    const monthStart = getMonthStartDate(bookingDate);
+    const key = `${monthStart.getFullYear()}-${monthStart.getMonth()}`;
+
+    if (!monthMap.has(key)) {
+      monthMap.set(key, monthStart);
+    }
+  });
+
+  return Array.from(monthMap.values()).sort((a, b) => a.getTime() - b.getTime());
+});
+
+const previousAvailableMonth = computed<Date | null>(() => {
+  if (!availableMonths.value.length) return null;
+
+  const currentMonthStart = getMonthStartDate(currentDate.value);
+  const currentIndex = availableMonths.value.findIndex(
+    (month) =>
+      month.getFullYear() === currentMonthStart.getFullYear() &&
+      month.getMonth() === currentMonthStart.getMonth(),
+  );
+
+  if (currentIndex > 0) {
+    return availableMonths.value[currentIndex - 1];
+  }
+
+  if (currentIndex === -1) {
+    const candidates = availableMonths.value.filter(
+      (month) => month.getTime() < currentMonthStart.getTime(),
+    );
+
+    if (candidates.length) {
+      return candidates[candidates.length - 1];
+    }
+  }
+
+  return null;
+});
+
+const nextAvailableMonth = computed<Date | null>(() => {
+  if (!availableMonths.value.length) return null;
+
+  const currentMonthStart = getMonthStartDate(currentDate.value);
+  const currentIndex = availableMonths.value.findIndex(
+    (month) =>
+      month.getFullYear() === currentMonthStart.getFullYear() &&
+      month.getMonth() === currentMonthStart.getMonth(),
+  );
+
+  if (currentIndex >= 0 && currentIndex < availableMonths.value.length - 1) {
+    return availableMonths.value[currentIndex + 1];
+  }
+
+  if (currentIndex === -1) {
+    const candidate = availableMonths.value.find(
+      (month) => month.getTime() > currentMonthStart.getTime(),
+    );
+
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  return null;
+});
+
+const canGoPrev = computed<boolean>(() => Boolean(previousAvailableMonth.value));
+const canGoNext = computed<boolean>(() => Boolean(nextAvailableMonth.value));
+
+watch(availableMonths, (months) => {
+  if (!months.length) {
+    currentDate.value = new Date();
+    hasInitializedDate.value = false;
+  }
 });
 
 // Computed
@@ -425,35 +507,46 @@ const openBookingDetails = (booking: IBooking) => {
 };
 
 const previousMonth = () => {
-  const newDate = new Date(currentDate.value);
-  newDate.setMonth(newDate.getMonth() - 1);
-  currentDate.value = newDate;
+  const targetMonth = previousAvailableMonth.value;
+
+  if (!targetMonth) {
+    return;
+  }
+
+  currentDate.value = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
 };
 
 const nextMonth = () => {
-  const newDate = new Date(currentDate.value);
-  newDate.setMonth(newDate.getMonth() + 1);
-  currentDate.value = newDate;
+  const targetMonth = nextAvailableMonth.value;
+
+  if (!targetMonth) {
+    return;
+  }
+
+  currentDate.value = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
 };
 
 const goToToday = () => {
-  currentDate.value = new Date();
+  const today = new Date();
+  const todayMonthStart = getMonthStartDate(today);
+
+  const matchingMonth = availableMonths.value.find(
+    (month) =>
+      month.getFullYear() === todayMonthStart.getFullYear() &&
+      month.getMonth() === todayMonthStart.getMonth(),
+  );
+
+  if (matchingMonth) {
+    currentDate.value = new Date(matchingMonth.getFullYear(), matchingMonth.getMonth(), 1);
+    return;
+  }
+
+  currentDate.value = today;
 };
 </script>
 
 <style scoped lang="scss">
 .booking-calendar {
-  .calendar-header {
-    position: sticky;
-    top: 24px;
-    z-index: 1;
-
-    .header-title {
-      min-width: 140px;
-      text-align: center;
-    }
-  }
-
   .loading-container {
     display: flex;
     justify-content: center;
