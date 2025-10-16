@@ -9,13 +9,7 @@
       <!-- Action Buttons -->
       <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs">
         <!-- Shop Info Button -->
-        <q-btn
-          v-if="artistData.parent"
-          round
-          flat
-          @click="openShopDialog"
-          class="bg-block"
-        >
+        <q-btn v-if="artistData.parent" round flat @click="openShopDialog" class="bg-block">
           <q-icon name="store" size="22px" color="primary" />
         </q-btn>
 

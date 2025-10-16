@@ -132,7 +132,11 @@ const bookingFilters = computed(() => {
   };
 });
 
-const { result, loading, refetch: refetchBookings } = useQuery<IBookingsQueryResponse>(
+const {
+  result,
+  loading,
+  refetch: refetchBookings,
+} = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
   () => {
     const filters = bookingFilters.value;
