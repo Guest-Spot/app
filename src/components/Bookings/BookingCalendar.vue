@@ -90,7 +90,7 @@
                       </div>
                       <div class="flex items-center q-gap-xs">
                         <q-icon name="schedule" size="14px" color="grey-6" />
-                        <span class="text-grey-6">{{ formatTime(booking.start) }}</span>
+                        <span class="text-grey-6">{{ formatTime(booking.start || '') }}</span>
                       </div>
                     </div>
                   </div>
@@ -112,17 +112,24 @@
     />
 
     <!-- Booking Details Dialog -->
-    <BookingDetailsDialog v-model="showDetailsDialog" :booking="selectedBooking" />
+    <BookingDetailsDialog
+      v-model="showDetailsDialog"
+      :booking="selectedBooking"
+      @update:booking-reaction="handleBookingReactionUpdate"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useMutation } from '@vue/apollo-composable';
 import type { IBooking } from 'src/interfaces/booking';
 import { NoResult } from 'src/components';
 import { BookingDetailsDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import { EReactions } from 'src/interfaces/enums';
+import { UPDATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
+import useNotify from 'src/modules/useNotify';
 
 interface DayGroup {
   date: string;
@@ -136,6 +143,11 @@ interface WeekGroup {
   days: DayGroup[];
 }
 
+interface BookingReactionUpdatePayload {
+  documentId: string;
+  reaction: EReactions;
+}
+
 interface Props {
   bookings: IBooking[];
   loading: boolean;
@@ -147,15 +159,36 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const { formatTime } = useDate();
+const { showError } = useNotify();
+const { mutate: updateBookingMutation } = useMutation(UPDATE_BOOKING_MUTATION);
 
 // State
 const currentDate = ref(new Date());
 const showDetailsDialog = ref(false);
 const selectedBooking = ref<IBooking | null>(null);
 const hasInitializedDate = ref(false);
+const internalBookings = ref<IBooking[]>([]);
+
+watch(
+  () => props.bookings,
+  (newBookings) => {
+    internalBookings.value = (newBookings ?? []).map((booking) => ({ ...booking }));
+
+    if (selectedBooking.value) {
+      const updatedSelected = internalBookings.value.find(
+        (booking) => booking.documentId === selectedBooking.value?.documentId,
+      );
+
+      if (updatedSelected) {
+        selectedBooking.value = { ...updatedSelected };
+      }
+    }
+  },
+  { immediate: true, deep: true },
+);
 
 const shopBookings = computed<IBooking[]>(() => {
-  return props.bookings ?? [];
+  return internalBookings.value;
 });
 
 watch(
@@ -212,7 +245,7 @@ const groupedBookings = computed<WeekGroup[]>(() => {
 
   // Sort bookings by date
   const sortedBookings = [...bookingsForCurrentMonth.value].sort((a, b) => {
-    const dateDifference = new Date(a.day).getTime() - new Date(b.day).getTime();
+    const dateDifference = new Date(a.day || '').getTime() - new Date(b.day || '').getTime();
 
     if (dateDifference !== 0) {
       return dateDifference;
@@ -278,6 +311,59 @@ const groupedBookings = computed<WeekGroup[]>(() => {
 });
 
 const isLoading = computed(() => props.loading);
+
+const updateLocalBookingReaction = (documentId: string, reaction: EReactions) => {
+  const bookingIndex = internalBookings.value.findIndex(
+    (booking) => booking.documentId === documentId,
+  );
+
+  if (bookingIndex === -1) {
+    return;
+  }
+
+  const updatedBooking = {
+    ...internalBookings.value[bookingIndex],
+    reaction,
+  };
+
+  internalBookings.value.splice(bookingIndex, 1, updatedBooking);
+
+  if (selectedBooking.value?.documentId === documentId) {
+    selectedBooking.value = {
+      ...selectedBooking.value,
+      reaction,
+    };
+  }
+};
+
+const handleBookingReactionUpdate = async ({
+  documentId,
+  reaction,
+}: BookingReactionUpdatePayload) => {
+  const existingBooking = internalBookings.value.find(
+    (booking) => booking.documentId === documentId,
+  );
+
+  if (!existingBooking) {
+    return;
+  }
+
+  const previousReaction = existingBooking.reaction;
+
+  updateLocalBookingReaction(documentId, reaction);
+
+  try {
+    await updateBookingMutation({
+      documentId,
+      data: {
+        reaction,
+      },
+    });
+  } catch {
+    updateLocalBookingReaction(documentId, previousReaction);
+    showError('Failed to update booking. Please try again.');
+  }
+};
 
 // Methods
 const getWeekStart = (date: Date): Date => {

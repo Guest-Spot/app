@@ -56,10 +56,6 @@
                 :rules="[rules.required('Phone')]"
               />
             </div>
-            <div class="input-group">
-              <label class="input-label">Your location</label>
-              <q-input v-model="locationModel" outlined dense rounded placeholder="Enter your address" />
-            </div>
           </div>
         </div>
       </q-expansion-item>
@@ -139,10 +135,6 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  location: {
-    type: String,
-    default: '',
-  },
   description: {
     type: String,
     default: '',
@@ -173,7 +165,6 @@ const emit = defineEmits<{
   (e: 'update:name', value: string): void;
   (e: 'update:email', value: string): void;
   (e: 'update:phone', value: string): void;
-  (e: 'update:location', value: string): void;
   (e: 'update:description', value: string): void;
   (e: 'update:placement', value: string): void;
   (e: 'update:size', value: string): void;
@@ -193,10 +184,6 @@ const emailModel = computed({
 const phoneModel = computed({
   get: () => props.phone,
   set: (val: string) => emit('update:phone', val),
-});
-const locationModel = computed({
-  get: () => props.location,
-  set: (val: string) => emit('update:location', val),
 });
 const descriptionModel = computed({
   get: () => props.description,

@@ -66,7 +66,6 @@
             v-model:name="bookingDetails.name"
             v-model:email="bookingDetails.email"
             v-model:phone="bookingDetails.phone"
-            v-model:location="bookingDetails.location"
             v-model:description="bookingDetails.description"
             v-model:placement="bookingDetails.placement"
             v-model:size="bookingDetails.size"
@@ -210,7 +209,6 @@ const bookingDetails = reactive({
   name: '',
   email: '',
   phone: '',
-  location: '',
   description: '',
   placement: '',
   size: '',
@@ -424,7 +422,7 @@ const buildBookingPayload = (references: UploadFileResponse[]): IBookingRequestP
     name: bookingDetails.name,
     email: bookingDetails.email,
     phone: bookingDetails.phone,
-    location: bookingDetails.location,
+    location: user.value?.address || '',
     description: bookingDetails.description,
     placement: bookingDetails.placement,
     size: bookingDetails.size,
@@ -507,7 +505,6 @@ const resetFormState = () => {
     name: user.value?.name || '',
     email: user.value?.email || '',
     phone: user.value?.phone || '',
-    location: '',
     description: '',
     placement: '',
     size: '',

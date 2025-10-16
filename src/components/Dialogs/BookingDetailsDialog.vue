@@ -38,7 +38,33 @@
       </q-card-section>
 
       <q-card-actions class="dialog-actions bg-block">
-        <q-btn label="Close" rounded unelevated class="full-width bg-block" @click="closeDialog" />
+        <template v-if="canRespondToBooking">
+          <div class="dialog-actions__controls">
+            <q-btn
+              label="Reject"
+              color="negative"
+              rounded
+              flat
+              class="bg-block full-width"
+              @click="rejectBooking"
+            />
+            <q-btn
+              label="Accept"
+              color="primary"
+              rounded
+              class="full-width"
+              @click="approveBooking"
+            />
+          </div>
+        </template>
+        <q-btn
+          v-else
+          label="Close"
+          rounded
+          unelevated
+          class="full-width bg-block"
+          @click="closeDialog"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -46,25 +72,36 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IUser } from 'src/interfaces/user';
 import { ArtistCard } from 'src/components/SearchPage';
 import { InfoCard } from 'src/components';
 import useDate from 'src/modules/useDate';
+import { useUserStore } from 'src/stores/user';
+import { EReactions } from 'src/interfaces/enums';
 
 interface Props {
   modelValue: boolean;
   booking: IBooking | null;
 }
 
+interface BookingReactionUpdatePayload {
+  documentId: string;
+  reaction: EReactions;
+}
+
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
+  (e: 'update:booking-reaction', value: BookingReactionUpdatePayload): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const { formatTime } = useDate();
+const $q = useQuasar();
+const userStore = useUserStore();
 
 const isVisible = ref(props.modelValue);
 
@@ -81,11 +118,11 @@ const sessionDetailsData = computed(() => {
   const data = [
     {
       label: 'Date',
-      value: formatDate(props.booking.day),
+      value: formatDate(props.booking.day || ''),
     },
     {
       label: 'Time',
-      value: formatTime(props.booking.start),
+      value: formatTime(props.booking.start || ''),
     },
   ];
 
@@ -117,6 +154,14 @@ const descriptionData = computed(() => {
   ].filter(Boolean);
 });
 
+const canRespondToBooking = computed(() => {
+  const currentUserId = userStore.getUser?.documentId;
+  const artistDocumentId = props.booking?.artist?.documentId;
+  const isPending = props.booking?.reaction === EReactions.Pending;
+
+  return Boolean(currentUserId && artistDocumentId && currentUserId === artistDocumentId && isPending);
+});
+
 const getStatusLabel = (reaction: IBooking['reaction']): string => {
   const labels = {
     pending: 'Pending',
@@ -144,6 +189,55 @@ const viewArtistProfile = () => {
 
 const closeDialog = () => {
   isVisible.value = false;
+};
+
+const confirmReactionChange = (reaction: EReactions) => {
+  if (!props.booking) return;
+
+  const dialogCopy =
+    reaction === EReactions.Accepted
+      ? {
+          title: 'Approve Booking',
+          message: 'Are you sure you want to approve this booking request?',
+          okLabel: 'Yes, Approve',
+          okColor: 'positive',
+        }
+      : {
+          title: 'Reject Booking',
+          message: 'Are you sure you want to reject this booking request?',
+          okLabel: 'Yes, Reject',
+          okColor: 'negative',
+        };
+
+  $q.dialog({
+    title: dialogCopy.title,
+    message: dialogCopy.message,
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Cancel',
+    },
+    ok: {
+      color: dialogCopy.okColor,
+      rounded: true,
+      label: dialogCopy.okLabel,
+    },
+  }).onOk(() => {
+    if (props.booking?.documentId) {
+      emit('update:booking-reaction', {
+        documentId: props.booking.documentId,
+        reaction,
+      });
+    }
+  });
+};
+
+const approveBooking = () => {
+  confirmReactionChange(EReactions.Accepted);
+};
+
+const rejectBooking = () => {
+  confirmReactionChange(EReactions.Rejected);
 };
 
 watch(
@@ -228,6 +322,12 @@ watch(isVisible, (newValue) => {
   .dialog-actions {
     padding: 16px 20px 32px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+    .dialog-actions__controls {
+      width: 100%;
+      display: flex;
+      gap: 12px;
+    }
 
     .q-btn {
       font-weight: 600;
