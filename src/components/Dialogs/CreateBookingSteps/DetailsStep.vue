@@ -6,7 +6,7 @@
         <label class="input-label">Reference Pictures</label>
         <ImageUploader
           :key="uploaderKey"
-          placeholder="Upload pictures"
+          placeholder="Attach reference pictures"
           placeholder-icon="image"
           multiple
           @on-upload="onReferenceUpload"
@@ -23,7 +23,7 @@
         <div class="info-section">
           <div class="input-grid">
             <div class="input-group">
-              <label class="input-label">My Name</label>
+              <label class="input-label">Name</label>
               <q-input
                 v-model="nameModel"
                 outlined
@@ -34,7 +34,7 @@
               />
             </div>
             <div class="input-group">
-              <label class="input-label">My Email</label>
+              <label class="input-label">Email</label>
               <q-input
                 v-model="emailModel"
                 outlined
@@ -45,7 +45,7 @@
               />
             </div>
             <div class="input-group">
-              <label class="input-label">My Phone</label>
+              <label class="input-label">Phone</label>
               <q-input
                 v-model="phoneModel"
                 outlined
@@ -57,8 +57,8 @@
               />
             </div>
             <div class="input-group">
-              <label class="input-label">My Location</label>
-              <q-input v-model="locationModel" outlined dense rounded placeholder="City, country" />
+              <label class="input-label">Your location</label>
+              <q-input v-model="locationModel" outlined dense rounded placeholder="Enter your address" />
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@
       >
         <div class="info-section">
           <div class="input-group">
-            <label class="input-label">Idea Description</label>
+            <label class="input-label">Your idea</label>
             <q-input
               v-model="descriptionModel"
               outlined
@@ -88,7 +88,7 @@
 
           <div class="input-grid">
             <div class="input-group">
-              <label class="input-label">Body Placement</label>
+              <label class="input-label">Tattoo placement</label>
               <q-input
                 v-model="placementModel"
                 outlined
@@ -99,7 +99,7 @@
               />
             </div>
             <div class="input-group">
-              <label class="input-label">Size</label>
+              <label class="input-label">Tattoo size</label>
               <q-input
                 v-model="sizeModel"
                 outlined
@@ -252,6 +252,10 @@ defineExpose({
 
 .info-section {
   padding: 16px;
+}
+
+.input-group {
+  width: 100%;
 }
 
 .input-grid {

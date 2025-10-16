@@ -104,6 +104,7 @@
     <CreateBookingDialog
       v-model="showBookingDialog"
       :shop-document-id="shopData.documentId"
+      :shop-opening-hours="shopData.openingHours"
       type="shop-to-artist"
       @submit="handleBookingSubmit"
     />

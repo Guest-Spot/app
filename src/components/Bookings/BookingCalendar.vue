@@ -68,6 +68,7 @@
                       fit="cover"
                       spinner-color="white"
                       spinner-size="16px"
+                      ratio="0.85"
                     />
                   </q-avatar>
                   <q-avatar

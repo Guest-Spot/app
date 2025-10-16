@@ -80,6 +80,7 @@
             ref="scheduleStepRef"
             v-model:day="schedule.day"
             v-model:start-time="schedule.startTime"
+            :opening-hours="scheduleOpeningHours"
             :rules="rules"
           />
         </div>
@@ -136,6 +137,7 @@ import type { IUser, IGraphQLUsersResult } from 'src/interfaces/user';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import type { IFilters } from 'src/interfaces/filters';
 import type { IBookingRequestPayload, IBookingCreateResponse } from 'src/interfaces/booking';
+import type { IOpeningHours } from 'src/interfaces/common';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { UserType } from 'src/interfaces/enums';
 import useHelpers from 'src/modules/useHelpers';
@@ -145,11 +147,14 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
 
+const EMPTY_OPENING_HOURS: IOpeningHours[] = [];
+
 interface Props {
   modelValue: boolean;
   shopDocumentId?: string;
   artistDocumentId?: string;
   type?: 'shop-to-artist' | 'artist-to-shop';
+  shopOpeningHours?: IOpeningHours[];
 }
 
 interface Emits {
@@ -193,6 +198,16 @@ const bookingDetails = reactive({
 const schedule = reactive({
   day: '',
   startTime: '',
+});
+
+const scheduleOpeningHours = computed<IOpeningHours[]>(() => {
+  if (props.shopOpeningHours && props.shopOpeningHours.length > 0) {
+    return props.shopOpeningHours;
+  }
+  if (user.value?.openingHours?.length) {
+    return user.value.openingHours;
+  }
+  return EMPTY_OPENING_HOURS;
 });
 
 const referenceFiles = ref<File[]>([]);
