@@ -14,6 +14,7 @@ export const BOOKINGS_QUERY = gql`
       day
       start
       reaction
+      rejectNote
       references {
         url
       }

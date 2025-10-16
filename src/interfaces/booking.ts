@@ -18,6 +18,7 @@ export interface IBooking {
   date?: string | null;
   location?: string | null;
   reaction: EReactions;
+  rejectNote?: string | null;
   status?: string | null;
   type?: string | null;
   createdAt?: string | null;

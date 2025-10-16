@@ -122,6 +122,7 @@ interface Props {
 interface BookingReactionUpdatePayload {
   documentId: string;
   reaction: EReactions;
+  rejectNote?: string | undefined;
 }
 
 interface Emits {
@@ -238,47 +239,71 @@ const openImagePreview = (src?: string | null) => {
 const confirmReactionChange = (reaction: EReactions) => {
   if (!props.booking) return;
 
-  const dialogCopy =
-    reaction === EReactions.Accepted
-      ? {
-          title: 'Accept Booking',
-          message: 'Are you sure you want to accept this booking request?',
-          okLabel: 'Yes, Accept',
-          okColor: 'positive',
-        }
-      : {
-          title: 'Reject Booking',
-          message: 'Are you sure you want to reject this booking request?',
-          okLabel: 'Yes, Reject',
-          okColor: 'negative',
+  if (reaction === EReactions.Accepted) {
+    $q.dialog({
+      title: 'Accept Booking',
+      message: 'Are you sure you want to accept this booking request?',
+      cancel: {
+        color: 'grey-9',
+        rounded: true,
+        label: 'Cancel',
+      },
+      ok: {
+        color: 'positive',
+        rounded: true,
+        label: 'Yes, Accept',
+      },
+    }).onOk(() => {
+      if (props.booking?.documentId) {
+        emit('update:booking-reaction', {
+          documentId: props.booking.documentId,
+          reaction,
+        });
+        showSuccess('Booking request accepted');
+      }
+    });
+  } else {
+    // Reject with reason
+    const rejectNote = '';
+
+    $q.dialog({
+      title: 'Reject Booking',
+      message: 'Please explain why you are rejecting this booking request:',
+      prompt: {
+        model: rejectNote,
+        type: 'textarea',
+        placeholder: 'Enter reason for rejection...',
+        outlined: true,
+        counter: true,
+        maxlength: 500,
+      },
+      cancel: {
+        color: 'grey-9',
+        rounded: true,
+        label: 'Cancel',
+      },
+      ok: {
+        color: 'negative',
+        rounded: true,
+        label: 'Reject',
+      },
+    }).onOk((note: string) => {
+      if (props.booking?.documentId) {
+        const payload: BookingReactionUpdatePayload = {
+          documentId: props.booking.documentId,
+          reaction,
         };
 
-  $q.dialog({
-    title: dialogCopy.title,
-    message: dialogCopy.message,
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      label: 'Cancel',
-    },
-    ok: {
-      color: dialogCopy.okColor,
-      rounded: true,
-      label: dialogCopy.okLabel,
-    },
-  }).onOk(() => {
-    if (props.booking?.documentId) {
-      emit('update:booking-reaction', {
-        documentId: props.booking.documentId,
-        reaction,
-      });
-      const successMessage =
-        reaction === EReactions.Accepted
-          ? 'Booking request accepted'
-          : 'Booking request rejected';
-      showSuccess(successMessage);
-    }
-  });
+        const trimmedNote = note.trim();
+        if (trimmedNote) {
+          payload.rejectNote = trimmedNote;
+        }
+
+        emit('update:booking-reaction', payload);
+        showSuccess('Booking request rejected');
+      }
+    });
+  }
 };
 
 const acceptBooking = () => {

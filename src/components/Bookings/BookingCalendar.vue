@@ -19,9 +19,8 @@
     <div v-else-if="groupedBookings.length > 0" class="calendar-events">
       <div
         v-for="(group, index) in groupedBookings"
-        :key="group.weekLabel"
+        :key="`week-${index}`"
         class="week-group"
-        :class="{ 'q-mb-xl': groupedBookings.length - 1 !== index }"
       >
         <!-- Week Separator -->
         <div v-if="group.weekLabel" class="week-separator text-grey-6 text-weight-medium q-mb-md">
@@ -29,9 +28,9 @@
         </div>
 
         <!-- Days in Week -->
-        <div v-for="day in group.days" :key="day.date" class="day-group q-mb-md">
+        <div v-for="day in group.days" :key="day.date" class="day-group flex no-wrap q-gap-md items-start q-mb-md">
           <div class="day-header flex items-center q-gap-md q-mb-sm">
-            <div class="day-label">
+            <div class="day-label bg-block border-radius-md q-py-sm">
               <div class="day-name text-grey-6 text-uppercase text-weight-medium">
                 {{ day.dayName }}
               </div>
@@ -191,25 +190,9 @@ const shopBookings = computed<IBooking[]>(() => {
 
 watch(
   shopBookings,
-  (newBookings) => {
-    if (hasInitializedDate.value || !newBookings.length) return;
-
-    const bookingsWithDate = [...newBookings].filter(
-      (booking): booking is IBooking & { day: string } => Boolean(booking.day),
-    );
-
-    if (!bookingsWithDate.length) return;
-
-    const firstBooking = bookingsWithDate.sort(
-      (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime(),
-    )[0];
-
-    if (!firstBooking) return;
-
-    const targetDate = new Date(firstBooking.day);
-
-    if (!Number.isNaN(targetDate.getTime())) {
-      currentDate.value = targetDate;
+  () => {
+    if (!hasInitializedDate.value) {
+      currentDate.value = new Date();
       hasInitializedDate.value = true;
     }
   },
@@ -582,7 +565,7 @@ const goToToday = () => {
         }
 
         .events-list {
-          margin-left: 64px;
+          width: 100%;
 
           .event-card {
             position: relative;
