@@ -67,6 +67,10 @@ const props = defineProps({
     type: Array as PropType<IOpeningHours[]>,
     default: () => [],
   },
+  disabledDays: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
   startTime: {
     type: String,
     default: '',
@@ -118,6 +122,38 @@ const normalizeTimeValue = (time: string | null): string | null => {
   return `${hours}:${minutes}`;
 };
 
+const normalizeDateString = (dateString: string | null | undefined): string | null => {
+  if (!dateString) return null;
+  const sanitized = dateString.replace(/\//g, '-').trim();
+  const parts = sanitized.split('-');
+  if (parts.length !== 3) return null;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = Number.parseInt(yearStr, 10);
+  const month = Number.parseInt(monthStr, 10);
+  const day = Number.parseInt(dayStr, 10);
+  if ([year, month, day].some((value) => Number.isNaN(value))) {
+    return null;
+  }
+  const jsDate = new Date(year, month - 1, day);
+  if (Number.isNaN(jsDate.getTime())) {
+    return null;
+  }
+  const normalizedMonth = String(jsDate.getMonth() + 1).padStart(2, '0');
+  const normalizedDay = String(jsDate.getDate()).padStart(2, '0');
+  return `${jsDate.getFullYear()}-${normalizedMonth}-${normalizedDay}`;
+};
+
+const disabledDaysSet = computed<Set<string>>(() => {
+  const blockedDays = new Set<string>();
+  props.disabledDays.forEach((day) => {
+    const normalized = normalizeDateString(day);
+    if (normalized) {
+      blockedDays.add(normalized);
+    }
+  });
+  return blockedDays;
+});
+
 // Pre-compute opening hours by weekday for quick lookups
 const openingHoursMap = computed<Partial<Record<DayKey, { start: string | null; end: string | null }>>>(
   () =>
@@ -135,9 +171,9 @@ const hasWorkingIntervals = computed(() =>
 );
 
 const parseDateToDayKey = (dateString: string): DayKey | null => {
-  if (!dateString) return null;
-  const normalized = dateString.replace(/\//g, '-');
-  const parts = normalized.split('-').map((part) => parseInt(part, 10));
+  const normalized = normalizeDateString(dateString);
+  if (!normalized) return null;
+  const parts = normalized.split('-').map((part) => Number.parseInt(part, 10));
   if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) return null;
   const [year, month, day] = parts;
   const jsDate = new Date(year, month - 1, day);
@@ -167,7 +203,16 @@ const toMinutes = (time: string): number => {
   return hoursNum * 60 + minutesNum;
 };
 
+const isDateBlocked = (dateString: string): boolean => {
+  const normalized = normalizeDateString(dateString);
+  if (!normalized) return false;
+  return disabledDaysSet.value.has(normalized);
+};
+
 const isDateAllowed = (dateString: string): boolean => {
+  if (isDateBlocked(dateString)) {
+    return false;
+  }
   if (!hasWorkingIntervals.value) return true;
   const dayKey = parseDateToDayKey(dateString);
   if (!dayKey) return false;
@@ -238,6 +283,17 @@ const ensureStartTimeIsValid = () => {
 };
 
 // Keep selected time aligned with available opening hours
+watch(
+  () => props.disabledDays,
+  () => {
+    const normalizedSelectedDay = normalizeDateString(dayModel.value);
+    if (normalizedSelectedDay && disabledDaysSet.value.has(normalizedSelectedDay)) {
+      dayModel.value = '';
+    }
+  },
+  { deep: true },
+);
+
 watch(
   () => props.openingHours,
   () => {

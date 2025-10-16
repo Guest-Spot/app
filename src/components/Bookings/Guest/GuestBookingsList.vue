@@ -56,6 +56,7 @@ const { result, loading } = useQuery<IBookingsQueryResponse>(
         },
       },
     },
+    sort: ['createdAt:desc'],
   },
   {
     fetchPolicy: 'network-only',

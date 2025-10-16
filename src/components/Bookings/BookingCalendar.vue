@@ -44,11 +44,11 @@
           </div>
 
           <!-- Events for this day -->
-          <div class="events-list">
+          <div class="events-list flex column q-gap-sm">
             <div
               v-for="booking in day.bookings"
               :key="booking.documentId"
-              class="event-card border-radius-md q-pa-md q-mb-sm"
+              class="event-card border-radius-md q-pa-md"
               :class="getEventClass(booking)"
               @click="openBookingDetails(booking)"
             >

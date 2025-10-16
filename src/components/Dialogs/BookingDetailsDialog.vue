@@ -15,13 +15,18 @@
       </q-card-section>
 
       <q-card-section v-if="booking" class="dialog-content">
+        <!-- Status Badge for Artist View -->
+        <div class="status-section flex items-center justify-between bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md">
+          <div class="section-label text-grey-6">Status</div>
+          <div class="status-badge text-caption text-bold" :class="booking.reaction">
+            {{ getStatusLabel(booking.reaction) }}
+          </div>
+        </div>
+
         <!-- Artist Info -->
-        <div v-if="artist" class="artist-section flex column q-gap-sm q-mb-md">
+        <div v-if="artist && !isCurrentUserArtist" class="artist-section flex column q-gap-sm q-mb-md">
           <div class="artist-header flex items-center justify-between">
             <div class="section-label text-grey-6">Artist</div>
-            <div class="status-badge text-caption text-bold" :class="booking.reaction">
-              {{ getStatusLabel(booking.reaction) }}
-            </div>
           </div>
           <ArtistCard :artist="artist" @click="viewArtistProfile" />
         </div>
@@ -55,6 +60,8 @@
             </div>
 
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
+
+            <InfoCard v-if="guestInfoData.length" title="Guest Information" icon="person" :data="guestInfoData" />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
           </div>
@@ -173,6 +180,36 @@ const sessionDetailsData = computed(() => {
   return data;
 });
 
+// Guest info data for InfoCard
+const guestInfoData = computed(() => {
+  if (!props.booking) return [];
+
+  const data = [];
+
+  if (props.booking.name) {
+    data.push({
+      label: 'Name',
+      value: props.booking.name,
+    });
+  }
+
+  if (props.booking.email) {
+    data.push({
+      label: 'Email',
+      value: props.booking.email,
+    });
+  }
+
+  if (props.booking.phone) {
+    data.push({
+      label: 'Phone',
+      value: props.booking.phone,
+    });
+  }
+
+  return data;
+});
+
 // Description data for InfoCard
 const descriptionData = computed(() => {
   return [
@@ -193,12 +230,12 @@ const descriptionData = computed(() => {
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
 
+const isCurrentUserArtist = computed(() => userStore.getIsArtist);
+
 const canRespondToBooking = computed(() => {
-  const currentUserId = userStore.getUser?.documentId;
-  const artistDocumentId = props.booking?.artist?.documentId;
   const isPending = props.booking?.reaction === EReactions.Pending;
 
-  return Boolean(currentUserId && artistDocumentId && currentUserId === artistDocumentId && isPending);
+  return Boolean(isCurrentUserArtist.value && isPending);
 });
 
 const getStatusLabel = (reaction: IBooking['reaction']): string => {
@@ -400,6 +437,10 @@ watch(isImagePreviewVisible, (newValue) => {
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.5px;
+    }
+
+    .status-section {
+      padding-bottom: 8px;
     }
 
     .references-gallery {

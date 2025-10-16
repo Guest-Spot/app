@@ -80,6 +80,7 @@
             v-model:day="schedule.day"
             v-model:start-time="schedule.startTime"
             :opening-hours="scheduleOpeningHours"
+            :disabled-days="artistUnavailableDays"
             :rules="rules"
           />
         </div>
@@ -138,20 +139,27 @@ import ScheduleStep from './CreateBookingSteps/ScheduleStep.vue';
 import { USERS_QUERY } from 'src/apollo/types/user';
 import { CITIES_QUERY } from 'src/apollo/types/city';
 import { CREATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
+import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 
 import type { IUser, IGraphQLUsersResult } from 'src/interfaces/user';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import type { IFilters } from 'src/interfaces/filters';
-import type { IBookingRequestPayload, IBookingCreateResponse } from 'src/interfaces/booking';
+import type {
+  IBooking,
+  IBookingRequestPayload,
+  IBookingCreateResponse,
+  IBookingsQueryResponse,
+} from 'src/interfaces/booking';
 import type { IOpeningHours } from 'src/interfaces/common';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-import { UserType } from 'src/interfaces/enums';
+import { UserType, EReactions } from 'src/interfaces/enums';
 import useHelpers from 'src/modules/useHelpers';
 import useNotify from 'src/modules/useNotify';
 import { useCitiesStore } from 'src/stores/cities';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
+import { useRouter } from 'vue-router';
 
 const EMPTY_OPENING_HOURS: IOpeningHours[] = [];
 
@@ -176,6 +184,7 @@ const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
 const { user } = useUser();
+const router = useRouter();
 
 const baseSteps = [
   { id: 1, title: 'Artist', icon: 'person' },
@@ -219,6 +228,8 @@ const schedule = reactive({
   startTime: '',
 });
 
+const artistBookings = ref<IBooking[]>([]);
+
 const scheduleOpeningHours = computed<IOpeningHours[]>(() => {
   if (props.shopOpeningHours && props.shopOpeningHours.length > 0) {
     return props.shopOpeningHours;
@@ -230,6 +241,40 @@ const scheduleOpeningHours = computed<IOpeningHours[]>(() => {
 });
 
 const referenceFiles = ref<File[]>([]);
+
+const normalizeBookingDay = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  const sanitized = (value.split('T')[0] || value).replace(/\//g, '-').trim();
+  const parts = sanitized.split('-');
+  if (parts.length !== 3) return null;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = Number.parseInt(yearStr || '0', 10);
+  const month = Number.parseInt(monthStr || '0', 10);
+  const day = Number.parseInt(dayStr || '0', 10);
+  if ([year, month, day].some((part) => Number.isNaN(part))) {
+    return null;
+  }
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  const normalizedMonth = String(date.getMonth() + 1).padStart(2, '0');
+  const normalizedDay = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${normalizedMonth}-${normalizedDay}`;
+};
+
+const artistUnavailableDays = computed<string[]>(() => {
+  const uniqueDays = new Set<string>();
+  artistBookings.value.forEach((booking) => {
+    if (!booking.day) return;
+    if (booking.reaction === EReactions.Rejected) return;
+    const normalized = normalizeBookingDay(booking.day);
+    if (normalized) {
+      uniqueDays.add(normalized);
+    }
+  });
+  return Array.from(uniqueDays);
+});
 
 const rules = {
   required: (field: string) => (val: string | null | undefined) => !!val || `${field} is required`,
@@ -275,6 +320,11 @@ const {
   onResult: onResultCities,
   onError: onErrorCities,
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
+
+const {
+  load: loadArtistBookings,
+  stop: stopArtistBookings,
+} = useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
 
 const { mutate: createBooking } = useMutation(CREATE_BOOKING_MUTATION);
 
@@ -356,6 +406,40 @@ const refetchArtistsData = () => {
   if (!isArtistSelectionRequired.value) return;
   resetPagination();
   loadArtistsList(true);
+};
+
+const fetchArtistBookings = async (artistId: string | null) => {
+  if (!artistId) {
+    artistBookings.value = [];
+    stopArtistBookings();
+    return;
+  }
+
+  stopArtistBookings();
+
+  try {
+    const response = await loadArtistBookings(null, {
+      filters: {
+        artist: {
+          documentId: {
+            eq: artistId,
+          },
+        },
+      },
+    });
+
+    if (!response) {
+      return;
+    }
+
+    if (selectedArtistId.value !== artistId) {
+      return;
+    }
+
+    artistBookings.value = response.bookings ?? [];
+  } catch (error) {
+    console.error('Error fetching artist bookings:', error);
+  }
 };
 
 const updateReferenceFiles = (files: File[]) => {
@@ -490,6 +574,7 @@ const onSubmit = async () => {
     emit('submit', booking);
     showSuccess('Booking request sent!');
     closeDialog();
+    void router.push(`/my-bookings`);
   } catch (error) {
     console.error('Failed to submit booking:', error);
     showError('Failed to submit booking. Please try again.');
@@ -505,6 +590,7 @@ const resetFormState = () => {
   activeFilters.value = { type: UserType.Artist, city: null, name: null };
   sortSettings.value = { sortBy: null, sortDirection: 'asc' };
   referenceFiles.value = [];
+  artistBookings.value = [];
   selectedArtistId.value = props.artistDocumentId || null;
 
   // Auto-fill user data if available
@@ -558,6 +644,35 @@ watch(isVisible, (newValue) => {
     resetFormState();
   }
 });
+
+watch(
+  () => selectedArtistId.value,
+  (newId, oldId) => {
+    if (newId === oldId) return;
+    artistBookings.value = [];
+    stopArtistBookings();
+    Object.assign(schedule, {
+      day: '',
+      startTime: '',
+    });
+    scheduleStepRef.value?.resetForm();
+  },
+);
+
+watch(
+  () => [isVisible.value, selectedArtistId.value] as const,
+  ([visible, artistId]) => {
+    if (!visible) {
+      artistBookings.value = [];
+      stopArtistBookings();
+      return;
+    }
+    if (artistId) {
+      void fetchArtistBookings(artistId);
+    }
+  },
+  { immediate: true },
+);
 
 watch(
   [activeFilters, searchQuery, sortSettings],
