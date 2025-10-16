@@ -56,7 +56,7 @@
               <div class="flex items-start justify-between q-gap-sm">
                 <div class="flex items-start q-gap-sm no-wrap flex-1">
                   <!-- Avatar (if artist available) -->
-                  <q-avatar v-if="booking.artist?.avatar?.url" size="40px" class="event-avatar">
+                  <q-avatar v-if="booking.artist?.avatar?.url" size="40px" class="event-avatar bg-block">
                     <q-img
                       :src="booking.artist.avatar.url"
                       fit="cover"

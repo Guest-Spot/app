@@ -27,28 +27,30 @@
         </div>
 
         <div class="flex column q-gap-sm">
-          <div class="section-label text-grey-6">Tattoo Reference</div>
 
           <div class="flex column q-gap-md full-width">
-            <div v-if="referenceImages.length" class="references-gallery full-width">
-              <div class="references-gallery__list">
-                <q-img
-                  v-for="reference in referenceImages"
-                  :key="reference.id"
-                  :src="reference.url"
-                  :ratio="1"
-                  fit="cover"
-                  class="reference-image"
-                  spinner-color="dark"
-                  @click="openImagePreview(reference.url)"
-                >
-                  <template #error>
-                    <div class="reference-image__placeholder flex flex-center column">
-                      <q-icon name="image_not_supported" size="24px" color="grey-6" />
-                      <span class="text-caption text-grey-6">Unavailable</span>
-                    </div>
-                  </template>
-                </q-img>
+            <div v-if="referenceImages.length" class="q-my-sm flex column q-gap-sm full-width">
+              <div class="section-label text-grey-6">Tattoo Reference</div>
+              <div class="references-gallery full-width">
+                <div class="references-gallery__list">
+                  <q-img
+                    v-for="reference in referenceImages"
+                    :key="reference.id"
+                    :src="reference.url"
+                    :ratio="1"
+                    fit="cover"
+                    class="reference-image"
+                    spinner-color="dark"
+                    @click="openImagePreview(reference.url)"
+                  >
+                    <template #error>
+                      <div class="reference-image__placeholder flex flex-center column">
+                        <q-icon name="image_not_supported" size="24px" color="grey-6" />
+                        <span class="text-caption text-grey-6">Unavailable</span>
+                      </div>
+                    </template>
+                  </q-img>
+                </div>
               </div>
             </div>
 
@@ -75,7 +77,7 @@
               color="primary"
               rounded
               class="full-width"
-              @click="approveBooking"
+              @click="acceptBooking"
             />
           </div>
         </template>
@@ -239,9 +241,9 @@ const confirmReactionChange = (reaction: EReactions) => {
   const dialogCopy =
     reaction === EReactions.Accepted
       ? {
-          title: 'Approve Booking',
-          message: 'Are you sure you want to approve this booking request?',
-          okLabel: 'Yes, Approve',
+          title: 'Accept Booking',
+          message: 'Are you sure you want to accept this booking request?',
+          okLabel: 'Yes, Accept',
           okColor: 'positive',
         }
       : {
@@ -272,14 +274,14 @@ const confirmReactionChange = (reaction: EReactions) => {
       });
       const successMessage =
         reaction === EReactions.Accepted
-          ? 'Booking request approved'
+          ? 'Booking request accepted'
           : 'Booking request rejected';
       showSuccess(successMessage);
     }
   });
 };
 
-const approveBooking = () => {
+const acceptBooking = () => {
   confirmReactionChange(EReactions.Accepted);
 };
 
