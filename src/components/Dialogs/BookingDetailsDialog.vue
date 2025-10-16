@@ -310,13 +310,13 @@ const confirmReactionChange = (reaction: EReactions) => {
     });
   } else {
     // Reject with reason
-    const rejectNote = '';
+    const initialRejectNote = '';
 
     $q.dialog({
       title: 'Reject Booking',
       message: 'Please explain why you are rejecting this booking request:',
       prompt: {
-        model: rejectNote,
+        model: initialRejectNote,
         type: 'textarea',
         placeholder: 'Enter reason for rejection...',
         outlined: true,
@@ -325,9 +325,14 @@ const confirmReactionChange = (reaction: EReactions) => {
         maxlength: 50,
         color: 'primary',
         required: true,
+        isValid: (val: string) => {
+          const trimmedValue = val.trim();
+          return trimmedValue.length > 0 && trimmedValue.length <= 50;
+        },
         rules: [
-          (val: string) => !!val || 'Reason is required',
-          (val: string) => val.length <= 50 || 'Reason must be less than 50 characters',
+          (val: string) => !!val.trim() || 'Reason is required',
+          (val: string) =>
+            val.trim().length <= 50 || 'Reason must be less than 50 characters',
         ],
       },
       cancel: {
@@ -339,7 +344,6 @@ const confirmReactionChange = (reaction: EReactions) => {
         color: 'negative',
         rounded: true,
         label: 'Reject',
-        disable: !rejectNote?.trim(),
       },
     }).onOk((note: string) => {
       if (props.booking?.documentId) {
