@@ -37,26 +37,30 @@ export default function useArtists() {
       return;
     }
 
-    void loadArtists(null, {
-      filters: {
-        type: {
-          eq: UserType.Artist,
+    void loadArtists(
+      null,
+      {
+        filters: {
+          type: {
+            eq: UserType.Artist,
+          },
+          ...convertFiltersToGraphQLFilters({
+            ...activeFilters,
+            name: searchQuery || null,
+          }),
         },
-        ...convertFiltersToGraphQLFilters({
-          ...activeFilters,
-          name: searchQuery || null,
-        }),
+        sort: sortSettings.sortBy
+          ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
+          : undefined,
+        pagination: {
+          page: artistsStore.getPage,
+          pageSize: artistsStore.getPageSize,
+        },
       },
-      sort: sortSettings.sortBy
-        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : undefined,
-      pagination: {
-        page: artistsStore.getPage,
-        pageSize: artistsStore.getPageSize,
+      {
+        fetchPolicy: 'network-only',
       },
-    }, {
-      fetchPolicy: 'network-only',
-    });
+    );
   };
 
   const resetArtistsPagination = () => {

@@ -37,26 +37,30 @@ export default function useShops() {
       return;
     }
 
-    void loadShops(null, {
-      filters: {
-        type: {
-          eq: UserType.Shop,
+    void loadShops(
+      null,
+      {
+        filters: {
+          type: {
+            eq: UserType.Shop,
+          },
+          ...convertFiltersToGraphQLFilters({
+            ...activeFilters,
+            name: searchQuery || null,
+          }),
         },
-        ...convertFiltersToGraphQLFilters({
-          ...activeFilters,
-          name: searchQuery || null,
-        }),
+        sort: sortSettings.sortBy
+          ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
+          : undefined,
+        pagination: {
+          page: shopsStore.getPage,
+          pageSize: shopsStore.getPageSize,
+        },
       },
-      sort: sortSettings.sortBy
-        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : undefined,
-      pagination: {
-        page: shopsStore.getPage,
-        pageSize: shopsStore.getPageSize,
+      {
+        fetchPolicy: 'network-only',
       },
-    }, {
-      fetchPolicy: 'network-only',
-    });
+    );
   };
 
   const resetShopsPagination = () => {

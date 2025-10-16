@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-4xl flex column items-start q-gap-md">
+  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-4xl': isGuest }">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -37,9 +37,16 @@
         <div class="container">
           <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
             <div class="flex column items-start full-width">
-              <div v-if="shopData.name || shopData.description" class="flex column items-start q-gap-sm">
+              <div
+                v-if="shopData.name || shopData.description"
+                class="flex column items-start q-gap-sm"
+              >
                 <span class="full-name text-h6">{{ shopData.name }}</span>
-                <ExpandableText collapsible :text="shopData.description" class="status text-body2 text-left text-grey-6" />
+                <ExpandableText
+                  collapsible
+                  :text="shopData.description"
+                  class="status text-body2 text-left text-grey-6"
+                />
               </div>
               <template v-else>
                 <q-skeleton type="text" width="50%" height="20px" />
@@ -79,7 +86,7 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="action-buttons flex justify-center q-gap-sm no-wrap q-mt-lg">
+      <div v-if="isGuest" class="action-buttons flex justify-center q-gap-sm no-wrap q-mt-lg">
         <q-btn
           class="bg-block"
           text-color="primary"
@@ -96,7 +103,8 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-documentId="shopData.documentId"
+      :shop-document-id="shopData.documentId"
+      :shop-opening-hours="shopData.openingHours"
       type="shop-to-artist"
       @submit="handleBookingSubmit"
     />
@@ -106,7 +114,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import type { IBooking } from 'src/interfaces/booking';
+import type { IBookingCreateResponse } from 'src/interfaces/booking';
 import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -123,10 +131,12 @@ import { USER_QUERY, USERS_QUERY } from 'src/apollo/types/user';
 import { useShopsStore } from 'src/stores/shops';
 import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
+import { useUserStore } from 'src/stores/user';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
 const shopsStore = useShopsStore();
+const userStore = useUserStore();
 
 // Apollo queries
 const {
@@ -186,6 +196,7 @@ const portfolioItems = ref<IPortfolio[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
+const isGuest = computed(() => userStore.getIsGuest);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -221,8 +232,8 @@ const openBookingDialog = () => {
   showBookingDialog.value = true;
 };
 
-const handleBookingSubmit = (bookingData: Partial<IBooking>) => {
-  console.log('Booking submitted:', bookingData);
+const handleBookingSubmit = (booking: IBookingCreateResponse) => {
+  console.log('Booking submitted:', booking);
   showBookingDialog.value = false;
 };
 
@@ -275,7 +286,8 @@ onBeforeMount(() => {
   void loadPortfolio(null, {
     filters: { ownerDocumentId: { eq: route.params.documentId as string } },
   });
-  void loadShopArtists(null,
+  void loadShopArtists(
+    null,
     {
       filters: {
         parent: {

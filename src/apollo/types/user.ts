@@ -25,12 +25,27 @@ export const ME_QUERY = gql`
       phone
       email
       experience
+      parent {
+        documentId
+        name
+        city
+        address
+        pictures {
+          id
+          documentId
+          url
+        }
+      }
     }
   }
 `;
 
 export const USERS_QUERY = gql`
-  query UsersPermissionsUsers($filters: UsersPermissionsUserFiltersInput, $sort: [String], $pagination: PaginationArg) {
+  query UsersPermissionsUsers(
+    $filters: UsersPermissionsUserFiltersInput
+    $sort: [String]
+    $pagination: PaginationArg
+  ) {
     usersPermissionsUsers_connection(filters: $filters, sort: $sort, pagination: $pagination) {
       pageInfo {
         total
@@ -63,6 +78,17 @@ export const USERS_QUERY = gql`
         day
         start
         end
+      }
+      parent {
+        documentId
+        name
+        city
+        address
+        pictures {
+          id
+          documentId
+          url
+        }
       }
     }
   }
@@ -97,6 +123,22 @@ export const USER_QUERY = gql`
         day
         start
         end
+      }
+      parent {
+        documentId
+        name
+        city
+        address
+        openingHours {
+          day
+          start
+          end
+        }
+        pictures {
+          id
+          documentId
+          url
+        }
       }
     }
   }
@@ -152,8 +194,16 @@ export const LOGIN_MUTATION = gql`
 `;
 
 export const CHANGE_PASSWORD_MUTATION = gql`
-  mutation ChangePassword($currentPassword: String!, $password: String!, $passwordConfirmation: String!) {
-    changePassword(currentPassword: $currentPassword, password: $password, passwordConfirmation: $passwordConfirmation) {
+  mutation ChangePassword(
+    $currentPassword: String!
+    $password: String!
+    $passwordConfirmation: String!
+  ) {
+    changePassword(
+      currentPassword: $currentPassword
+      password: $password
+      passwordConfirmation: $passwordConfirmation
+    ) {
       jwt
     }
   }

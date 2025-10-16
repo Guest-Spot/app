@@ -1,9 +1,9 @@
-import type { InviteReaction, InviteType } from 'src/interfaces/enums';
+import type { EReactions, InviteType } from 'src/interfaces/enums';
 
 export interface IInvite {
   documentId: string;
   type: InviteType;
-  reaction: InviteReaction;
+  reaction: EReactions;
   title: string;
   description: string;
   sender: string;

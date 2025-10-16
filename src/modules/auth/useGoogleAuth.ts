@@ -103,7 +103,11 @@ const DEFAULT_FALLBACK_MESSAGE = 'Google sign-in failed. Please try again.';
 const DEFAULT_SUCCESS_REDIRECT = '/profile';
 
 export const useGoogleAuth = (options: UseGoogleAuthOptions = {}) => {
-  const { loadingRef, fallbackMessage = DEFAULT_FALLBACK_MESSAGE, successRedirect = DEFAULT_SUCCESS_REDIRECT } = options;
+  const {
+    loadingRef,
+    fallbackMessage = DEFAULT_FALLBACK_MESSAGE,
+    successRedirect = DEFAULT_SUCCESS_REDIRECT,
+  } = options;
   const { fetchMe } = useUser();
   const { showSuccess, showError } = useNotify();
   const router = useRouter();

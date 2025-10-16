@@ -73,7 +73,10 @@ const ensureFavoritesLoaded = () => {
   if (!hasLoaded) {
     const userId = currentUserId.value;
 
-    favoritesShopsByUser.value = parseStoredFavorites(localStorage.getItem(STORAGE_KEY_SHOPS), userId);
+    favoritesShopsByUser.value = parseStoredFavorites(
+      localStorage.getItem(STORAGE_KEY_SHOPS),
+      userId,
+    );
     favoritesArtistsByUser.value = parseStoredFavorites(
       localStorage.getItem(STORAGE_KEY_ARTISTS),
       userId,

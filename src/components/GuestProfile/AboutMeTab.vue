@@ -41,6 +41,19 @@
     >
       <div class="info-section">
         <div class="input-group">
+          <label class="input-label">Phone</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            mask="+(###) ### - ####"
+            placeholder="Enter phone number"
+            class="custom-input"
+            clearable
+            v-model="guestData.phone"
+          />
+        </div>
+        <div class="input-group">
           <label class="input-label">Email</label>
           <q-input
             outlined
@@ -49,6 +62,41 @@
             placeholder="Enter email address"
             class="custom-input"
             v-model="guestData.email"
+          />
+        </div>
+      </div>
+    </q-expansion-item>
+
+    <!-- Location Section -->
+    <q-expansion-item
+      icon="location_on"
+      label="Location"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
+        <div class="input-group">
+          <label class="input-label">City</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter city"
+            class="custom-input"
+            clearable
+            v-model="guestData.city"
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Address</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter address"
+            class="custom-input"
+            clearable
+            v-model="guestData.address"
           />
         </div>
       </div>
@@ -107,6 +155,9 @@ const guestData = reactive<IGuestFormData>({
   name: '',
   email: '',
   avatar: null,
+  phone: '',
+  city: '',
+  address: '',
 });
 // NOTE: This variable is used to compare the original data with the new data
 const guestDataOriginal = { ...guestData };

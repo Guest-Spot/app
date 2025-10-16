@@ -5,7 +5,7 @@
       <div class="container">
         <div class="main-content flex column q-gap-md">
           <div class="tab-content">
-            <BookingsList :artist-id="artistId" :shop-id="shopId" />
+            <BookingCalendar :bookings="bookings" :loading="isLoading" />
           </div>
         </div>
       </div>
@@ -16,16 +16,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import BookingsList from 'src/components/Bookings/Shop/BookingsList.vue';
+import { computed } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
+import { BookingCalendar } from 'src/components';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
+import { useUserStore } from 'src/stores/user';
+import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
+import type { IBookingsQueryResponse } from 'src/interfaces/booking';
 
 const { isAuthenticated } = useUser();
+const userStore = useUserStore();
 
-// Mock IDs - in real app these would come from user store
-const artistId = ref(1);
-const shopId = ref(1);
+const userDocumentId = computed(() => userStore.getUser?.documentId);
+
+const bookingFilters = computed(() => {
+  const documentId = userDocumentId.value;
+
+  if (!documentId) {
+    return undefined;
+  }
+
+  return {
+    or: [
+      {
+        owner: {
+          documentId: {
+            eq: documentId,
+          },
+        },
+      },
+      {
+        artist: {
+          parent: {
+            documentId: {
+              eq: documentId,
+            },
+          },
+        },
+      },
+    ],
+  };
+});
+
+const { result, loading } = useQuery<IBookingsQueryResponse>(
+  BOOKINGS_QUERY,
+  () => {
+    const filters = bookingFilters.value;
+    return filters ? { filters } : {};
+  },
+  {
+    fetchPolicy: 'network-only',
+    enabled: computed(() => Boolean(userDocumentId.value)),
+  },
+);
+
+const bookings = computed(() => result.value?.bookings ?? []);
+const isLoading = computed(() => loading.value);
 </script>
 
 <style scoped lang="scss">

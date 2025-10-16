@@ -1,30 +1,30 @@
 <template>
-  <div class="tabs-comp flex q-gap-sm justify-start no-wrap">
-    <q-btn
-      v-for="t in tabs"
-      :key="`tab-${t.tab}-${t.label}`"
-      class="tab-btn"
-      unelevated
-      rounded
-      :class="{
-        'bg-grey-4': currentActiveTab.tab !== t.tab && !$q.dark.isActive,
-        'bg-grey-9': currentActiveTab.tab !== t.tab && $q.dark.isActive,
-        'bg-primary text-white': currentActiveTab.tab === t.tab,
-      }"
-      @click="handleTabClick(t)"
-      v-bind="$attrs"
-    >
-      <span class="tabs-comp-label"
-        >{{ t.label }}
-        <template v-if="t.count">&nbsp;({{ t.count }})</template>
-      </span>
-      <q-badge
-        v-if="t.hasNew"
-        color="warning"
+  <div class="tabs-comp">
+    <div class="flex q-gap-sm justify-start no-wrap bg-block border-radius-lg">
+      <q-btn
+        v-for="t in tabs"
+        :key="`tab-${t.tab}-${t.label}`"
+        class="tab-btn"
+        unelevated
         rounded
-        class="tabs-comp-counter text-bold q-ml-xs"
-      />
-    </q-btn>
+        :class="{
+          'bg-primary text-white': currentActiveTab.tab === t.tab,
+        }"
+        @click="handleTabClick(t)"
+        v-bind="$attrs"
+      >
+        <span class="tabs-comp-label"
+          >{{ t.label }}
+          <template v-if="t.count">&nbsp;({{ t.count }})</template>
+        </span>
+        <q-badge
+          v-if="t.hasNew"
+          color="warning"
+          rounded
+          class="tabs-comp-counter text-bold q-ml-xs"
+        />
+      </q-btn>
+    </div>
   </div>
 </template>
 

@@ -17,6 +17,10 @@
       <div class="artist-content q-pr-md">
         <div class="artist-name q-mb-sm">{{ artist.name }}</div>
         <div class="artist-info">
+          <div v-if="artist.parent" class="artist-shop text-grey-6 q-mb-xs">
+            <q-icon name="store" size="14px" />
+            <span class="text-caption">{{ artist.parent.name }}</span>
+          </div>
           <div v-if="artist.city || artist.address" class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
             <span v-if="artist.city && artist.address">{{ artist.city }} {{ artist.address }}</span>
@@ -124,7 +128,8 @@ const navigateToProfile = () => {
 }
 
 .artist-experience,
-.artist-location {
+.artist-location,
+.artist-shop {
   display: flex;
   align-items: center;
   gap: 6px;

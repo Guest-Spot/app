@@ -56,7 +56,7 @@ const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const { formatTime } = useDate();
 
 const isFavorite = computed(() => isShopFavorite(props.shop.documentId));
-const shopPictures = computed(() => props.shop.pictures.map((picture) => picture.url));
+const shopPictures = computed(() => props.shop.pictures?.map((picture) => picture.url) || []);
 
 const openingHourText = computed(() => {
   const dayIndex = new Date().getDay();
@@ -84,7 +84,7 @@ const toggleFavorite = () => {
     ...(props.shop.phone && { phone: props.shop.phone }),
     ...(props.shop.email && { email: props.shop.email }),
     ...(props.shop.openingHours && { openingHours: props.shop.openingHours }),
-    ...(props.shop.links && { links: props.shop.links }),
+    ...(props.shop.link && { link: props.shop.link }),
   };
   toggleShopFavorite(shopData);
   emit('favorite', props.shop.documentId);

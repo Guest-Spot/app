@@ -1,28 +1,79 @@
 import type { IUser } from 'src/interfaces/user';
-
-type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
-type BookingType = 'shop-to-artist' | 'artist-to-shop';
+import type { EReactions } from 'src/interfaces/enums';
+import type { IPicture } from './common';
 
 export interface IBooking {
   documentId: string;
-  title: string;
+  name: string;
+  email: string;
+  phone: string;
+  title?: string | null;
   description: string;
-  shopDocumentId: string;
-  artistDocumentId: string;
-  startTime: string;
-  endTime: string;
-  date: string;
-  location?: string;
-  status: BookingStatus;
-  createdAt: string;
-  updatedAt: string;
-  shop?: Partial<IUser>;
-  artist?: Partial<IUser>;
-  type: BookingType;
+  placement?: string | null;
+  size?: string | null;
+  day?: string | null;
+  start?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  date?: string | null;
+  location?: string | null;
+  reaction: EReactions;
+  status?: string | null;
+  type?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  artistDocumentId?: string | null;
+  shopDocumentId?: string | null;
+  references: IPicture[];
+  artist?:
+    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience'> & {
+        avatar?: IPicture | null;
+        parent?: Pick<IUser, 'documentId' | 'name'> | null;
+      })
+    | null;
+  owner?: Pick<IUser, 'documentId' | 'name'> | null;
+  shop?:
+    | (Pick<IUser, 'documentId' | 'name'> & {
+        pictures?: IPicture[] | null;
+      })
+    | null;
 }
 
 export interface IBookingFilters {
-  status?: IBooking['status'];
-  type?: IBooking['type'];
+  reaction?: EReactions;
   date?: string;
+}
+
+export interface IBookingRequestPayload {
+  name: string;
+  email: string;
+  phone: string;
+  location?: string;
+  description: string;
+  placement: string;
+  size: string;
+  day: string;
+  start: string;
+  references: number[];
+  artist: string;
+  owner: string;
+}
+
+export interface IBookingCreateResponse {
+  documentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  location?: string | null;
+  description: string;
+  placement?: string | null;
+  size?: string | null;
+  day: string;
+  start: string;
+  references?: IPicture[];
+  artist?: Pick<IUser, 'documentId' | 'name'> | null;
+}
+
+export interface IBookingsQueryResponse {
+  bookings: IBooking[];
 }

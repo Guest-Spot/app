@@ -1,22 +1,36 @@
 <template>
-  <q-page class="page q-pb-4xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-lg flex column items-start q-gap-md">
     <div class="container">
       <!-- Back Button -->
       <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
-      <!-- Favorite Button -->
-      <q-btn
-        round
-        flat
-        :color="isFavorite ? 'red' : 'grey-6'"
-        @click="toggleFavorite"
-        class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
-      >
-        <q-icon v-if="isFavorite" name="bookmark" size="22px" color="red" />
-        <q-icon v-else name="bookmark_border" size="22px" color="red" />
-      </q-btn>
+      <!-- Action Buttons -->
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs">
+        <!-- Shop Info Button -->
+        <q-btn
+          v-if="artistData.parent"
+          round
+          flat
+          @click="openShopDialog"
+          class="bg-block"
+        >
+          <q-icon name="store" size="22px" color="primary" />
+        </q-btn>
+
+        <!-- Favorite Button -->
+        <q-btn
+          round
+          flat
+          :color="isFavorite ? 'red' : 'grey-6'"
+          @click="toggleFavorite"
+          class="bg-block"
+        >
+          <q-icon v-if="isFavorite" name="bookmark" size="22px" color="red" />
+          <q-icon v-else name="bookmark_border" size="22px" color="red" />
+        </q-btn>
+      </div>
       <!-- Profile Header Section -->
       <div class="profile-header q-mb-md">
         <div
@@ -73,7 +87,7 @@
       </div>
 
       <!-- Booking Button -->
-      <div class="action-buttons flex justify-center q-mt-lg q-gap-sm">
+      <div v-if="isGuest" class="action-buttons flex justify-center q-mt-lg q-gap-sm hidden">
         <q-btn round class="bg-block" size="lg" text-color="primary" @click="openBookingDialog">
           <q-icon name="event" color="primary" />
         </q-btn>
@@ -83,11 +97,13 @@
     <!-- Create Booking Dialog -->
     <CreateBookingDialog
       v-model="showBookingDialog"
-      :shop-id="0"
-      :artist-id="artistData.documentId"
+      :artist-document-id="artistData.documentId"
       type="artist-to-shop"
       @submit="handleBookingSubmit"
     />
+
+    <!-- Shop Info Dialog -->
+    <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
   </q-page>
 </template>
 
@@ -97,11 +113,11 @@ import { useRoute } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
-import type { IBooking } from 'src/interfaces/booking';
+import type { IBookingCreateResponse } from 'src/interfaces/booking';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
-import { CreateBookingDialog } from 'src/components/Dialogs';
+import { CreateBookingDialog, ShopInfoDialog } from 'src/components/Dialogs';
 import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
 import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -113,6 +129,7 @@ import { useArtistsStore } from 'src/stores/artists';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
+import { useUserStore } from 'src/stores/user';
 
 const {
   load: loadArtist,
@@ -138,6 +155,7 @@ const route = useRoute();
 const artistsStore = useArtistsStore();
 const { onInviteSuccess, onInviteError } = useInviteCompos();
 const { showError, showSuccess } = useNotify();
+const userStore = useUserStore();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -175,6 +193,7 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
+const isGuest = computed(() => userStore.getIsGuest);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -229,13 +248,18 @@ const toggleFavorite = () => {
 
 // Dialog state
 const showBookingDialog = ref(false);
+const showShopDialog = ref(false);
 
 const openBookingDialog = () => {
   showBookingDialog.value = true;
 };
 
-const handleBookingSubmit = (data: Partial<IBooking>) => {
-  console.log('Booking submitted:', data);
+const openShopDialog = () => {
+  showShopDialog.value = true;
+};
+
+const handleBookingSubmit = (booking: IBookingCreateResponse) => {
+  console.log('Booking submitted:', booking);
   showBookingDialog.value = false;
 };
 
@@ -329,7 +353,7 @@ onBeforeMount(() => {
   left: 16px;
 }
 
-.favorite-btn {
+.action-buttons-header {
   top: 16px;
   right: 16px;
 }
@@ -339,7 +363,7 @@ onBeforeMount(() => {
     top: 70px;
   }
 
-  .favorite-btn {
+  .action-buttons-header {
     top: 70px;
   }
 }
@@ -380,11 +404,6 @@ onBeforeMount(() => {
   border-bottom: 1px dashed var(--shadow-light);
   padding-bottom: 2px;
   flex: 1;
-}
-
-.favorite-btn {
-  min-width: 36px;
-  min-height: 36px;
 }
 
 .action-buttons {

@@ -10,7 +10,10 @@
     <div class="q-my-auto full-width">
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <q-form @submit="handleChangePassword" class="flex column items-start q-gap-sm full-width">
+          <q-form
+            @submit="handleChangePassword"
+            class="flex column items-start q-gap-sm full-width"
+          >
             <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Current password</label>
               <q-input
@@ -176,7 +179,6 @@ const handleChangePassword = async () => {
   }
 
   loading.value = true;
-
 
   const fallbackMessage = 'Failed to change password. Please try again.';
 

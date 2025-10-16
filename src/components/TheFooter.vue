@@ -23,6 +23,7 @@
 import { useUserStore } from 'src/stores/user';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { UserType } from 'src/interfaces/enums';
 
 // Footer component with navigation icons
 defineOptions({
@@ -32,32 +33,52 @@ defineOptions({
 const route = useRoute();
 const userStore = useUserStore();
 
-const LINKS = computed(() => [
-  {
-    icon: 'search',
-    label: 'Search',
-    path: '/',
-    isActive: route.path === '/',
-  },
-  {
-    icon: 'bookmark',
-    label: 'Bookmarks',
-    path: '/bookmarks',
-    isActive: route.path === '/bookmarks',
-  },
-  {
-    icon: userStore.isShop ? 'event_note' : 'event',
+const bookings = {
+  [UserType.Shop]: {
+    icon: 'event_note',
     label: 'Bookings',
-    path: userStore.isShop ? '/bookings' : '/events',
-    isActive: route.path === '/bookings' || route.path === '/events',
+    path: '/bookings',
   },
-  {
-    icon: 'person',
-    label: 'Profile',
-    path: '/profile',
-    isActive: route.path === '/profile',
+  [UserType.Artist]: {
+    icon: 'event',
+    label: 'Events',
+    path: '/events',
   },
-]);
+  [UserType.Guest]: {
+    icon: 'event',
+    label: 'My Bookings',
+    path: '/my-bookings',
+  },
+};
+
+const LINKS = computed(() => {
+  return [
+    {
+      icon: 'search',
+      label: 'Search',
+      path: '/',
+      isActive: route.path === '/',
+    },
+    {
+      icon: 'bookmark',
+      label: 'Bookmarks',
+      path: '/bookmarks',
+      isActive: route.path === '/bookmarks',
+    },
+    {
+      icon: bookings[userStore.user?.type || UserType.Guest]?.icon,
+      label: bookings[userStore.user?.type || UserType.Guest]?.label,
+      path: bookings[userStore.user?.type || UserType.Guest]?.path,
+      isActive: route.path === bookings[userStore.user?.type || UserType.Guest]?.path,
+    },
+    {
+      icon: 'person',
+      label: 'Profile',
+      path: '/profile',
+      isActive: route.path === '/profile',
+    },
+  ];
+});
 </script>
 
 <style scoped lang="scss">

@@ -176,6 +176,10 @@ function onRemoveImage(index: number) {
   filesForUpload.value = filesForUpload.value.filter((f) => f.id !== itemByIndex?.id);
   imagesPreview.value = imagesPreview.value.filter((v) => v.index !== index);
   emit('on-remove', imagesIdsForRemove.value);
+  emit(
+    'on-upload',
+    filesForUpload.value.map((f) => f.file),
+  );
 }
 
 function onImageCropped({ file, base64 }: { file: File; base64: string }) {
