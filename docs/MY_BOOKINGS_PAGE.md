@@ -77,7 +77,7 @@ query Bookings {
 
 New interfaces added to `src/interfaces/booking.ts`:
 
-- **IGuestBooking**: Represents a guest's booking request with fields:
+- **IBooking**: Represents a guest's booking request with fields:
   - Basic info: `documentId`, `name`, `email`, `phone`
   - Booking details: `location`, `description`, `placement`, `size`
   - Date/time: `day`, `start`

@@ -15,20 +15,17 @@
       </q-card-section>
 
       <q-card-section v-if="booking" class="dialog-content">
-        <!-- Title -->
-        <div class="title-section flex no-wrap items-start justify-between q-gap-sm q-mb-md">
-          <h3 class="booking-title">{{ booking.title }}</h3>
-          <div
-            class="status-badge text-caption text-bold"
-            :class="booking.status"
-          >
-            {{ getStatusLabel(booking.status) }}
-          </div>
-        </div>
-
         <!-- Artist Info -->
         <div v-if="artist" class="artist-section flex column q-gap-sm q-mb-md">
-          <div class="section-label text-grey-6 q-mb-sm">Artist</div>
+          <div class="artist-header flex items-center justify-between">
+            <div class="section-label text-grey-6">Artist</div>
+            <div
+              class="status-badge text-caption text-bold"
+              :class="booking.reaction"
+            >
+              {{ getStatusLabel(booking.reaction) }}
+            </div>
+          </div>
           <ArtistCard
             :artist="artist"
             @click="viewArtistProfile"
@@ -36,23 +33,17 @@
         </div>
 
         <div class="flex column q-gap-sm">
-          <div class="section-label text-grey-6 q-mb-sm">Session Details</div>
+          <div class="section-label text-grey-6">Details</div>
 
-          <!-- Session Details -->
-          <InfoCard
-            title="Session Details"
-            icon="event"
-            :data="sessionDetailsData"
-            class="q-mb-sm"
-          />
+          <div class="flex column q-gap-md">
+            <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
 
-          <!-- Tattoo Description -->
-          <InfoCard
-            v-if="booking.description"
-            title="Tattoo Description"
-            icon="description"
-            :data="descriptionData"
-          />
+            <InfoCard
+              title="Tattoo Description"
+              icon="description"
+              :data="descriptionData"
+            />
+          </div>
         </div>
       </q-card-section>
 
@@ -106,11 +97,11 @@ const sessionDetailsData = computed(() => {
   const data = [
     {
       label: 'Date',
-      value: formatDate(props.booking.date),
+      value: formatDate(props.booking.day),
     },
     {
       label: 'Time',
-      value: formatTimeRange(props.booking.startTime, props.booking.endTime),
+      value: formatTime(props.booking.start),
     },
   ];
 
@@ -126,41 +117,42 @@ const sessionDetailsData = computed(() => {
 
 // Description data for InfoCard
 const descriptionData = computed(() => {
-  if (!props.booking?.description) return [];
-
   return [
     {
-      label: 'Details',
-      value: props.booking.description,
+      label: 'Idea',
+      value: props.booking?.description || '',
     },
-  ];
+    {
+      label: 'Placement',
+      value: props.booking?.placement || '',
+    },
+    {
+      label: 'Size',
+      value: props.booking?.size || '',
+    },
+  ].filter(Boolean);
 });
 
-const getStatusLabel = (status: IBooking['status']): string => {
+
+const getStatusLabel = (reaction: IBooking['reaction']): string => {
   const labels = {
     pending: 'Pending',
     accepted: 'Accepted',
     rejected: 'Rejected',
-    cancelled: 'Cancelled',
-    completed: 'Completed',
   };
-  return labels[status] || status;
+  return labels[reaction] || reaction;
 };
 
 const formatDate = (dateStr: string): string => {
+  if (!dateStr) return '—';
   const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return '—';
   return date.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
-};
-
-const formatTimeRange = (startTime: string, endTime: string): string => {
-  const start = startTime || '00:00:00';
-  const end = endTime || '00:00:00';
-  return `${formatTime(start)} – ${formatTime(end)}`;
 };
 
 const viewArtistProfile = () => {
@@ -214,32 +206,32 @@ watch(isVisible, (newValue) => {
         margin: 0 0 8px 0;
         color: var(--q-dark);
       }
+    }
 
-      .status-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
 
-        &.pending {
-          background: rgba(242, 192, 55, 0.15);
-          color: #f2c037;
-        }
+      &.pending {
+        background: rgba(242, 192, 55, 0.15);
+        color: #f2c037;
+      }
 
-        &.accepted {
-          background: rgba(33, 186, 69, 0.15);
-          color: #21ba45;
-        }
+      &.accepted {
+        background: rgba(33, 186, 69, 0.15);
+        color: #21ba45;
+      }
 
-        &.rejected,
-        &.cancelled {
-          background: rgba(193, 0, 21, 0.15);
-          color: #c10015;
-        }
+      &.rejected,
+      &.cancelled {
+        background: rgba(193, 0, 21, 0.15);
+        color: #c10015;
+      }
 
-        &.completed {
-          background: rgba(49, 204, 236, 0.15);
-          color: #31ccec;
-        }
+      &.completed {
+        background: rgba(49, 204, 236, 0.15);
+        color: #31ccec;
       }
     }
 
@@ -280,4 +272,3 @@ watch(isVisible, (newValue) => {
   }
 }
 </style>
-

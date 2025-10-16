@@ -64,16 +64,16 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { IGuestBooking } from 'src/interfaces/booking';
+import type { IBooking } from 'src/interfaces/booking';
 import { EReactions } from 'src/interfaces/enums';
 import useDate from 'src/modules/useDate';
 
 interface Props {
-  booking: IGuestBooking;
+  booking: IBooking;
 }
 
 interface Emits {
-  (e: 'click', booking: IGuestBooking): void;
+  (e: 'click', booking: IBooking): void;
 }
 
 const props = defineProps<Props>();
@@ -94,7 +94,7 @@ const formattedTime = computed(() => {
   return formatTime(props.booking.start);
 });
 
-const getStatusLabel = (status: IGuestBooking['reaction']) => {
+const getStatusLabel = (status: IBooking['reaction']) => {
   const statusMap = {
     [EReactions.Pending]: 'Pending',
     [EReactions.Accepted]: 'Accepted',

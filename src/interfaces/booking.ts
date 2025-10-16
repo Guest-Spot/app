@@ -2,30 +2,23 @@ import type { IUser } from 'src/interfaces/user';
 import type { EReactions } from 'src/interfaces/enums';
 import type { IPicture } from './common';
 
-type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
-type BookingType = 'shop-to-artist' | 'artist-to-shop';
-
 export interface IBooking {
   documentId: string;
   title: string;
   description: string;
-  shopDocumentId: string;
-  artistDocumentId: string;
-  startTime: string;
-  endTime: string;
-  date: string;
+  start: string;
+  day: string;
+  placement: string;
+  size: string;
   location?: string;
-  status: BookingStatus;
-  createdAt: string;
-  updatedAt: string;
-  shop?: Partial<IUser>;
-  artist?: Partial<IUser>;
-  type: BookingType;
+  reaction: EReactions;
+  artist: Pick<IUser, 'documentId' | 'name'>;
+  owner: Pick<IUser, 'documentId' | 'name'>;
+  references: IPicture[];
 }
 
 export interface IBookingFilters {
-  status?: IBooking['status'];
-  type?: IBooking['type'];
+  reaction?: EReactions;
   date?: string;
 }
 
@@ -54,34 +47,10 @@ export interface IBookingCreateResponse {
   size?: string | null;
   day: string;
   start: string;
-  references?: { url: string }[];
+  references?: IPicture[];
   artist?: Pick<IUser, 'documentId' | 'name'> | null;
 }
 
-export interface IGuestBooking {
-  documentId: string;
-  name: string;
-  email: string;
-  phone: string;
-  location?: string | null;
-  description: string;
-  placement?: string | null;
-  size?: string | null;
-  day: string;
-  reaction: EReactions;
-  start: string;
-  references?: { url: string }[];
-  artist: {
-    documentId: string;
-    avatar: IPicture;
-    name: string;
-  };
-  owner: {
-    documentId: string;
-    name: string;
-  };
-}
-
 export interface IBookingsQueryResponse {
-  bookings: IGuestBooking[];
+  bookings: IBooking[];
 }
