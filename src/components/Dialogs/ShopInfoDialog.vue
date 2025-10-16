@@ -80,7 +80,10 @@ import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: boolean;
-  shopData: Pick<IUser, 'documentId' | 'name' | 'city' | 'address' | 'pictures' | 'openingHours'> | null;
+  shopData: Pick<
+    IUser,
+    'documentId' | 'name' | 'city' | 'address' | 'pictures' | 'openingHours'
+  > | null;
 }
 
 interface Emits {
@@ -102,7 +105,7 @@ const openingHourText = computed(() => {
   const todayTime = props.shopData?.openingHours?.find((time) => time.day === todayKey);
   if (todayTime?.start && todayTime?.end) {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.start)}`;
-  };
+  }
   return 'Closed';
 });
 
@@ -208,4 +211,3 @@ watch(isVisible, (newValue) => {
   }
 }
 </style>
-

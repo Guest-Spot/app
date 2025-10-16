@@ -95,14 +95,7 @@
           class="bg-block"
           @click="closeDialog"
         />
-        <q-btn
-          v-else
-          label="Back"
-          rounded
-          unelevated
-          class="bg-block"
-          @click="goToPrevStep"
-        />
+        <q-btn v-else label="Back" rounded unelevated class="bg-block" @click="goToPrevStep" />
         <div class="actions-right flex q-gap-sm">
           <q-btn
             v-if="currentStep < 3"
@@ -321,10 +314,8 @@ const {
   onError: onErrorCities,
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
 
-const {
-  load: loadArtistBookings,
-  stop: stopArtistBookings,
-} = useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
+const { load: loadArtistBookings, stop: stopArtistBookings } =
+  useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
 
 const { mutate: createBooking } = useMutation(CREATE_BOOKING_MUTATION);
 

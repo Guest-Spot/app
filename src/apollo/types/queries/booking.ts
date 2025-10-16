@@ -34,6 +34,9 @@ export const BOOKINGS_QUERY = gql`
       owner {
         documentId
         name
+        avatar {
+          url
+        }
       }
       createdAt
     }

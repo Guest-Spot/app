@@ -155,15 +155,19 @@ const disabledDaysSet = computed<Set<string>>(() => {
 });
 
 // Pre-compute opening hours by weekday for quick lookups
-const openingHoursMap = computed<Partial<Record<DayKey, { start: string | null; end: string | null }>>>(
-  () =>
-    props.openingHours.reduce((acc, entry) => {
+const openingHoursMap = computed<
+  Partial<Record<DayKey, { start: string | null; end: string | null }>>
+>(() =>
+  props.openingHours.reduce(
+    (acc, entry) => {
       acc[entry.day] = {
         start: normalizeTimeValue(entry.start),
         end: normalizeTimeValue(entry.end),
       };
       return acc;
-    }, {} as Partial<Record<DayKey, { start: string | null; end: string | null }>>),
+    },
+    {} as Partial<Record<DayKey, { start: string | null; end: string | null }>>,
+  ),
 );
 
 const hasWorkingIntervals = computed(() =>

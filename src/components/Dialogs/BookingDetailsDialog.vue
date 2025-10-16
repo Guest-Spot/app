@@ -16,7 +16,9 @@
 
       <q-card-section v-if="booking" class="dialog-content">
         <!-- Status Badge for Artist View -->
-        <div class="status-section flex items-center justify-between bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md">
+        <div
+          class="status-section flex items-center justify-between bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md"
+        >
           <div class="section-label text-grey-6">Status</div>
           <div class="status-badge text-caption text-bold" :class="booking.reaction">
             {{ getStatusLabel(booking.reaction) }}
@@ -24,7 +26,10 @@
         </div>
 
         <!-- Artist Info -->
-        <div v-if="artist && !isCurrentUserArtist" class="artist-section flex column q-gap-sm q-mb-md">
+        <div
+          v-if="artist && !isCurrentUserArtist"
+          class="artist-section flex column q-gap-sm q-mb-md"
+        >
           <div class="artist-header flex items-center justify-between">
             <div class="section-label text-grey-6">Artist</div>
           </div>
@@ -32,7 +37,6 @@
         </div>
 
         <div class="flex column q-gap-sm">
-
           <div class="flex column q-gap-md full-width">
             <div v-if="referenceImages.length" class="q-my-sm flex column q-gap-sm full-width">
               <div class="section-label text-grey-6">Tattoo Reference</div>
@@ -61,7 +65,12 @@
 
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
 
-            <InfoCard v-if="guestInfoData.length" title="Guest Information" icon="person" :data="guestInfoData" />
+            <InfoCard
+              v-if="guestInfoData.length"
+              title="Guest Information"
+              icon="person"
+              :data="guestInfoData"
+            />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
           </div>
@@ -455,7 +464,6 @@ watch(isImagePreviewVisible, (newValue) => {
       display: flex;
       flex-direction: column;
       gap: 8px;
-
 
       &__list {
         display: flex;
