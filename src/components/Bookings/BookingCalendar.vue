@@ -74,8 +74,7 @@
                   <q-avatar
                     v-else
                     size="40px"
-                    class="event-avatar"
-                    color="grey-4"
+                    class="event-avatar bg-block"
                     text-color="grey-7"
                   >
                     <q-icon name="person" size="24px" />
@@ -407,7 +406,7 @@ const getEventClass = (booking: IBooking): string => {
   // Color based on status
   switch (booking.reaction) {
     case EReactions.Accepted:
-      classes.push('event-primary');
+      classes.push('event-positive');
       break;
     case EReactions.Pending:
       classes.push('event-warning');

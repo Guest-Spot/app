@@ -110,6 +110,7 @@ import { ImagePreviewDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import { useUserStore } from 'src/stores/user';
 import { EReactions } from 'src/interfaces/enums';
+import useNotify from 'src/modules/useNotify';
 
 interface Props {
   modelValue: boolean;
@@ -132,6 +133,7 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 const $q = useQuasar();
 const userStore = useUserStore();
+const { showSuccess } = useNotify();
 
 const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
@@ -268,6 +270,11 @@ const confirmReactionChange = (reaction: EReactions) => {
         documentId: props.booking.documentId,
         reaction,
       });
+      const successMessage =
+        reaction === EReactions.Accepted
+          ? 'Booking request approved'
+          : 'Booking request rejected';
+      showSuccess(successMessage);
     }
   });
 };
