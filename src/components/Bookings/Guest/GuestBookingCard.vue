@@ -50,7 +50,7 @@
         v-if="booking.references && booking.references.length > 0"
         class="references-count q-mt-sm"
       >
-        <q-chip size="sm" icon="image" color="primary" text-color="white" dense>
+        <q-chip size="sm" icon="image" color="primary" text-color="white" dense class="q-pa-sm">
           {{ booking.references.length }} reference{{ booking.references.length > 1 ? 's' : '' }}
         </q-chip>
       </div>

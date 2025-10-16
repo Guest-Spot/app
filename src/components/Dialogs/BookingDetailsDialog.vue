@@ -27,9 +27,31 @@
         </div>
 
         <div class="flex column q-gap-sm">
-          <div class="section-label text-grey-6">Details</div>
+          <div class="section-label text-grey-6">Tattoo Reference</div>
 
-          <div class="flex column q-gap-md">
+          <div class="flex column q-gap-md full-width">
+            <div v-if="referenceImages.length" class="references-gallery full-width">
+              <div class="references-gallery__list">
+                <q-img
+                  v-for="reference in referenceImages"
+                  :key="reference.id"
+                  :src="reference.url"
+                  :ratio="1"
+                  fit="cover"
+                  class="reference-image"
+                  spinner-color="dark"
+                  @click="openImagePreview(reference.url)"
+                >
+                  <template #error>
+                    <div class="reference-image__placeholder flex flex-center column">
+                      <q-icon name="image_not_supported" size="24px" color="grey-6" />
+                      <span class="text-caption text-grey-6">Unavailable</span>
+                    </div>
+                  </template>
+                </q-img>
+              </div>
+            </div>
+
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
@@ -66,6 +88,12 @@
           @click="closeDialog"
         />
       </q-card-actions>
+
+      <ImagePreviewDialog
+        v-model="isImagePreviewVisible"
+        :image-src="previewImageSrc"
+        :allow-cropping="false"
+      />
     </q-card>
   </q-dialog>
 </template>
@@ -75,8 +103,10 @@ import { ref, watch, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IUser } from 'src/interfaces/user';
+import type { IPicture } from 'src/interfaces/common';
 import { ArtistCard } from 'src/components/SearchPage';
 import { InfoCard } from 'src/components';
+import { ImagePreviewDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import { useUserStore } from 'src/stores/user';
 import { EReactions } from 'src/interfaces/enums';
@@ -104,6 +134,8 @@ const $q = useQuasar();
 const userStore = useUserStore();
 
 const isVisible = ref(props.modelValue);
+const isImagePreviewVisible = ref(false);
+const previewImageSrc = ref<string | null>(null);
 
 // Convert partial artist to full artist for ArtistCard
 const artist = computed<IUser | null>(() => {
@@ -154,6 +186,8 @@ const descriptionData = computed(() => {
   ].filter(Boolean);
 });
 
+const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
+
 const canRespondToBooking = computed(() => {
   const currentUserId = userStore.getUser?.documentId;
   const artistDocumentId = props.booking?.artist?.documentId;
@@ -189,6 +223,12 @@ const viewArtistProfile = () => {
 
 const closeDialog = () => {
   isVisible.value = false;
+};
+
+const openImagePreview = (src?: string | null) => {
+  if (!src) return;
+  previewImageSrc.value = src;
+  isImagePreviewVisible.value = true;
 };
 
 const confirmReactionChange = (reaction: EReactions) => {
@@ -249,6 +289,16 @@ watch(
 
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
+  if (!newValue) {
+    isImagePreviewVisible.value = false;
+    previewImageSrc.value = null;
+  }
+});
+
+watch(isImagePreviewVisible, (newValue) => {
+  if (!newValue) {
+    previewImageSrc.value = null;
+  }
 });
 </script>
 
@@ -317,6 +367,45 @@ watch(isVisible, (newValue) => {
       font-weight: 600;
       letter-spacing: 0.5px;
     }
+
+    .references-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+
+      &__list {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+
+        &::webkit-scrollbar {
+          display: none;
+        }
+
+        &::scrollbar {
+          display: none;
+        }
+
+        .reference-image {
+          min-width: 96px;
+          max-width: 96px;
+          height: 96px;
+          border-radius: 12px;
+          overflow: hidden;
+          flex-shrink: 0;
+          cursor: pointer;
+          background: rgba(0, 0, 0, 0.04);
+        }
+
+        .reference-image__placeholder {
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.04);
+          border-radius: 12px;
+        }
+      }
+    }
   }
 
   .dialog-actions {
@@ -345,6 +434,15 @@ watch(isVisible, (newValue) => {
       .title-section {
         .booking-title {
           color: #fff;
+        }
+      }
+
+      .references-gallery {
+        &__list {
+          .reference-image,
+          .reference-image__placeholder {
+            background: rgba(255, 255, 255, 0.08);
+          }
         }
       }
     }
