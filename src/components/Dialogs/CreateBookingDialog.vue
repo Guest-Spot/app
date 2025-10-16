@@ -28,7 +28,7 @@
         <div class="custom-stepper">
           <div class="stepper-header">
             <div
-              v-for="step in steps"
+              v-for="step in visibleSteps"
               :key="step.id"
               class="stepper-item"
               :class="{
@@ -43,7 +43,7 @@
           </div>
 
           <ArtistStep
-            v-if="currentStep === 1"
+            v-if="isArtistSelectionRequired && currentStep === 1"
             :artists="localArtists"
             :selected-artist-id="selectedArtistId"
             :search-query="searchQuery"
@@ -88,14 +88,21 @@
 
       <q-card-actions class="dialog-actions bg-block">
         <q-btn
-          v-if="currentStep === 1"
+          v-if="isAtFirstStep"
           label="Cancel"
           rounded
           unelevated
           class="bg-block"
           @click="closeDialog"
         />
-        <q-btn v-else label="Back" rounded unelevated class="bg-block" @click="goToPrevStep" />
+        <q-btn
+          v-else
+          label="Back"
+          rounded
+          unelevated
+          class="bg-block"
+          @click="goToPrevStep"
+        />
         <div class="actions-right flex q-gap-sm">
           <q-btn
             v-if="currentStep < 3"
@@ -103,7 +110,7 @@
             color="primary"
             rounded
             unelevated
-            :disable="currentStep === 1 && !selectedArtistId"
+            :disable="isArtistSelectionRequired && currentStep === 1 && !selectedArtistId"
             @click="goToNextStep"
           />
           <q-btn
@@ -171,19 +178,33 @@ const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
 const { user } = useUser();
 
-const steps = [
+const baseSteps = [
   { id: 1, title: 'Artist', icon: 'person' },
   { id: 2, title: 'Details', icon: 'assignment' },
   { id: 3, title: 'Schedule', icon: 'event' },
 ] as const;
 
+const isArtistSelectionRequired = computed(() => !props.artistDocumentId);
+const visibleSteps = computed(() =>
+  isArtistSelectionRequired.value ? baseSteps : baseSteps.filter((step) => step.id !== 1),
+);
+const firstVisibleStepId = computed(() => visibleSteps.value[0]?.id ?? baseSteps[0].id);
+
 const isVisible = ref(props.modelValue);
-const currentStep = ref(1);
+const currentStep = ref(firstVisibleStepId.value);
 const isSubmitting = ref(false);
 const isResetting = ref(false);
 
+const isAtFirstStep = computed(() => currentStep.value === firstVisibleStepId.value);
+
 const detailsStepRef = ref<InstanceType<typeof DetailsStep> | null>(null);
 const scheduleStepRef = ref<InstanceType<typeof ScheduleStep> | null>(null);
+
+watch(firstVisibleStepId, (stepId) => {
+  if (!visibleSteps.value.some((step) => step.id === currentStep.value)) {
+    currentStep.value = stepId;
+  }
+});
 
 const bookingDetails = reactive({
   name: '',
@@ -315,6 +336,7 @@ const buildQueryVariables = () => {
 };
 
 const loadArtistsList = (resetData = false) => {
+  if (!isArtistSelectionRequired.value) return;
   if (resetData) {
     resetPagination();
   }
@@ -325,6 +347,7 @@ const loadArtistsList = (resetData = false) => {
 };
 
 const loadMoreArtists = () => {
+  if (!isArtistSelectionRequired.value) return;
   if (!isLoadingQuery.value && hasMoreArtists.value) {
     currentPage.value += 1;
     void loadArtistsQuery(null, buildQueryVariables());
@@ -332,6 +355,7 @@ const loadMoreArtists = () => {
 };
 
 const refetchArtistsData = () => {
+  if (!isArtistSelectionRequired.value) return;
   resetPagination();
   loadArtistsList(true);
 };
@@ -350,23 +374,34 @@ const updateSearchQuery = (value: string) => {
 
 const goToNextStep = async () => {
   const isValid = await validateCurrentStep();
-  if (isValid) {
-    currentStep.value = Math.min(currentStep.value + 1, 3);
+  if (!isValid) return;
+  const stepsOrder = visibleSteps.value;
+  const currentIndex = stepsOrder.findIndex((step) => step.id === currentStep.value);
+  if (currentIndex !== -1 && currentIndex < stepsOrder.length - 1) {
+    currentStep.value = stepsOrder[currentIndex + 1]!.id;
   }
 };
 
 const goToPrevStep = () => {
-  currentStep.value = Math.max(currentStep.value - 1, 1);
+  const stepsOrder = visibleSteps.value;
+  const currentIndex = stepsOrder.findIndex((step) => step.id === currentStep.value);
+  if (currentIndex > 0) {
+    currentStep.value = stepsOrder[currentIndex - 1]!.id;
+  }
 };
 
 const handleStepClick = (stepId: number) => {
-  if (stepId < currentStep.value) {
+  const stepsOrder = visibleSteps.value;
+  const targetIndex = stepsOrder.findIndex((step) => step.id === stepId);
+  const currentIndex = stepsOrder.findIndex((step) => step.id === currentStep.value);
+  if (targetIndex === -1 || currentIndex === -1) return;
+  if (targetIndex <= currentIndex) {
     currentStep.value = stepId;
   }
 };
 
 const validateCurrentStep = async (): Promise<boolean> => {
-  if (currentStep.value === 1) {
+  if (currentStep.value === 1 && isArtistSelectionRequired.value) {
     if (!selectedArtistId.value) {
       showError('Please select an artist to continue.');
       return false;
@@ -460,7 +495,7 @@ const onSubmit = async () => {
 
 const resetFormState = () => {
   isResetting.value = true;
-  currentStep.value = 1;
+  currentStep.value = firstVisibleStepId.value;
   searchQuery.value = '';
   activeFilters.value = { type: UserType.Artist, city: null, name: null };
   sortSettings.value = { sortBy: null, sortDirection: 'asc' };
@@ -488,6 +523,7 @@ const resetFormState = () => {
     detailsStepRef.value?.resetForm();
     scheduleStepRef.value?.resetForm();
     isResetting.value = false;
+    currentStep.value = firstVisibleStepId.value;
   });
 };
 
@@ -504,8 +540,10 @@ watch(
       resetFormState();
       // Force reload artists on dialog open
       resetPagination();
-      loadArtistsList(true);
-      void loadCities();
+      if (isArtistSelectionRequired.value) {
+        loadArtistsList(true);
+        void loadCities();
+      }
     }
   },
 );
@@ -520,7 +558,7 @@ watch(isVisible, (newValue) => {
 watch(
   [activeFilters, searchQuery, sortSettings],
   () => {
-    if (isResetting.value || !isVisible.value) return;
+    if (isResetting.value || !isVisible.value || !isArtistSelectionRequired.value) return;
     refetchArtistsData();
   },
   { deep: true },
@@ -529,8 +567,9 @@ watch(
 watch(
   () => props.artistDocumentId,
   (id) => {
-    if (id) {
-      selectedArtistId.value = id;
+    selectedArtistId.value = id || null;
+    if (isVisible.value) {
+      currentStep.value = firstVisibleStepId.value;
     }
   },
 );
@@ -564,8 +603,10 @@ onErrorCities((error) => {
 onMounted(() => {
   if (props.modelValue) {
     resetPagination();
-    loadArtistsList(true);
-    void loadCities();
+    if (isArtistSelectionRequired.value) {
+      loadArtistsList(true);
+      void loadCities();
+    }
   }
 });
 </script>

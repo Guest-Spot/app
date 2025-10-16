@@ -25,6 +25,17 @@ export const ME_QUERY = gql`
       phone
       email
       experience
+      parent {
+        documentId
+        name
+        city
+        address
+        pictures {
+          id
+          documentId
+          url
+        }
+      }
     }
   }
 `;
@@ -68,6 +79,17 @@ export const USERS_QUERY = gql`
         start
         end
       }
+      parent {
+        documentId
+        name
+        city
+        address
+        pictures {
+          id
+          documentId
+          url
+        }
+      }
     }
   }
 `;
@@ -101,6 +123,22 @@ export const USER_QUERY = gql`
         day
         start
         end
+      }
+      parent {
+        documentId
+        name
+        city
+        address
+        openingHours {
+          day
+          start
+          end
+        }
+        pictures {
+          id
+          documentId
+          url
+        }
       }
     }
   }

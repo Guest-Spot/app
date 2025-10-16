@@ -16,14 +16,14 @@
       <!-- Main Content Area -->
       <div class="container">
         <div class="main-content flex column q-gap-md">
-          <div v-if="activeTab.tab === TAB_INVITES" class="tab-content">
+          <div v-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
+            <BookingCalendar :bookings="bookings" :loading="isLoading" />
+          </div>
+          <div v-else-if="activeTab.tab === TAB_INVITES" class="tab-content">
             <InvitesTab />
           </div>
           <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
             <TripsTab />
-          </div>
-          <div v-else-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
-            <BookingsList :artist-id="artistId" :shop-id="shopId" />
           </div>
         </div>
       </div>
@@ -33,10 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
 import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
-import BookingsList from 'src/components/Bookings/Artist/BookingsList.vue';
-import { TabsComp } from 'src/components';
+import { BookingCalendar, TabsComp } from 'src/components';
+import { useUserStore } from 'src/stores/user';
+import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
+import type { IBookingsQueryResponse } from 'src/interfaces/booking';
 import { type ITab } from 'src/interfaces/tabs';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
@@ -48,6 +51,10 @@ const TAB_BOOKINGS = 'bookings';
 
 const TABS: ITab[] = [
   {
+    label: 'Bookings',
+    tab: TAB_BOOKINGS,
+  },
+  {
     label: 'Invites',
     tab: TAB_INVITES,
   },
@@ -55,20 +62,59 @@ const TABS: ITab[] = [
     label: 'Trips',
     tab: TAB_TRIPS,
   },
-  {
-    label: 'Bookings',
-    tab: TAB_BOOKINGS,
-  },
 ];
 
 const { isAuthenticated } = useUser();
+const userStore = useUserStore();
 
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
 
-// Mock IDs - in real app these would come from user store
-const artistId = ref(1);
-const shopId = ref(1);
+const userDocumentId = computed(() => userStore.getUser?.documentId);
+
+const bookingFilters = computed(() => {
+  const documentId = userDocumentId.value;
+
+  if (!documentId) {
+    return undefined;
+  }
+
+  return {
+    or: [
+      {
+        owner: {
+          documentId: {
+            eq: documentId,
+          },
+        },
+      },
+      {
+        artist: {
+          parent: {
+            documentId: {
+              eq: documentId,
+            },
+          },
+        },
+      },
+    ],
+  };
+});
+
+const { result, loading } = useQuery<IBookingsQueryResponse>(
+  BOOKINGS_QUERY,
+  () => {
+    const filters = bookingFilters.value;
+    return filters ? { filters } : {};
+  },
+  {
+    fetchPolicy: 'network-only',
+    enabled: computed(() => Boolean(userDocumentId.value)),
+  },
+);
+
+const bookings = computed(() => result.value?.bookings ?? []);
+const isLoading = computed(() => loading.value);
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;

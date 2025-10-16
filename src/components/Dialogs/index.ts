@@ -5,6 +5,7 @@ export { default as FilterDialog } from './FilterDialog.vue';
 export { default as ImagePreviewDialog } from './ImagePreviewDialog.vue';
 export { default as PortfolioDialog } from './PortfolioDialog.vue';
 export { default as SearchDialog } from './SearchDialog.vue';
+export { default as ShopInfoDialog } from './ShopInfoDialog.vue';
 export { default as SortDialog } from './SortDialog.vue';
 export { default as TimePickerDialog } from './TimePickerDialog.vue';
 export { default as TripDialog } from './TripDialog.vue';
