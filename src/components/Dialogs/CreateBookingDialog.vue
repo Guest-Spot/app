@@ -150,6 +150,7 @@ import useNotify from 'src/modules/useNotify';
 import { useCitiesStore } from 'src/stores/cities';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
+import useUser from 'src/modules/useUser';
 
 interface Props {
   modelValue: boolean;
@@ -170,6 +171,7 @@ const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
+const { user } = useUser();
 
 const steps = [
   { id: 1, title: 'Artist', icon: 'person' },
@@ -464,10 +466,11 @@ const resetFormState = () => {
   referenceFiles.value = [];
   selectedArtistId.value = props.artistDocumentId || null;
 
+  // Auto-fill user data if available
   Object.assign(bookingDetails, {
-    name: '',
-    email: '',
-    phone: '',
+    name: user.value?.name || '',
+    email: user.value?.email || '',
+    phone: user.value?.phone || '',
     location: '',
     description: '',
     placement: '',
@@ -666,7 +669,8 @@ onMounted(() => {
         background: rgba(255, 255, 255, 0.04);
         color: rgba(255, 255, 255, 0.4);
 
-        &.active {
+        &.active,
+        &.completed {
           background: rgba(255, 255, 255, 0.08);
           color: rgba(255, 255, 255, 0.7);
         }

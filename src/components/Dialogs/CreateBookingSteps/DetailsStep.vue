@@ -1,95 +1,123 @@
 <template>
   <div class="step-content">
     <q-form ref="formRef" class="details-form flex column">
-      <div class="input-grid">
-        <div class="input-group">
-          <label class="input-label">My Name</label>
-          <q-input
-            v-model="nameModel"
-            outlined
-            rounded
-            placeholder="Enter your name"
-            :rules="[rules.required('Name')]"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">My Email</label>
-          <q-input
-            v-model="emailModel"
-            outlined
-            rounded
-            placeholder="Enter your email"
-            :rules="[rules.required('Email'), rules.email]"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">My Phone</label>
-          <q-input
-            v-model="phoneModel"
-            outlined
-            rounded
-            mask="+(###) ### - ####"
-            placeholder="Enter your phone"
-            :rules="[rules.required('Phone')]"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">My Location</label>
-          <q-input
-            v-model="locationModel"
-            outlined
-            rounded
-            placeholder="City, country"
-          />
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label class="input-label">Idea Description</label>
-        <q-input
-          v-model="descriptionModel"
-          outlined
-          rounded
-          type="textarea"
-          rows="4"
-          placeholder="Describe your idea"
-          :rules="[rules.required('Description')]"
-        />
-      </div>
-
-      <div class="input-grid">
-        <div class="input-group">
-          <label class="input-label">Body Placement</label>
-          <q-input
-            v-model="placementModel"
-            outlined
-            rounded
-            placeholder="Where on your body?"
-            :rules="[rules.required('Body placement')]"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Size</label>
-          <q-input
-            v-model="sizeModel"
-            outlined
-            rounded
-            placeholder="Approximate size"
-            :rules="[rules.required('Size')]"
-          />
-        </div>
-      </div>
-
+      <!-- Reference Pictures Section -->
       <div class="input-group">
         <label class="input-label">Reference Pictures</label>
         <ImageUploader
           :key="uploaderKey"
-          placeholder="Upload reference pictures"
+          placeholder="Upload pictures"
           placeholder-icon="image"
           multiple
           @on-upload="onReferenceUpload"
         />
       </div>
+
+      <!-- Contact Information Section -->
+      <q-expansion-item
+        icon="contact_phone"
+        label="Contact Information"
+        header-class="expansion-header"
+        class="bg-block border-radius-lg"
+      >
+        <div class="info-section">
+          <div class="input-grid">
+            <div class="input-group">
+              <label class="input-label">My Name</label>
+              <q-input
+                v-model="nameModel"
+                outlined
+                dense
+                rounded
+                placeholder="Enter your name"
+                :rules="[rules.required('Name')]"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">My Email</label>
+              <q-input
+                v-model="emailModel"
+                outlined
+                dense
+                rounded
+                placeholder="Enter your email"
+                :rules="[rules.required('Email'), rules.email]"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">My Phone</label>
+              <q-input
+                v-model="phoneModel"
+                outlined
+                dense
+                rounded
+                mask="+(###) ### - ####"
+                placeholder="Enter your phone"
+                :rules="[rules.required('Phone')]"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">My Location</label>
+              <q-input
+                v-model="locationModel"
+                outlined
+                dense
+                rounded
+                placeholder="City, country"
+              />
+            </div>
+          </div>
+        </div>
+      </q-expansion-item>
+
+      <!-- Tattoo Details Section -->
+      <q-expansion-item
+        icon="palette"
+        label="Tattoo Details"
+        header-class="expansion-header"
+        class="bg-block border-radius-lg"
+      >
+        <div class="info-section">
+          <div class="input-group">
+            <label class="input-label">Idea Description</label>
+            <q-input
+              v-model="descriptionModel"
+              outlined
+              dense
+              rounded
+              type="textarea"
+              rows="4"
+              placeholder="Describe your idea"
+              :rules="[rules.required('Description')]"
+            />
+          </div>
+
+          <div class="input-grid">
+            <div class="input-group">
+              <label class="input-label">Body Placement</label>
+              <q-input
+                v-model="placementModel"
+                outlined
+                dense
+                rounded
+                placeholder="Where on your body?"
+                :rules="[rules.required('Body placement')]"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Size</label>
+              <q-input
+                v-model="sizeModel"
+                outlined
+                dense
+                rounded
+                placeholder="Approximate size"
+                :rules="[rules.required('Size')]"
+              />
+            </div>
+          </div>
+        </div>
+      </q-expansion-item>
     </q-form>
   </div>
 </template>
@@ -228,6 +256,10 @@ defineExpose({
   gap: 16px;
 }
 
+.info-section {
+  padding: 16px;
+}
+
 .input-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -238,14 +270,10 @@ defineExpose({
   }
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .input-label {
-    font-weight: 600;
-    font-size: 14px;
-  }
+.input-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 </style>

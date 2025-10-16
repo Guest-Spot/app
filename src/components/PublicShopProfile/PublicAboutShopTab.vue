@@ -70,8 +70,6 @@ const workingHours = computed(() => {
     return orderA - orderB;
   });
 
-  console.log(times);
-
   return times.map((time) => ({
     label: OpeningHoursDays[time.day],
     value:
