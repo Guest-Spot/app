@@ -139,6 +139,7 @@ interface WeekGroup {
 interface BookingReactionUpdatePayload {
   documentId: string;
   reaction: EReactions;
+  rejectNote?: string | undefined;
 }
 
 interface Props {
@@ -404,6 +405,7 @@ const updateLocalBookingReaction = (documentId: string, reaction: EReactions) =>
 const handleBookingReactionUpdate = async ({
   documentId,
   reaction,
+  rejectNote,
 }: BookingReactionUpdatePayload) => {
   const existingBooking = internalBookings.value.find(
     (booking) => booking.documentId === documentId,
@@ -422,6 +424,7 @@ const handleBookingReactionUpdate = async ({
       documentId,
       data: {
         reaction,
+        rejectNote,
       },
     });
   } catch {

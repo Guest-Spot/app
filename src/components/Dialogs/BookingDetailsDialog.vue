@@ -312,7 +312,14 @@ const confirmReactionChange = (reaction: EReactions) => {
         placeholder: 'Enter reason for rejection...',
         outlined: true,
         counter: true,
-        maxlength: 500,
+        rounded: true,
+        maxlength: 50,
+        color: 'primary',
+        required: true,
+        rules: [
+          (val: string) => !!val || 'Reason is required',
+          (val: string) => val.length <= 50 || 'Reason must be less than 50 characters',
+        ],
       },
       cancel: {
         color: 'grey-9',
@@ -323,6 +330,7 @@ const confirmReactionChange = (reaction: EReactions) => {
         color: 'negative',
         rounded: true,
         label: 'Reject',
+        disable: !rejectNote?.trim(),
       },
     }).onOk((note: string) => {
       if (props.booking?.documentId) {
