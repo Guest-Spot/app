@@ -4,7 +4,7 @@
       <!-- Navigation Tabs -->
       <div class="container">
         <TabsComp
-          :tabs="TABS"
+          :tabs="tabs"
           :activeTab="activeTab"
           use-query
           send-initial-tab
@@ -16,7 +16,7 @@
       <!-- Main Content Area -->
       <div class="container">
         <div class="main-content flex column q-gap-md">
-          <div v-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
+          <div v-if="shouldShowBookingsTab && activeTab.tab === TAB_BOOKINGS" class="tab-content">
             <BookingCalendar :bookings="bookings" :loading="isLoading" />
           </div>
           <div v-else-if="activeTab.tab === TAB_INVITES" class="tab-content">
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
 import { BookingCalendar, TabsComp } from 'src/components';
@@ -49,34 +49,77 @@ const TAB_INVITES = 'invites';
 const TAB_TRIPS = 'trips';
 const TAB_BOOKINGS = 'bookings';
 
-const TABS: ITab[] = [
-  {
-    label: 'Bookings',
-    tab: TAB_BOOKINGS,
-  },
-  {
-    label: 'Invites',
-    tab: TAB_INVITES,
-  },
-  {
-    label: 'Trips',
-    tab: TAB_TRIPS,
-  },
-];
-
-const { isAuthenticated } = useUser();
+const { isAuthenticated, isArtist } = useUser();
 const userStore = useUserStore();
 
+const shouldShowBookingsTab = computed(() => {
+  if (isArtist.value) {
+    return Boolean(userStore.getUser?.parent?.documentId);
+  }
+
+  return true;
+});
+
+const tabs = computed<ITab[]>(() => {
+  const baseTabs: ITab[] = [
+    {
+      label: 'Invites',
+      tab: TAB_INVITES,
+    },
+    {
+      label: 'Trips',
+      tab: TAB_TRIPS,
+    },
+  ];
+
+  if (!shouldShowBookingsTab.value) {
+    return baseTabs;
+  }
+
+  return [
+    {
+      label: 'Bookings',
+      tab: TAB_BOOKINGS,
+    },
+    ...baseTabs,
+  ];
+});
+
 // Tab management
-const activeTab = ref<ITab>(TABS[0]!);
+const activeTab = ref<ITab>(tabs.value[0]!);
+
+watch(
+  tabs,
+  (newTabs) => {
+    if (!newTabs.length) {
+      return;
+    }
+
+    const currentTabExists = newTabs.some((tab) => tab.tab === activeTab.value.tab);
+    if (!currentTabExists) {
+      activeTab.value = newTabs[0]!;
+    }
+  },
+  { immediate: true },
+);
 
 const userDocumentId = computed(() => userStore.getUser?.documentId);
 
 const bookingFilters = computed(() => {
   const documentId = userDocumentId.value;
 
-  if (!documentId) {
+  if (!documentId || !shouldShowBookingsTab.value) {
     return undefined;
+  }
+
+  if (isArtist.value) {
+    return {
+      artist: {
+        documentId: {
+          eq: documentId,
+        },
+      },
+    };
   }
 
   return {
@@ -109,7 +152,7 @@ const { result, loading } = useQuery<IBookingsQueryResponse>(
   },
   {
     fetchPolicy: 'network-only',
-    enabled: computed(() => Boolean(userDocumentId.value)),
+    enabled: computed(() => Boolean(userDocumentId.value) && shouldShowBookingsTab.value),
   },
 );
 
