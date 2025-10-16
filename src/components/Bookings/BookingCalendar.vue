@@ -17,21 +17,20 @@
 
     <!-- Calendar Events List -->
     <div v-else-if="groupedBookings.length > 0" class="calendar-events">
-      <div
-        v-for="(group, index) in groupedBookings"
-        :key="group.weekLabel"
-        class="week-group"
-        :class="{ 'q-mb-xl': groupedBookings.length - 1 !== index }"
-      >
+      <div v-for="(group, index) in groupedBookings" :key="`week-${index}`" class="week-group">
         <!-- Week Separator -->
         <div v-if="group.weekLabel" class="week-separator text-grey-6 text-weight-medium q-mb-md">
           {{ group.weekLabel }}
         </div>
 
         <!-- Days in Week -->
-        <div v-for="day in group.days" :key="day.date" class="day-group q-mb-md">
+        <div
+          v-for="day in group.days"
+          :key="day.date"
+          class="day-group flex no-wrap q-gap-md items-start q-mb-md"
+        >
           <div class="day-header flex items-center q-gap-md q-mb-sm">
-            <div class="day-label">
+            <div class="day-label bg-block border-radius-md q-py-sm">
               <div class="day-name text-grey-6 text-uppercase text-weight-medium">
                 {{ day.dayName }}
               </div>
@@ -45,32 +44,31 @@
           </div>
 
           <!-- Events for this day -->
-          <div class="events-list">
+          <div class="events-list flex column q-gap-sm">
             <div
               v-for="booking in day.bookings"
               :key="booking.documentId"
-              class="event-card border-radius-md q-pa-md q-mb-sm"
+              class="event-card border-radius-md q-pa-md"
               :class="getEventClass(booking)"
               @click="openBookingDetails(booking)"
             >
               <div class="flex items-start justify-between q-gap-sm">
                 <div class="flex items-start q-gap-sm no-wrap flex-1">
                   <!-- Avatar (if artist available) -->
-                  <q-avatar v-if="booking.artist?.avatar?.url" size="40px" class="event-avatar bg-block">
+                  <q-avatar
+                    v-if="getDisplayAvatarUrl(booking)"
+                    size="40px"
+                    class="event-avatar bg-block"
+                  >
                     <q-img
-                      :src="booking.artist.avatar.url"
+                      :src="getDisplayAvatarUrl(booking) || undefined"
                       fit="cover"
                       spinner-color="white"
                       spinner-size="16px"
                       ratio="0.85"
                     />
                   </q-avatar>
-                  <q-avatar
-                    v-else
-                    size="40px"
-                    class="event-avatar bg-block"
-                    text-color="grey-7"
-                  >
+                  <q-avatar v-else size="40px" class="event-avatar bg-block" text-color="grey-7">
                     <q-icon name="person" size="24px" />
                   </q-avatar>
 
@@ -79,7 +77,7 @@
                     <div class="event-meta">
                       <div class="flex items-center q-gap-xs q-mb-xs">
                         <q-icon name="person" size="14px" />
-                        <span class="text-bold">{{ booking.artist?.name || 'Artist' }}</span>
+                        <span class="text-bold">{{ getDisplayName(booking) }}</span>
                       </div>
                       <div class="flex items-center q-gap-xs">
                         <q-icon name="schedule" size="14px" color="grey-6" />
@@ -120,6 +118,7 @@ import type { IBooking } from 'src/interfaces/booking';
 import { NoResult } from 'src/components';
 import { BookingDetailsDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
+import useUser from 'src/modules/useUser';
 import { EReactions } from 'src/interfaces/enums';
 import { UPDATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 import useNotify from 'src/modules/useNotify';
@@ -140,6 +139,7 @@ interface WeekGroup {
 interface BookingReactionUpdatePayload {
   documentId: string;
   reaction: EReactions;
+  rejectNote?: string | undefined;
 }
 
 interface Props {
@@ -152,6 +152,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
 });
 
+const { isArtist } = useUser();
 const { formatTime } = useDate();
 const { showError } = useNotify();
 const { mutate: updateBookingMutation } = useMutation(UPDATE_BOOKING_MUTATION);
@@ -191,25 +192,9 @@ const shopBookings = computed<IBooking[]>(() => {
 
 watch(
   shopBookings,
-  (newBookings) => {
-    if (hasInitializedDate.value || !newBookings.length) return;
-
-    const bookingsWithDate = [...newBookings].filter(
-      (booking): booking is IBooking & { day: string } => Boolean(booking.day),
-    );
-
-    if (!bookingsWithDate.length) return;
-
-    const firstBooking = bookingsWithDate.sort(
-      (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime(),
-    )[0];
-
-    if (!firstBooking) return;
-
-    const targetDate = new Date(firstBooking.day);
-
-    if (!Number.isNaN(targetDate.getTime())) {
-      currentDate.value = targetDate;
+  () => {
+    if (!hasInitializedDate.value) {
+      currentDate.value = new Date();
       hasInitializedDate.value = true;
     }
   },
@@ -421,6 +406,7 @@ const updateLocalBookingReaction = (documentId: string, reaction: EReactions) =>
 const handleBookingReactionUpdate = async ({
   documentId,
   reaction,
+  rejectNote,
 }: BookingReactionUpdatePayload) => {
   const existingBooking = internalBookings.value.find(
     (booking) => booking.documentId === documentId,
@@ -439,6 +425,7 @@ const handleBookingReactionUpdate = async ({
       documentId,
       data: {
         reaction,
+        rejectNote,
       },
     });
   } catch {
@@ -500,6 +487,22 @@ const getEventClass = (booking: IBooking): string => {
   }
 
   return classes.join(' ');
+};
+
+const getDisplayAvatarUrl = (booking: IBooking): string | null => {
+  if (isArtist.value) {
+    return booking.owner?.avatar?.url ?? null;
+  }
+
+  return booking.artist?.avatar?.url ?? null;
+};
+
+const getDisplayName = (booking: IBooking): string => {
+  if (isArtist.value) {
+    return booking.owner?.name || 'Owner';
+  }
+
+  return booking.artist?.name || 'Artist';
 };
 
 const openBookingDetails = (booking: IBooking) => {
@@ -582,7 +585,7 @@ const goToToday = () => {
         }
 
         .events-list {
-          margin-left: 64px;
+          width: 100%;
 
           .event-card {
             position: relative;

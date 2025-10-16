@@ -63,6 +63,7 @@
 
       <!-- Tattoo Details Section -->
       <q-expansion-item
+        default-opened
         icon="palette"
         label="Tattoo Details"
         header-class="expansion-header"

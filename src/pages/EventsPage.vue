@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <template v-if="isAuthenticated">
       <!-- Navigation Tabs -->
       <div class="container">
@@ -16,7 +16,7 @@
       <!-- Main Content Area -->
       <div class="container">
         <div class="main-content flex column q-gap-md">
-          <div v-if="shouldShowBookingsTab && activeTab.tab === TAB_BOOKINGS" class="tab-content">
+          <div v-if="activeTab.tab === TAB_BOOKINGS" class="tab-content">
             <BookingCalendar :bookings="bookings" :loading="isLoading" />
           </div>
           <div v-else-if="activeTab.tab === TAB_INVITES" class="tab-content">
@@ -52,14 +52,6 @@ const TAB_BOOKINGS = 'bookings';
 const { isAuthenticated, isArtist } = useUser();
 const userStore = useUserStore();
 
-const shouldShowBookingsTab = computed(() => {
-  if (isArtist.value) {
-    return Boolean(userStore.getUser?.parent?.documentId);
-  }
-
-  return true;
-});
-
 const tabs = computed<ITab[]>(() => {
   const baseTabs: ITab[] = [
     {
@@ -71,10 +63,6 @@ const tabs = computed<ITab[]>(() => {
       tab: TAB_TRIPS,
     },
   ];
-
-  if (!shouldShowBookingsTab.value) {
-    return baseTabs;
-  }
 
   return [
     {
@@ -108,7 +96,7 @@ const userDocumentId = computed(() => userStore.getUser?.documentId);
 const bookingFilters = computed(() => {
   const documentId = userDocumentId.value;
 
-  if (!documentId || !shouldShowBookingsTab.value) {
+  if (!documentId) {
     return undefined;
   }
 
@@ -144,7 +132,11 @@ const bookingFilters = computed(() => {
   };
 });
 
-const { result, loading, refetch: refetchBookings } = useQuery<IBookingsQueryResponse>(
+const {
+  result,
+  loading,
+  refetch: refetchBookings,
+} = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
   () => {
     const filters = bookingFilters.value;
@@ -152,7 +144,7 @@ const { result, loading, refetch: refetchBookings } = useQuery<IBookingsQueryRes
   },
   {
     fetchPolicy: 'network-only',
-    enabled: computed(() => Boolean(userDocumentId.value) && shouldShowBookingsTab.value),
+    enabled: computed(() => Boolean(userDocumentId.value)),
   },
 );
 

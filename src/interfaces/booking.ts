@@ -18,6 +18,7 @@ export interface IBooking {
   date?: string | null;
   location?: string | null;
   reaction: EReactions;
+  rejectNote?: string | null;
   status?: string | null;
   type?: string | null;
   createdAt?: string | null;
@@ -31,7 +32,11 @@ export interface IBooking {
         parent?: Pick<IUser, 'documentId' | 'name'> | null;
       })
     | null;
-  owner?: Pick<IUser, 'documentId' | 'name'> | null;
+  owner?:
+    | (Pick<IUser, 'documentId' | 'name'> & {
+        avatar?: IPicture | null;
+      })
+    | null;
   shop?:
     | (Pick<IUser, 'documentId' | 'name'> & {
         pictures?: IPicture[] | null;

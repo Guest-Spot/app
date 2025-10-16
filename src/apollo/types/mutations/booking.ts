@@ -23,6 +23,9 @@ export const CREATE_BOOKING_MUTATION = gql`
       owner {
         documentId
         name
+        avatar {
+          url
+        }
       }
     }
   }

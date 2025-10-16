@@ -13,14 +13,7 @@
         <div class="header-title text-h6 text-bold">
           {{ currentMonthLabel }}
         </div>
-        <q-btn
-          icon="chevron_right"
-          flat
-          round
-          dense
-          :disable="!canGoNext"
-          @click="emit('next')"
-        />
+        <q-btn icon="chevron_right" flat round dense :disable="!canGoNext" @click="emit('next')" />
       </div>
       <q-btn icon="today" flat round dense @click="emit('today')" />
     </div>

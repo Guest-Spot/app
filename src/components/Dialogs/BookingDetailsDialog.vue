@@ -15,19 +15,28 @@
       </q-card-section>
 
       <q-card-section v-if="booking" class="dialog-content">
+        <!-- Status Badge for Artist View -->
+        <div
+          class="status-section flex items-center justify-between bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md"
+        >
+          <div class="section-label text-grey-6">Status</div>
+          <div class="status-badge text-caption text-bold" :class="booking.reaction">
+            {{ getStatusLabel(booking.reaction) }}
+          </div>
+        </div>
+
         <!-- Artist Info -->
-        <div v-if="artist" class="artist-section flex column q-gap-sm q-mb-md">
+        <div
+          v-if="artist && !isCurrentUserArtist"
+          class="artist-section flex column q-gap-sm q-mb-md"
+        >
           <div class="artist-header flex items-center justify-between">
             <div class="section-label text-grey-6">Artist</div>
-            <div class="status-badge text-caption text-bold" :class="booking.reaction">
-              {{ getStatusLabel(booking.reaction) }}
-            </div>
           </div>
           <ArtistCard :artist="artist" @click="viewArtistProfile" />
         </div>
 
         <div class="flex column q-gap-sm">
-
           <div class="flex column q-gap-md full-width">
             <div v-if="referenceImages.length" class="q-my-sm flex column q-gap-sm full-width">
               <div class="section-label text-grey-6">Tattoo Reference</div>
@@ -55,6 +64,13 @@
             </div>
 
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
+
+            <InfoCard
+              v-if="guestInfoData.length"
+              title="Guest Information"
+              icon="person"
+              :data="guestInfoData"
+            />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
           </div>
@@ -122,6 +138,7 @@ interface Props {
 interface BookingReactionUpdatePayload {
   documentId: string;
   reaction: EReactions;
+  rejectNote?: string | undefined;
 }
 
 interface Emits {
@@ -172,6 +189,36 @@ const sessionDetailsData = computed(() => {
   return data;
 });
 
+// Guest info data for InfoCard
+const guestInfoData = computed(() => {
+  if (!props.booking) return [];
+
+  const data = [];
+
+  if (props.booking.name) {
+    data.push({
+      label: 'Name',
+      value: props.booking.name,
+    });
+  }
+
+  if (props.booking.email) {
+    data.push({
+      label: 'Email',
+      value: props.booking.email,
+    });
+  }
+
+  if (props.booking.phone) {
+    data.push({
+      label: 'Phone',
+      value: props.booking.phone,
+    });
+  }
+
+  return data;
+});
+
 // Description data for InfoCard
 const descriptionData = computed(() => {
   return [
@@ -192,12 +239,12 @@ const descriptionData = computed(() => {
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
 
+const isCurrentUserArtist = computed(() => userStore.getIsArtist);
+
 const canRespondToBooking = computed(() => {
-  const currentUserId = userStore.getUser?.documentId;
-  const artistDocumentId = props.booking?.artist?.documentId;
   const isPending = props.booking?.reaction === EReactions.Pending;
 
-  return Boolean(currentUserId && artistDocumentId && currentUserId === artistDocumentId && isPending);
+  return Boolean(isCurrentUserArtist.value && isPending);
 });
 
 const getStatusLabel = (reaction: IBooking['reaction']): string => {
@@ -238,47 +285,79 @@ const openImagePreview = (src?: string | null) => {
 const confirmReactionChange = (reaction: EReactions) => {
   if (!props.booking) return;
 
-  const dialogCopy =
-    reaction === EReactions.Accepted
-      ? {
-          title: 'Accept Booking',
-          message: 'Are you sure you want to accept this booking request?',
-          okLabel: 'Yes, Accept',
-          okColor: 'positive',
-        }
-      : {
-          title: 'Reject Booking',
-          message: 'Are you sure you want to reject this booking request?',
-          okLabel: 'Yes, Reject',
-          okColor: 'negative',
+  if (reaction === EReactions.Accepted) {
+    $q.dialog({
+      title: 'Accept Booking',
+      message: 'Are you sure you want to accept this booking request?',
+      cancel: {
+        color: 'grey-9',
+        rounded: true,
+        label: 'Cancel',
+      },
+      ok: {
+        color: 'positive',
+        rounded: true,
+        label: 'Yes, Accept',
+      },
+    }).onOk(() => {
+      if (props.booking?.documentId) {
+        emit('update:booking-reaction', {
+          documentId: props.booking.documentId,
+          reaction,
+        });
+        showSuccess('Booking request accepted');
+      }
+    });
+  } else {
+    // Reject with reason
+    const rejectNote = '';
+
+    $q.dialog({
+      title: 'Reject Booking',
+      message: 'Please explain why you are rejecting this booking request:',
+      prompt: {
+        model: rejectNote,
+        type: 'textarea',
+        placeholder: 'Enter reason for rejection...',
+        outlined: true,
+        counter: true,
+        rounded: true,
+        maxlength: 50,
+        color: 'primary',
+        required: true,
+        rules: [
+          (val: string) => !!val || 'Reason is required',
+          (val: string) => val.length <= 50 || 'Reason must be less than 50 characters',
+        ],
+      },
+      cancel: {
+        color: 'grey-9',
+        rounded: true,
+        label: 'Cancel',
+      },
+      ok: {
+        color: 'negative',
+        rounded: true,
+        label: 'Reject',
+        disable: !rejectNote?.trim(),
+      },
+    }).onOk((note: string) => {
+      if (props.booking?.documentId) {
+        const payload: BookingReactionUpdatePayload = {
+          documentId: props.booking.documentId,
+          reaction,
         };
 
-  $q.dialog({
-    title: dialogCopy.title,
-    message: dialogCopy.message,
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      label: 'Cancel',
-    },
-    ok: {
-      color: dialogCopy.okColor,
-      rounded: true,
-      label: dialogCopy.okLabel,
-    },
-  }).onOk(() => {
-    if (props.booking?.documentId) {
-      emit('update:booking-reaction', {
-        documentId: props.booking.documentId,
-        reaction,
-      });
-      const successMessage =
-        reaction === EReactions.Accepted
-          ? 'Booking request accepted'
-          : 'Booking request rejected';
-      showSuccess(successMessage);
-    }
-  });
+        const trimmedNote = note.trim();
+        if (trimmedNote) {
+          payload.rejectNote = trimmedNote;
+        }
+
+        emit('update:booking-reaction', payload);
+        showSuccess('Booking request rejected');
+      }
+    });
+  }
 };
 
 const acceptBooking = () => {
@@ -377,11 +456,14 @@ watch(isImagePreviewVisible, (newValue) => {
       letter-spacing: 0.5px;
     }
 
+    .status-section {
+      padding-bottom: 8px;
+    }
+
     .references-gallery {
       display: flex;
       flex-direction: column;
       gap: 8px;
-
 
       &__list {
         display: flex;
