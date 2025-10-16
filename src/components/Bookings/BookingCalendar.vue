@@ -10,8 +10,9 @@
     />
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="loading-container">
-      <q-spinner color="primary" size="50px" />
+    <div v-if="isLoading" class="loading-container flex column items-center q-gap-md">
+      <q-spinner color="primary" size="32px" />
+      <span class="text-grey-6 text-weight-medium">Loading bookings...</span>
     </div>
 
     <!-- Calendar Events List -->

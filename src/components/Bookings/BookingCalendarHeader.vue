@@ -22,9 +22,7 @@
           @click="emit('next')"
         />
       </div>
-      <q-btn icon="today" flat round dense @click="emit('today')">
-        <q-tooltip>Go to today</q-tooltip>
-      </q-btn>
+      <q-btn icon="today" flat round dense @click="emit('today')" />
     </div>
   </div>
 </template>
