@@ -42,10 +42,21 @@ import GuestBookingCard from './GuestBookingCard.vue';
 import BookingDetailsDialog from 'src/components/Dialogs/BookingDetailsDialog.vue';
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResults from 'src/components/NoResult.vue';
+import { useUserStore } from 'src/stores/user';
+
+const userStore = useUserStore();
 
 const { result, loading } = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
-  {},
+  {
+    filters: {
+      owner: {
+        documentId: {
+          eq: userStore.getUser?.documentId,
+        },
+      },
+    },
+  },
   {
     fetchPolicy: 'network-only',
   },

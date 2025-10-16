@@ -394,7 +394,7 @@ const handleStepClick = (stepId: number) => {
   const currentIndex = stepsOrder.findIndex((step) => step.id === currentStep.value);
   if (targetIndex === -1 || currentIndex === -1) return;
   if (targetIndex <= currentIndex) {
-    currentStep.value = stepId;
+    currentStep.value = stepsOrder[targetIndex]!.id;
   }
 };
 
@@ -428,14 +428,20 @@ const buildBookingPayload = (references: UploadFileResponse[]): IBookingRequestP
     size: bookingDetails.size,
     day: schedule.day,
     start: formatToFullTime(schedule.startTime),
-    references: references.map((file) => file.documentId),
+    references: references.map((file) => file.id),
     artist: selectedArtistId.value || '',
+    owner: user.value?.documentId || '',
   };
 };
 
 const onSubmit = async () => {
   if (!selectedArtistId.value) {
     showError('Please select an artist before submitting.');
+    return;
+  }
+
+  if (!user.value?.documentId) {
+    showError('Unable to submit booking. Missing user information.');
     return;
   }
 
@@ -461,6 +467,7 @@ const onSubmit = async () => {
         start: input.start,
         artist: input.artist,
         references: input.references,
+        owner: input.owner,
       },
     };
 

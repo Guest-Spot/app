@@ -54,8 +54,9 @@ export interface IBookingRequestPayload {
   size: string;
   day: string;
   start: string;
-  references: string[];
+  references: number[];
   artist: string;
+  owner: string;
 }
 
 export interface IBookingCreateResponse {

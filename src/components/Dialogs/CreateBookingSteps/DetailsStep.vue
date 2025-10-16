@@ -15,6 +15,7 @@
 
       <!-- Contact Information Section -->
       <q-expansion-item
+        default-opened
         icon="contact_phone"
         label="Contact Information"
         header-class="expansion-header"
@@ -168,7 +169,7 @@ const emit = defineEmits<{
   (e: 'update:description', value: string): void;
   (e: 'update:placement', value: string): void;
   (e: 'update:size', value: string): void;
-  (e: 'update:referenceFiles', value: File[]): void;
+  (e: 'update:referenceFiles', value: (File | null)[]): void;
 }>();
 
 const formRef = ref<QForm | null>(null);
@@ -201,8 +202,7 @@ const sizeModel = computed({
 const uploaderKey = ref(0);
 
 const onReferenceUpload = (files: (File | null)[]) => {
-  const sanitized = files.filter((file): file is File => file instanceof File);
-  emit('update:referenceFiles', sanitized);
+  emit('update:referenceFiles', files);
 };
 
 const validateForm = () => formRef.value?.validate();
