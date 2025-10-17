@@ -23,7 +23,7 @@
           </div>
           <div v-if="artist.city || artist.address" class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
-            <span v-if="artist.city && artist.address">{{ artist.city }} {{ artist.address }}</span>
+            <span v-if="artist.city && artist.address">{{ artist.city }}{{ artist.address ? `, ${artist.address}` : '' }}</span>
             <span v-else-if="artist.city">{{ artist.city }}</span>
             <span v-else>{{ artist.address }}</span>
           </div>

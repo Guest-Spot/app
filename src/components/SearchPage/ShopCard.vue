@@ -21,7 +21,7 @@
       <div class="shop-info">
         <div class="shop-location text-grey-6">
           <q-icon name="location_on" size="16px" />
-          <span>{{ shop.city }} {{ shop.address }}</span>
+          <span>{{ shop.city }}{{ shop.address ? `, ${shop.address}` : '' }}</span>
         </div>
         <div class="shop-hours text-grey-6">
           <q-icon name="schedule" size="16px" />
