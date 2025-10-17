@@ -8,7 +8,7 @@ export default {
   date: {
     justNow: 'just now',
     ago: 'ago',
-    min: { one: 'minute', few: 'minutes', many: 'minutes' },
+    min: { one: 'minute', few: 'mins', many: 'mins' },
     hour: { one: 'hour', few: 'hours', many: 'hours' },
     day: { one: 'day', few: 'days', many: 'days' },
     week: { one: 'week', few: 'weeks', many: 'weeks' },

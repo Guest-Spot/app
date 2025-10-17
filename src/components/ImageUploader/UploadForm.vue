@@ -21,19 +21,9 @@
       </div>
     </q-file>
 
-    <!-- Hidden camera input -->
-    <input
-      ref="cameraInput"
-      type="file"
-      accept="image/*"
-      capture="environment"
-      @change="onCameraSelected"
-      class="hidden"
-    />
-
     <!-- Open camera button (mobile only) -->
     <q-btn
-      v-if="isMobile"
+      v-if="isMobile && isNative"
       round
       size="sm"
       icon="camera_alt"
@@ -48,6 +38,8 @@
 <script setup lang="ts">
 import { ref, type PropType } from 'vue';
 import { type ValidationRule, useQuasar } from 'quasar';
+import { Capacitor } from '@capacitor/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
 
 const MAX_SIZE = 4096;
@@ -56,6 +48,7 @@ defineOptions({
   name: 'UploadForm',
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   size: {
     type: String,
@@ -96,7 +89,7 @@ const emit = defineEmits(['on-change', 'loading']);
 const $q = useQuasar();
 
 const isMobile = $q.platform.is.mobile;
-const cameraInput = ref<HTMLInputElement | null>(null);
+const isNative = Capacitor.isNativePlatform();
 const uploadedFiles = ref<File[]>([]);
 
 async function compressImage(file: File): Promise<File | null> {
@@ -130,23 +123,42 @@ async function onChangeImage(input: File | File[]) {
   }
 }
 
-function openCamera() {
-  if (cameraInput.value) {
-    cameraInput.value.click();
+// Convert base64 to File object
+function base64ToFile(base64String: string, filename: string): File {
+  const arr = base64String.split(',');
+  const mimeMatch = arr[0]?.match(/:(.*?);/);
+  const mime = mimeMatch?.[1] || 'image/jpeg';
+  const bstr = atob(arr[1] || '');
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
   }
+  return new File([u8arr], filename, { type: mime });
 }
 
-async function onCameraSelected(event: Event) {
-  const fileList = (event.target as HTMLInputElement | null)?.files;
-  if (!fileList || fileList.length === 0) return;
-  if (props.multiple) {
-    await onChangeImage(Array.from(fileList));
-  } else {
-    const file = fileList.item(0);
-    if (!file) return;
-    await onChangeImage(file);
+async function openCamera() {
+  try {
+    // Request camera permissions and capture photo
+    const photo = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: CameraResultType.Base64,
+      source: CameraSource.Camera,
+    });
+
+    if (photo.base64String) {
+      const base64Image = `data:image/${photo.format};base64,${photo.base64String}`;
+      const file = base64ToFile(base64Image, `camera-${Date.now()}.${photo.format}`);
+      await onChangeImage(file);
+    }
+  } catch (error) {
+    console.error('Camera error:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to open camera',
+    });
   }
-  (event.target as HTMLInputElement).value = '';
 }
 </script>
 

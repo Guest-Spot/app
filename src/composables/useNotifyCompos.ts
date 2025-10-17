@@ -17,24 +17,33 @@ const useNotifyCompos = () => {
 
   const notifies = computed(() => notifiesStore.getNotifies);
 
-  const fetchNotifies = (filters: unknown = {}) => {
+  const fetchNotifies = (filters: unknown = {}): boolean => {
+    const recipientDocumentId = userStore.getUser?.documentId;
+
+    if (!recipientDocumentId) {
+      return false;
+    }
+
     void loadNotifies(
       null,
       {
         filters: {
           ...(filters || {}),
           recipientDocumentId: {
-            eq: userStore.getUser?.documentId,
+            eq: recipientDocumentId,
           },
         },
         sort: ['createdAt:desc'],
       },
       { fetchPolicy: 'network-only' },
     );
+
+    return true;
   };
 
   onResultNotifies((result) => {
     notifiesStore.setNotifies(result?.data?.notifies || []);
+    notifiesStore.setHasNewNotifies(result?.data?.notifies?.length > 0);
   });
 
   return {

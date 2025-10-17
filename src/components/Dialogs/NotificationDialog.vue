@@ -24,16 +24,27 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <div v-if="receivedPendingInvites.length > 0" class="flex column q-gap-sm">
-          <NotificationItem
-            v-for="invite in receivedPendingInvites"
-            :key="invite.documentId"
-            :invite="invite"
-            :loading-accept="loadingAccept && invite.documentId === updatingInviteDocumentId"
-            :loading-reject="loadingReject && invite.documentId === updatingInviteDocumentId"
-            @accept="handleAccept"
-            @reject="handleReject"
-          />
+        <div v-if="isLoading" class="flex justify-center items-center q-h-full q-my-xl full-width">
+          <q-spinner color="primary" size="32px" />
+        </div>
+        <div v-else-if="notifies.length > 0" class="flex column q-gap-sm">
+          <div
+            v-for="notify in notifies"
+            :key="notify.documentId"
+            class="notification-item bg-block border-radius-md q-pa-md flex column q-gap-xs"
+          >
+            <div class="flex items-start justify-between q-gap-sm full-width">
+              <div class="notification-item-title text-bold">
+                {{ formatNotificationType(notify.type) }}
+              </div>
+              <div class="notification-item-time text-caption text-grey-6 border-radius-sm">
+                {{ formatTimeAgo(notify.createdAt) }}
+              </div>
+            </div>
+            <div class="notification-item-description text-grey-5">
+              {{ notificationDetails(notify) }}
+            </div>
+          </div>
         </div>
         <div
           v-else
@@ -48,15 +59,12 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
-import { ref, watch } from 'vue';
-import NotificationItem from 'src/components/Cards/NotificationItem.vue';
-import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_INVITE_MUTATION } from 'src/apollo/types/invite';
-import { EReactions } from 'src/interfaces/enums';
+import { onMounted, ref, watch } from 'vue';
 import useNotify from 'src/modules/useNotify';
-import useInviteCompos from 'src/composables/useInviteCompos';
-import useUser from 'src/modules/useUser';
+import useNotifyCompos from 'src/composables/useNotifyCompos';
+import type { INotify } from 'src/interfaces/notify';
+import type { NotificationType } from 'src/interfaces/enums';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: boolean;
@@ -67,118 +75,67 @@ interface Emits {
 }
 
 const emit = defineEmits<Emits>();
-const props = defineProps<Props>();
-const $q = useQuasar();
-const { showSuccess } = useNotify();
-const { fetchInvites, receivedPendingInvites } = useInviteCompos();
-const { user } = useUser();
-
-defineOptions({
-  components: {
-    NotificationItem,
-  },
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: true,
 });
+const { showError } = useNotify();
+const { notifies, fetchNotifies, onResultNotifies, onErrorNotifies } = useNotifyCompos();
+const { formatTimeAgo } = useDate();
 
-const {
-  mutate: updateInviteMutation,
-  onDone: onUpdateInviteSuccess,
-  onError: onUpdateInviteError,
-} = useMutation(UPDATE_INVITE_MUTATION);
-
-// Dialog visibility
 const isVisible = ref(props.modelValue);
-const updatingInviteDocumentId = ref<string | null>(null);
-const successMessage = ref<string>('');
-const loadingAccept = ref<boolean>(false);
-const loadingReject = ref<boolean>(false);
+const isLoading = ref(false);
 
-const handleAccept = (documentId: string) => {
-  updatingInviteDocumentId.value = documentId;
-  $q.dialog({
-    title: 'Confirm Invitation',
-    message: 'Are you sure you want to accept this invitation?',
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      title: 'Cancel',
-    },
-    ok: {
-      color: 'primary',
-      rounded: true,
-      label: 'Accept',
-    },
-  }).onOk(() => {
-    loadingAccept.value = true;
-    void updateInviteMutation({
-      documentId,
-      data: {
-        reaction: EReactions.Accepted,
-      },
-    });
-    successMessage.value = 'Invitation accepted successfully';
-  });
+const loadNotifications = () => {
+  if (isLoading.value) {
+    return;
+  }
+
+  isLoading.value = fetchNotifies();
 };
 
-const handleReject = (documentId: string) => {
-  updatingInviteDocumentId.value = documentId;
-  $q.dialog({
-    title: 'Confirm Rejection',
-    message: 'Are you sure you want to reject this invitation?',
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      title: 'Cancel',
-    },
-    ok: {
-      color: 'negative',
-      rounded: true,
-      label: 'Reject',
-    },
-  }).onOk(() => {
-    loadingReject.value = true;
-    void updateInviteMutation({
-      documentId,
-      data: {
-        reaction: EReactions.Rejected,
-      },
-    });
-    successMessage.value = 'Invitation rejected successfully';
-  });
+onResultNotifies(() => {
+  isLoading.value = false;
+});
+
+onErrorNotifies((error) => {
+  console.error('Error loading notifications', error);
+  isLoading.value = false;
+  showError('Failed to load notifications');
+});
+
+const formatNotificationType = (type: NotificationType | string) => {
+  if (!type) {
+    return 'Notification';
+  }
+
+  return type
+    .toString()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
-onUpdateInviteSuccess(() => {
-  void fetchInvites({
-    reaction: {
-      eq: EReactions.Pending,
-    },
-    recipient: {
-      eq: user.value?.documentId,
-    },
-  });
-  updatingInviteDocumentId.value = null;
-  showSuccess(successMessage.value);
-  successMessage.value = '';
-  loadingAccept.value = false;
-  loadingReject.value = false;
+const notificationDetails = (notify: INotify) => {
+  if (notify.ownerDocumentId) {
+    return `From: ${notify.ownerDocumentId}`;
+  }
+  return `ID: ${notify.documentId}`;
+};
+
+onMounted(() => {
+  loadNotifications();
 });
 
-onUpdateInviteError((error) => {
-  updatingInviteDocumentId.value = null;
-  console.error('Error updating invite', error);
-  successMessage.value = '';
-  loadingAccept.value = false;
-  loadingReject.value = false;
-});
-
-// Watch for props changes
 watch(
   () => props.modelValue,
   (newValue) => {
     isVisible.value = newValue;
+    if (newValue) {
+      loadNotifications();
+    }
   },
 );
 
-// Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
@@ -196,6 +153,18 @@ watch(isVisible, (newValue) => {
     width: 320px !important;
     border-radius: 20px 0 0 20px;
     box-shadow: none;
+  }
+
+  .notification-item {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    .notification-item-title {
+      line-height: 1.2;
+    }
+
+    .notification-item-description {
+      font-size: 13px;
+    }
   }
 }
 </style>

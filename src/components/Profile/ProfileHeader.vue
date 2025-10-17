@@ -16,12 +16,8 @@
         size="sm"
         @click="showNotificationDialog"
       >
-        <q-badge
-          v-if="receivedPendingInvites.length > 0"
-          color="warning"
-          text-color="dark"
-          floating
-          >{{ receivedPendingInvites.length }}</q-badge
+        <q-badge v-if="notificationsCount > 0" color="warning" text-color="dark" floating
+          >{{ notificationsCount }}</q-badge
         >
       </q-btn>
       <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
@@ -67,15 +63,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import { useQuasar } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import NotificationDialog from 'src/components/Dialogs/NotificationDialog.vue';
-import useInviteCompos from 'src/composables/useInviteCompos';
-import { useInvitesStore } from 'src/stores/invites';
+import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { useUserStore } from 'src/stores/user';
+import { useNotifiesStore } from 'src/stores/notifies';
 
 defineOptions({
   name: 'ProfileHeader',
@@ -94,11 +90,12 @@ const router = useRouter();
 const $q = useQuasar();
 const { logout } = useUser();
 const { showSuccess } = useNotify();
-const invitesStore = useInvitesStore();
-const { receivedPendingInvites } = useInviteCompos();
+const notifiesStore = useNotifiesStore();
+const { notifies, fetchNotifies } = useNotifyCompos();
 const userStore = useUserStore();
 
 const isGuest = computed(() => userStore.getIsGuest);
+const notificationsCount = computed(() => notifies.value.length);
 
 const handleLogout = () => {
   $q.dialog({
@@ -117,7 +114,8 @@ const handleLogout = () => {
   }).onOk(() => {
     void logout();
     showSuccess('Logout successful');
-    invitesStore.setInvites([]);
+    notifiesStore.setNotifies([]);
+    notifiesStore.setHasNewNotifies(false);
     void router.push('/');
   });
 };
@@ -131,6 +129,7 @@ const handleChangePassword = () => {
 };
 
 const showNotificationDialog = () => {
+  void fetchNotifies();
   $q.dialog({
     component: NotificationDialog,
   });
@@ -139,4 +138,8 @@ const showNotificationDialog = () => {
 const handleFeedback = () => {
   void router.push('/feedback');
 };
+
+onMounted(() => {
+  void fetchNotifies();
+});
 </script>
