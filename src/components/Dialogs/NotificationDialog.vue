@@ -96,11 +96,6 @@ const loadNotifications = () => {
 
 onResultNotifies(() => {
   isLoading.value = false;
-
-  // Mark notifications as viewed after loading
-  if (notifies.value.length > 0) {
-    markNotificationsAsViewed(notifies.value);
-  }
 });
 
 onErrorNotifies((error) => {
@@ -144,6 +139,11 @@ watch(
 
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
+
+  // Mark notifications as viewed when dialog is closed
+  if (!newValue && notifies.value.length > 0) {
+    markNotificationsAsViewed(notifies.value);
+  }
 });
 </script>
 
