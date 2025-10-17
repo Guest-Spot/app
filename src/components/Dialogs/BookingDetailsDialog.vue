@@ -322,17 +322,17 @@ const confirmReactionChange = (reaction: EReactions) => {
         outlined: true,
         counter: true,
         rounded: true,
-        maxlength: 100,
+        maxlength: 250,
         color: 'primary',
         required: true,
         isValid: (val: string) => {
           const trimmedValue = val.trim();
-          return trimmedValue.length > 0 && trimmedValue.length <= 100;
+          return trimmedValue.length > 0 && trimmedValue.length <= 250;
         },
         rules: [
           (val: string) => !!val.trim() || 'Reason is required',
           (val: string) =>
-            val.trim().length <= 100 || 'Reason must be less than 100 characters',
+            val.trim().length <= 250 || 'Reason must be less than 250 characters',
         ],
       },
       cancel: {
