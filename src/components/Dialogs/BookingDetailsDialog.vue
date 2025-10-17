@@ -360,6 +360,7 @@ const confirmReactionChange = (reaction: EReactions) => {
 
         emit('update:booking-reaction', payload);
         showSuccess('Booking request rejected');
+        closeDialog();
       }
     });
   }

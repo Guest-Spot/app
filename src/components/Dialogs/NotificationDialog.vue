@@ -27,14 +27,22 @@
         <div v-if="isLoading" class="flex justify-center items-center q-h-full q-my-xl full-width">
           <q-spinner color="primary" size="32px" />
         </div>
-        <div v-else-if="notifies.length > 0" class="flex column q-gap-sm">
-          <NotificationItem
-            v-for="notify in notifies"
-            :key="notify.documentId"
-            :notify="notify"
-            :is-viewed="isNotificationViewed(notify.documentId)"
-            v-close-popup
-          />
+        <div v-else-if="localNotifies.length > 0" class="notification-list">
+          <InfiniteScrollWrapper
+            class="flex column q-gap-md"
+            :offset="150"
+            :loading="isLoading"
+            :stop="!hasMoreNotifies"
+            @load-more="loadMoreNotifies"
+          >
+            <NotificationItem
+              v-for="notify in localNotifies"
+              :key="notify.documentId"
+              :notify="notify"
+              :is-viewed="isNotificationViewed(notify.documentId)"
+              v-close-popup
+            />
+          </InfiniteScrollWrapper>
         </div>
         <div
           v-else
@@ -53,6 +61,9 @@ import { onMounted, ref, watch } from 'vue';
 import useNotify from 'src/modules/useNotify';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { NotificationItem } from 'src/components';
+import type { INotify } from 'src/interfaces/notify';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 
 interface Props {
   modelValue: boolean;
@@ -67,31 +78,103 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: true,
 });
 const { showError } = useNotify();
-const { notifies, fetchNotifies, onResultNotifies, onErrorNotifies, markNotificationsAsViewed, isNotificationViewed } = useNotifyCompos();
+const {
+  fetchNotifies,
+  onResultNotifies,
+  onErrorNotifies,
+  markNotificationsAsViewed,
+  isNotificationViewed,
+} = useNotifyCompos();
 
 const isVisible = ref(props.modelValue);
 const isLoading = ref(false);
+const localNotifies = ref<INotify[]>([]);
+const currentPage = ref(1);
+const hasMoreNotifies = ref(true);
 
-const loadNotifications = () => {
+let lastRequestWasAppend = false;
+
+const resetPagination = () => {
+  currentPage.value = 1;
+  hasMoreNotifies.value = true;
+  localNotifies.value = [];
+  lastRequestWasAppend = false;
+};
+
+const loadNotifications = (reset = false) => {
   if (isLoading.value) {
     return;
   }
 
-  isLoading.value = fetchNotifies();
+  if (reset) {
+    resetPagination();
+  }
+
+  if (!hasMoreNotifies.value) {
+    return;
+  }
+
+  lastRequestWasAppend = currentPage.value > 1;
+  isLoading.value = true;
+
+  const started = fetchNotifies({
+    pagination: {
+      page: currentPage.value,
+      pageSize: PAGINATION_PAGE_SIZE,
+    },
+    append: lastRequestWasAppend,
+  });
+
+  if (!started) {
+    isLoading.value = false;
+    if (lastRequestWasAppend && currentPage.value > 1) {
+      currentPage.value -= 1;
+    }
+    lastRequestWasAppend = false;
+  }
 };
 
-onResultNotifies(() => {
+const loadMoreNotifies = () => {
+  if (isLoading.value || !hasMoreNotifies.value) {
+    return;
+  }
+
+  currentPage.value += 1;
+  loadNotifications();
+};
+
+onResultNotifies((result) => {
   isLoading.value = false;
+  const fetchedNotifies = result?.data?.notifies ?? [];
+
+  if (lastRequestWasAppend) {
+    const existingIds = new Set(localNotifies.value.map((notify) => notify.documentId));
+    const uniqueNewNotifies = fetchedNotifies.filter(
+      (notify: INotify) => !existingIds.has(notify.documentId),
+    );
+    localNotifies.value = [...localNotifies.value, ...uniqueNewNotifies];
+  } else {
+    localNotifies.value = fetchedNotifies;
+  }
+
+  hasMoreNotifies.value = fetchedNotifies.length === PAGINATION_PAGE_SIZE;
+  lastRequestWasAppend = false;
 });
 
 onErrorNotifies((error) => {
   console.error('Error loading notifications', error);
   isLoading.value = false;
+  if (lastRequestWasAppend && currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+  lastRequestWasAppend = false;
   showError('Failed to load notifications');
 });
 
 onMounted(() => {
-  loadNotifications();
+  if (props.modelValue) {
+    loadNotifications(true);
+  }
 });
 
 watch(
@@ -99,7 +182,7 @@ watch(
   (newValue) => {
     isVisible.value = newValue;
     if (newValue) {
-      loadNotifications();
+      loadNotifications(true);
     }
   },
 );
@@ -108,14 +191,31 @@ watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 
   // Mark notifications as viewed when dialog is closed
-  if (!newValue && notifies.value.length > 0) {
-    markNotificationsAsViewed(notifies.value);
+  if (!newValue && localNotifies.value.length > 0) {
+    markNotificationsAsViewed(localNotifies.value);
   }
 });
 </script>
 
 <style lang="scss" scoped>
 .notification-dialog {
+
+  .q-card {
+    overflow: hidden;
+  }
+
+  .dialog-content {
+    height: 100%;
+    overflow: auto;
+  }
+
+  .notification-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
   .notification-dialog-header {
     position: sticky;
     top: 0;
