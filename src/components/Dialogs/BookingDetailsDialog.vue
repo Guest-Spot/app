@@ -295,7 +295,7 @@ const confirmReactionChange = (reaction: EReactions) => {
         label: 'Cancel',
       },
       ok: {
-        color: 'positive',
+        color: 'primary',
         rounded: true,
         label: 'Yes, Accept',
       },
@@ -306,6 +306,7 @@ const confirmReactionChange = (reaction: EReactions) => {
           reaction,
         });
         showSuccess('Booking request accepted');
+        closeDialog();
       }
     });
   } else {

@@ -7,7 +7,6 @@
     </div>
     <div class="flex items-center no-wrap q-gap-sm">
       <q-btn
-        v-if="!isGuest"
         text-color="primary"
         icon="notifications"
         round

@@ -7,6 +7,7 @@ export const NOTIFICATIONS_QUERY = gql`
       ownerDocumentId
       type
       recipientDocumentId
+      body
       createdAt
       updatedAt
       publishedAt

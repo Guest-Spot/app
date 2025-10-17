@@ -64,4 +64,7 @@ export enum EReactions {
 export enum NotificationType {
   RemoveArtistFromShop = 'remove_artist_from_shop',
   AddArtistToShop = 'add_artist_to_shop',
+  BookingRequest = 'booking_request',
+  BookingAccepted = 'booking_accepted',
+  BookingRejected = 'booking_rejected',
 }
