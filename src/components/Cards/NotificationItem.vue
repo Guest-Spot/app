@@ -1,83 +1,131 @@
 <template>
-  <div class="notification-item bg-block border-radius-md q-pa-md flex column q-gap-sm">
-    <div
-      class="notification-item-content flex column items-start q-gap-sm"
-      @click="$router.push(`/shop/${invite.sender}`)"
-      v-close-popup
-    >
-      <div class="flex items-center justify-between q-gap-sm full-width">
-        <div class="notification-item-time text-caption border-radius-sm text-grey-6">
-          {{ formatTimeAgo(invite.createdAt) }}
-        </div>
+  <div
+    class="notification-item bg-block border-radius-md q-pa-md flex column q-gap-xs cursor-pointer"
+    :class="{ 'notification-item--viewed': isViewed }"
+    @click="handleClick"
+  >
+    <div class="flex items-start justify-between q-gap-sm full-width">
+      <div class="notification-item-title text-bold">
+        {{ formatNotificationType(notify.type) }}
       </div>
-      <div class="notification-item-title text-bold">{{ invite.title }}</div>
-      <div class="notification-item-description text-grey-4">{{ invite.description }}</div>
-      <div class="notification-item-actions flex no-wrap q-gap-sm q-mt-md full-width">
-        <q-btn
-          label="Reject"
-          color="grey-9"
-          rounded
-          size="sm"
-          :loading="loadingReject"
-          :disable="loadingReject || loadingAccept"
-          @click.stop="$emit('reject', invite.documentId)"
-          class="bg-block"
-        />
-        <q-btn
-          label="Accept"
-          color="primary"
-          rounded
-          size="sm"
-          :loading="loadingAccept"
-          :disable="loadingAccept || loadingReject"
-          @click.stop="$emit('accept', invite.documentId)"
-        />
-        <q-btn
-          round
-          size="sm"
-          color="grey-9"
-          icon="visibility"
-          class="bg-block q-ml-auto"
-          @click.stop="$router.push(`/shop/${invite.sender}`)"
-          v-close-popup
-        />
+      <div class="notification-item-time text-caption text-grey-6 border-radius-sm">
+        {{ formatTimeAgo(notify.createdAt) }}
       </div>
+    </div>
+    <div class="notification-item-description text-grey-5">
+      {{ notificationDetails }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { IInvite } from 'src/interfaces/invite';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import type { INotify } from 'src/interfaces/notify';
+import type { NotificationType } from 'src/interfaces/enums';
 import useDate from 'src/modules/useDate';
+import useUser from 'src/modules/useUser';
 
 defineOptions({
   name: 'NotificationItem',
 });
 
 interface Props {
-  invite: IInvite;
-  loadingAccept?: boolean;
-  loadingReject?: boolean;
+  notify: INotify;
+  isViewed?: boolean;
 }
 
-interface Emits {
-  (e: 'reject', documentId: string): void;
-  (e: 'accept', documentId: string): void;
-}
-
-defineProps<Props>();
-defineEmits<Emits>();
+const props = defineProps<Props>();
+const router = useRouter();
 
 const { formatTimeAgo } = useDate();
+const { isArtist } = useUser();
+
+// Format date to YYYY-MM for BookingCalendar
+const formatDateForCalendar = (dateString: string): string => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
+// Format notification type for display
+const formatNotificationType = (type: NotificationType | string) => {
+  if (!type) {
+    return 'Notification';
+  }
+
+  return type
+    .toString()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+// Get notification details from body
+const notificationDetails = computed(() => {
+  if (props.notify.body && typeof props.notify.body === 'object') {
+    // Try to extract meaningful information from body
+    const body = props.notify.body;
+    if (body.message && typeof body.message === 'string') return body.message;
+    if (body.description && typeof body.description === 'string') return body.description;
+  }
+
+  if (props.notify.ownerDocumentId) {
+    return `From: ${props.notify.ownerDocumentId}`;
+  }
+
+  return `ID: ${props.notify.documentId}`;
+});
+
+// Generate link based on user role
+const notificationLink = computed(() => {
+  if (isArtist.value) {
+    // For artists, use the date from body if available, otherwise use createdAt
+    let dateToUse = props.notify.createdAt;
+
+    if (props.notify.body && typeof props.notify.body === 'object') {
+      const body = props.notify.body;
+      if (body.date && typeof body.date === 'string') {
+        dateToUse = body.date;
+      } else if (body.day && typeof body.day === 'string') {
+        dateToUse = body.day;
+      }
+    }
+
+    const formattedDate = formatDateForCalendar(dateToUse);
+    return `/events?date=${formattedDate}`;
+  }
+
+  // For shop owners, could link to bookings or other relevant page
+  return '/bookings';
+});
+
+const handleClick = () => {
+  void router.push(notificationLink.value);
+};
 </script>
 
 <style lang="scss" scoped>
 .notification-item {
-  .notification-item-content {
-    .notification-item-description {
-      border-left: 2px solid var(--q-primary);
-      padding-left: 10px;
-    }
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: opacity 0.2s ease, transform 0.1s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  .notification-item-title {
+    line-height: 1.2;
+  }
+
+  .notification-item-description {
+    font-size: 13px;
+  }
+
+  &--viewed {
+    opacity: 0.5;
+    border-color: rgba(255, 255, 255, 0.03);
   }
 }
 </style>

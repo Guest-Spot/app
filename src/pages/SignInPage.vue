@@ -104,6 +104,7 @@
                 </q-btn>
 
                 <q-btn
+                  disabled
                   round
                   unelevated
                   outline

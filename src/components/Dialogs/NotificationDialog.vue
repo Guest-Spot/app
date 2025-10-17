@@ -28,24 +28,13 @@
           <q-spinner color="primary" size="32px" />
         </div>
         <div v-else-if="notifies.length > 0" class="flex column q-gap-sm">
-          <div
+          <NotificationItem
             v-for="notify in notifies"
             :key="notify.documentId"
-            class="notification-item bg-block border-radius-md q-pa-md flex column q-gap-xs"
-            :class="{ 'notification-item--viewed': isNotificationViewed(notify.documentId) }"
-          >
-            <div class="flex items-start justify-between q-gap-sm full-width">
-              <div class="notification-item-title text-bold">
-                {{ formatNotificationType(notify.type) }}
-              </div>
-              <div class="notification-item-time text-caption text-grey-6 border-radius-sm">
-                {{ formatTimeAgo(notify.createdAt) }}
-              </div>
-            </div>
-            <div class="notification-item-description text-grey-5">
-              {{ notificationDetails(notify) }}
-            </div>
-          </div>
+            :notify="notify"
+            :is-viewed="isNotificationViewed(notify.documentId)"
+            v-close-popup
+          />
         </div>
         <div
           v-else
@@ -63,9 +52,7 @@
 import { onMounted, ref, watch } from 'vue';
 import useNotify from 'src/modules/useNotify';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
-import type { INotify } from 'src/interfaces/notify';
-import type { NotificationType } from 'src/interfaces/enums';
-import useDate from 'src/modules/useDate';
+import { NotificationItem } from 'src/components';
 
 interface Props {
   modelValue: boolean;
@@ -81,7 +68,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const { showError } = useNotify();
 const { notifies, fetchNotifies, onResultNotifies, onErrorNotifies, markNotificationsAsViewed, isNotificationViewed } = useNotifyCompos();
-const { formatTimeAgo } = useDate();
 
 const isVisible = ref(props.modelValue);
 const isLoading = ref(false);
@@ -103,25 +89,6 @@ onErrorNotifies((error) => {
   isLoading.value = false;
   showError('Failed to load notifications');
 });
-
-const formatNotificationType = (type: NotificationType | string) => {
-  if (!type) {
-    return 'Notification';
-  }
-
-  return type
-    .toString()
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
-const notificationDetails = (notify: INotify) => {
-  if (notify.ownerDocumentId) {
-    return `From: ${notify.ownerDocumentId}`;
-  }
-  return `ID: ${notify.documentId}`;
-};
 
 onMounted(() => {
   loadNotifications();
@@ -159,24 +126,6 @@ watch(isVisible, (newValue) => {
     width: 320px !important;
     border-radius: 20px 0 0 20px;
     box-shadow: none;
-  }
-
-  .notification-item {
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    transition: opacity 0.2s ease;
-
-    .notification-item-title {
-      line-height: 1.2;
-    }
-
-    .notification-item-description {
-      font-size: 13px;
-    }
-
-    &--viewed {
-      opacity: 0.5;
-      border-color: rgba(255, 255, 255, 0.03);
-    }
   }
 }
 </style>
