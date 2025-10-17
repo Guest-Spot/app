@@ -91,11 +91,11 @@ const $q = useQuasar();
 const { logout } = useUser();
 const { showSuccess } = useNotify();
 const notifiesStore = useNotifiesStore();
-const { notifies, fetchNotifies } = useNotifyCompos();
+const { fetchNotifies } = useNotifyCompos();
 const userStore = useUserStore();
 
 const isGuest = computed(() => userStore.getIsGuest);
-const notificationsCount = computed(() => notifies.value.length);
+const notificationsCount = computed(() => notifiesStore.getHasNewNotifies);
 
 const handleLogout = () => {
   $q.dialog({
@@ -115,7 +115,7 @@ const handleLogout = () => {
     void logout();
     showSuccess('Logout successful');
     notifiesStore.setNotifies([]);
-    notifiesStore.setHasNewNotifies(false);
+    notifiesStore.setHasNewNotifies(0);
     void router.push('/');
   });
 };

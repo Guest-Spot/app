@@ -32,6 +32,7 @@
             v-for="notify in notifies"
             :key="notify.documentId"
             class="notification-item bg-block border-radius-md q-pa-md flex column q-gap-xs"
+            :class="{ 'notification-item--viewed': isNotificationViewed(notify.documentId) }"
           >
             <div class="flex items-start justify-between q-gap-sm full-width">
               <div class="notification-item-title text-bold">
@@ -79,7 +80,7 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: true,
 });
 const { showError } = useNotify();
-const { notifies, fetchNotifies, onResultNotifies, onErrorNotifies } = useNotifyCompos();
+const { notifies, fetchNotifies, onResultNotifies, onErrorNotifies, markNotificationsAsViewed, isNotificationViewed } = useNotifyCompos();
 const { formatTimeAgo } = useDate();
 
 const isVisible = ref(props.modelValue);
@@ -95,6 +96,11 @@ const loadNotifications = () => {
 
 onResultNotifies(() => {
   isLoading.value = false;
+
+  // Mark notifications as viewed after loading
+  if (notifies.value.length > 0) {
+    markNotificationsAsViewed(notifies.value);
+  }
 });
 
 onErrorNotifies((error) => {
@@ -157,6 +163,7 @@ watch(isVisible, (newValue) => {
 
   .notification-item {
     border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: opacity 0.2s ease;
 
     .notification-item-title {
       line-height: 1.2;
@@ -164,6 +171,11 @@ watch(isVisible, (newValue) => {
 
     .notification-item-description {
       font-size: 13px;
+    }
+
+    &--viewed {
+      opacity: 0.5;
+      border-color: rgba(255, 255, 255, 0.03);
     }
   }
 }
