@@ -25,9 +25,13 @@
           </div>
         </div>
 
-        <div v-if="rejectReason" class="reject-note q-mb-md q-pa-sm">
-          <div class="text-caption text-grey-6">Reason:</div>
-          <div class="text-grey-4">{{ rejectReason }}</div>
+        <!-- Reject Note -->
+        <div
+          v-if="booking.reaction === EReactions.Rejected && booking.rejectNote"
+          class="reject-note q-mt-md q-mb-md"
+        >
+          <div class="reject-note__label text-caption text-grey-6">Reason for rejection</div>
+          <div class="reject-note__text">{{ booking.rejectNote }}</div>
         </div>
 
         <!-- Artist Info -->
@@ -242,8 +246,6 @@ const descriptionData = computed(() => {
     },
   ].filter(Boolean);
 });
-
-const rejectReason = computed(() => props.booking?.rejectNote?.trim() ?? '');
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
 
@@ -474,10 +476,18 @@ watch(isImagePreviewVisible, (newValue) => {
     }
 
     .reject-note {
-      background-color: rgba(244, 67, 54, 0.08);
-      border-radius: 16px;
-      border-left: 3px solid rgba(244, 67, 54, 0.5);
+      border-radius: 8px;
+      padding: 8px 12px;
       font-size: 13px;
+      line-height: 1.4;
+      border-left: 1px solid rgba(193, 0, 21, 0.2);
+      background: rgba(193, 0, 21, 0.01);
+
+      &__label {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
     }
 
     .references-gallery {
@@ -555,6 +565,14 @@ watch(isImagePreviewVisible, (newValue) => {
             background: rgba(255, 255, 255, 0.08);
           }
         }
+      }
+    }
+
+    .reject-note {
+      background: rgba(193, 0, 21, 0.05);
+
+      &__label {
+        color: rgba(255, 255, 255, 0.7);
       }
     }
 
