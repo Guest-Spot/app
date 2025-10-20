@@ -25,6 +25,11 @@
           </div>
         </div>
 
+        <div v-if="rejectReason" class="reject-note q-mb-md q-pa-sm">
+          <div class="text-caption text-grey-6">Reason:</div>
+          <div class="text-grey-4">{{ rejectReason }}</div>
+        </div>
+
         <!-- Artist Info -->
         <div
           v-if="artist && !isCurrentUserArtist"
@@ -237,6 +242,8 @@ const descriptionData = computed(() => {
     },
   ].filter(Boolean);
 });
+
+const rejectReason = computed(() => props.booking?.rejectNote?.trim() ?? '');
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
 
@@ -464,6 +471,13 @@ watch(isImagePreviewVisible, (newValue) => {
 
     .status-section {
       padding-bottom: 8px;
+    }
+
+    .reject-note {
+      background-color: rgba(244, 67, 54, 0.08);
+      border-radius: 16px;
+      border-left: 3px solid rgba(244, 67, 54, 0.5);
+      font-size: 13px;
     }
 
     .references-gallery {
