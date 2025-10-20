@@ -157,6 +157,7 @@ const { showSuccess } = useNotify();
 const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
 const previewImageSrc = ref<string | null>(null);
+const initialRejectNote = ref('');
 
 // Convert partial artist to full artist for ArtistCard
 const artist = computed<IUser | null>(() => {
@@ -311,13 +312,11 @@ const confirmReactionChange = (reaction: EReactions) => {
     });
   } else {
     // Reject with reason
-    const initialRejectNote = '';
-
     $q.dialog({
       title: 'Reject Booking',
       message: 'Please explain why you are rejecting this booking request:',
       prompt: {
-        model: initialRejectNote,
+        model: initialRejectNote.value,
         type: 'textarea',
         placeholder: 'Enter reason for rejection...',
         outlined: true,
@@ -360,6 +359,7 @@ const confirmReactionChange = (reaction: EReactions) => {
 
         emit('update:booking-reaction', payload);
         showSuccess('Booking request rejected');
+        initialRejectNote.value = '';
         closeDialog();
       }
     });

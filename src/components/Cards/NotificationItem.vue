@@ -62,9 +62,8 @@
     </div>
 
     <!-- View Button -->
-    <div class="notification-item-footer">
+    <div v-if="notificationLink" class="notification-item-footer">
       <q-btn
-        v-if="notificationLink"
         flat
         dense
         rounded
