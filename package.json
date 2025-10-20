@@ -45,6 +45,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.6",
     "@capacitor/android": "^7.4.3",
+    "@capacitor/camera": "^7.0.2",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",

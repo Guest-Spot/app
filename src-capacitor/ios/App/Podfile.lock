@@ -9,6 +9,8 @@ PODS:
     - CapacitorCordova
   - CapacitorApp (7.0.2):
     - Capacitor
+  - CapacitorCamera (7.0.2):
+    - Capacitor
   - CapacitorCordova (7.4.3)
   - CodetrixStudioCapacitorGoogleAuth (0.0.1):
     - Capacitor
@@ -29,6 +31,7 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CodetrixStudioCapacitorGoogleAuth (from `../../node_modules/@codetrix-studio/capacitor-google-auth`)"
   - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
@@ -46,6 +49,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
+  CapacitorCamera:
+    :path: "../../node_modules/@capacitor/camera"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CodetrixStudioCapacitorGoogleAuth:
@@ -57,6 +62,7 @@ SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
   CapacitorApp: 1f6922c9c5c8b1c538d7fbe92ebe44a81b34bed3
+  CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
   CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
   CodetrixStudioCapacitorGoogleAuth: 9dcfabfb7dd804ad6231a1513bc6e81e620cbec6
   GoogleSignIn: 5651ce3a61e56ca864160e79b484cd9ed3f49b7a
@@ -65,6 +71,6 @@ SPEC CHECKSUMS:
   Sentry: f7dddfabe691274d6d630f04621e1345f9d6b9e0
   SentryCapacitor: 09d18680bd9366850de59dc3859af859ad4116fa
 
-PODFILE CHECKSUM: f7c2140dcd899797f8b9a1fbed59315fdf927eaa
+PODFILE CHECKSUM: 8462316a3806f9e023ac147652cfd18da2d8bb29
 
 COCOAPODS: 1.16.2

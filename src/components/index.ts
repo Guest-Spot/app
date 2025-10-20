@@ -13,5 +13,8 @@ export { default as InfoCard } from './InfoCard.vue';
 // Booking components
 export { default as BookingCalendar } from './Bookings/BookingCalendar.vue';
 
+// Card components
+export { default as NotificationItem } from './Cards/NotificationItem.vue';
+
 // Portfolio components
 export * from './Portfolio';

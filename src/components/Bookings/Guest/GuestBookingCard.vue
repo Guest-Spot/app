@@ -54,6 +54,15 @@
           {{ booking.references.length }} reference{{ booking.references.length > 1 ? 's' : '' }}
         </q-chip>
       </div>
+
+      <!-- Reject Note -->
+      <div
+        v-if="booking.reaction === EReactions.Rejected && booking.rejectNote"
+        class="reject-note q-mt-md"
+      >
+        <div class="reject-note__label text-caption text-grey-6">Reason for rejection</div>
+        <div class="reject-note__text">{{ booking.rejectNote }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -154,7 +163,7 @@ const handleClick = () => {
       &.rejected,
       &.cancelled {
         background: rgba(193, 0, 21, 0.15);
-        color: #c10015;
+        color: var(--q-negative);
       }
 
       &.completed {
@@ -190,6 +199,21 @@ const handleClick = () => {
         font-size: 12px;
       }
     }
+
+    .reject-note {
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      border-left: 1px solid rgba(193, 0, 21, 0.2);
+      background: rgba(193, 0, 21, 0.01);
+
+      &__label {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+    }
   }
 }
 
@@ -197,6 +221,16 @@ const handleClick = () => {
   .booking-card {
     &:hover {
       box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+    }
+
+    .card-content {
+      .reject-note {
+        background: rgba(193, 0, 21, 0.05);
+
+        &__label {
+          color: rgba(255, 255, 255, 0.7);
+        }
+      }
     }
   }
 }

@@ -214,6 +214,18 @@ const isDateBlocked = (dateString: string): boolean => {
 };
 
 const isDateAllowed = (dateString: string): boolean => {
+  // Check if date is in the past
+  const normalized = normalizeDateString(dateString);
+  if (normalized) {
+    const selectedDate = new Date(normalized);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      return false;
+    }
+  }
+
   if (isDateBlocked(dateString)) {
     return false;
   }

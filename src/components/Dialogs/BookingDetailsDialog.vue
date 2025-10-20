@@ -25,6 +25,15 @@
           </div>
         </div>
 
+        <!-- Reject Note -->
+        <div
+          v-if="booking.reaction === EReactions.Rejected && booking.rejectNote"
+          class="reject-note q-mt-md q-mb-md"
+        >
+          <div class="reject-note__label text-caption text-grey-6">Reason for rejection</div>
+          <div class="reject-note__text">{{ booking.rejectNote }}</div>
+        </div>
+
         <!-- Artist Info -->
         <div
           v-if="artist && !isCurrentUserArtist"
@@ -157,6 +166,7 @@ const { showSuccess } = useNotify();
 const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
 const previewImageSrc = ref<string | null>(null);
+const initialRejectNote = ref('');
 
 // Convert partial artist to full artist for ArtistCard
 const artist = computed<IUser | null>(() => {
@@ -295,7 +305,7 @@ const confirmReactionChange = (reaction: EReactions) => {
         label: 'Cancel',
       },
       ok: {
-        color: 'positive',
+        color: 'primary',
         rounded: true,
         label: 'Yes, Accept',
       },
@@ -306,33 +316,32 @@ const confirmReactionChange = (reaction: EReactions) => {
           reaction,
         });
         showSuccess('Booking request accepted');
+        closeDialog();
       }
     });
   } else {
     // Reject with reason
-    const initialRejectNote = '';
-
     $q.dialog({
       title: 'Reject Booking',
       message: 'Please explain why you are rejecting this booking request:',
       prompt: {
-        model: initialRejectNote,
+        model: initialRejectNote.value,
         type: 'textarea',
         placeholder: 'Enter reason for rejection...',
         outlined: true,
         counter: true,
         rounded: true,
-        maxlength: 50,
+        maxlength: 250,
         color: 'primary',
         required: true,
         isValid: (val: string) => {
           const trimmedValue = val.trim();
-          return trimmedValue.length > 0 && trimmedValue.length <= 50;
+          return trimmedValue.length > 0 && trimmedValue.length <= 250;
         },
         rules: [
           (val: string) => !!val.trim() || 'Reason is required',
           (val: string) =>
-            val.trim().length <= 50 || 'Reason must be less than 50 characters',
+            val.trim().length <= 250 || 'Reason must be less than 250 characters',
         ],
       },
       cancel: {
@@ -359,6 +368,8 @@ const confirmReactionChange = (reaction: EReactions) => {
 
         emit('update:booking-reaction', payload);
         showSuccess('Booking request rejected');
+        initialRejectNote.value = '';
+        closeDialog();
       }
     });
   }
@@ -464,6 +475,21 @@ watch(isImagePreviewVisible, (newValue) => {
       padding-bottom: 8px;
     }
 
+    .reject-note {
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      border-left: 1px solid rgba(193, 0, 21, 0.2);
+      background: rgba(193, 0, 21, 0.01);
+
+      &__label {
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+    }
+
     .references-gallery {
       display: flex;
       flex-direction: column;
@@ -539,6 +565,14 @@ watch(isImagePreviewVisible, (newValue) => {
             background: rgba(255, 255, 255, 0.08);
           }
         }
+      }
+    }
+
+    .reject-note {
+      background: rgba(193, 0, 21, 0.05);
+
+      &__label {
+        color: rgba(255, 255, 255, 0.7);
       }
     }
 

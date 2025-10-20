@@ -4,7 +4,7 @@ import type { INotify } from 'src/interfaces/notify';
 export const useNotifiesStore = defineStore('notifies', {
   state: () => ({
     notifies: [] as INotify[],
-    hasNewNotifies: false,
+    hasNewNotifies: 0,
   }),
   getters: {
     getNotifies: (state) => state.notifies,
@@ -14,7 +14,7 @@ export const useNotifiesStore = defineStore('notifies', {
     setNotifies(notifies: INotify[]) {
       this.notifies = notifies;
     },
-    setHasNewNotifies(hasNewNotifies: boolean) {
+    setHasNewNotifies(hasNewNotifies: number) {
       this.hasNewNotifies = hasNewNotifies;
     },
   },

@@ -1,5 +1,13 @@
 <template>
-  <div class="guest-bookings-list flex column q-gap-md">
+  <div class="guest-bookings-list flex items-start column q-gap-md">
+    <TabsComp
+      size="sm"
+      unelevated
+      :tabs="filterTabs"
+      :activeTab="activeTab"
+      @set-active-tab="setActiveTab"
+    />
+
     <!-- Loading State -->
     <LoadingState
       v-if="loading"
@@ -11,17 +19,17 @@
 
     <!-- Empty State -->
     <NoResults
-      v-else-if="!bookings.length"
-      icon="event_note"
-      title="No booking requests yet"
-      description="When you send booking requests to artists, they will appear here"
+      v-else-if="!currentBookings.length"
+      :icon="emptyState.icon"
+      :title="emptyState.title"
+      :description="emptyState.description"
       no-btn
     />
 
     <!-- Bookings Grid -->
-    <div v-else class="bookings-grid">
+    <div v-else class="bookings-grid full-width">
       <GuestBookingCard
-        v-for="booking in bookings"
+        v-for="booking in currentBookings"
         :key="booking.documentId"
         :booking="booking"
         @click="openBookingDetails"
@@ -34,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import type { IBooking, IBookingsQueryResponse } from 'src/interfaces/booking';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
@@ -43,6 +51,9 @@ import BookingDetailsDialog from 'src/components/Dialogs/BookingDetailsDialog.vu
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResults from 'src/components/NoResult.vue';
 import { useUserStore } from 'src/stores/user';
+import TabsComp from 'src/components/TabsComp.vue';
+import type { ITab } from 'src/interfaces/tabs';
+import { EReactions } from 'src/interfaces/enums';
 
 const userStore = useUserStore();
 
@@ -67,6 +78,44 @@ const bookings = ref<IBooking[]>([]);
 const showDetailsDialog = ref<boolean>(false);
 const selectedBooking = ref<IBooking | null>(null);
 
+const PENDING_TAB = 'pending';
+const OTHER_TAB = 'other';
+
+const pendingBookings = computed(() =>
+  bookings.value.filter((booking) => booking.reaction === EReactions.Pending),
+);
+
+const otherBookings = computed(() =>
+  bookings.value.filter((booking) => booking.reaction !== EReactions.Pending),
+);
+
+const filterTabs = computed<ITab[]>(() => [
+  { label: 'Pending', tab: PENDING_TAB, count: pendingBookings.value.length },
+  { label: 'Other', tab: OTHER_TAB, count: otherBookings.value.length },
+]);
+
+const activeTab = ref<ITab>(filterTabs.value[0]!);
+
+const currentBookings = computed(() => {
+  return activeTab.value.tab === PENDING_TAB ? pendingBookings.value : otherBookings.value;
+});
+
+const emptyState = computed(() => {
+  if (activeTab.value.tab === PENDING_TAB) {
+    return {
+      icon: 'event_note',
+      title: 'No pending booking requests',
+      description: 'When you send booking requests to artists, they will appear here',
+    };
+  }
+
+  return {
+    icon: 'history',
+    title: 'No other booking requests yet',
+    description: 'Accepted or rejected bookings will appear here once artists respond',
+  };
+});
+
 // Watch for query results
 watch(
   () => result.value?.bookings,
@@ -77,6 +126,19 @@ watch(
   },
   { immediate: true },
 );
+
+watch(
+  filterTabs,
+  (newTabs) => {
+    const matchingTab = newTabs.find((tab) => tab.tab === activeTab.value.tab);
+    activeTab.value = matchingTab ?? newTabs[0]!;
+  },
+  { immediate: true },
+);
+
+const setActiveTab = (tab: ITab) => {
+  activeTab.value = tab;
+};
 
 const openBookingDetails = (booking: IBooking) => {
   selectedBooking.value = booking;

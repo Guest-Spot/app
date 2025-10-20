@@ -112,6 +112,7 @@
             color="primary"
             rounded
             unelevated
+            :disable="isSubmitDisabled"
             :loading="isSubmitting"
             @click="onSubmit"
           />
@@ -220,6 +221,9 @@ const schedule = reactive({
   day: '',
   startTime: '',
 });
+
+const isScheduleComplete = computed(() => Boolean(schedule.day) && Boolean(schedule.startTime));
+const isSubmitDisabled = computed(() => isSubmitting.value || !isScheduleComplete.value);
 
 const artistBookings = ref<IBooking[]>([]);
 
@@ -510,6 +514,11 @@ const buildBookingPayload = (references: UploadFileResponse[]): IBookingRequestP
 };
 
 const onSubmit = async () => {
+  const scheduleValid = await scheduleStepRef.value?.validateForm();
+  if (!scheduleValid) {
+    return;
+  }
+
   if (!selectedArtistId.value) {
     showError('Please select an artist before submitting.');
     return;

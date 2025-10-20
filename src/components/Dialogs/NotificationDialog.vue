@@ -24,16 +24,25 @@
         />
       </q-card-section>
       <q-card-section class="dialog-content">
-        <div v-if="receivedPendingInvites.length > 0" class="flex column q-gap-sm">
-          <NotificationItem
-            v-for="invite in receivedPendingInvites"
-            :key="invite.documentId"
-            :invite="invite"
-            :loading-accept="loadingAccept && invite.documentId === updatingInviteDocumentId"
-            :loading-reject="loadingReject && invite.documentId === updatingInviteDocumentId"
-            @accept="handleAccept"
-            @reject="handleReject"
-          />
+        <div v-if="isLoading" class="flex justify-center items-center q-h-full q-my-xl full-width">
+          <q-spinner color="primary" size="32px" />
+        </div>
+        <div v-else-if="localNotifies.length > 0" class="notification-list">
+          <InfiniteScrollWrapper
+            class="flex column q-gap-md"
+            :offset="150"
+            :loading="isLoading"
+            :stop="!hasMoreNotifies"
+            @load-more="loadMoreNotifies"
+          >
+            <NotificationItem
+              v-for="notify in localNotifies"
+              :key="notify.documentId"
+              :notify="notify"
+              :is-viewed="isNotificationViewed(notify.documentId)"
+              v-close-popup
+            />
+          </InfiniteScrollWrapper>
         </div>
         <div
           v-else
@@ -48,15 +57,13 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
-import { ref, watch } from 'vue';
-import NotificationItem from 'src/components/Cards/NotificationItem.vue';
-import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_INVITE_MUTATION } from 'src/apollo/types/invite';
-import { EReactions } from 'src/interfaces/enums';
+import { onMounted, ref, watch } from 'vue';
 import useNotify from 'src/modules/useNotify';
-import useInviteCompos from 'src/composables/useInviteCompos';
-import useUser from 'src/modules/useUser';
+import useNotifyCompos from 'src/composables/useNotifyCompos';
+import { NotificationItem } from 'src/components';
+import type { INotify } from 'src/interfaces/notify';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 
 interface Props {
   modelValue: boolean;
@@ -67,125 +74,148 @@ interface Emits {
 }
 
 const emit = defineEmits<Emits>();
-const props = defineProps<Props>();
-const $q = useQuasar();
-const { showSuccess } = useNotify();
-const { fetchInvites, receivedPendingInvites } = useInviteCompos();
-const { user } = useUser();
-
-defineOptions({
-  components: {
-    NotificationItem,
-  },
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: true,
 });
-
+const { showError } = useNotify();
 const {
-  mutate: updateInviteMutation,
-  onDone: onUpdateInviteSuccess,
-  onError: onUpdateInviteError,
-} = useMutation(UPDATE_INVITE_MUTATION);
+  fetchNotifies,
+  onResultNotifies,
+  onErrorNotifies,
+  markNotificationsAsViewed,
+  isNotificationViewed,
+} = useNotifyCompos();
 
-// Dialog visibility
 const isVisible = ref(props.modelValue);
-const updatingInviteDocumentId = ref<string | null>(null);
-const successMessage = ref<string>('');
-const loadingAccept = ref<boolean>(false);
-const loadingReject = ref<boolean>(false);
+const isLoading = ref(false);
+const localNotifies = ref<INotify[]>([]);
+const currentPage = ref(1);
+const hasMoreNotifies = ref(true);
 
-const handleAccept = (documentId: string) => {
-  updatingInviteDocumentId.value = documentId;
-  $q.dialog({
-    title: 'Confirm Invitation',
-    message: 'Are you sure you want to accept this invitation?',
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      title: 'Cancel',
-    },
-    ok: {
-      color: 'primary',
-      rounded: true,
-      label: 'Accept',
-    },
-  }).onOk(() => {
-    loadingAccept.value = true;
-    void updateInviteMutation({
-      documentId,
-      data: {
-        reaction: EReactions.Accepted,
-      },
-    });
-    successMessage.value = 'Invitation accepted successfully';
-  });
+let lastRequestWasAppend = false;
+
+const resetPagination = () => {
+  currentPage.value = 1;
+  hasMoreNotifies.value = true;
+  localNotifies.value = [];
+  lastRequestWasAppend = false;
 };
 
-const handleReject = (documentId: string) => {
-  updatingInviteDocumentId.value = documentId;
-  $q.dialog({
-    title: 'Confirm Rejection',
-    message: 'Are you sure you want to reject this invitation?',
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      title: 'Cancel',
+const loadNotifications = (reset = false) => {
+  if (isLoading.value) {
+    return;
+  }
+
+  if (reset) {
+    resetPagination();
+  }
+
+  if (!hasMoreNotifies.value) {
+    return;
+  }
+
+  lastRequestWasAppend = currentPage.value > 1;
+  isLoading.value = true;
+
+  const started = fetchNotifies({
+    pagination: {
+      page: currentPage.value,
+      pageSize: PAGINATION_PAGE_SIZE,
     },
-    ok: {
-      color: 'negative',
-      rounded: true,
-      label: 'Reject',
-    },
-  }).onOk(() => {
-    loadingReject.value = true;
-    void updateInviteMutation({
-      documentId,
-      data: {
-        reaction: EReactions.Rejected,
-      },
-    });
-    successMessage.value = 'Invitation rejected successfully';
+    append: lastRequestWasAppend,
   });
+
+  if (!started) {
+    isLoading.value = false;
+    if (lastRequestWasAppend && currentPage.value > 1) {
+      currentPage.value -= 1;
+    }
+    lastRequestWasAppend = false;
+  }
 };
 
-onUpdateInviteSuccess(() => {
-  void fetchInvites({
-    reaction: {
-      eq: EReactions.Pending,
-    },
-    recipient: {
-      eq: user.value?.documentId,
-    },
-  });
-  updatingInviteDocumentId.value = null;
-  showSuccess(successMessage.value);
-  successMessage.value = '';
-  loadingAccept.value = false;
-  loadingReject.value = false;
+const loadMoreNotifies = () => {
+  if (isLoading.value || !hasMoreNotifies.value) {
+    return;
+  }
+
+  currentPage.value += 1;
+  loadNotifications();
+};
+
+onResultNotifies((result) => {
+  isLoading.value = false;
+  const fetchedNotifies = result?.data?.notifies ?? [];
+
+  if (lastRequestWasAppend) {
+    const existingIds = new Set(localNotifies.value.map((notify) => notify.documentId));
+    const uniqueNewNotifies = fetchedNotifies.filter(
+      (notify: INotify) => !existingIds.has(notify.documentId),
+    );
+    localNotifies.value = [...localNotifies.value, ...uniqueNewNotifies];
+  } else {
+    localNotifies.value = fetchedNotifies;
+  }
+
+  hasMoreNotifies.value = fetchedNotifies.length === PAGINATION_PAGE_SIZE;
+  lastRequestWasAppend = false;
 });
 
-onUpdateInviteError((error) => {
-  updatingInviteDocumentId.value = null;
-  console.error('Error updating invite', error);
-  successMessage.value = '';
-  loadingAccept.value = false;
-  loadingReject.value = false;
+onErrorNotifies((error) => {
+  console.error('Error loading notifications', error);
+  isLoading.value = false;
+  if (lastRequestWasAppend && currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+  lastRequestWasAppend = false;
+  showError('Failed to load notifications');
 });
 
-// Watch for props changes
+onMounted(() => {
+  if (props.modelValue) {
+    loadNotifications(true);
+  }
+});
+
 watch(
   () => props.modelValue,
   (newValue) => {
     isVisible.value = newValue;
+    if (newValue) {
+      loadNotifications(true);
+    }
   },
 );
 
-// Watch for internal changes to isVisible
 watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
+
+  // Mark notifications as viewed when dialog is closed
+  if (!newValue && localNotifies.value.length > 0) {
+    markNotificationsAsViewed(localNotifies.value);
+  }
 });
 </script>
 
 <style lang="scss" scoped>
 .notification-dialog {
+
+  .q-card {
+    overflow: hidden;
+  }
+
+  .dialog-content {
+    height: 90%;
+    overflow: auto;
+  }
+
+  .notification-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
   .notification-dialog-header {
     position: sticky;
     top: 0;

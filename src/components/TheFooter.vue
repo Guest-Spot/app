@@ -9,10 +9,19 @@
           round
           color="grey-6"
           :aria-label="link.label"
+          class="relative-position"
           :class="{ 'text-primary bg-block': link.isActive }"
           @click="$router.push(link.path)"
         >
-          <q-icon :name="link.icon" :class="{ 'text-primary': link.isActive }" />
+          <q-icon :name="link.icon" :class="{ 'text-primary': link.isActive }">
+            <q-badge
+              v-if="link.showBadge"
+              color="primary"
+              floating
+              rounded
+              class="footer-badge"
+            />
+          </q-icon>
         </q-btn>
       </q-toolbar-title>
     </q-toolbar>
@@ -21,6 +30,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from 'src/stores/user';
+import { useNotifiesStore } from 'src/stores/notifies';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { UserType } from 'src/interfaces/enums';
@@ -32,6 +42,7 @@ defineOptions({
 
 const route = useRoute();
 const userStore = useUserStore();
+const notifiesStore = useNotifiesStore();
 
 const bookings = {
   [UserType.Shop]: {
@@ -76,6 +87,7 @@ const LINKS = computed(() => {
       label: 'Profile',
       path: '/profile',
       isActive: route.path === '/profile',
+      showBadge: notifiesStore.getHasNewNotifies,
     },
   ];
 });
@@ -85,5 +97,11 @@ const LINKS = computed(() => {
 .footer-toolbar {
   padding: 0 0 24px 0 !important;
   min-height: auto !important;
+}
+
+.footer-badge {
+  min-width: 8px;
+  min-height: 8px;
+  padding: 0;
 }
 </style>

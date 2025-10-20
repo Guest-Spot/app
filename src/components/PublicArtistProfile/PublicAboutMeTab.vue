@@ -27,7 +27,7 @@ const props = defineProps<Props>();
 const basicInformation = computed(() =>
   [
     {
-      label: 'name',
+      label: 'Name',
       value: props.artistData.name || '',
     },
     {
