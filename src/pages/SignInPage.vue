@@ -129,10 +129,9 @@
               dense
               color="primary"
               rounded
-              label="Contact Support"
+              label="Sign up"
               class="q-px-md"
-              href="https://getguestspot.com/#for-studios"
-              target="_blank"
+              :to="{ path: '/sign-up' }"
             />
           </div>
         </div>
