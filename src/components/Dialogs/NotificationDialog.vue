@@ -205,7 +205,7 @@ watch(isVisible, (newValue) => {
   }
 
   .dialog-content {
-    height: 100%;
+    height: 90%;
     overflow: auto;
   }
 
