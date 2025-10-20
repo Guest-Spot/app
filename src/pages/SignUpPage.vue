@@ -160,8 +160,14 @@
                 </q-input>
               </div>
 
-              <div class="flex column q-gap-sm full-width q-mt-sm">
-                <q-btn flat color="primary" rounded label="Back" @click="goToPreviousStep" />
+              <div class="flex row no-wrap items-center q-gap-sm full-width q-mt-sm">
+                <q-btn
+                  round
+                  flat
+                  class="bg-block"
+                  icon="arrow_back"
+                  @click="goToPreviousStep"
+                />
                 <q-btn
                   type="submit"
                   class="register-btn bg-block full-width"
