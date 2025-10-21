@@ -6,6 +6,7 @@ import type { IFilters } from 'src/interfaces/filters';
 import { useShopsStore } from 'src/stores/shops';
 import useHelpers from 'src/modules/useHelpers';
 import { UserType } from 'src/interfaces/enums';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 
 interface SortSettings {
   sortBy: string | null;
@@ -54,7 +55,7 @@ export default function useShops() {
           : undefined,
         pagination: {
           page: shopsStore.getPage,
-          pageSize: shopsStore.getPageSize,
+          pageSize: PAGINATION_PAGE_SIZE,
         },
       },
       {
@@ -86,7 +87,7 @@ export default function useShops() {
         : undefined,
       pagination: {
         page: shopsStore.getPage,
-        pageSize: shopsStore.getPageSize,
+        pageSize: PAGINATION_PAGE_SIZE,
       },
     });
   };

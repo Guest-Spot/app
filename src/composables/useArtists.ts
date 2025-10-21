@@ -6,6 +6,7 @@ import type { IFilters } from 'src/interfaces/filters';
 import { useArtistsStore } from 'src/stores/artists';
 import useHelpers from 'src/modules/useHelpers';
 import { UserType } from 'src/interfaces/enums';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 
 interface SortSettings {
   sortBy: string | null;
@@ -54,7 +55,7 @@ export default function useArtists() {
           : undefined,
         pagination: {
           page: artistsStore.getPage,
-          pageSize: artistsStore.getPageSize,
+          pageSize: PAGINATION_PAGE_SIZE,
         },
       },
       {
@@ -86,7 +87,7 @@ export default function useArtists() {
         : undefined,
       pagination: {
         page: 1,
-        pageSize: artistsStore.getPageSize,
+        pageSize: PAGINATION_PAGE_SIZE,
       },
     });
   };

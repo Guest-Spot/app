@@ -6,14 +6,12 @@ export const useShopsStore = defineStore('shops', {
     shops: [] as IUser[],
     total: 0,
     page: 1,
-    pageSize: 15,
     hasMore: true,
   }),
   getters: {
     getShops: (state) => state.shops,
     getTotal: (state) => state.total,
     getPage: (state) => state.page,
-    getPageSize: (state) => state.pageSize,
     getHasMore: (state) => state.hasMore,
   },
   actions: {
@@ -25,9 +23,6 @@ export const useShopsStore = defineStore('shops', {
     },
     setPage(page: number) {
       this.page = page;
-    },
-    setPageSize(pageSize: number) {
-      this.pageSize = pageSize;
     },
     setHasMore(hasMore: boolean) {
       this.hasMore = hasMore;
