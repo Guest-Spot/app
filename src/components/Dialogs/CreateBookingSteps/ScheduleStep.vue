@@ -128,9 +128,9 @@ const normalizeDateString = (dateString: string | null | undefined): string | nu
   const parts = sanitized.split('-');
   if (parts.length !== 3) return null;
   const [yearStr, monthStr, dayStr] = parts;
-  const year = Number.parseInt(yearStr, 10);
-  const month = Number.parseInt(monthStr, 10);
-  const day = Number.parseInt(dayStr, 10);
+  const year = Number.parseInt(yearStr ?? '0', 10);
+  const month = Number.parseInt(monthStr ?? '0', 10);
+  const day = Number.parseInt(dayStr ?? '0', 10);
   if ([year, month, day].some((value) => Number.isNaN(value))) {
     return null;
   }
@@ -180,7 +180,7 @@ const parseDateToDayKey = (dateString: string): DayKey | null => {
   const parts = normalized.split('-').map((part) => Number.parseInt(part, 10));
   if (parts.length !== 3 || parts.some((part) => Number.isNaN(part))) return null;
   const [year, month, day] = parts;
-  const jsDate = new Date(year, month - 1, day);
+  const jsDate = new Date(year ?? 0, (month ?? 0) - 1, day ?? 0);
   if (Number.isNaN(jsDate.getTime())) return null;
   return DAY_KEY_BY_INDEX[jsDate.getDay()] || null;
 };

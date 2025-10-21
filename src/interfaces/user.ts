@@ -67,7 +67,7 @@ export interface IUser {
   phone?: string;
   openingHours?: IOpeningHours[];
   experience?: number;
-  parent?: Pick<IUser, 'documentId' | 'name' | 'city' | 'address' | 'pictures'> | null;
+  parent?: IUser | null;
 }
 
 // Auth state interface
