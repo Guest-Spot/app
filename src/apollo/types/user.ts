@@ -209,6 +209,24 @@ export const CHANGE_PASSWORD_MUTATION = gql`
   }
 `;
 
+export const REGISTER_MUTATION = gql`
+  mutation Register($input: UsersPermissionsRegisterInput!) {
+    register(input: $input) {
+      jwt
+      user {
+        id
+        email
+      }
+    }
+  }
+`;
+
+export const USER_EMAIL_EXISTS_QUERY = gql`
+  query Query($email: String!) {
+    userEmailExists(email: $email)
+  }
+`;
+
 // IMPORTANT: DO NOT use gql for this mutation, it will used in the error link
 export const LOGOUT_MUTATION = `
   mutation LogoutWithRefresh($input: RefreshTokenInput!) {

@@ -8,6 +8,12 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/SignInPage.vue') }],
   },
   {
+    path: '/sign-up',
+    component: () => import('layouts/AuthLayout.vue'),
+    meta: { title: 'Sign Up' },
+    children: [{ path: '', component: () => import('pages/SignUpPage.vue') }],
+  },
+  {
     path: '/connect/:provider',
     component: () => import('layouts/AuthLayout.vue'),
     children: [{ path: '', component: () => import('pages/connect/Provider.vue') }],

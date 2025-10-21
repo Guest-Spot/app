@@ -97,6 +97,7 @@
             placeholder="Enter phone number"
             class="custom-input"
             v-model="artistData.phone"
+            :mask="PHONE_INPUT_MASK"
           />
         </div>
         <div class="input-group">
@@ -180,6 +181,7 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
+import { PHONE_INPUT_MASK } from 'src/constants/masks';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();

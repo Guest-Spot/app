@@ -97,14 +97,14 @@
                   </div>
                 </q-btn>
 
-                <q-btn round unelevated outline color="primary" disabled>
+                <q-btn round unelevated outline color="primary" disable>
                   <div class="flex items-center justify-center q-gap-sm">
                     <FacebookIcon width="18px" height="18px" />
                   </div>
                 </q-btn>
 
                 <q-btn
-                  disabled
+                  disable
                   round
                   unelevated
                   outline
@@ -129,10 +129,9 @@
               dense
               color="primary"
               rounded
-              label="Contact Support"
+              label="Sign up"
               class="q-px-md"
-              href="https://getguestspot.com/#for-studios"
-              target="_blank"
+              :to="{ path: '/sign-up' }"
             />
           </div>
         </div>

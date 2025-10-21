@@ -15,6 +15,7 @@
       title="Loading bookings..."
       description="Please wait"
       spinner-name="dots"
+      class="full-width"
     />
 
     <!-- Empty State -->
