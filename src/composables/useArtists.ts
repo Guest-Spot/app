@@ -97,7 +97,9 @@ export default function useArtists() {
       artistsStore.setTotal(data.usersPermissionsUsers_connection.pageInfo.total);
       // Append new data for load more
       if (data.usersPermissionsUsers.length > 0) {
-        artistsStore.setArtists([...artistsStore.getArtists, ...data.usersPermissionsUsers]);
+        // NOTE: bad practice to use Set to avoid duplicates, but it's the only way to avoid duplicates in the store
+        const artists = new Set([...artistsStore.getArtists, ...data.usersPermissionsUsers]);
+        artistsStore.setArtists([...artists]);
         artistsStore.setPage(artistsStore.getPage + 1);
       } else {
         artistsStore.setHasMore(false);

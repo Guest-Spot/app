@@ -97,7 +97,7 @@ const props = defineProps<Props>();
 const router = useRouter();
 
 const { formatTimeAgo, formatDate, formatTime } = useDate();
-const { isArtist } = useUser();
+const { isArtist, isGuest } = useUser();
 
 // Format date to YYYY-MM for BookingCalendar
 const formatDateForCalendar = (dateString: string): string => {
@@ -251,6 +251,10 @@ const notificationLink = computed(() => {
 
     const formattedDate = formatDateForCalendar(dateToUse);
     return `/events?date=${formattedDate}`;
+  }
+
+  if (isGuest.value) {
+    return '/my-bookings';
   }
 
   return null;

@@ -28,6 +28,18 @@
         </a>
         <ExpandableText v-else :text="item.value" collapsible class="info-value text-grey-6" />
         <q-btn
+          v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
+          :icon="whatsappIcon"
+          :href="getWhatsappLink(item.value) ?? undefined"
+          target="_blank"
+          rel="noopener"
+          size="sm"
+          round
+          unelevated
+          class="bg-block q-ml-auto"
+          aria-label="Write via WhatsApp"
+        />
+        <q-btn
           v-if="item.value && item.type === InfoItemType.Link"
           icon="content_copy"
           size="sm"
@@ -48,6 +60,7 @@
 import { copyToClipboard, useQuasar } from 'quasar';
 import { InfoItemType } from 'src/interfaces/enums';
 import ExpandableText from 'src/components/ExpandableText.vue';
+import whatsappIconUrl from 'src/assets/icons/whatsapp.svg';
 
 interface Props {
   title: string;
@@ -63,6 +76,17 @@ interface Props {
 defineProps<Props>();
 
 const $q = useQuasar();
+const whatsappIcon = `img:${whatsappIconUrl}`;
+
+const getWhatsappLink = (phone: string): string | null => {
+  if (!phone) {
+    return null;
+  }
+
+  const digits = phone.replace(/\D/g, '');
+
+  return digits ? `https://wa.me/${digits}` : null;
+};
 
 const showToast = () => {
   $q.notify({

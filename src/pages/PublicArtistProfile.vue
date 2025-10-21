@@ -81,7 +81,7 @@
       </div>
 
       <!-- Booking Button -->
-      <div v-if="isGuest" class="action-buttons flex justify-center q-mt-lg q-gap-sm hidden">
+      <div v-if="isGuest && artistData?.parent" class="action-buttons flex justify-center q-mt-lg q-gap-sm">
         <q-btn round class="bg-block" size="lg" text-color="primary" @click="openBookingDialog">
           <q-icon name="event" color="primary" />
         </q-btn>

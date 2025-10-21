@@ -97,7 +97,9 @@ export default function useShops() {
       shopsStore.setTotal(data.usersPermissionsUsers_connection.pageInfo.total);
       // Append new data for load more
       if (data.usersPermissionsUsers.length > 0) {
-        shopsStore.setShops([...shopsStore.getShops, ...data.usersPermissionsUsers]);
+        // NOTE: bad practice to use Set to avoid duplicates, but it's the only way to avoid duplicates in the store
+        const shops = new Set([...shopsStore.getShops, ...data.usersPermissionsUsers]);
+        shopsStore.setShops([...shops]);
         shopsStore.setPage(shopsStore.getPage + 1);
       } else {
         shopsStore.setHasMore(false);

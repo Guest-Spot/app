@@ -79,42 +79,97 @@ const bookings = ref<IBooking[]>([]);
 const showDetailsDialog = ref<boolean>(false);
 const selectedBooking = ref<IBooking | null>(null);
 
+const ALL_TAB = 'all';
 const PENDING_TAB = 'pending';
-const OTHER_TAB = 'other';
+const ACCEPTED_TAB = 'accepted';
+const REJECTED_TAB = 'rejected';
 
 const pendingBookings = computed(() =>
   bookings.value.filter((booking) => booking.reaction === EReactions.Pending),
 );
 
-const otherBookings = computed(() =>
-  bookings.value.filter((booking) => booking.reaction !== EReactions.Pending),
+const acceptedBookings = computed(() =>
+  bookings.value.filter((booking) => booking.reaction === EReactions.Accepted),
 );
 
+const rejectedBookings = computed(() =>
+  bookings.value.filter((booking) => booking.reaction === EReactions.Rejected),
+);
+
+const allBookingsSorted = computed(() => {
+  return [...bookings.value].sort((bookingA, bookingB) => {
+    const aPending = bookingA.reaction === EReactions.Pending;
+    const bPending = bookingB.reaction === EReactions.Pending;
+
+    if (aPending && !bPending) {
+      return -1;
+    }
+
+    if (!aPending && bPending) {
+      return 1;
+    }
+
+    return 0;
+  });
+});
+
 const filterTabs = computed<ITab[]>(() => [
+  { label: 'All', tab: ALL_TAB, count: bookings.value.length },
   { label: 'Pending', tab: PENDING_TAB, count: pendingBookings.value.length },
-  { label: 'Other', tab: OTHER_TAB, count: otherBookings.value.length },
+  { label: 'Accepted', tab: ACCEPTED_TAB, count: acceptedBookings.value.length },
+  { label: 'Rejected', tab: REJECTED_TAB, count: rejectedBookings.value.length },
 ]);
 
 const activeTab = ref<ITab>(filterTabs.value[0]!);
 
 const currentBookings = computed(() => {
-  return activeTab.value.tab === PENDING_TAB ? pendingBookings.value : otherBookings.value;
+  switch (activeTab.value.tab) {
+    case ALL_TAB:
+      return allBookingsSorted.value;
+    case PENDING_TAB:
+      return pendingBookings.value;
+    case ACCEPTED_TAB:
+      return acceptedBookings.value;
+    case REJECTED_TAB:
+      return rejectedBookings.value;
+    default:
+      return allBookingsSorted.value;
+  }
 });
 
 const emptyState = computed(() => {
-  if (activeTab.value.tab === PENDING_TAB) {
-    return {
-      icon: 'event_note',
-      title: 'No pending booking requests',
-      description: 'When you send booking requests to artists, they will appear here',
-    };
+  switch (activeTab.value.tab) {
+    case ALL_TAB:
+      return {
+        icon: 'event',
+        title: 'No booking requests yet',
+        description: 'When you send booking requests to artists, they will appear here',
+      };
+    case PENDING_TAB:
+      return {
+        icon: 'event_note',
+        title: 'No pending booking requests',
+        description: 'When you send booking requests to artists, they will appear here',
+      };
+    case ACCEPTED_TAB:
+      return {
+        icon: 'thumb_up',
+        title: 'No accepted booking requests yet',
+        description: 'Once artists accept your requests, the bookings will appear here',
+      };
+    case REJECTED_TAB:
+      return {
+        icon: 'thumb_down',
+        title: 'No rejected booking requests yet',
+        description: 'If an artist rejects your request, the booking will appear here',
+      };
+    default:
+      return {
+        icon: 'event',
+        title: 'No booking requests yet',
+        description: 'When you send booking requests to artists, they will appear here',
+      };
   }
-
-  return {
-    icon: 'history',
-    title: 'No other booking requests yet',
-    description: 'Accepted or rejected bookings will appear here once artists respond',
-  };
 });
 
 // Watch for query results
