@@ -37,8 +37,8 @@ GOOGLE_SERVER_CLIENT_ID=... # опционально, нужен для offline 
    - Добавьте тестовых пользователей, пока приложение не опубликовано.
 3. В **Credentials → Create credentials → OAuth client ID** создайте три клиента:
    - **Web application** — сохраните `client_id` и `client_secret`, значение идёт в `GOOGLE_WEB_CLIENT_ID`. Если на бэкенде будете обменивать `serverAuthCode`, используйте этот ID в `GOOGLE_SERVER_CLIENT_ID`.
-   - **iOS** — укажите Bundle ID `org.guestspot.app`. Скачайте `GoogleService-Info.plist`.
-   - **Android** — добавьте пакет `org.guestspot.app` и SHA-1/SHA-256 подписи (для debug можно взять `~/.android/debug.keystore`, для release — ключ из CI). Скачайте `google-services.json`.
+   - **iOS** — укажите Bundle ID `com.guestspot.app`. Скачайте `GoogleService-Info.plist`.
+   - **Android** — добавьте пакет `com.guestspot.app` и SHA-1/SHA-256 подписи (для debug можно взять `~/.android/debug.keystore`, для release — ключ из CI). Скачайте `google-services.json`.
 
 ## 4. Капаситорная конфигурация
 1. Отредактируйте блок `plugins.GoogleAuth` в `src-capacitor/capacitor.config.json`, заполнив clientId/iosClientId/androidClientId/serverClientId.

@@ -1,5 +1,5 @@
 {
-  "appId": "org.guestspot.app",
+  "appId": "com.guestspot.app",
   "appName": "GuestSpot",
   "webDir": "www",
   "server": {
@@ -10,12 +10,13 @@
     "allowNavigation": [
       "*.yourdomain.com",
       "*.googleapis.com"
-    ]
+    ],
+    "url": "http://192.168.20.51:9500"
   },
   "plugins": {
     "App": {
-      "urlScheme": "org.guestspot.app",
-      "deepLinkScheme": "org.guestspot.app"
+      "urlScheme": "com.guestspot.app",
+      "deepLinkScheme": "com.guestspot.app"
     },
     "SplashScreen": {
       "launchShowDuration": 3000,
@@ -67,7 +68,7 @@
   },
   "ios": {
     "limitsNavigationsToAppBoundDomains": true,
-    "scheme": "org.guestspot.app",
+    "scheme": "com.guestspot.app",
     "webContentsDebuggingEnabled": true
   },
   "android": {

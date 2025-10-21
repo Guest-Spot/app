@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">GuestSpot</string>
     <string name="title_activity_main">GuestSpot</string>
-    <string name="package_name">org.guestspot.app</string>
-    <string name="custom_url_scheme">org.guestspot.app</string>
+    <string name="package_name">com.guestspot.app</string>
+    <string name="custom_url_scheme">com.guestspot.app</string>
 </resources>

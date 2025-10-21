@@ -1,4 +1,4 @@
-package org.guestspot.app;
+package com.guestspot.app;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -10,13 +10,13 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace "org.guestspot.app"
+    namespace "com.guestspot.app"
     buildFeatures {
         buildConfig true
     }
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "org.guestspot.app"
+        applicationId "com.guestspot.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 3
