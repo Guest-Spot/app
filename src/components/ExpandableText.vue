@@ -48,7 +48,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const expanded = ref(false);
 
-const isTruncated = computed(() => props.text.length > props.maxLength);
+const isTruncated = computed(() => props.text?.length > props.maxLength);
 
 const truncatedText = computed(() => {
   if (!isTruncated.value) {

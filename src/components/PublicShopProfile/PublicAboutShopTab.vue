@@ -58,7 +58,7 @@ const links = computed(() => [
     value: props.shopData.link || '',
     type: InfoItemType.Link,
   },
-]);
+].filter((link) => !!link.value));
 
 const workingHours = computed(() => {
   const times = [...(props.shopData.openingHours || [])];

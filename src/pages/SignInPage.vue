@@ -97,22 +97,21 @@
                   </div>
                 </q-btn>
 
-                <q-btn round unelevated outline color="primary" disable>
-                  <div class="flex items-center justify-center q-gap-sm">
-                    <FacebookIcon width="18px" height="18px" />
-                  </div>
-                </q-btn>
-
                 <q-btn
-                  disable
                   round
                   unelevated
                   outline
                   color="primary"
-                  :href="`${API_URL}/api/connect/apple`"
+                  @click="signInWithApple"
                 >
                   <div class="flex items-center justify-center q-gap-sm">
                     <AppleIcon width="18px" height="18px" />
+                  </div>
+                </q-btn>
+
+                <q-btn round unelevated outline color="primary" disable>
+                  <div class="flex items-center justify-center q-gap-sm">
+                    <FacebookIcon width="18px" height="18px" />
                   </div>
                 </q-btn>
               </div>
@@ -147,9 +146,13 @@ import useUser from 'src/modules/useUser';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
-import { API_URL } from 'src/config/constants';
 import useNotify from 'src/modules/useNotify';
 import useGoogleAuth from 'src/modules/auth/useGoogleAuth';
+import {
+  SignInWithApple,
+  // type SignInWithAppleResponse,
+  type SignInWithAppleOptions,
+} from '@capacitor-community/apple-sign-in';
 
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
@@ -197,6 +200,23 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+async function signInWithApple() {
+  const options: SignInWithAppleOptions = {
+    clientId: 'com.guestspot.service',
+    redirectURI: `${location.origin}/connect/apple`,
+    scopes: 'email name',
+    nonce: Math.random().toString(36).substring(2),
+  };
+
+  try {
+  const res = await SignInWithApple.authorize(options);
+    void router.push(`/connect/apple?access_token=${res?.response?.identityToken}&provider=apple`);
+  } catch (error) {
+    console.error(error);
+    showError('Apple sign-in failed. Please try again later.');
+  }
+}
 
 onMounted(() => {
   void initializeGoogleAuth();
