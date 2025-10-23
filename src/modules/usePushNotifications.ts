@@ -31,6 +31,8 @@ const configureAndroidChannel = async () => {
       description: 'General GuestSpot notifications',
       importance: 4,
       visibility: 1,
+      vibration: true,
+      sound: 'default',
     });
   } catch (error) {
     console.error('Failed to create Android notification channel', error);
