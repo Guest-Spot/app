@@ -12,5 +12,7 @@ declare namespace NodeJS {
     SENTRY_ORG: string | undefined;
     SENTRY_PROJECT: string | undefined;
     SENTRY_AUTH_TOKEN: string | undefined;
+    PUSH_NOTIFICATIONS_REGISTER_ENDPOINT: string | undefined;
+    PUSH_NOTIFICATIONS_UNREGISTER_ENDPOINT: string | undefined;
   }
 }

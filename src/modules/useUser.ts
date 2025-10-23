@@ -10,6 +10,10 @@ import {
 import { UserType } from 'src/interfaces/enums';
 import { useTokens } from 'src/modules/useTokens';
 import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
+import {
+  removePushTokenFromBackend,
+  syncPushTokenWithBackend,
+} from 'src/modules/usePushNotifications';
 import gql from 'graphql-tag';
 
 /**
@@ -64,6 +68,8 @@ const useUser = () => {
       // Update store
       updateUserState(userData);
 
+      await syncPushTokenWithBackend(true);
+
       return { success: true };
     } catch (error) {
       return {
@@ -92,9 +98,9 @@ const useUser = () => {
       );
 
       await load();
-
       if (result.value?.me) {
         updateUserState(result.value.me);
+        await syncPushTokenWithBackend();
         return result.value.me;
       } else {
         throw new Error('Failed to fetch user data');
@@ -132,6 +138,7 @@ const useUser = () => {
       console.error('Logout error:', error);
     } finally {
       // Force clear even if error occurs
+      await removePushTokenFromBackend(user?.value?.documentId ?? '');
       clearTokens();
       userStore.logout();
     }
