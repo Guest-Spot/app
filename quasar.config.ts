@@ -45,7 +45,7 @@ export default defineConfig((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['sentry', 'theme', 'i18n', 'axios', 'apollo'],
+    boot: ['sentry', 'theme', 'i18n', 'axios', 'apollo', 'push-notifications'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],

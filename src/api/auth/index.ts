@@ -1,6 +1,7 @@
 import { api } from 'src/boot/axios';
 import type { IJWTTokens } from 'src/interfaces/user';
 import { useTokens } from 'src/modules/useTokens';
+import { syncPushTokenWithBackend } from 'src/modules/usePushNotifications';
 import { useUserStore } from 'src/stores/user';
 
 /**
@@ -35,6 +36,8 @@ export async function connect(url: string) {
     // Update store
     userStore.setUser(userData);
     userStore.setIsAuthenticated(true);
+
+    await syncPushTokenWithBackend(true);
 
     return { success: true };
   } catch (error) {
