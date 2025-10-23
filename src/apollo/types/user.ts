@@ -36,6 +36,9 @@ export const ME_QUERY = gql`
           url
         }
       }
+      device_tokens {
+        token
+      }
     }
   }
 `;

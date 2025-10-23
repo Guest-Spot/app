@@ -51,7 +51,7 @@
       </div>
 
       <!-- Reject reason if available -->
-      <div v-if="rejectReason" class="reject-reason q-mt-xs q-pa-sm">
+      <div v-if="rejectReason && bookingStatus === 'rejected'" class="reject-reason q-mt-xs q-pa-sm">
         <div class="text-caption text-grey-6">Reason:</div>
         <div class="text-grey-5">{{ rejectReason }}</div>
       </div>

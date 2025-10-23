@@ -1,5 +1,6 @@
 import type { IOpeningHours, ILink, IPicture } from 'src/interfaces/common';
 import type { UserType } from 'src/interfaces/enums';
+import type { RegisterPushTokenPayload } from 'src/interfaces/pushNotifications';
 
 export interface IProfile {
   name: string;
@@ -68,6 +69,7 @@ export interface IUser {
   openingHours?: IOpeningHours[];
   experience?: number;
   parent?: IUser | null;
+  device_tokens: RegisterPushTokenPayload[];
 }
 
 // Auth state interface

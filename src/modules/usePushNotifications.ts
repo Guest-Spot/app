@@ -124,6 +124,10 @@ export const syncPushTokenWithBackend = async (force = false): Promise<void> => 
     return;
   }
 
+  if (userStore.getUser?.device_tokens?.find((device) => device.token === token)) {
+    return;
+  }
+
   try {
     await registerPushToken({
       token,
