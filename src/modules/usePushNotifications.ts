@@ -6,7 +6,7 @@ import {
   type Token,
 } from '@capacitor/push-notifications';
 import { ref } from 'vue';
-import { registerPushToken, unregisterPushToken } from 'src/api/pushNotifications';
+import { registerPushToken } from 'src/api/pushNotifications';
 import { useUserStore } from 'src/stores/user';
 
 const hasRegisteredListeners = ref(false);
@@ -140,20 +140,5 @@ export const syncPushTokenWithBackend = async (force = false): Promise<void> => 
     lastSyncedToken.value = token;
   } catch (error) {
     console.error('Failed to sync push token with backend', error);
-  }
-};
-
-/**
- * Remove the token from backend when user logs out or disables notifications.
- */
-export const removePushTokenFromBackend = async (documentId: string): Promise<void> => {
-  if (!isNative()) {
-    return;
-  }
-
-  try {
-    await unregisterPushToken(documentId);
-  } catch (error) {
-    console.error('Failed to unregister push token on backend', error);
   }
 };

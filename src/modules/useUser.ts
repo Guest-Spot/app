@@ -11,10 +11,10 @@ import { UserType } from 'src/interfaces/enums';
 import { useTokens } from 'src/modules/useTokens';
 import { LOGIN_MUTATION, ME_QUERY, LOGOUT_MUTATION } from 'src/apollo/types/user';
 import {
-  removePushTokenFromBackend,
   syncPushTokenWithBackend,
 } from 'src/modules/usePushNotifications';
 import gql from 'graphql-tag';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * User Management Module
@@ -132,13 +132,11 @@ const useUser = () => {
    */
   const logout = async (): Promise<void> => {
     try {
-      await logoutMutation({ input: { refreshToken: getStoredTokens()?.refreshToken } });
+      await logoutMutation({ input: { refreshToken: getStoredTokens()?.refreshToken, platform: Capacitor.getPlatform() } });
       console.log('User logged out successfully');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Force clear even if error occurs
-      await removePushTokenFromBackend(user?.value?.documentId ?? '');
       clearTokens();
       userStore.logout();
     }
