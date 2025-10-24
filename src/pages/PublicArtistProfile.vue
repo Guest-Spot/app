@@ -178,6 +178,7 @@ const artistData = ref<IUser>({
   blocked: false,
   type: UserType.Artist,
   id: '',
+  device_tokens: [],
 });
 
 // Portfolio data
@@ -238,6 +239,7 @@ const toggleFavorite = () => {
     blocked: artistData.value.blocked || false,
     type: artistData.value.type || UserType.Artist,
     id: artistData.value.id || '',
+    device_tokens: artistData.value.device_tokens || [],
   });
 };
 
