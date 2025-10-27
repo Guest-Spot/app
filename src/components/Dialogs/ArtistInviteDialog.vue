@@ -370,14 +370,14 @@ onErrorCities((error) => {
 // Handle invitation success
 onInviteSuccess(({ data }) => {
   const invitedArtist = localArtists.value.find(
-    (a) => a.artist.documentId === data?.createInvite?.recipient,
+    (a) => a.artist.documentId === data?.createInvite?.recipient.documentId,
   );
   if (invitedArtist) {
     showSuccess(`Invitation sent to ${invitedArtist.artist.name}!`);
     void emit('artistInvited', data.createInvite, invitedArtist.artist);
     localArtists.value = localArtists.value.map((a) => ({
       ...a,
-      pending: a.artist.documentId === data?.createInvite?.recipient || a.pending,
+      pending: a.artist.documentId === data?.createInvite?.recipient.documentId || a.pending,
     }));
   }
 });

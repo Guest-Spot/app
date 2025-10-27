@@ -61,7 +61,7 @@
         v-else
         label="View Shop"
         rounded
-        :to="`/shop/${invite.sender}`"
+        :to="`/shop/${invite.sender.documentId}`"
         flat
         class="bg-block full-width"
       />
@@ -96,8 +96,8 @@ defineEmits<Emits>();
 const userStore = useUserStore();
 const { formatTimeAgo } = useDate();
 
-const isSent = computed(() => props.invite.sender === userStore.getUser?.documentId);
-const isReceived = computed(() => props.invite.recipient === userStore.getUser?.documentId);
+const isSent = computed(() => props.invite.sender.documentId === userStore.getUser?.documentId);
+const isReceived = computed(() => props.invite.recipient.documentId === userStore.getUser?.documentId);
 
 // Methods
 const getStatusLabel = (status: IInvite['reaction']) => {

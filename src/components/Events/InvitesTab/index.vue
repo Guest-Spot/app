@@ -110,13 +110,13 @@ const {
 // Computed properties
 const sentInvites = computed(() => {
   return invitesStore.getInvites.filter(
-    (invite) => invite.sender === userStore.getUser?.documentId,
+    (invite) => invite.sender.documentId === userStore.getUser?.documentId,
   );
 });
 
 const receivedInvites = computed(() => {
   return invitesStore.getInvites.filter(
-    (invite) => invite.recipient === userStore.getUser?.documentId,
+    (invite) => invite.recipient.documentId === userStore.getUser?.documentId,
   );
 });
 
