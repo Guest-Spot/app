@@ -114,7 +114,7 @@ const useInviteCompos = () => {
           description: `Hey ${artist.name}! We would love to welcome you to our creative team at ${shop.name}. Your unique style would be a perfect addition to our shop. Looking forward to working together!`,
           sender: shop.documentId,
           recipient: artist.documentId,
-          type: InviteType.ArtistToShop,
+          type: InviteType.InviteCreated,
         },
       });
     });
