@@ -52,7 +52,9 @@ export enum UserType {
 }
 
 export enum InviteType {
-  ArtistToShop = 'artist_to_shop',
+  InviteCreated = 'invite_created',
+  InviteAccepted = 'invite_accepted',
+  InviteRejected = 'invite_rejected',
 }
 
 export enum EReactions {
@@ -62,9 +64,10 @@ export enum EReactions {
 }
 
 export enum NotificationType {
-  RemoveArtistFromShop = 'remove_artist_from_shop',
-  AddArtistToShop = 'add_artist_to_shop',
   BookingRequest = 'booking_request',
   BookingAccepted = 'booking_accepted',
   BookingRejected = 'booking_rejected',
+  InviteCreated = 'invite_created',
+  InviteAccepted = 'invite_accepted',
+  InviteRejected = 'invite_rejected',
 }

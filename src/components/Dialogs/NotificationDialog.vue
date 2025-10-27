@@ -35,9 +35,10 @@
             :stop="!hasMoreNotifies"
             @load-more="loadMoreNotifies"
           >
-            <NotificationItem
+            <component
               v-for="notify in localNotifies"
               :key="notify.documentId"
+              :is="resolveNotificationComponent(notify.type)"
               :notify="notify"
               :is-viewed="isNotificationViewed(notify.documentId)"
               v-close-popup
@@ -60,10 +61,11 @@
 import { onMounted, ref, watch } from 'vue';
 import useNotify from 'src/modules/useNotify';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
-import { NotificationItem } from 'src/components';
+import { InviteNotificationItem, NotificationItem } from 'src/components';
 import type { INotify } from 'src/interfaces/notify';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import { InviteType } from 'src/interfaces/enums';
 
 interface Props {
   modelValue: boolean;
@@ -91,6 +93,7 @@ const isLoading = ref(false);
 const localNotifies = ref<INotify[]>([]);
 const currentPage = ref(1);
 const hasMoreNotifies = ref(true);
+const inviteNotificationTypes = new Set<string>(Object.values(InviteType));
 
 let lastRequestWasAppend = false;
 
@@ -141,6 +144,10 @@ const loadMoreNotifies = () => {
 
   currentPage.value += 1;
   loadNotifications();
+};
+
+const resolveNotificationComponent = (type: INotify['type']) => {
+  return inviteNotificationTypes.has(type) ? InviteNotificationItem : NotificationItem;
 };
 
 onResultNotifies((result) => {
