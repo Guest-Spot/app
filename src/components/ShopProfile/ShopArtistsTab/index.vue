@@ -140,7 +140,7 @@ const handleCancelInvite = (artist: IUser) => {
     return;
   }
   const inviteDocumentId = sentPendingInvites.value.find(
-    (invite) => invite.recipient === artist.documentId,
+    (invite) => invite.recipient.documentId === artist.documentId,
   )?.documentId;
   if (!inviteDocumentId) {
     showError('Invite document ID not found');
@@ -183,7 +183,7 @@ const handleRemoveArtist = (artist: IUser) => {
     void updateShop({
       id: user.value?.id,
       data: {
-        artists: updatedArtists,
+        childs: updatedArtists,
       },
     });
   });
@@ -249,7 +249,7 @@ watch(sentPendingInvites, (newPendingInvites) => {
       {
         filters: {
           documentId: {
-            in: newPendingInvites.map((invite) => invite.recipient),
+            in: newPendingInvites.map((invite) => invite.recipient.documentId),
           },
         },
       },

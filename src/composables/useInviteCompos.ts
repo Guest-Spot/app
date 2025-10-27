@@ -45,14 +45,14 @@ const useInviteCompos = () => {
     invitesStore.getInvites.filter(
       (invite) =>
         invite.reaction === EReactions.Pending &&
-        invite.recipient === userStore.getUser?.documentId,
+        invite.recipient.documentId === userStore.getUser?.documentId,
     ),
   );
 
   const sentPendingInvites = computed(() =>
     invitesStore.getInvites.filter(
       (invite) =>
-        invite.reaction === EReactions.Pending && invite.sender === userStore.getUser?.documentId,
+        invite.reaction === EReactions.Pending && invite.sender.documentId === userStore.getUser?.documentId,
     ),
   );
 
@@ -65,12 +65,16 @@ const useInviteCompos = () => {
           or: [
             {
               sender: {
-                eq: userStore.getUser?.documentId,
+                documentId: {
+                  eq: userStore.getUser?.documentId,
+                }
               },
             },
             {
               recipient: {
-                eq: userStore.getUser?.documentId,
+                documentId: {
+                  eq: userStore.getUser?.documentId,
+                },
               },
             },
           ],

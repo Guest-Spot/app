@@ -1,4 +1,5 @@
 import type { EReactions, InviteType } from 'src/interfaces/enums';
+import type { IUser } from './user';
 
 export interface IInvite {
   documentId: string;
@@ -6,8 +7,8 @@ export interface IInvite {
   reaction: EReactions;
   title: string;
   description: string;
-  sender: string;
-  recipient: string;
+  sender: IUser;
+  recipient: IUser;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;

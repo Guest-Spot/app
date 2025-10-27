@@ -8,8 +8,14 @@ export const INVITES_QUERY = gql`
       documentId
       title
       description
-      sender
-      recipient
+      sender {
+        documentId
+        name
+      }
+      recipient {
+        documentId
+        name
+      }
       createdAt
       updatedAt
       publishedAt
@@ -25,8 +31,14 @@ export const INVITE_QUERY = gql`
       documentId
       title
       description
-      sender
-      recipient
+      sender {
+        documentId
+        name
+      }
+      recipient {
+        documentId
+        name
+      }
       createdAt
       updatedAt
       publishedAt
@@ -42,8 +54,14 @@ export const CREATE_INVITE_MUTATION = gql`
       documentId
       title
       description
-      sender
-      recipient
+      sender {
+        documentId
+        name
+      }
+      recipient {
+        documentId
+        name
+      }
       createdAt
       updatedAt
       publishedAt
@@ -59,8 +77,14 @@ export const UPDATE_INVITE_MUTATION = gql`
       documentId
       title
       description
-      sender
-      recipient
+      sender {
+        documentId
+        name
+      }
+      recipient {
+        documentId
+        name
+      }
       createdAt
       updatedAt
       publishedAt

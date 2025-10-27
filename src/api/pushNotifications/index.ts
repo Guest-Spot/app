@@ -9,10 +9,3 @@ import type {
 export async function registerPushToken(payload: RegisterPushTokenPayload): Promise<void> {
   await api.post('/api/device-tokens', { data: payload });
 }
-
-/**
- * Inform the backend that the device push token should be removed.
- */
-export async function unregisterPushToken(documentId: string): Promise<void> {
-  await api.delete(`/api/device-tokens/${documentId}`);
-}

@@ -79,7 +79,7 @@
             ref="scheduleStepRef"
             v-model:day="schedule.day"
             v-model:start-time="schedule.startTime"
-            :opening-hours="scheduleOpeningHours"
+            :opening-hours="shopOpeningHours || []"
             :disabled-days="artistUnavailableDays"
             :rules="rules"
           />
@@ -155,8 +155,6 @@ import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
 import { useRouter } from 'vue-router';
 
-const EMPTY_OPENING_HOURS: IOpeningHours[] = [];
-
 interface Props {
   modelValue: boolean;
   shopDocumentId?: string;
@@ -226,16 +224,6 @@ const isScheduleComplete = computed(() => Boolean(schedule.day) && Boolean(sched
 const isSubmitDisabled = computed(() => isSubmitting.value || !isScheduleComplete.value);
 
 const artistBookings = ref<IBooking[]>([]);
-
-const scheduleOpeningHours = computed<IOpeningHours[]>(() => {
-  if (props.shopOpeningHours && props.shopOpeningHours.length > 0) {
-    return props.shopOpeningHours;
-  }
-  if (user.value?.openingHours?.length) {
-    return user.value.openingHours;
-  }
-  return EMPTY_OPENING_HOURS;
-});
 
 const referenceFiles = ref<File[]>([]);
 
