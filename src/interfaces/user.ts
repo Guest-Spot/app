@@ -70,6 +70,8 @@ export interface IUser {
   experience?: number;
   parent?: IUser | null;
   device_tokens: RegisterPushTokenPayload[];
+  stripeAccountID?: string;
+  payoutsEnabled?: boolean;
 }
 
 // Auth state interface
