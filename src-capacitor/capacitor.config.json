@@ -9,8 +9,11 @@
     "port": 8080,
     "allowNavigation": [
       "*.yourdomain.com",
-      "*.googleapis.com"
-    ]
+      "*.googleapis.com",
+      "*.stripe.com",
+      "connect.stripe.com"
+    ],
+    "url": "http://192.168.20.20:9500"
   },
   "plugins": {
     "App": {
@@ -70,12 +73,18 @@
       "dsn": "https://3f83002c1f5bc60a34470709dcb1d353@o565662.ingest.us.sentry.io/4510164379303936",
       "debug": true,
       "environment": "production"
+    },
+    "Browser": {
+      "presentationStyle": "popover",
+      "toolbarColor": "#ffffff"
     }
   },
   "ios": {
     "limitsNavigationsToAppBoundDomains": true,
     "scheme": "com.guestspot.app",
-    "webContentsDebuggingEnabled": true
+    "webContentsDebuggingEnabled": true,
+    "preferredContentMode": "mobile",
+    "allowNavigationGestures": true
   },
   "android": {
     "allowMixedContent": false,

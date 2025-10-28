@@ -189,3 +189,7 @@ a {
 .q-field--dark .q-field__control:hover:before {
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+.q-expansion-item {
+  overflow: hidden;
+}

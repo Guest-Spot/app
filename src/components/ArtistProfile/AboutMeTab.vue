@@ -154,17 +154,28 @@
           <div class="q-mb-md text-body2 text-grey-7">
             Configure your payment settings to receive payments from clients
           </div>
-          <q-btn
-            rounded
-            unelevated
-            color="primary"
-            label="Setup payment account"
-            icon="payment"
-            class="full-width"
-            @click="setupStripeAccount"
-            :loading="stripeSetupLoading"
-            :disable="stripeSetupLoading"
-          />
+          <div class="flex q-gap-sm full-width no-wrap">
+            <q-btn
+              rounded
+              unelevated
+              color="primary"
+              label="Setup payment account"
+              icon="payment"
+              class="full-width"
+              @click="setupStripeAccount"
+              :loading="stripeSetupLoading"
+              :disable="stripeSetupLoading"
+            />
+            <q-btn
+              round
+              outline
+              color="primary"
+              icon="refresh"
+              @click="checkStripeStatus"
+              :loading="stripeStatusLoading"
+              :disable="stripeStatusLoading"
+            />
+          </div>
         </div>
 
         <!-- Configured State -->
@@ -176,28 +187,28 @@
 
           <div v-if="user?.stripeAccountID" class="q-mb-md text-body2 text-grey-7">
             Account ID: •••• {{ user.stripeAccountID.slice(-4) }}
+            <!-- Copy to clipboard -->
+            <q-btn
+              round
+              flat
+              size="sm"
+              icon="content_copy"
+              @click="onCopyToClipboard(user.stripeAccountID)"
+            />
           </div>
 
           <div class="flex q-gap-sm">
             <q-btn
               rounded
               unelevated
+              flat
               color="primary"
-              label="Stripe Dashboard"
+              class="full-width bg-block"
+              label="Open Stripe Dashboard"
               icon="open_in_new"
               @click="openStripeDashboard"
               :loading="stripeDashboardLoading"
               :disable="stripeDashboardLoading"
-            />
-            <q-btn
-              rounded
-              outline
-              color="primary"
-              label="Проверить статус"
-              icon="refresh"
-              @click="checkStripeStatus"
-              :loading="stripeStatusLoading"
-              :disable="stripeStatusLoading"
             />
           </div>
         </div>
@@ -233,7 +244,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, computed } from 'vue';
+import { ref, watch, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+import { copyToClipboard } from 'quasar';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
@@ -253,7 +265,7 @@ import useStripe from 'src/composables/useStripe';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
-const { openStripeUrl } = useStripe();
+const { openStripeUrl, addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 
 // Setup mutation
 const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_USER_MUTATION);
@@ -341,6 +353,11 @@ async function deleteImages(): Promise<void> {
 const onUpdateImages = (files: { id: string; file: File }[]) => {
   imagesForRemove.value = files.map((file) => file.id);
   imagesForUpload.value = files.map((file) => file.file);
+};
+
+const onCopyToClipboard = (text: string) => {
+  void copyToClipboard(text);
+  showSuccess('Copied to clipboard');
 };
 
 const saveChanges = async () => {
@@ -449,7 +466,7 @@ onDoneGetStripeDashboardUrl((result) => {
   const url = result.data?.getStripeDashboardUrl?.url;
   if (url) {
     try {
-      openStripeUrl(url);
+      void openStripeUrl(url);
       showSuccess('Opening Stripe dashboard...');
     } catch (error) {
       console.error('Error opening URL:', error);
@@ -494,6 +511,27 @@ onErrorCheckStripeAccountStatus((error) => {
   stripeStatusLoading.value = false;
   console.error('Stripe status check mutation error:', error);
   showError('Error checking payment status');
+});
+
+// Handle browser close event - refresh user data
+const handleBrowserFinished = async () => {
+  console.log('Browser closed, refreshing user data...');
+  await fetchMe();
+
+  // Check if payment is now configured
+  if (user.value?.payoutsEnabled) {
+    showSuccess('Payment settings updated successfully');
+  }
+};
+
+// Setup browser finished listener on mount
+onMounted(() => {
+  void addBrowserFinishedListener(() => void handleBrowserFinished());
+});
+
+// Cleanup listener on unmount
+onBeforeUnmount(async () => {
+  await removeAllBrowserListeners();
 });
 
 // Expose data for parent component
