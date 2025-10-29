@@ -106,7 +106,6 @@
       :shop-document-id="shopData.documentId"
       :shop-opening-hours="shopData.openingHours || []"
       type="shop-to-artist"
-      @submit="handleBookingSubmit"
     />
   </q-page>
 </template>
@@ -114,7 +113,6 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import type { IBookingCreateResponse } from 'src/interfaces/booking';
 import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -185,6 +183,7 @@ const shopData = ref<IUser>({
   blocked: false,
   type: UserType.Shop,
   id: '',
+  device_tokens: [],
 });
 
 // Artists data
@@ -230,11 +229,6 @@ const setActiveTab = (tab: ITab) => {
 // Booking dialog state
 const openBookingDialog = () => {
   showBookingDialog.value = true;
-};
-
-const handleBookingSubmit = (booking: IBookingCreateResponse) => {
-  console.log('Booking submitted:', booking);
-  showBookingDialog.value = false;
 };
 
 // Fetch shop data from store or via Apollo

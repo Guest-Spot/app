@@ -82,3 +82,9 @@ export interface IBookingCreateResponse {
 export interface IBookingsQueryResponse {
   bookings: IBooking[];
 }
+
+export interface IBookingPaymentSession {
+  booking: Pick<IBooking, 'documentId'>;
+  sessionId: string;
+  sessionUrl: string;
+}

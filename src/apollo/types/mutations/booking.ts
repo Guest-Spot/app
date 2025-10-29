@@ -38,3 +38,15 @@ export const UPDATE_BOOKING_MUTATION = gql`
     }
   }
 `;
+
+export const CREATE_BOOKING_PAYMENT_MUTATION = gql`
+  mutation CreateBookingPayment($bookingId: ID!) {
+    createBookingPayment(bookingId: $bookingId) {
+      booking {
+        documentId
+      }
+      sessionId
+      sessionUrl
+    }
+  }
+`;

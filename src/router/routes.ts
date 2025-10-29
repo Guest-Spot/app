@@ -49,6 +49,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'My Booking Requests' },
       },
       {
+        path: 'payment-success',
+        component: () => import('pages/PaymentSuccessPage.vue'),
+        meta: { title: 'Payment Success' },
+      },
+      {
         path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
         meta: { title: 'My Profile' },
