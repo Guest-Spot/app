@@ -62,6 +62,7 @@
             outlined
             dense
             rounded
+            :mask="PHONE_INPUT_MASK"
             placeholder="Enter phone number"
             class="custom-input"
             v-model="shopData.phone"
@@ -200,6 +201,7 @@
 import { ref } from 'vue';
 import { TimePickerDialog } from '../Dialogs';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
+import { PHONE_INPUT_MASK } from 'src/constants/masks';
 
 // Form data
 const shopData = ref({
