@@ -1,5 +1,5 @@
 import type { IUser } from 'src/interfaces/user';
-import type { EReactions } from 'src/interfaces/enums';
+import type { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
 import type { IPicture } from './common';
 
 export interface IBooking {
@@ -17,6 +17,7 @@ export interface IBooking {
   endTime?: string | null;
   date?: string | null;
   location?: string | null;
+  paymentStatus?: EBookingPaymentStatus | null;
   reaction: EReactions;
   rejectNote?: string | null;
   status?: string | null;

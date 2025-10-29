@@ -42,9 +42,14 @@ Location: `src/components/Dialogs/CreateBookingSteps/PaymentStep.vue`
 Props:
 - `loading: boolean` - Loading state during payment processing
 - `disabled: boolean` - Disabled state
+- `depositAmount: number` - Deposit amount to be paid (in USD)
 
 Events:
 - `onPay` - Emitted when user clicks Pay Deposit
+
+Display Features:
+- Shows simple pricing card with the amount to pay
+- Security and confirmation features list
 
 ### PaymentSuccessPage.vue
 Location: `src/pages/PaymentSuccessPage.vue`
@@ -139,4 +144,3 @@ Method: `openStripeUrl(url: string)`
 - Handles opening Stripe URL on both web and native platforms
 - Uses Capacitor Browser for native apps
 - Uses window.open for web
-

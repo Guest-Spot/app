@@ -211,6 +211,31 @@
               :disable="stripeDashboardLoading"
             />
           </div>
+
+          <div class="input-group q-mt-md bg-block border-radius-lg q-pa-md">
+            <label class="input-label">Deposit Amount</label>
+            <q-input
+              outlined
+              dense
+              rounded
+              type="number"
+              class="custom-input"
+              placeholder="Enter deposit amount"
+              prefix="$"
+              :min="0"
+              v-model.number="artistData.depositAmount"
+              :rules="[
+                (val) =>
+                  val === null ||
+                  val === undefined ||
+                  val >= 0 ||
+                  'Deposit amount must be zero or greater',
+              ]"
+            />
+            <div class="text-caption text-grey-7 q-mt-xs">
+              Guests will be charged this amount upfront when booking.
+            </div>
+          </div>
         </div>
       </div>
     </q-expansion-item>
@@ -294,6 +319,7 @@ const artistData = reactive<IArtistFormData>({
   email: '',
   avatar: null,
   experience: null,
+  depositAmount: null,
 });
 // NOTE: This variable is used to compare the original data with the new data
 const artistDataOriginal = { ...artistData };
@@ -405,6 +431,7 @@ watch(
   (profile) => {
     Object.assign(artistData, {
       ...profile,
+      depositAmount: profile?.depositAmount ?? null,
       avatar: profile?.avatar
         ? {
             url: profile?.avatar?.url,

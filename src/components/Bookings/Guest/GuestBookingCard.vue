@@ -55,6 +55,12 @@
         </q-chip>
       </div>
 
+      <!-- Payment Status -->
+      <div v-if="booking.paymentStatus" class="payment-status bg-block border-radius-md q-px-sm q-py-xs q-mt-sm" :class="paymentStatusClass">
+        <q-icon :name="paymentStatusIcon" size="16px" />
+        <span class="payment-status__label">{{ paymentStatusLabel }}</span>
+      </div>
+
       <!-- Reject Note -->
       <div
         v-if="booking.reaction === EReactions.Rejected && booking.rejectNote"
@@ -70,7 +76,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
-import { EReactions } from 'src/interfaces/enums';
+import { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
 import useDate from 'src/modules/useDate';
 
 interface Props {
@@ -111,6 +117,63 @@ const getStatusLabel = (status: IBooking['reaction']) => {
 const handleClick = () => {
   emit('click', props.booking);
 };
+
+const isPaid = computed(() => {
+  return (
+    props.booking.paymentStatus === EBookingPaymentStatus.Paid ||
+    props.booking.paymentStatus === EBookingPaymentStatus.Authorized
+  );
+});
+
+const paymentStatusClass = computed(() => {
+  switch (props.booking.paymentStatus) {
+    case EBookingPaymentStatus.Paid:
+    case EBookingPaymentStatus.Authorized:
+      return 'paid';
+    case EBookingPaymentStatus.Unpaid:
+      return 'unpaid';
+    case EBookingPaymentStatus.Failed:
+      return 'failed';
+    case EBookingPaymentStatus.Canceled:
+      return 'canceled';
+    default:
+      return 'unknown';
+  }
+});
+
+const paymentStatusLabel = computed(() => {
+  switch (props.booking.paymentStatus) {
+    case EBookingPaymentStatus.Paid:
+      return 'Payment received';
+    case EBookingPaymentStatus.Authorized:
+      return 'Payment: awaiting artist confirmation';
+    case EBookingPaymentStatus.Unpaid:
+      return 'Payment pending';
+    case EBookingPaymentStatus.Failed:
+      return 'Payment failed';
+    case EBookingPaymentStatus.Canceled:
+      return 'Payment canceled';
+    default:
+      return 'Payment status unavailable';
+  }
+});
+
+const paymentStatusIcon = computed(() => {
+  if (isPaid.value) {
+    return 'payment';
+  }
+
+  switch (props.booking.paymentStatus) {
+    case EBookingPaymentStatus.Unpaid:
+      return 'hourglass_empty';
+    case EBookingPaymentStatus.Failed:
+      return 'error';
+    case EBookingPaymentStatus.Canceled:
+      return 'highlight_off';
+    default:
+      return 'help_outline';
+  }
+});
 </script>
 
 <style scoped lang="scss">
@@ -192,6 +255,31 @@ const handleClick = () => {
       align-items: center;
       gap: 8px;
       font-size: 14px;
+    }
+
+    .payment-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+
+      &.paid {
+        color: #21ba45;
+      }
+
+      &.unpaid {
+        color: #f2c037;
+      }
+
+      &.failed,
+      &.canceled {
+        color: var(--q-negative);
+      }
+
+      &.unknown {
+        color: #9e9e9e;
+      }
     }
 
     .references-count {

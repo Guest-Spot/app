@@ -88,6 +88,7 @@
             v-else-if="currentStep === 4"
             :loading="isPaymentProcessing"
             :disabled="isPaymentProcessing"
+            :deposit-amount="selectedArtistDepositAmount || 0"
             @on-pay="handlePayment"
           />
         </div>
@@ -127,6 +128,7 @@
             v-else-if="currentStep === 4"
             label="Pay Deposit"
             color="primary"
+            icon="payments"
             rounded
             unelevated
             :disable="isPaymentProcessing"
@@ -150,10 +152,7 @@ import PaymentStep from './CreateBookingSteps/PaymentStep.vue';
 
 import { USERS_QUERY, USER_QUERY } from 'src/apollo/types/user';
 import { CITIES_QUERY } from 'src/apollo/types/city';
-import {
-  CREATE_BOOKING_MUTATION,
-  CREATE_BOOKING_PAYMENT_MUTATION,
-} from 'src/apollo/types/mutations/booking';
+import { CREATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 
 import type { IUser, IGraphQLUsersResult, IGraphQLUserResult } from 'src/interfaces/user';
@@ -164,7 +163,6 @@ import type {
   IBookingRequestPayload,
   IBookingCreateResponse,
   IBookingsQueryResponse,
-  IBookingPaymentSession,
 } from 'src/interfaces/booking';
 import type { IOpeningHours } from 'src/interfaces/common';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
@@ -175,7 +173,7 @@ import { useCitiesStore } from 'src/stores/cities';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
-import useStripe from 'src/composables/useStripe';
+import useBookingPayment from 'src/composables/useBookingPayment';
 import { useRouter } from 'vue-router';
 
 interface Props {
@@ -199,7 +197,10 @@ const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
 const { user } = useUser();
-const { openStripeUrl } = useStripe();
+const {
+  initiatePayment: initiateBookingPayment,
+  isProcessing: isPaymentProcessing,
+} = useBookingPayment();
 const router = useRouter();
 
 const baseSteps = [
@@ -215,6 +216,17 @@ const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
 
 const shouldShowPaymentStep = computed(() => selectedArtist.value?.payoutsEnabled === true);
+const selectedArtistDepositAmount = computed<number | null>(() => {
+  const amount = selectedArtist.value?.depositAmount;
+  if (typeof amount === 'number') {
+    return amount;
+  }
+  if (typeof amount === 'string' && amount !== '') {
+    const parsed = Number.parseFloat(amount);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  return null;
+});
 
 const visibleSteps = computed(() => {
   let steps: typeof baseSteps[number][] = isArtistSelectionRequired.value
@@ -232,7 +244,6 @@ const isVisible = ref(props.modelValue);
 const currentStep = ref(firstVisibleStepId.value);
 const isSubmitting = ref(false);
 const isResetting = ref(false);
-const isPaymentProcessing = ref(false);
 
 const isAtFirstStep = computed(() => currentStep.value === firstVisibleStepId.value);
 
@@ -356,7 +367,6 @@ const { load: loadArtistBookings, stop: stopArtistBookings } =
   useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
 
 const { mutate: createBooking } = useMutation(CREATE_BOOKING_MUTATION);
-const { mutate: createBookingPayment } = useMutation(CREATE_BOOKING_PAYMENT_MUTATION);
 
 const isLoadingArtists = computed(() => isLoadingQuery.value);
 const hasActiveFilters = computed(() =>
@@ -631,39 +641,12 @@ const onSubmit = async () => {
 };
 
 const handlePayment = async () => {
-  if (!createdBooking.value?.documentId) {
-    showError('Booking not found. Please try again.');
-    return;
-  }
-
-  try {
-    isPaymentProcessing.value = true;
-
-    const result = await createBookingPayment({
-      bookingId: createdBooking.value.documentId,
-    });
-
-    const paymentSession = result?.data?.createBookingPayment as IBookingPaymentSession | undefined;
-
-    if (!paymentSession?.sessionUrl) {
-      showError('Failed to create payment session. Please try again.');
-      return;
-    }
-
-    // Open Stripe payment page
-    await openStripeUrl(paymentSession.sessionUrl);
-
-    // Keep dialog open - user will return after payment completion
-  } catch (error) {
-    console.error('Failed to process payment:', error);
-    showError('Failed to process payment. Please try again.');
-  } finally {
-    isPaymentProcessing.value = false;
-  }
+  await initiateBookingPayment(createdBooking.value?.documentId ?? null);
 };
 
 const resetFormState = () => {
   isResetting.value = true;
+  isPaymentProcessing.value = false;
   currentStep.value = firstVisibleStepId.value;
   searchQuery.value = '';
   activeFilters.value = { type: UserType.Artist, city: null, name: null };

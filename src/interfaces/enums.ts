@@ -71,3 +71,11 @@ export enum NotificationType {
   InviteAccepted = 'invite_accepted',
   InviteRejected = 'invite_rejected',
 }
+
+export enum EBookingPaymentStatus {
+  Unpaid = 'unpaid',
+  Paid = 'paid',
+  Failed = 'failed',
+  Canceled = 'canceled',
+  Authorized = 'authorized',
+}

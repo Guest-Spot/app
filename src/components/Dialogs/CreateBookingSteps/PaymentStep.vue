@@ -1,20 +1,20 @@
 <template>
   <div class="step-content">
     <div class="payment-info">
+      <!-- Payment Info Card -->
       <div class="info-card bg-block border-radius-lg">
-        <div class="icon-wrapper">
-          <q-icon name="payment" size="48px" color="primary" />
-        </div>
-
         <div class="info-text">
-          <h3 class="text-h6 text-bold q-mb-sm">Deposit Required</h3>
-          <p class="text-body2 text-grey-7">
+          <div class="flex items-center q-gap-sm">
+            <q-icon name="payment" size="24px" color="primary" />
+            <h3 class="text-h6 text-bold q-mb-sm">Deposit Required</h3>
+          </div>
+          <p class="text-body2 text-grey-4">
             To confirm your booking request, a deposit payment is required.
             You'll be redirected to a secure payment page to complete the transaction.
           </p>
         </div>
 
-        <div class="info-details q-mt-md">
+        <div class="info-details">
           <div class="detail-item">
             <q-icon name="check_circle" size="20px" color="positive" />
             <span>Secure payment processing</span>
@@ -29,6 +29,19 @@
           </div>
         </div>
       </div>
+
+      <!-- Pricing Information Card -->
+        <div v-if="depositAmount" class="pricing-card bg-block border-radius-lg full-width">
+          <div class="pricing-content">
+            <div class="pricing-icon">
+              <q-icon name="payments" size="32px" color="primary" />
+            </div>
+            <div class="pricing-info flex column items-start">
+              <span class="text-body2 text-grey-7">Amount to Pay</span>
+              <span class="text-h5 text-bold text-primary">${{ depositAmount.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
     </div>
   </div>
 </template>
@@ -42,6 +55,10 @@ defineProps({
   disabled: {
     type: Boolean,
     default: false,
+  },
+  depositAmount: {
+    type: Number,
+    default: null,
   },
 });
 
@@ -67,23 +84,33 @@ defineEmits<{
   gap: 20px;
 }
 
+.pricing-card {
+  padding: 20px;
+
+  .pricing-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .pricing-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: rgba(var(--q-primary-rgb), 0.1);
+    }
+  }
+}
+
 .info-card {
   padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+  text-align: left;
   gap: 16px;
-}
-
-.icon-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: rgba(var(--q-primary-rgb), 0.1);
 }
 
 .info-text {

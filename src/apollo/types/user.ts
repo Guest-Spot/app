@@ -27,6 +27,7 @@ export const ME_QUERY = gql`
       experience
       stripeAccountID
       payoutsEnabled
+      depositAmount
       parent {
         documentId
         name
@@ -81,6 +82,7 @@ export const USERS_QUERY = gql`
       experience
       stripeAccountID
       payoutsEnabled
+      depositAmount
       openingHours {
         day
         start
@@ -128,6 +130,7 @@ export const USER_QUERY = gql`
       experience
       stripeAccountID
       payoutsEnabled
+      depositAmount
       openingHours {
         day
         start
@@ -181,6 +184,7 @@ export const UPDATE_USER_MUTATION = gql`
         experience
         stripeAccountID
         payoutsEnabled
+        depositAmount
         openingHours {
           day
           start

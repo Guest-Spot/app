@@ -17,6 +17,7 @@ export const BOOKINGS_QUERY = gql`
       size
       day
       start
+      paymentStatus
       reaction
       rejectNote
       references {

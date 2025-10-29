@@ -72,6 +72,7 @@ export interface IUser {
   device_tokens: RegisterPushTokenPayload[];
   stripeAccountID?: string;
   payoutsEnabled?: boolean;
+  depositAmount?: number | null;
 }
 
 // Auth state interface
