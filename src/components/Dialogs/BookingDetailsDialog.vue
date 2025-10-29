@@ -16,21 +16,15 @@
 
       <q-card-section v-if="booking" class="dialog-content">
         <!-- Status Badge for Artist View -->
-        <div
-          class="status-section flex column bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md"
-        >
-          <div class="status-row flex items-center justify-between q-mb-sm">
+        <div class="status-section flex column bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md">
+          <div class="status-row flex items-center justify-between">
             <div class="section-label text-grey-6">Status</div>
-            <div class="status-badge text-caption text-bold" :class="booking.reaction">
-              {{ getStatusLabel(booking.reaction) }}
-            </div>
-          </div>
-
-          <div class="payment-status-row flex items-center justify-between">
-            <div class="section-label text-grey-6">Payment</div>
-            <div class="payment-chip text-caption text-bold" :class="paymentChipClass">
-              <q-icon :name="paymentChipIcon" size="16px" class="q-mr-xs" />
-              <span>{{ paymentStatusLabel }}</span>
+            <div
+              class="status-chip text-caption text-bold"
+              :class="`status-chip--${bookingStatus.variant}`"
+            >
+              <q-icon v-if="bookingStatus.icon" :name="bookingStatus.icon" size="16px" class="q-mr-xs" />
+              <span>{{ bookingStatus.label }}</span>
             </div>
           </div>
         </div>
@@ -119,7 +113,7 @@
         <template v-else>
           <q-btn
             v-if="canInitiatePayment"
-            label="Pay Deposit"
+            :label="depositAmount ? `Pay Deposit ($${depositAmount.toFixed(2)})` : 'Pay Deposit'"
             color="primary"
             rounded
             class="full-width"
@@ -161,8 +155,10 @@ import { ImagePreviewDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import { useUserStore } from 'src/stores/user';
 import { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
+import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useNotify from 'src/modules/useNotify';
 import useBookingPayment from 'src/composables/useBookingPayment';
+import { centsToDollars } from 'src/helpers/currency';
 
 interface Props {
   modelValue: boolean;
@@ -196,6 +192,8 @@ const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
 const previewImageSrc = ref<string | null>(null);
 const initialRejectNote = ref('');
+const bookingStatus = computed(() => getBookingStatusInfo(props.booking));
+const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
 
 // Convert partial artist to full artist for ArtistCard
 const artist = computed<IUser | null>(() => {
@@ -258,66 +256,6 @@ const guestInfoData = computed(() => {
   return data;
 });
 
-const paymentStatusLabel = computed(() => {
-  const status = props.booking?.paymentStatus;
-
-  switch (status) {
-    case EBookingPaymentStatus.Paid:
-      return 'Payment received';
-    case EBookingPaymentStatus.Authorized:
-      return 'Awaiting artist confirmation';
-    case EBookingPaymentStatus.Unpaid:
-      return 'Payment pending';
-    case EBookingPaymentStatus.Failed:
-      return 'Payment failed';
-    case EBookingPaymentStatus.Canceled:
-      return 'Payment canceled';
-    default:
-      return 'Payment status unavailable';
-  }
-});
-
-const isPaymentSuccessful = computed(() => {
-  return (
-    props.booking?.paymentStatus === EBookingPaymentStatus.Paid ||
-    props.booking?.paymentStatus === EBookingPaymentStatus.Authorized
-  );
-});
-
-const paymentChipClass = computed(() => {
-  const status = props.booking?.paymentStatus;
-
-  switch (status) {
-    case EBookingPaymentStatus.Paid:
-    case EBookingPaymentStatus.Authorized:
-      return 'payment-chip--positive';
-    case EBookingPaymentStatus.Unpaid:
-      return 'payment-chip--warning';
-    case EBookingPaymentStatus.Failed:
-    case EBookingPaymentStatus.Canceled:
-      return 'payment-chip--negative';
-    default:
-      return 'payment-chip--neutral';
-  }
-});
-
-const paymentChipIcon = computed(() => {
-  if (isPaymentSuccessful.value) {
-    return 'check_circle';
-  }
-
-  switch (props.booking?.paymentStatus) {
-    case EBookingPaymentStatus.Unpaid:
-      return 'hourglass_empty';
-    case EBookingPaymentStatus.Failed:
-      return 'error';
-    case EBookingPaymentStatus.Canceled:
-      return 'highlight_off';
-    default:
-      return 'help_outline';
-  }
-});
-
 // Description data for InfoCard
 const descriptionData = computed(() => {
   return [
@@ -352,15 +290,6 @@ const canRespondToBooking = computed(() => {
 
   return Boolean(isCurrentUserArtist.value && isPending);
 });
-
-const getStatusLabel = (reaction: IBooking['reaction']): string => {
-  const labels = {
-    pending: 'Pending',
-    accepted: 'Accepted',
-    rejected: 'Rejected',
-  };
-  return labels[reaction] || reaction;
-};
 
 const formatDate = (dateStr: string): string => {
   if (!dateStr) return '—';
@@ -550,33 +479,6 @@ watch(isImagePreviewVisible, (newValue) => {
       }
     }
 
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-
-      &.pending {
-        background: rgba(242, 192, 55, 0.15);
-        color: #f2c037;
-      }
-
-      &.accepted {
-        background: rgba(33, 186, 69, 0.15);
-        color: #21ba45;
-      }
-
-      &.rejected,
-      &.cancelled {
-        background: rgba(193, 0, 21, 0.15);
-        color: #c10015;
-      }
-
-      &.completed {
-        background: rgba(49, 204, 236, 0.15);
-        color: #31ccec;
-      }
-    }
-
     .section-label {
       font-size: 14px;
       font-weight: 600;
@@ -587,16 +489,15 @@ watch(isImagePreviewVisible, (newValue) => {
       padding-bottom: 8px;
     }
 
-    .status-row,
-    .payment-status-row {
+    .status-row {
       gap: 12px;
     }
 
-    .payment-chip {
+    .status-chip {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
+      gap: 6px;
+      padding: 4px 12px;
       border-radius: 999px;
       font-size: 12px;
       letter-spacing: 0.3px;
@@ -619,6 +520,11 @@ watch(isImagePreviewVisible, (newValue) => {
       &--neutral {
         background: rgba(0, 0, 0, 0.06);
         color: #757575;
+      }
+
+      &--info {
+        background: rgba(49, 204, 236, 0.12);
+        color: #31ccec;
       }
     }
 

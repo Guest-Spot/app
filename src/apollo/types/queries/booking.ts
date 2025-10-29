@@ -28,6 +28,7 @@ export const BOOKINGS_QUERY = gql`
         name
         city
         experience
+        depositAmount
         avatar {
           url
         }

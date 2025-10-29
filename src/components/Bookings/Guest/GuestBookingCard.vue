@@ -4,6 +4,17 @@
     :class="{ pending: booking.reaction === EReactions.Pending }"
     @click="handleClick"
   >
+    <div
+      class="q-mb-md full-width flex items-center justify-between bg-block border-radius-lg q-pr-xs q-pl-md q-py-xs"
+    >
+      <div class="section-label text-grey-6">Status</div>
+      <div class="status-badge status-info flex items-center" :class="`status-badge--${statusInfo.variant}`">
+        <q-icon v-if="statusInfo.icon" :name="statusInfo.icon" size="16px" class="q-mr-xs" />
+        <span>{{ statusInfo.label }}</span>
+      </div>
+    </div>
+
+    <!-- Booking Header -->
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm bg-block">
@@ -18,14 +29,12 @@
         </q-avatar>
         <div class="flex column">
           <div class="user-role text-grey-6 text-caption">Artist</div>
-          <div class="user-name">{{ booking.artist.name }}</div>
+          <div class="user-name">{{ booking.artist?.name }}</div>
         </div>
-      </div>
-      <div class="status-badge absolute-top-right q-mr-md q-mt-md" :class="booking.reaction">
-        {{ getStatusLabel(booking.reaction) }}
       </div>
     </div>
 
+    <!-- Booking Content -->
     <div class="card-content">
       <!-- Location -->
       <div v-if="booking.location" class="location-info q-mb-xs text-grey-6">
@@ -55,12 +64,6 @@
         </q-chip>
       </div>
 
-      <!-- Payment Status -->
-      <div v-if="booking.paymentStatus" class="payment-status bg-block border-radius-md q-px-sm q-py-xs q-mt-sm" :class="paymentStatusClass">
-        <q-icon :name="paymentStatusIcon" size="16px" />
-        <span class="payment-status__label">{{ paymentStatusLabel }}</span>
-      </div>
-
       <!-- Reject Note -->
       <div
         v-if="booking.reaction === EReactions.Rejected && booking.rejectNote"
@@ -76,7 +79,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
-import { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
+import { EReactions } from 'src/interfaces/enums';
+import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
 
 interface Props {
@@ -93,7 +97,7 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 
 const formattedDate = computed(() => {
-  const date = new Date(props.booking.day);
+  const date = new Date(props.booking.day || '');
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -102,78 +106,14 @@ const formattedDate = computed(() => {
 });
 
 const formattedTime = computed(() => {
-  return formatTime(props.booking.start);
+  return formatTime(props.booking.start || '');
 });
 
-const getStatusLabel = (status: IBooking['reaction']) => {
-  const statusMap = {
-    [EReactions.Pending]: 'Pending',
-    [EReactions.Accepted]: 'Accepted',
-    [EReactions.Rejected]: 'Rejected',
-  };
-  return statusMap[status as keyof typeof statusMap];
-};
+const statusInfo = computed(() => getBookingStatusInfo(props.booking));
 
 const handleClick = () => {
   emit('click', props.booking);
 };
-
-const isPaid = computed(() => {
-  return (
-    props.booking.paymentStatus === EBookingPaymentStatus.Paid ||
-    props.booking.paymentStatus === EBookingPaymentStatus.Authorized
-  );
-});
-
-const paymentStatusClass = computed(() => {
-  switch (props.booking.paymentStatus) {
-    case EBookingPaymentStatus.Paid:
-    case EBookingPaymentStatus.Authorized:
-      return 'paid';
-    case EBookingPaymentStatus.Unpaid:
-      return 'unpaid';
-    case EBookingPaymentStatus.Failed:
-      return 'failed';
-    case EBookingPaymentStatus.Canceled:
-      return 'canceled';
-    default:
-      return 'unknown';
-  }
-});
-
-const paymentStatusLabel = computed(() => {
-  switch (props.booking.paymentStatus) {
-    case EBookingPaymentStatus.Paid:
-      return 'Payment received';
-    case EBookingPaymentStatus.Authorized:
-      return 'Payment: awaiting artist confirmation';
-    case EBookingPaymentStatus.Unpaid:
-      return 'Payment pending';
-    case EBookingPaymentStatus.Failed:
-      return 'Payment failed';
-    case EBookingPaymentStatus.Canceled:
-      return 'Payment canceled';
-    default:
-      return 'Payment status unavailable';
-  }
-});
-
-const paymentStatusIcon = computed(() => {
-  if (isPaid.value) {
-    return 'payment';
-  }
-
-  switch (props.booking.paymentStatus) {
-    case EBookingPaymentStatus.Unpaid:
-      return 'hourglass_empty';
-    case EBookingPaymentStatus.Failed:
-      return 'error';
-    case EBookingPaymentStatus.Canceled:
-      return 'highlight_off';
-    default:
-      return 'help_outline';
-  }
-});
 </script>
 
 <style scoped lang="scss">
@@ -184,6 +124,41 @@ const paymentStatusIcon = computed(() => {
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+
+    &--warning {
+      background: rgba(242, 192, 55, 0.15);
+      color: #f2c037;
+    }
+
+    &--positive {
+      background: rgba(33, 186, 69, 0.15);
+      color: #21ba45;
+    }
+
+    &--negative {
+      background: rgba(193, 0, 21, 0.15);
+      color: var(--q-negative);
+    }
+
+    &--info {
+      background: rgba(49, 204, 236, 0.15);
+      color: #31ccec;
+    }
+
+    &--neutral {
+      background: rgba(0, 0, 0, 0.08);
+      color: #757575;
+    }
   }
 
   .card-header {
@@ -204,34 +179,6 @@ const paymentStatusIcon = computed(() => {
       .booking-date {
         font-size: 14px;
         margin-top: 2px;
-      }
-    }
-
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 600;
-
-      &.pending {
-        background: rgba(242, 192, 55, 0.15);
-        color: #f2c037;
-      }
-
-      &.accepted {
-        background: rgba(33, 186, 69, 0.15);
-        color: #21ba45;
-      }
-
-      &.rejected,
-      &.cancelled {
-        background: rgba(193, 0, 21, 0.15);
-        color: var(--q-negative);
-      }
-
-      &.completed {
-        background: rgba(49, 204, 236, 0.15);
-        color: #31ccec;
       }
     }
   }
@@ -255,31 +202,6 @@ const paymentStatusIcon = computed(() => {
       align-items: center;
       gap: 8px;
       font-size: 14px;
-    }
-
-    .payment-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 600;
-
-      &.paid {
-        color: #21ba45;
-      }
-
-      &.unpaid {
-        color: #f2c037;
-      }
-
-      &.failed,
-      &.canceled {
-        color: var(--q-negative);
-      }
-
-      &.unknown {
-        color: #9e9e9e;
-      }
     }
 
     .references-count {
