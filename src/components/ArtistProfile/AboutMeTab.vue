@@ -287,6 +287,7 @@ import {
   CHECK_STRIPE_ACCOUNT_STATUS_MUTATION,
 } from 'src/apollo/types/mutations/stripe';
 import useStripe from 'src/composables/useStripe';
+import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -345,6 +346,8 @@ const hasChanges = computed(
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
   const preparedData = {
     ...artistData,
+    // Convert dollars to cents for backend
+    depositAmount: dollarsToCents(artistData.depositAmount),
     ...(uploadedFiles.length > 0 && {
       avatar: uploadedFiles[0]?.id,
     }),
@@ -431,7 +434,8 @@ watch(
   (profile) => {
     Object.assign(artistData, {
       ...profile,
-      depositAmount: profile?.depositAmount ?? null,
+      // Convert cents to dollars for display
+      depositAmount: centsToDollars(profile?.depositAmount),
       avatar: profile?.avatar
         ? {
             url: profile?.avatar?.url,
