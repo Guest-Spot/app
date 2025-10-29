@@ -395,7 +395,7 @@ const updateLocalBookingReaction = (documentId: string, reaction: EReactions) =>
     reaction,
   };
 
-  internalBookings.value.splice(bookingIndex, 1, updatedBooking);
+  internalBookings.value.splice(bookingIndex, 1, updatedBooking as IBooking);
 
   if (selectedBooking.value?.documentId === documentId) {
     selectedBooking.value = {
@@ -435,31 +435,6 @@ const handleBookingReactionUpdate = async ({
     showError('Failed to update booking. Please try again.');
   }
 };
-
-// Initialize date from URL query parameter on mount
-onMounted(() => {
-  const dateQuery = route.query.date as string | undefined;
-
-  if (dateQuery) {
-    try {
-      // Parse date in format YYYY-MM or YYYY-MM-DD
-      const dateParts = dateQuery.split('-');
-
-      if (dateParts.length >= 2 && dateParts[0] && dateParts[1]) {
-        const year = parseInt(dateParts[0], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
-
-        if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) {
-          currentDate.value = new Date(year, month, 1);
-          hasInitializedDate.value = true;
-        }
-      }
-    } catch {
-      // If parsing fails, just use default date
-      console.warn('Failed to parse date from query parameter:', dateQuery);
-    }
-  }
-});
 
 // Methods
 const getWeekStart = (date: Date): Date => {
@@ -574,6 +549,31 @@ const goToToday = () => {
 
   currentDate.value = today;
 };
+
+// Initialize date from URL query parameter on mount
+onMounted(() => {
+  const dateQuery = route.query.date as string | undefined;
+
+  if (dateQuery) {
+    try {
+      // Parse date in format YYYY-MM or YYYY-MM-DD
+      const dateParts = dateQuery.split('-');
+
+      if (dateParts.length >= 2 && dateParts[0] && dateParts[1]) {
+        const year = parseInt(dateParts[0], 10);
+        const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+
+        if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) {
+          currentDate.value = new Date(year, month, 1);
+          hasInitializedDate.value = true;
+        }
+      }
+    } catch {
+      // If parsing fails, just use default date
+      console.warn('Failed to parse date from query parameter:', dateQuery);
+    }
+  }
+});
 </script>
 
 <style scoped lang="scss">

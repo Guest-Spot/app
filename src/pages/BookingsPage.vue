@@ -59,12 +59,21 @@ const bookingFilters = computed(() => {
   };
 });
 
+const queryVariables = computed(() => {
+  const filters = bookingFilters.value;
+
+  return {
+    ...(filters ? { filters } : {}),
+    sort: ['createdAt:desc'],
+    pagination: {
+      limit: 100,
+    },
+  };
+});
+
 const { result, loading } = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
-  () => {
-    const filters = bookingFilters.value;
-    return filters ? { filters } : {};
-  },
+  () => queryVariables.value,
   {
     fetchPolicy: 'network-only',
     enabled: computed(() => Boolean(userDocumentId.value)),

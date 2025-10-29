@@ -69,6 +69,9 @@ const { result, loading } = useQuery<IBookingsQueryResponse>(
       },
     },
     sort: ['createdAt:desc'],
+    pagination: {
+      limit: 100,
+    },
   },
   {
     fetchPolicy: 'network-only',

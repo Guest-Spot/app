@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client/core';
 
 export const BOOKINGS_QUERY = gql`
-  query Bookings($filters: BookingFiltersInput, $sort: [String!]) {
-    bookings(filters: $filters, sort: $sort) {
+  query Bookings(
+    $filters: BookingFiltersInput
+    $sort: [String!]
+    $pagination: PaginationArg
+  ) {
+    bookings(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       name
       email

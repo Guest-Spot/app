@@ -456,6 +456,10 @@ const fetchArtistBookings = async (artistId: string | null) => {
           },
         },
       },
+      sort: ['createdAt:desc'],
+      pagination: {
+        limit: 100,
+      },
     });
 
     if (!response) {
