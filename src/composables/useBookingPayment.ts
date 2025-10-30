@@ -13,8 +13,8 @@ export default function useBookingPayment() {
   const { user } = useUser();
   const { mutate: createBookingPayment } = useMutation(CREATE_BOOKING_PAYMENT_MUTATION);
 
-  const initiatePayment = async (bookingId?: string | null): Promise<boolean> => {
-    if (!bookingId) {
+  const initiatePayment = async (documentId?: string | null): Promise<boolean> => {
+    if (!documentId) {
       showError('Booking not found. Please try again.');
       return false;
     }
@@ -23,8 +23,8 @@ export default function useBookingPayment() {
       isProcessing.value = true;
 
       // Prepare mutation variables with optional customer email
-      const variables: { bookingId: string; customerEmail?: string } = {
-        bookingId,
+      const variables: { documentId: string; customerEmail?: string } = {
+        documentId,
       };
 
       // Add customer email if available

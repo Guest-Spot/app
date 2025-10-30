@@ -79,9 +79,16 @@
                         <q-icon name="person" size="14px" />
                         <span class="text-bold">{{ getDisplayName(booking) }}</span>
                       </div>
-                      <div class="flex items-center q-gap-xs">
+                      <div class="flex items-center q-gap-xs q-mb-xs">
                         <q-icon name="schedule" size="14px" color="grey-6" />
                         <span class="text-grey-6">{{ formatTime(booking.start || '') }}</span>
+                      </div>
+                      <div
+                        v-if="shouldShowDeposit(booking)"
+                        class="flex items-center q-gap-xs"
+                      >
+                        <q-icon name="payment" size="14px" color="warning" />
+                        <span class="text-warning">Deposit: ${{ getDepositAmount(booking).toFixed(2) }}</span>
                       </div>
                     </div>
                   </div>
@@ -120,9 +127,10 @@ import { NoResult } from 'src/components';
 import { BookingDetailsDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
-import { EReactions } from 'src/interfaces/enums';
+import { EReactions, EBookingPaymentStatus } from 'src/interfaces/enums';
 import { UPDATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 import useNotify from 'src/modules/useNotify';
+import { centsToDollars } from 'src/helpers/currency';
 import BookingCalendarHeader from './BookingCalendarHeader.vue';
 
 interface DayGroup {
@@ -505,6 +513,19 @@ const getDisplayName = (booking: IBooking): string => {
   }
 
   return booking.artist?.name || 'Artist';
+};
+
+const getDepositAmount = (booking: IBooking): number => {
+  const depositAmount = centsToDollars(booking.artist?.depositAmount);
+  return depositAmount || 0;
+};
+
+const shouldShowDeposit = (booking: IBooking): boolean => {
+  const depositAmount = centsToDollars(booking.artist?.depositAmount);
+  const paymentStatus = booking.paymentStatus;
+  return depositAmount !== null && 
+         (paymentStatus === EBookingPaymentStatus.Paid || 
+          paymentStatus === EBookingPaymentStatus.Authorized);
 };
 
 const openBookingDetails = (booking: IBooking) => {

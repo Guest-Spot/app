@@ -49,9 +49,18 @@
       </div>
 
       <!-- Time -->
-      <div class="time-info text-grey-6">
+      <div class="time-info q-mb-xs text-grey-6">
         <q-icon name="schedule" size="16px" />
         <span>{{ formattedTime }}</span>
+      </div>
+
+      <!-- Deposit Info -->
+      <div
+        v-if="showDeposit && depositAmount"
+        class="deposit-info q-mb-xs text-warning"
+      >
+        <q-icon name="payment" size="16px" />
+        <span>Deposit: ${{ depositAmount.toFixed(2) }}</span>
       </div>
 
       <!-- Reference Images Count -->
@@ -79,9 +88,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
-import { EReactions } from 'src/interfaces/enums';
+import { EReactions, EBookingPaymentStatus } from 'src/interfaces/enums';
 import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
+import { centsToDollars } from 'src/helpers/currency';
 
 interface Props {
   booking: IBooking;
@@ -110,6 +120,16 @@ const formattedTime = computed(() => {
 });
 
 const statusInfo = computed(() => getBookingStatusInfo(props.booking, props.booking.artist?.payoutsEnabled));
+
+const depositAmount = computed(() => centsToDollars(props.booking.artist?.depositAmount));
+
+// Show deposit only for paid or authorized bookings
+const showDeposit = computed(() => {
+  const paymentStatus = props.booking?.paymentStatus;
+  return depositAmount.value !== null &&
+         (paymentStatus === EBookingPaymentStatus.Paid ||
+          paymentStatus === EBookingPaymentStatus.Authorized);
+});
 
 const handleClick = () => {
   emit('click', props.booking);
@@ -197,7 +217,8 @@ const handleClick = () => {
 
     .date-info,
     .time-info,
-    .location-info {
+    .location-info,
+    .deposit-info {
       display: flex;
       align-items: center;
       gap: 8px;

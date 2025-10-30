@@ -192,13 +192,22 @@ const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
 const previewImageSrc = ref<string | null>(null);
 const initialRejectNote = ref('');
-const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
-const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
 
 // Convert partial artist to full artist for ArtistCard
 const artist = computed<IUser | null>(() => {
   if (!props.booking?.artist) return null;
   return props.booking.artist as IUser;
+});
+
+const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
+const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
+
+// Show deposit only for paid or authorized bookings
+const showDeposit = computed(() => {
+  const paymentStatus = props.booking?.paymentStatus;
+  return depositAmount.value !== null && 
+         (paymentStatus === EBookingPaymentStatus.Paid || 
+          paymentStatus === EBookingPaymentStatus.Authorized);
 });
 
 // Session details data for InfoCard
@@ -215,6 +224,15 @@ const sessionDetailsData = computed(() => {
       value: formatTime(props.booking.start || ''),
     },
   ];
+
+  // Add deposit amount if paid or authorized
+  if (showDeposit.value && depositAmount.value) {
+    data.push({
+      label: 'Deposit',
+      value: `$${depositAmount.value.toFixed(2)}`,
+      className: 'text-warning',
+    });
+  }
 
   if (props.booking.location) {
     data.push({

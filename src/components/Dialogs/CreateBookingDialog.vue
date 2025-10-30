@@ -103,6 +103,14 @@
           class="bg-block"
           @click="closeDialog"
         />
+        <q-btn
+          v-else-if="currentStep === 4"
+          label="Pay later"
+          rounded
+          unelevated
+          class="bg-block"
+          @click="closeDialog"
+        />
         <q-btn v-else label="Back" rounded unelevated class="bg-block" @click="goToPrevStep" />
         <div class="actions-right flex q-gap-sm">
           <q-btn
@@ -237,6 +245,14 @@ const isSubmitting = ref(false);
 const isResetting = ref(false);
 
 const isAtFirstStep = computed(() => currentStep.value === firstVisibleStepId.value);
+const lastVisibleStepId = computed<number>(() => {
+  const steps = visibleSteps.value;
+  if (steps.length > 0) {
+    return steps[steps.length - 1]!.id;
+  }
+  return baseSteps[baseSteps.length - 1]!.id;
+});
+const isAtLastStep = computed(() => currentStep.value === lastVisibleStepId.value);
 
 const detailsStepRef = ref<InstanceType<typeof DetailsStep> | null>(null);
 const scheduleStepRef = ref<InstanceType<typeof ScheduleStep> | null>(null);
@@ -508,6 +524,7 @@ const goToPrevStep = () => {
 };
 
 const handleStepClick = (stepId: number) => {
+  if (isAtLastStep.value) return;
   const stepsOrder = visibleSteps.value;
   const targetIndex = stepsOrder.findIndex((step) => step.id === stepId);
   const currentIndex = stepsOrder.findIndex((step) => step.id === currentStep.value);
