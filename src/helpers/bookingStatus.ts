@@ -18,7 +18,10 @@ const isPaidStatus = (paymentStatus?: EBookingPaymentStatus | null) => {
   );
 };
 
-export const getBookingStatusInfo = (booking: BookingStatusInput): BookingStatusInfo => {
+export const getBookingStatusInfo = (
+  booking: BookingStatusInput,
+  payoutsEnabled?: boolean
+): BookingStatusInfo => {
   const reaction = booking?.reaction;
   const paymentStatus = booking?.paymentStatus ?? null;
 
@@ -28,6 +31,33 @@ export const getBookingStatusInfo = (booking: BookingStatusInput): BookingStatus
       variant: 'neutral',
       icon: 'help_outline',
     };
+  }
+
+  // If artist cannot accept payments, show simplified statuses
+  if (payoutsEnabled === false) {
+    if (reaction === EReactions.Rejected) {
+      return {
+        label: 'Booking rejected',
+        variant: 'negative',
+        icon: 'highlight_off',
+      };
+    }
+
+    if (reaction === EReactions.Accepted) {
+      return {
+        label: 'Booking accepted',
+        variant: 'positive',
+        icon: 'check_circle',
+      };
+    }
+
+    if (reaction === EReactions.Pending) {
+      return {
+        label: 'Booking pending',
+        variant: 'warning',
+        icon: 'hourglass_empty',
+      };
+    }
   }
 
   if (reaction === EReactions.Rejected) {

@@ -192,7 +192,7 @@ const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
 const previewImageSrc = ref<string | null>(null);
 const initialRejectNote = ref('');
-const bookingStatus = computed(() => getBookingStatusInfo(props.booking));
+const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
 const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
 
 // Convert partial artist to full artist for ArtistCard
@@ -271,7 +271,7 @@ const descriptionData = computed(() => {
       label: 'Size',
       value: props.booking?.size || '',
     },
-  ].filter(Boolean);
+  ].filter((item) => item.value);
 });
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);

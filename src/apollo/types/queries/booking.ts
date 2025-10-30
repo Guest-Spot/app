@@ -29,6 +29,7 @@ export const BOOKINGS_QUERY = gql`
         city
         experience
         depositAmount
+        payoutsEnabled
         avatar {
           url
         }

@@ -109,7 +109,7 @@ const formattedTime = computed(() => {
   return formatTime(props.booking.start || '');
 });
 
-const statusInfo = computed(() => getBookingStatusInfo(props.booking));
+const statusInfo = computed(() => getBookingStatusInfo(props.booking, props.booking.artist?.payoutsEnabled));
 
 const handleClick = () => {
   emit('click', props.booking);
