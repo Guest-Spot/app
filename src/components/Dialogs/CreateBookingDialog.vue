@@ -175,6 +175,7 @@ import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
 import useBookingPayment from 'src/composables/useBookingPayment';
 import { useRouter } from 'vue-router';
+import { centsToDollars } from 'src/helpers/currency';
 
 interface Props {
   modelValue: boolean;
@@ -216,17 +217,7 @@ const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
 
 const shouldShowPaymentStep = computed(() => selectedArtist.value?.payoutsEnabled === true);
-const selectedArtistDepositAmount = computed<number | null>(() => {
-  const amount = selectedArtist.value?.depositAmount;
-  if (typeof amount === 'number') {
-    return amount;
-  }
-  if (typeof amount === 'string' && amount !== '') {
-    const parsed = Number.parseFloat(amount);
-    return Number.isNaN(parsed) ? null : parsed;
-  }
-  return null;
-});
+const selectedArtistDepositAmount = computed(() => centsToDollars(selectedArtist.value?.depositAmount ?? 0));
 
 const visibleSteps = computed(() => {
   let steps: typeof baseSteps[number][] = isArtistSelectionRequired.value

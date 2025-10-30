@@ -40,8 +40,8 @@ export const UPDATE_BOOKING_MUTATION = gql`
 `;
 
 export const CREATE_BOOKING_PAYMENT_MUTATION = gql`
-  mutation CreateBookingPayment($bookingId: ID!) {
-    createBookingPayment(bookingId: $bookingId) {
+  mutation CreateBookingPayment($bookingId: ID!, $customerEmail: String) {
+    createBookingPayment(bookingId: $bookingId, customerEmail: $customerEmail) {
       booking {
         documentId
       }

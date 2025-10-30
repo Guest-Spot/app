@@ -4,11 +4,13 @@ import { CREATE_BOOKING_PAYMENT_MUTATION } from 'src/apollo/types/mutations/book
 import type { IBookingPaymentSession } from 'src/interfaces/booking';
 import useStripe from 'src/composables/useStripe';
 import useNotify from 'src/modules/useNotify';
+import useUser from 'src/modules/useUser';
 
 export default function useBookingPayment() {
   const isProcessing = ref(false);
   const { openStripeUrl } = useStripe();
   const { showError } = useNotify();
+  const { user } = useUser();
   const { mutate: createBookingPayment } = useMutation(CREATE_BOOKING_PAYMENT_MUTATION);
 
   const initiatePayment = async (bookingId?: string | null): Promise<boolean> => {
@@ -20,9 +22,17 @@ export default function useBookingPayment() {
     try {
       isProcessing.value = true;
 
-      const result = await createBookingPayment({
+      // Prepare mutation variables with optional customer email
+      const variables: { bookingId: string; customerEmail?: string } = {
         bookingId,
-      });
+      };
+
+      // Add customer email if available
+      if (user.value?.email) {
+        variables.customerEmail = user.value.email;
+      }
+
+      const result = await createBookingPayment(variables);
 
       const paymentSession = result?.data?.createBookingPayment as
         | IBookingPaymentSession
