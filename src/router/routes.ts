@@ -19,17 +19,11 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/connect/Provider.vue') }],
     name: 'ConnectProvider',
   },
-
   {
-    path: '/',
+    path: '/payment-success',
     component: () => import('layouts/AuthLayout.vue'),
-    children: [
-      {
-        path: 'payment-success',
-        component: () => import('pages/PaymentSuccessPage.vue'),
-        meta: { title: 'Payment Success' },
-      },
-    ],
+    children: [{ path: '', component: () => import('pages/PaymentSuccessPage.vue') }],
+    name: 'Payment Success',
   },
   {
     path: '/',

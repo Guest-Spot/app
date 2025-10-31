@@ -326,7 +326,8 @@ const isCurrentUserArtist = computed(() => userStore.getIsArtist);
 const canInitiatePayment = computed(() => {
   return (
     !isCurrentUserArtist.value &&
-    props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid
+    props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid &&
+    artist.value?.payoutsEnabled === true
   );
 });
 

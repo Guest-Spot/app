@@ -34,7 +34,7 @@ export const getBookingStatusInfo = (
   }
 
   // If artist cannot accept payments, show simplified statuses
-  if (payoutsEnabled === false) {
+  if (!payoutsEnabled) {
     if (reaction === EReactions.Rejected) {
       return {
         label: 'Booking rejected',
