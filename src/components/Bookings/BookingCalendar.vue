@@ -52,6 +52,19 @@
               :class="getEventClass(booking)"
               @click="openBookingDetails(booking)"
             >
+              <div
+                class="event-status-chip flex items-center q-gap-xs"
+                :class="`event-status-chip--${getReactionStatusType(booking.reaction)}`"
+              >
+                <q-icon
+                  :name="getReactionIcon(booking.reaction)"
+                  size="14px"
+                  :color="getReactionColor(booking.reaction)"
+                />
+                <span class="text-weight-medium" :class="`text-${getReactionColor(booking.reaction)}`">
+                  {{ getReactionLabel(booking.reaction) }}
+                </span>
+              </div>
               <div class="flex items-start justify-between q-gap-sm">
                 <div class="flex items-start q-gap-sm no-wrap flex-1">
                   <!-- Avatar (if artist available) -->
@@ -87,8 +100,14 @@
                         v-if="shouldShowDeposit(booking)"
                         class="flex items-center q-gap-xs"
                       >
-                        <q-icon name="payment" size="14px" color="warning" />
-                        <span class="text-warning">Deposit: ${{ getDepositAmount(booking).toFixed(2) }}</span>
+                        <q-icon
+                          name="payment"
+                          size="14px"
+                          :color="getReactionColor(booking.reaction)"
+                        />
+                        <span :class="`text-${getReactionColor(booking.reaction)}`">
+                          Deposit: ${{ getDepositAmount(booking).toFixed(2) }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -114,6 +133,7 @@
       v-model="showDetailsDialog"
       :booking="selectedBooking"
       @update:booking-reaction="handleBookingReactionUpdate"
+      @cancel-booking="handleBookingCancellation"
     />
   </div>
 </template>
@@ -444,6 +464,17 @@ const handleBookingReactionUpdate = async ({
   }
 };
 
+const handleBookingCancellation = (documentId: string) => {
+  internalBookings.value = internalBookings.value.filter(
+    (booking) => booking.documentId !== documentId,
+  );
+
+  if (selectedBooking.value?.documentId === documentId) {
+    selectedBooking.value = null;
+    showDetailsDialog.value = false;
+  }
+};
+
 // Methods
 const getWeekStart = (date: Date): Date => {
   const d = new Date(date);
@@ -515,6 +546,57 @@ const getDisplayName = (booking: IBooking): string => {
   return booking.artist?.name || 'Artist';
 };
 
+const getReactionLabel = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'Accepted';
+    case EReactions.Rejected:
+      return 'Rejected';
+    case EReactions.Pending:
+    default:
+      return 'Pending';
+  }
+};
+
+const getReactionColor = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'positive';
+    case EReactions.Rejected:
+      return 'negative';
+    case EReactions.Pending:
+      return 'warning';
+    default:
+      return 'grey-6';
+  }
+};
+
+const getReactionIcon = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'check_circle';
+    case EReactions.Rejected:
+      return 'cancel';
+    case EReactions.Pending:
+      return 'hourglass_top';
+    default:
+      return 'help_outline';
+  }
+};
+
+const getReactionStatusType = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'positive';
+    case EReactions.Rejected:
+      return 'negative';
+    case EReactions.Pending:
+      return 'warning';
+    default:
+      return 'default';
+  }
+};
+
 const getDepositAmount = (booking: IBooking): number => {
   const depositAmount = centsToDollars(booking.artist?.depositAmount);
   return depositAmount || 0;
@@ -523,8 +605,8 @@ const getDepositAmount = (booking: IBooking): number => {
 const shouldShowDeposit = (booking: IBooking): boolean => {
   const depositAmount = centsToDollars(booking.artist?.depositAmount);
   const paymentStatus = booking.paymentStatus;
-  return depositAmount !== null && 
-         (paymentStatus === EBookingPaymentStatus.Paid || 
+  return depositAmount !== null &&
+         (paymentStatus === EBookingPaymentStatus.Paid ||
           paymentStatus === EBookingPaymentStatus.Authorized);
 };
 
@@ -640,6 +722,39 @@ onMounted(() => {
             transition: all 0.2s ease;
             border-left: 4px solid transparent;
 
+            .event-status-chip {
+              position: absolute;
+              top: 8px;
+              right: 8px;
+              padding: 4px 10px;
+              border-radius: 9999px;
+              background: rgba(96, 125, 139, 0.1);
+              color: #607d8b;
+              font-size: 12px;
+              line-height: 1;
+              text-transform: none;
+
+              &--positive {
+                background: rgba(33, 186, 69, 0.15);
+                color: #21ba45;
+              }
+
+              &--warning {
+                background: rgba(242, 192, 55, 0.2);
+                color: #f2c037;
+              }
+
+              &--negative {
+                background: rgba(193, 0, 21, 0.15);
+                color: #c10015;
+              }
+
+              &--default {
+                background: rgba(96, 125, 139, 0.1);
+                color: #607d8b;
+              }
+            }
+
             &.event-primary {
               background: rgba(49, 204, 236, 0.08);
               border-left-color: #31ccec;
@@ -718,6 +833,31 @@ onMounted(() => {
   .booking-calendar {
     .calendar-events {
       .event-card {
+        .event-status-chip {
+          background: rgba(255, 255, 255, 0.08);
+          color: #e0e0e0;
+
+          &--positive {
+            background: rgba(33, 186, 69, 0.2);
+            color: #27e066;
+          }
+
+          &--warning {
+            background: rgba(242, 192, 55, 0.25);
+            color: #f7d369;
+          }
+
+          &--negative {
+            background: rgba(193, 0, 21, 0.2);
+            color: #ff6e7c;
+          }
+
+          &--default {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e0e0e0;
+          }
+        }
+
         &.event-primary {
           background: rgba(49, 204, 236, 0.1);
         }

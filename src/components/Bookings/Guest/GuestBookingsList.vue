@@ -38,7 +38,11 @@
     </div>
 
     <!-- Booking Details Dialog -->
-    <BookingDetailsDialog v-model="showDetailsDialog" :booking="selectedBooking" />
+    <BookingDetailsDialog
+      v-model="showDetailsDialog"
+      :booking="selectedBooking"
+      @cancel-booking="handleBookingCancellation"
+    />
   </div>
 </template>
 
@@ -58,7 +62,7 @@ import { EReactions } from 'src/interfaces/enums';
 
 const userStore = useUserStore();
 
-const { result, loading } = useQuery<IBookingsQueryResponse>(
+const { result, loading, refetch } = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
   {
     filters: {
@@ -197,6 +201,21 @@ watch(
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
+};
+
+const handleBookingCancellation = async (documentId: string) => {
+  bookings.value = bookings.value.filter((booking) => booking.documentId !== documentId);
+
+  if (selectedBooking.value?.documentId === documentId) {
+    selectedBooking.value = null;
+    showDetailsDialog.value = false;
+  }
+
+  try {
+    await refetch();
+  } catch (error) {
+    console.error('Failed to refetch bookings after cancellation:', error);
+  }
 };
 
 const openBookingDetails = (booking: IBooking) => {

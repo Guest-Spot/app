@@ -111,24 +111,36 @@
           </div>
         </template>
         <template v-else>
-          <q-btn
-            v-if="canInitiatePayment"
-            :label="depositAmount ? `Pay Deposit ($${depositAmount.toFixed(2)})` : 'Pay Deposit'"
-            color="primary"
-            rounded
-            class="full-width"
-            icon="payment"
-            :loading="isPaymentProcessing"
-            :disable="isPaymentProcessing"
-            @click="handlePayment"
-          />
+          <div v-if="canInitiatePayment" class="dialog-actions__controls">
+            <q-btn
+              v-if="canCancelBooking"
+              label="Cancel"
+              color="negative"
+              rounded
+              flat
+              class="bg-block"
+              :loading="isCancelProcessing"
+              :disable="actionsDisabled"
+              @click="handleCancelBooking"
+            />
+            <q-btn
+              :label="depositAmount ? `Pay Deposit ($${depositAmount.toFixed(2)})` : 'Pay Deposit'"
+              color="primary"
+              rounded
+              class="full-width"
+              icon="payment"
+              :loading="isPaymentProcessing"
+              :disable="actionsDisabled"
+              @click="handlePayment"
+            />
+          </div>
           <q-btn
             v-else
             label="Close"
             rounded
             unelevated
             class="full-width bg-block"
-            :disable="isPaymentProcessing"
+            :disable="actionsDisabled"
             @click="closeDialog"
           />
         </template>
@@ -145,6 +157,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { useMutation } from '@vue/apollo-composable';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IUser } from 'src/interfaces/user';
@@ -159,6 +172,7 @@ import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useNotify from 'src/modules/useNotify';
 import useBookingPayment from 'src/composables/useBookingPayment';
 import { centsToDollars } from 'src/helpers/currency';
+import { DELETE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 
 interface Props {
   modelValue: boolean;
@@ -171,9 +185,18 @@ interface BookingReactionUpdatePayload {
   rejectNote?: string | undefined;
 }
 
+interface DeleteBookingResponse {
+  deleteBooking: Pick<IBooking, 'documentId'> | null;
+}
+
+interface DeleteBookingVariables {
+  documentId: string;
+}
+
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
   (e: 'update:booking-reaction', value: BookingReactionUpdatePayload): void;
+  (e: 'cancel-booking', value: string): void;
 }
 
 const props = defineProps<Props>();
@@ -182,11 +205,15 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 const $q = useQuasar();
 const userStore = useUserStore();
-const { showSuccess } = useNotify();
+const { showSuccess, showError } = useNotify();
 const {
   initiatePayment: initiateBookingPayment,
   isProcessing: isPaymentProcessing,
 } = useBookingPayment();
+const { mutate: deleteBookingMutation, loading: isCancelProcessing } = useMutation<
+  DeleteBookingResponse,
+  DeleteBookingVariables
+>(DELETE_BOOKING_MUTATION);
 
 const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
@@ -205,8 +232,8 @@ const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount 
 // Show deposit only for paid or authorized bookings
 const showDeposit = computed(() => {
   const paymentStatus = props.booking?.paymentStatus;
-  return depositAmount.value !== null && 
-         (paymentStatus === EBookingPaymentStatus.Paid || 
+  return depositAmount.value !== null &&
+         (paymentStatus === EBookingPaymentStatus.Paid ||
           paymentStatus === EBookingPaymentStatus.Authorized);
 });
 
@@ -214,7 +241,7 @@ const showDeposit = computed(() => {
 const sessionDetailsData = computed(() => {
   if (!props.booking) return [];
 
-  const data = [
+  const data: { label: string; value: string; className?: string }[] = [
     {
       label: 'Date',
       value: formatDate(props.booking.day || ''),
@@ -303,11 +330,28 @@ const canInitiatePayment = computed(() => {
   );
 });
 
+const canCancelBooking = computed(() => {
+  if (isCurrentUserArtist.value) {
+    return false;
+  }
+
+  if (!props.booking) {
+    return false;
+  }
+
+  return (
+    props.booking.reaction === EReactions.Pending &&
+    props.booking.paymentStatus === EBookingPaymentStatus.Unpaid
+  );
+});
+
 const canRespondToBooking = computed(() => {
   const isPending = props.booking?.reaction === EReactions.Pending;
 
   return Boolean(isCurrentUserArtist.value && isPending);
 });
+
+const actionsDisabled = computed(() => isPaymentProcessing.value || isCancelProcessing.value);
 
 const formatDate = (dateStr: string): string => {
   if (!dateStr) return '—';
@@ -338,6 +382,50 @@ const openImagePreview = (src?: string | null) => {
 
 const handlePayment = async () => {
   await initiateBookingPayment(props.booking?.documentId);
+};
+
+const handleCancelBooking = () => {
+  const documentId = props.booking?.documentId;
+
+  if (!documentId) {
+    showError('Booking not found. Please try again.');
+    return;
+  }
+
+  $q.dialog({
+    title: 'Cancel Booking',
+    message: 'Are you sure you want to cancel this booking request?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Keep Booking',
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Cancel Booking',
+    },
+  }).onOk(() => {
+    void (async () => {
+      try {
+        const response = await deleteBookingMutation({ documentId });
+
+        const deletedDocumentId = response?.data?.deleteBooking?.documentId;
+
+        if (!deletedDocumentId) {
+          showError('Failed to cancel booking. Please try again.');
+          return;
+        }
+
+        showSuccess('Booking request cancelled');
+        emit('cancel-booking', deletedDocumentId);
+        closeDialog();
+      } catch (error) {
+        console.error('Failed to cancel booking:', error);
+        showError('Failed to cancel booking. Please try again.');
+      }
+    })();
+  });
 };
 
 const confirmReactionChange = (reaction: EReactions) => {

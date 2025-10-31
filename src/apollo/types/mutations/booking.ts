@@ -50,3 +50,11 @@ export const CREATE_BOOKING_PAYMENT_MUTATION = gql`
     }
   }
 `;
+
+export const DELETE_BOOKING_MUTATION = gql`
+  mutation DeleteBooking($documentId: ID!) {
+    deleteBooking(documentId: $documentId) {
+      documentId
+    }
+  }
+`;
