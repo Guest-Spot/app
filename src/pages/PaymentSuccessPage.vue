@@ -7,22 +7,15 @@
         </div>
 
         <div class="flex column items-center">
-          <h3 class="text-h5 text-bold q-mb-sm">Payment Successful</h3>
-          <p class="text-grey-6 text-center q-mb-xl q-px-xl">
+          <h3 class="text-h5 text-bold q-my-sm">Payment Successful</h3>
+          <p class="text-positive text-center q-mb-md q-pa-md text-subtitle2 bg-block border-radius-lg">
             Your deposit has been paid successfully. Your booking request has been created and the
             artist will be notified.
           </p>
+          <p class="text-grey-6 text-center q-px-xl text-bold">
+            You can safely close this browser window now.
+          </p>
         </div>
-
-        <q-btn
-          to="/my-bookings"
-          label="View My Bookings"
-          icon="event"
-          color="primary"
-          class="q-px-lg action-btn"
-          rounded
-          unelevated
-        />
       </div>
     </div>
   </q-page>
@@ -41,10 +34,6 @@
   .q-icon {
     font-size: 80px;
   }
-}
-
-.action-btn {
-  min-height: 44px;
 }
 </style>
 

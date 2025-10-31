@@ -19,6 +19,18 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/connect/Provider.vue') }],
     name: 'ConnectProvider',
   },
+
+  {
+    path: '/',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [
+      {
+        path: 'payment-success',
+        component: () => import('pages/PaymentSuccessPage.vue'),
+        meta: { title: 'Payment Success' },
+      },
+    ],
+  },
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
@@ -47,11 +59,6 @@ const routes: RouteRecordRaw[] = [
         path: 'my-bookings',
         component: () => import('pages/MyBookingsPage.vue'),
         meta: { title: 'My Booking Requests' },
-      },
-      {
-        path: 'payment-success',
-        component: () => import('pages/PaymentSuccessPage.vue'),
-        meta: { title: 'Payment Success' },
       },
       {
         path: 'profile',
