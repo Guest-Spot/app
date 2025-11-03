@@ -150,7 +150,7 @@
     >
       <div class="info-section">
         <!-- Not Configured State -->
-        <div v-if="!user?.payoutsEnabled" class="payment-not-configured flex column items-center justify-center">
+        <div v-if="!user?.stripeAccountID" class="payment-not-configured flex column items-center justify-center">
           <div class="q-mb-md text-body2 text-grey-7">
             Configure your payment settings to receive payments from clients
           </div>
@@ -165,6 +165,39 @@
               @click="setupStripeAccount"
               :loading="stripeSetupLoading"
               :disable="stripeSetupLoading"
+            />
+            <q-btn
+              round
+              outline
+              color="primary"
+              icon="refresh"
+              @click="checkStripeStatus"
+              :loading="stripeStatusLoading"
+              :disable="stripeStatusLoading"
+            />
+          </div>
+        </div>
+
+        <!-- Setup Incomplete State -->
+        <div v-else-if="user?.stripeAccountID && user?.payoutsEnabled !== true" class="payment-setup-incomplete flex column items-start justify-center">
+          <div class="flex items-start justify-start q-mb-md">
+            <q-icon name="warning" color="warning" size="24px" class="q-mr-sm" />
+            <span class="text-body1 text-weight-medium">Complete Stripe account setup</span>
+          </div>
+          <div class="q-mb-md text-body2 text-grey-7">
+            Your Stripe account has been created, but the setup is incomplete. Please complete the setup to enable payouts.
+          </div>
+          <div class="flex q-gap-sm full-width no-wrap">
+            <q-btn
+              rounded
+              unelevated
+              color="primary"
+              label="Continue setup"
+              icon="payment"
+              class="full-width"
+              @click="openStripeDashboard"
+              :loading="stripeDashboardLoading"
+              :disable="stripeDashboardLoading"
             />
             <q-btn
               round
