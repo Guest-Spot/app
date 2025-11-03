@@ -135,7 +135,6 @@
             clearable
             suffix="years"
             v-model.number="artistData.experience"
-            :rules="[(val) => val >= 1 || 'Experience must be at least 1 year']"
           />
         </div>
       </div>
