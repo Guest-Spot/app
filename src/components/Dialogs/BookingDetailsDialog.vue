@@ -86,6 +86,13 @@
             />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
+
+            <InfoCard
+              v-if="canInitiatePayment && paymentData.length"
+              title="Payment"
+              icon="payment"
+              :data="paymentData"
+            />
           </div>
         </div>
       </q-card-section>
@@ -124,7 +131,7 @@
               @click="handleCancelBooking"
             />
             <q-btn
-              :label="depositAmount ? `Pay Deposit ($${depositAmount.toFixed(2)})` : 'Pay Deposit'"
+              :label="totalPaymentAmount ? `Pay Deposit ($${totalPaymentAmount.toFixed(2)})` : 'Pay Deposit'"
               color="primary"
               rounded
               class="full-width"
@@ -229,6 +236,20 @@ const artist = computed<IUser | null>(() => {
 const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
 const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
 
+// Platform commission calculated from platformFeePercent
+const platformCommission = computed(() => {
+  if (!depositAmount.value || !props.booking?.platformFeePercent) return 0;
+  const feePercent = props.booking.platformFeePercent / 100; // Convert percentage to decimal
+  return Math.round(depositAmount.value * feePercent * 100) / 100; // Round to 2 decimal places
+});
+
+// Total payment amount (deposit + platform commission)
+const totalPaymentAmount = computed(() => {
+  const deposit = depositAmount.value ?? 0;
+  const commission = platformCommission.value;
+  return deposit + commission;
+});
+
 // Show deposit only for paid or authorized bookings
 const showDeposit = computed(() => {
   const paymentStatus = props.booking?.paymentStatus;
@@ -319,6 +340,24 @@ const descriptionData = computed(() => {
   ].filter((item) => item.value);
 });
 
+// Payment data for InfoCard
+const paymentData = computed(() => {
+  if (!canInitiatePayment.value || !depositAmount.value) return [];
+
+  const data: { label: string; value: string; className?: string }[] = [
+    {
+      label: 'Deposit',
+      value: `$${depositAmount.value.toFixed(2)}`,
+    },
+    {
+      label: 'Platform Commission',
+      value: `$${platformCommission.value.toFixed(2)}`,
+    },
+  ];
+
+  return data;
+});
+
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
 
 const isCurrentUserArtist = computed(() => userStore.getIsArtist);
@@ -327,7 +366,8 @@ const canInitiatePayment = computed(() => {
   return (
     !isCurrentUserArtist.value &&
     props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid &&
-    artist.value?.payoutsEnabled === true
+    artist.value?.payoutsEnabled === true &&
+    artist.value.depositAmount !== null
   );
 });
 

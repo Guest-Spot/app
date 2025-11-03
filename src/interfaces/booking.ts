@@ -26,6 +26,7 @@ export interface IBooking {
   updatedAt?: string | null;
   artistDocumentId?: string | null;
   shopDocumentId?: string | null;
+  platformFeePercent?: number | null;
   references: IPicture[];
   artist?:
     | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience' | 'payoutsEnabled' | 'depositAmount'> & {

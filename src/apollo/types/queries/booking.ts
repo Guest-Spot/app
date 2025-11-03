@@ -20,6 +20,7 @@ export const BOOKINGS_QUERY = gql`
       paymentStatus
       reaction
       rejectNote
+      platformFeePercent
       references {
         url
       }
