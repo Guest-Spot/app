@@ -531,7 +531,6 @@ onDoneGetStripeDashboardUrl((result) => {
   if (url) {
     try {
       void openStripeUrl(url);
-      showSuccess('Opening Stripe dashboard...');
     } catch (error) {
       console.error('Error opening URL:', error);
       showError('Error opening Stripe dashboard');
@@ -581,11 +580,6 @@ onErrorCheckStripeAccountStatus((error) => {
 const handleBrowserFinished = async () => {
   console.log('Browser closed, refreshing user data...');
   await fetchMe();
-
-  // Check if payment is now configured
-  if (user.value?.payoutsEnabled) {
-    showSuccess('Payment settings updated successfully');
-  }
 };
 
 // Setup browser finished listener on mount
