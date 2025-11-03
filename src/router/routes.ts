@@ -26,6 +26,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Payment Success',
   },
   {
+    path: '/payment-failure',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [{ path: '', component: () => import('pages/PaymentFailurePage.vue') }],
+    name: 'Payment Failure',
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
