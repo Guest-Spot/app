@@ -242,9 +242,9 @@ const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount 
 
 // Platform commission calculated from global settings
 const platformCommission = computed(() => {
-  const platformFeePercent = settingsStore.getPlatformFeePercent;
-  if (!depositAmount.value || !platformFeePercent) return 0;
-  const feePercent = platformFeePercent / 100; // Convert percentage to decimal
+  const totalFeePercent = settingsStore.getTotalFeePercent;
+  if (!depositAmount.value || !totalFeePercent) return 0;
+  const feePercent = totalFeePercent / 100; // Convert percentage to decimal
   return Math.round(depositAmount.value * feePercent * 100) / 100; // Round to 2 decimal places
 });
 

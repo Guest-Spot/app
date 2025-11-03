@@ -9,6 +9,8 @@ export const useSettingsStore = defineStore('settings', {
   getters: {
     getSettings: (state) => state.settings,
     getPlatformFeePercent: (state) => state.settings?.platformFeePercent ?? null,
+    getStripeFeePercent: (state) => state.settings?.stripeFeePercent ?? null,
+    getTotalFeePercent: (state) => state.settings?.totalFeePercent ?? null,
     getIsLoading: (state) => state.isLoading,
   },
   actions: {
