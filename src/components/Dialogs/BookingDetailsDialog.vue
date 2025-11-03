@@ -174,10 +174,12 @@ import { InfoCard } from 'src/components';
 import { ImagePreviewDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import { useUserStore } from 'src/stores/user';
+import { useSettingsStore } from 'src/stores/settings';
 import { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
 import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useNotify from 'src/modules/useNotify';
 import useBookingPayment from 'src/composables/useBookingPayment';
+import useSettings from 'src/composables/useSettings';
 import { centsToDollars } from 'src/helpers/currency';
 import { DELETE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 
@@ -212,11 +214,13 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 const $q = useQuasar();
 const userStore = useUserStore();
+const settingsStore = useSettingsStore();
 const { showSuccess, showError } = useNotify();
 const {
   initiatePayment: initiateBookingPayment,
   isProcessing: isPaymentProcessing,
 } = useBookingPayment();
+const { fetchSettings } = useSettings();
 const { mutate: deleteBookingMutation, loading: isCancelProcessing } = useMutation<
   DeleteBookingResponse,
   DeleteBookingVariables
@@ -236,10 +240,11 @@ const artist = computed<IUser | null>(() => {
 const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
 const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
 
-// Platform commission calculated from platformFeePercent
+// Platform commission calculated from global settings
 const platformCommission = computed(() => {
-  if (!depositAmount.value || !props.booking?.platformFeePercent) return 0;
-  const feePercent = props.booking.platformFeePercent / 100; // Convert percentage to decimal
+  const platformFeePercent = settingsStore.getPlatformFeePercent;
+  if (!depositAmount.value || !platformFeePercent) return 0;
+  const feePercent = platformFeePercent / 100; // Convert percentage to decimal
   return Math.round(depositAmount.value * feePercent * 100) / 100; // Round to 2 decimal places
 });
 
@@ -564,7 +569,10 @@ watch(
   () => props.modelValue,
   (newValue) => {
     isVisible.value = newValue;
-    if (!newValue) {
+    if (newValue) {
+      // Load settings if not already loaded
+      fetchSettings();
+    } else {
       isPaymentProcessing.value = false;
     }
   },
