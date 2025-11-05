@@ -190,6 +190,7 @@ const refetchBookings = async () => {
 };
 
 const handleBrowserFinished = async () => {
+  showDetailsDialog.value = false;
   await refetchBookings();
 };
 
