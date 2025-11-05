@@ -52,7 +52,7 @@
                 outlined
                 dense
                 rounded
-                mask="+(###) ### - ####"
+                :mask="PHONE_INPUT_MASK"
                 placeholder="Enter your phone"
                 :rules="[rules.required('Phone')]"
               />
@@ -118,6 +118,7 @@
 import { computed, ref, type PropType } from 'vue';
 import type { QForm } from 'quasar';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
+import { PHONE_INPUT_MASK } from 'src/constants/masks';
 
 type Rules = {
   required: (field: string) => (val: string | null | undefined) => true | string;

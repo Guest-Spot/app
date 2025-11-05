@@ -4,6 +4,17 @@
     :class="{ pending: booking.reaction === EReactions.Pending }"
     @click="handleClick"
   >
+    <div
+      class="q-mb-md full-width flex items-center justify-between bg-block border-radius-lg q-pr-xs q-pl-md q-py-xs"
+    >
+      <div class="section-label text-grey-6">Status</div>
+      <div class="status-badge status-info flex items-center" :class="`status-badge--${statusInfo.variant}`">
+        <q-icon v-if="statusInfo.icon" :name="statusInfo.icon" size="16px" class="q-mr-xs" />
+        <span>{{ statusInfo.label }}</span>
+      </div>
+    </div>
+
+    <!-- Booking Header -->
     <div class="card-header">
       <div class="user-info">
         <q-avatar size="40px" class="q-mr-sm bg-block">
@@ -18,14 +29,12 @@
         </q-avatar>
         <div class="flex column">
           <div class="user-role text-grey-6 text-caption">Artist</div>
-          <div class="user-name">{{ booking.artist.name }}</div>
+          <div class="user-name">{{ booking.artist?.name }}</div>
         </div>
-      </div>
-      <div class="status-badge absolute-top-right q-mr-md q-mt-md" :class="booking.reaction">
-        {{ getStatusLabel(booking.reaction) }}
       </div>
     </div>
 
+    <!-- Booking Content -->
     <div class="card-content">
       <!-- Location -->
       <div v-if="booking.location" class="location-info q-mb-xs text-grey-6">
@@ -40,9 +49,18 @@
       </div>
 
       <!-- Time -->
-      <div class="time-info text-grey-6">
+      <div class="time-info q-mb-xs text-grey-6">
         <q-icon name="schedule" size="16px" />
         <span>{{ formattedTime }}</span>
+      </div>
+
+      <!-- Deposit Info -->
+      <div
+        v-if="showDeposit && depositAmount"
+        class="deposit-info q-mb-xs text-warning"
+      >
+        <q-icon name="payment" size="16px" />
+        <span>Deposit: ${{ depositAmount.toFixed(2) }}</span>
       </div>
 
       <!-- Reference Images Count -->
@@ -70,8 +88,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
-import { EReactions } from 'src/interfaces/enums';
+import { EReactions, EBookingPaymentStatus } from 'src/interfaces/enums';
+import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
+import { centsToDollars } from 'src/helpers/currency';
 
 interface Props {
   booking: IBooking;
@@ -87,7 +107,7 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 
 const formattedDate = computed(() => {
-  const date = new Date(props.booking.day);
+  const date = new Date(props.booking.day || '');
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -96,17 +116,20 @@ const formattedDate = computed(() => {
 });
 
 const formattedTime = computed(() => {
-  return formatTime(props.booking.start);
+  return formatTime(props.booking.start || '');
 });
 
-const getStatusLabel = (status: IBooking['reaction']) => {
-  const statusMap = {
-    [EReactions.Pending]: 'Pending',
-    [EReactions.Accepted]: 'Accepted',
-    [EReactions.Rejected]: 'Rejected',
-  };
-  return statusMap[status as keyof typeof statusMap];
-};
+const statusInfo = computed(() => getBookingStatusInfo(props.booking, props.booking.artist?.payoutsEnabled));
+
+const depositAmount = computed(() => centsToDollars(props.booking.artist?.depositAmount));
+
+// Show deposit only for paid or authorized bookings
+const showDeposit = computed(() => {
+  const paymentStatus = props.booking?.paymentStatus;
+  return depositAmount.value !== null &&
+         (paymentStatus === EBookingPaymentStatus.Paid ||
+          paymentStatus === EBookingPaymentStatus.Authorized);
+});
 
 const handleClick = () => {
   emit('click', props.booking);
@@ -121,6 +144,41 @@ const handleClick = () => {
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+
+    &--warning {
+      background: rgba(242, 192, 55, 0.15);
+      color: #f2c037;
+    }
+
+    &--positive {
+      background: rgba(33, 186, 69, 0.15);
+      color: #21ba45;
+    }
+
+    &--negative {
+      background: rgba(193, 0, 21, 0.15);
+      color: var(--q-negative);
+    }
+
+    &--info {
+      background: rgba(49, 204, 236, 0.15);
+      color: #31ccec;
+    }
+
+    &--neutral {
+      background: rgba(0, 0, 0, 0.08);
+      color: #757575;
+    }
   }
 
   .card-header {
@@ -143,34 +201,6 @@ const handleClick = () => {
         margin-top: 2px;
       }
     }
-
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 600;
-
-      &.pending {
-        background: rgba(242, 192, 55, 0.15);
-        color: #f2c037;
-      }
-
-      &.accepted {
-        background: rgba(33, 186, 69, 0.15);
-        color: #21ba45;
-      }
-
-      &.rejected,
-      &.cancelled {
-        background: rgba(193, 0, 21, 0.15);
-        color: var(--q-negative);
-      }
-
-      &.completed {
-        background: rgba(49, 204, 236, 0.15);
-        color: #31ccec;
-      }
-    }
   }
 
   .card-content {
@@ -187,7 +217,8 @@ const handleClick = () => {
 
     .date-info,
     .time-info,
-    .location-info {
+    .location-info,
+    .deposit-info {
       display: flex;
       align-items: center;
       gap: 8px;

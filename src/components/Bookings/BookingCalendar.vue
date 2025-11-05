@@ -52,6 +52,19 @@
               :class="getEventClass(booking)"
               @click="openBookingDetails(booking)"
             >
+              <div
+                class="event-status-chip flex items-center q-gap-xs"
+                :class="`event-status-chip--${getReactionStatusType(booking.reaction)}`"
+              >
+                <q-icon
+                  :name="getReactionIcon(booking.reaction)"
+                  size="14px"
+                  :color="getReactionColor(booking.reaction)"
+                />
+                <span class="text-weight-medium" :class="`text-${getReactionColor(booking.reaction)}`">
+                  {{ getReactionLabel(booking.reaction) }}
+                </span>
+              </div>
               <div class="flex items-start justify-between q-gap-sm">
                 <div class="flex items-start q-gap-sm no-wrap flex-1">
                   <!-- Avatar (if artist available) -->
@@ -79,9 +92,22 @@
                         <q-icon name="person" size="14px" />
                         <span class="text-bold">{{ getDisplayName(booking) }}</span>
                       </div>
-                      <div class="flex items-center q-gap-xs">
+                      <div class="flex items-center q-gap-xs q-mb-xs">
                         <q-icon name="schedule" size="14px" color="grey-6" />
                         <span class="text-grey-6">{{ formatTime(booking.start || '') }}</span>
+                      </div>
+                      <div
+                        v-if="shouldShowDeposit(booking)"
+                        class="flex items-center q-gap-xs"
+                      >
+                        <q-icon
+                          name="payment"
+                          size="14px"
+                          :color="getReactionColor(booking.reaction)"
+                        />
+                        <span :class="`text-${getReactionColor(booking.reaction)}`">
+                          Deposit: ${{ getDepositAmount(booking).toFixed(2) }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -107,6 +133,7 @@
       v-model="showDetailsDialog"
       :booking="selectedBooking"
       @update:booking-reaction="handleBookingReactionUpdate"
+      @cancel-booking="handleBookingCancellation"
     />
   </div>
 </template>
@@ -120,9 +147,10 @@ import { NoResult } from 'src/components';
 import { BookingDetailsDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
-import { EReactions } from 'src/interfaces/enums';
+import { EReactions, EBookingPaymentStatus } from 'src/interfaces/enums';
 import { UPDATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 import useNotify from 'src/modules/useNotify';
+import { centsToDollars } from 'src/helpers/currency';
 import BookingCalendarHeader from './BookingCalendarHeader.vue';
 
 interface DayGroup {
@@ -395,7 +423,7 @@ const updateLocalBookingReaction = (documentId: string, reaction: EReactions) =>
     reaction,
   };
 
-  internalBookings.value.splice(bookingIndex, 1, updatedBooking);
+  internalBookings.value.splice(bookingIndex, 1, updatedBooking as IBooking);
 
   if (selectedBooking.value?.documentId === documentId) {
     selectedBooking.value = {
@@ -436,30 +464,16 @@ const handleBookingReactionUpdate = async ({
   }
 };
 
-// Initialize date from URL query parameter on mount
-onMounted(() => {
-  const dateQuery = route.query.date as string | undefined;
+const handleBookingCancellation = (documentId: string) => {
+  internalBookings.value = internalBookings.value.filter(
+    (booking) => booking.documentId !== documentId,
+  );
 
-  if (dateQuery) {
-    try {
-      // Parse date in format YYYY-MM or YYYY-MM-DD
-      const dateParts = dateQuery.split('-');
-
-      if (dateParts.length >= 2 && dateParts[0] && dateParts[1]) {
-        const year = parseInt(dateParts[0], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
-
-        if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) {
-          currentDate.value = new Date(year, month, 1);
-          hasInitializedDate.value = true;
-        }
-      }
-    } catch {
-      // If parsing fails, just use default date
-      console.warn('Failed to parse date from query parameter:', dateQuery);
-    }
+  if (selectedBooking.value?.documentId === documentId) {
+    selectedBooking.value = null;
+    showDetailsDialog.value = false;
   }
-});
+};
 
 // Methods
 const getWeekStart = (date: Date): Date => {
@@ -532,6 +546,70 @@ const getDisplayName = (booking: IBooking): string => {
   return booking.artist?.name || 'Artist';
 };
 
+const getReactionLabel = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'Accepted';
+    case EReactions.Rejected:
+      return 'Rejected';
+    case EReactions.Pending:
+    default:
+      return 'Pending';
+  }
+};
+
+const getReactionColor = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'positive';
+    case EReactions.Rejected:
+      return 'negative';
+    case EReactions.Pending:
+      return 'warning';
+    default:
+      return 'grey-6';
+  }
+};
+
+const getReactionIcon = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'check_circle';
+    case EReactions.Rejected:
+      return 'cancel';
+    case EReactions.Pending:
+      return 'hourglass_top';
+    default:
+      return 'help_outline';
+  }
+};
+
+const getReactionStatusType = (reaction?: EReactions | null): string => {
+  switch (reaction) {
+    case EReactions.Accepted:
+      return 'positive';
+    case EReactions.Rejected:
+      return 'negative';
+    case EReactions.Pending:
+      return 'warning';
+    default:
+      return 'default';
+  }
+};
+
+const getDepositAmount = (booking: IBooking): number => {
+  const depositAmount = centsToDollars(booking.artist?.depositAmount);
+  return depositAmount || 0;
+};
+
+const shouldShowDeposit = (booking: IBooking): boolean => {
+  const depositAmount = centsToDollars(booking.artist?.depositAmount);
+  const paymentStatus = booking.paymentStatus;
+  return depositAmount !== null &&
+         (paymentStatus === EBookingPaymentStatus.Paid ||
+          paymentStatus === EBookingPaymentStatus.Authorized);
+};
+
 const openBookingDetails = (booking: IBooking) => {
   selectedBooking.value = booking;
   showDetailsDialog.value = true;
@@ -574,6 +652,31 @@ const goToToday = () => {
 
   currentDate.value = today;
 };
+
+// Initialize date from URL query parameter on mount
+onMounted(() => {
+  const dateQuery = route.query.date as string | undefined;
+
+  if (dateQuery) {
+    try {
+      // Parse date in format YYYY-MM or YYYY-MM-DD
+      const dateParts = dateQuery.split('-');
+
+      if (dateParts.length >= 2 && dateParts[0] && dateParts[1]) {
+        const year = parseInt(dateParts[0], 10);
+        const month = parseInt(dateParts[1], 10) - 1; // Month is 0-indexed
+
+        if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) {
+          currentDate.value = new Date(year, month, 1);
+          hasInitializedDate.value = true;
+        }
+      }
+    } catch {
+      // If parsing fails, just use default date
+      console.warn('Failed to parse date from query parameter:', dateQuery);
+    }
+  }
+});
 </script>
 
 <style scoped lang="scss">
@@ -618,6 +721,39 @@ const goToToday = () => {
             position: relative;
             transition: all 0.2s ease;
             border-left: 4px solid transparent;
+
+            .event-status-chip {
+              position: absolute;
+              top: 8px;
+              right: 8px;
+              padding: 4px 10px;
+              border-radius: 9999px;
+              background: rgba(96, 125, 139, 0.1);
+              color: #607d8b;
+              font-size: 12px;
+              line-height: 1;
+              text-transform: none;
+
+              &--positive {
+                background: rgba(33, 186, 69, 0.15);
+                color: #21ba45;
+              }
+
+              &--warning {
+                background: rgba(242, 192, 55, 0.2);
+                color: #f2c037;
+              }
+
+              &--negative {
+                background: rgba(193, 0, 21, 0.15);
+                color: #c10015;
+              }
+
+              &--default {
+                background: rgba(96, 125, 139, 0.1);
+                color: #607d8b;
+              }
+            }
 
             &.event-primary {
               background: rgba(49, 204, 236, 0.08);
@@ -697,6 +833,31 @@ const goToToday = () => {
   .booking-calendar {
     .calendar-events {
       .event-card {
+        .event-status-chip {
+          background: rgba(255, 255, 255, 0.08);
+          color: #e0e0e0;
+
+          &--positive {
+            background: rgba(33, 186, 69, 0.2);
+            color: #27e066;
+          }
+
+          &--warning {
+            background: rgba(242, 192, 55, 0.25);
+            color: #f7d369;
+          }
+
+          &--negative {
+            background: rgba(193, 0, 21, 0.2);
+            color: #ff6e7c;
+          }
+
+          &--default {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e0e0e0;
+          }
+        }
+
         &.event-primary {
           background: rgba(49, 204, 236, 0.1);
         }

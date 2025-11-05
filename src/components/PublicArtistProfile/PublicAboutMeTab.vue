@@ -71,5 +71,6 @@ const links = computed(() => [
     value: props.artistData.link || '',
     type: InfoItemType.Link,
   },
-]);
+].filter((item) => item.value),
+);
 </script>

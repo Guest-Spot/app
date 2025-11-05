@@ -16,12 +16,16 @@
 
       <q-card-section v-if="booking" class="dialog-content">
         <!-- Status Badge for Artist View -->
-        <div
-          class="status-section flex items-center justify-between bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md"
-        >
-          <div class="section-label text-grey-6">Status</div>
-          <div class="status-badge text-caption text-bold" :class="booking.reaction">
-            {{ getStatusLabel(booking.reaction) }}
+        <div class="status-section flex column bg-block border-radius-lg q-pr-sm q-pl-md q-py-sm q-mb-md">
+          <div class="status-row flex items-center justify-between">
+            <div class="section-label text-grey-6">Status</div>
+            <div
+              class="status-chip text-caption text-bold"
+              :class="`status-chip--${bookingStatus.variant}`"
+            >
+              <q-icon v-if="bookingStatus.icon" :name="bookingStatus.icon" size="16px" class="q-mr-xs" />
+              <span>{{ bookingStatus.label }}</span>
+            </div>
           </div>
         </div>
 
@@ -82,6 +86,13 @@
             />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
+
+            <InfoCard
+              v-if="canInitiatePayment && paymentData.length"
+              title="Payment"
+              icon="payment"
+              :data="paymentData"
+            />
           </div>
         </div>
       </q-card-section>
@@ -106,14 +117,40 @@
             />
           </div>
         </template>
-        <q-btn
-          v-else
-          label="Close"
-          rounded
-          unelevated
-          class="full-width bg-block"
-          @click="closeDialog"
-        />
+        <template v-else>
+          <div v-if="canInitiatePayment" class="dialog-actions__controls">
+            <q-btn
+              v-if="canCancelBooking"
+              label="Cancel"
+              color="negative"
+              rounded
+              flat
+              class="bg-block"
+              :loading="isCancelProcessing"
+              :disable="actionsDisabled"
+              @click="handleCancelBooking"
+            />
+            <q-btn
+              :label="totalPaymentAmount ? `Pay Deposit ($${totalPaymentAmount.toFixed(2)})` : 'Pay Deposit'"
+              color="primary"
+              rounded
+              class="full-width"
+              icon="payment"
+              :loading="isPaymentProcessing"
+              :disable="actionsDisabled"
+              @click="handlePayment"
+            />
+          </div>
+          <q-btn
+            v-else
+            label="Close"
+            rounded
+            unelevated
+            class="full-width bg-block"
+            :disable="actionsDisabled"
+            @click="closeDialog"
+          />
+        </template>
       </q-card-actions>
 
       <ImagePreviewDialog
@@ -127,6 +164,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import { useMutation } from '@vue/apollo-composable';
 import { useQuasar } from 'quasar';
 import type { IBooking } from 'src/interfaces/booking';
 import type { IUser } from 'src/interfaces/user';
@@ -136,8 +174,14 @@ import { InfoCard } from 'src/components';
 import { ImagePreviewDialog } from 'src/components/Dialogs';
 import useDate from 'src/modules/useDate';
 import { useUserStore } from 'src/stores/user';
-import { EReactions } from 'src/interfaces/enums';
+import { useSettingsStore } from 'src/stores/settings';
+import { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
+import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useNotify from 'src/modules/useNotify';
+import useBookingPayment from 'src/composables/useBookingPayment';
+import useSettings from 'src/composables/useSettings';
+import { centsToDollars } from 'src/helpers/currency';
+import { DELETE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 
 interface Props {
   modelValue: boolean;
@@ -150,9 +194,18 @@ interface BookingReactionUpdatePayload {
   rejectNote?: string | undefined;
 }
 
+interface DeleteBookingResponse {
+  deleteBooking: Pick<IBooking, 'documentId'> | null;
+}
+
+interface DeleteBookingVariables {
+  documentId: string;
+}
+
 interface Emits {
   (e: 'update:modelValue', value: boolean): void;
   (e: 'update:booking-reaction', value: BookingReactionUpdatePayload): void;
+  (e: 'cancel-booking', value: string): void;
 }
 
 const props = defineProps<Props>();
@@ -161,7 +214,17 @@ const emit = defineEmits<Emits>();
 const { formatTime } = useDate();
 const $q = useQuasar();
 const userStore = useUserStore();
-const { showSuccess } = useNotify();
+const settingsStore = useSettingsStore();
+const { showSuccess, showError } = useNotify();
+const {
+  initiatePayment: initiateBookingPayment,
+  isProcessing: isPaymentProcessing,
+} = useBookingPayment();
+const { fetchSettings } = useSettings();
+const { mutate: deleteBookingMutation, loading: isCancelProcessing } = useMutation<
+  DeleteBookingResponse,
+  DeleteBookingVariables
+>(DELETE_BOOKING_MUTATION);
 
 const isVisible = ref(props.modelValue);
 const isImagePreviewVisible = ref(false);
@@ -174,11 +237,37 @@ const artist = computed<IUser | null>(() => {
   return props.booking.artist as IUser;
 });
 
+const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
+const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
+
+// Platform commission calculated from global settings
+const platformCommission = computed(() => {
+  const totalFeePercent = settingsStore.getTotalFeePercent;
+  if (!depositAmount.value || !totalFeePercent) return 0;
+  const feePercent = totalFeePercent / 100; // Convert percentage to decimal
+  return Math.round(depositAmount.value * feePercent * 100) / 100; // Round to 2 decimal places
+});
+
+// Total payment amount (deposit + platform commission)
+const totalPaymentAmount = computed(() => {
+  const deposit = depositAmount.value ?? 0;
+  const commission = platformCommission.value;
+  return deposit + commission;
+});
+
+// Show deposit only for paid or authorized bookings
+const showDeposit = computed(() => {
+  const paymentStatus = props.booking?.paymentStatus;
+  return depositAmount.value !== null &&
+         (paymentStatus === EBookingPaymentStatus.Paid ||
+          paymentStatus === EBookingPaymentStatus.Authorized);
+});
+
 // Session details data for InfoCard
 const sessionDetailsData = computed(() => {
   if (!props.booking) return [];
 
-  const data = [
+  const data: { label: string; value: string; className?: string }[] = [
     {
       label: 'Date',
       value: formatDate(props.booking.day || ''),
@@ -188,6 +277,15 @@ const sessionDetailsData = computed(() => {
       value: formatTime(props.booking.start || ''),
     },
   ];
+
+  // Add deposit amount if paid or authorized
+  if (showDeposit.value && depositAmount.value) {
+    data.push({
+      label: 'Deposit',
+      value: `$${depositAmount.value.toFixed(2)}`,
+      className: 'text-warning',
+    });
+  }
 
   if (props.booking.location) {
     data.push({
@@ -244,12 +342,54 @@ const descriptionData = computed(() => {
       label: 'Size',
       value: props.booking?.size || '',
     },
-  ].filter(Boolean);
+  ].filter((item) => item.value);
+});
+
+// Payment data for InfoCard
+const paymentData = computed(() => {
+  if (!canInitiatePayment.value || !depositAmount.value) return [];
+
+  const data: { label: string; value: string; className?: string }[] = [
+    {
+      label: 'Deposit',
+      value: `$${depositAmount.value.toFixed(2)}`,
+    },
+    {
+      label: 'Platform Commission',
+      value: `$${platformCommission.value.toFixed(2)}`,
+    },
+  ];
+
+  return data;
 });
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);
 
 const isCurrentUserArtist = computed(() => userStore.getIsArtist);
+
+const canInitiatePayment = computed(() => {
+  return (
+    !isCurrentUserArtist.value &&
+    props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid &&
+    artist.value?.payoutsEnabled === true &&
+    artist.value.depositAmount !== null
+  );
+});
+
+const canCancelBooking = computed(() => {
+  if (isCurrentUserArtist.value) {
+    return false;
+  }
+
+  if (!props.booking) {
+    return false;
+  }
+
+  return (
+    props.booking.reaction === EReactions.Pending &&
+    props.booking.paymentStatus === EBookingPaymentStatus.Unpaid
+  );
+});
 
 const canRespondToBooking = computed(() => {
   const isPending = props.booking?.reaction === EReactions.Pending;
@@ -257,14 +397,7 @@ const canRespondToBooking = computed(() => {
   return Boolean(isCurrentUserArtist.value && isPending);
 });
 
-const getStatusLabel = (reaction: IBooking['reaction']): string => {
-  const labels = {
-    pending: 'Pending',
-    accepted: 'Accepted',
-    rejected: 'Rejected',
-  };
-  return labels[reaction] || reaction;
-};
+const actionsDisabled = computed(() => isPaymentProcessing.value || isCancelProcessing.value);
 
 const formatDate = (dateStr: string): string => {
   if (!dateStr) return '—';
@@ -284,12 +417,61 @@ const viewArtistProfile = () => {
 
 const closeDialog = () => {
   isVisible.value = false;
+  isPaymentProcessing.value = false;
 };
 
 const openImagePreview = (src?: string | null) => {
   if (!src) return;
   previewImageSrc.value = src;
   isImagePreviewVisible.value = true;
+};
+
+const handlePayment = async () => {
+  await initiateBookingPayment(props.booking?.documentId);
+};
+
+const handleCancelBooking = () => {
+  const documentId = props.booking?.documentId;
+
+  if (!documentId) {
+    showError('Booking not found. Please try again.');
+    return;
+  }
+
+  $q.dialog({
+    title: 'Cancel Booking',
+    message: 'Are you sure you want to cancel this booking request?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Keep Booking',
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Cancel Booking',
+    },
+  }).onOk(() => {
+    void (async () => {
+      try {
+        const response = await deleteBookingMutation({ documentId });
+
+        const deletedDocumentId = response?.data?.deleteBooking?.documentId;
+
+        if (!deletedDocumentId) {
+          showError('Failed to cancel booking. Please try again.');
+          return;
+        }
+
+        showSuccess('Booking request cancelled');
+        emit('cancel-booking', deletedDocumentId);
+        closeDialog();
+      } catch (error) {
+        console.error('Failed to cancel booking:', error);
+        showError('Failed to cancel booking. Please try again.');
+      }
+    })();
+  });
 };
 
 const confirmReactionChange = (reaction: EReactions) => {
@@ -387,6 +569,12 @@ watch(
   () => props.modelValue,
   (newValue) => {
     isVisible.value = newValue;
+    if (newValue) {
+      // Load settings if not already loaded
+      fetchSettings();
+    } else {
+      isPaymentProcessing.value = false;
+    }
   },
 );
 
@@ -395,8 +583,16 @@ watch(isVisible, (newValue) => {
   if (!newValue) {
     isImagePreviewVisible.value = false;
     previewImageSrc.value = null;
+    isPaymentProcessing.value = false;
   }
 });
+
+watch(
+  () => props.booking?.documentId,
+  () => {
+    isPaymentProcessing.value = false;
+  },
+);
 
 watch(isImagePreviewVisible, (newValue) => {
   if (!newValue) {
@@ -438,33 +634,6 @@ watch(isImagePreviewVisible, (newValue) => {
       }
     }
 
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-
-      &.pending {
-        background: rgba(242, 192, 55, 0.15);
-        color: #f2c037;
-      }
-
-      &.accepted {
-        background: rgba(33, 186, 69, 0.15);
-        color: #21ba45;
-      }
-
-      &.rejected,
-      &.cancelled {
-        background: rgba(193, 0, 21, 0.15);
-        color: #c10015;
-      }
-
-      &.completed {
-        background: rgba(49, 204, 236, 0.15);
-        color: #31ccec;
-      }
-    }
-
     .section-label {
       font-size: 14px;
       font-weight: 600;
@@ -473,6 +642,45 @@ watch(isImagePreviewVisible, (newValue) => {
 
     .status-section {
       padding-bottom: 8px;
+    }
+
+    .status-row {
+      gap: 12px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+
+      &--positive {
+        background: rgba(33, 186, 69, 0.12);
+        color: #21ba45;
+      }
+
+      &--warning {
+        background: rgba(242, 192, 55, 0.12);
+        color: #f2c037;
+      }
+
+      &--negative {
+        background: rgba(193, 0, 21, 0.12);
+        color: #c10015;
+      }
+
+      &--neutral {
+        background: rgba(0, 0, 0, 0.06);
+        color: #757575;
+      }
+
+      &--info {
+        background: rgba(49, 204, 236, 0.12);
+        color: #31ccec;
+      }
     }
 
     .reject-note {

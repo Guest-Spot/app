@@ -1,5 +1,5 @@
 import type { IUser } from 'src/interfaces/user';
-import type { EReactions } from 'src/interfaces/enums';
+import type { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
 import type { IPicture } from './common';
 
 export interface IBooking {
@@ -17,6 +17,7 @@ export interface IBooking {
   endTime?: string | null;
   date?: string | null;
   location?: string | null;
+  paymentStatus?: EBookingPaymentStatus | null;
   reaction: EReactions;
   rejectNote?: string | null;
   status?: string | null;
@@ -27,7 +28,7 @@ export interface IBooking {
   shopDocumentId?: string | null;
   references: IPicture[];
   artist?:
-    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience'> & {
+    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience' | 'payoutsEnabled' | 'depositAmount'> & {
         avatar?: IPicture | null;
         parent?: Pick<IUser, 'documentId' | 'name'> | null;
       })
@@ -81,4 +82,10 @@ export interface IBookingCreateResponse {
 
 export interface IBookingsQueryResponse {
   bookings: IBooking[];
+}
+
+export interface IBookingPaymentSession {
+  booking: Pick<IBooking, 'documentId'>;
+  sessionId: string;
+  sessionUrl: string;
 }

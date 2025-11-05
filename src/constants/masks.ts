@@ -1,1 +1,1 @@
-export const PHONE_INPUT_MASK = '+(###) ### - ####';
+export const PHONE_INPUT_MASK = '+1 (###) ###-####';

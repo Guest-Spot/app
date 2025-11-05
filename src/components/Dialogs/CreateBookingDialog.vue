@@ -9,8 +9,8 @@
   />
   <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
 
-  <q-dialog v-model="isVisible" position="bottom" maximized no-route-dismiss>
-    <q-card class="create-booking-dialog">
+  <q-dialog v-model="isVisible" position="bottom" no-route-dismiss>
+    <q-card class="create-booking-dialog full-height">
       <q-card-section class="dialog-header">
         <div class="text-subtitle1 text-bold">Create Booking Request</div>
         <q-btn
@@ -75,13 +75,21 @@
           />
 
           <ScheduleStep
-            v-else
+            v-else-if="currentStep === 3"
             ref="scheduleStepRef"
             v-model:day="schedule.day"
             v-model:start-time="schedule.startTime"
             :opening-hours="shopOpeningHours || []"
             :disabled-days="artistUnavailableDays"
             :rules="rules"
+          />
+
+          <PaymentStep
+            v-else-if="currentStep === 4"
+            :loading="isPaymentProcessing"
+            :disabled="isPaymentProcessing"
+            :deposit-amount="selectedArtistDepositAmount || 0"
+            @on-pay="handlePayment"
           />
         </div>
       </q-card-section>
@@ -90,6 +98,14 @@
         <q-btn
           v-if="isAtFirstStep"
           label="Cancel"
+          rounded
+          unelevated
+          class="bg-block"
+          @click="closeDialog"
+        />
+        <q-btn
+          v-else-if="currentStep === 4"
+          label="Pay later"
           rounded
           unelevated
           class="bg-block"
@@ -107,7 +123,7 @@
             @click="goToNextStep"
           />
           <q-btn
-            v-else
+            v-else-if="currentStep === 3"
             label="Submit Request"
             color="primary"
             rounded
@@ -115,6 +131,17 @@
             :disable="isSubmitDisabled"
             :loading="isSubmitting"
             @click="onSubmit"
+          />
+          <q-btn
+            v-else-if="currentStep === 4"
+            label="Pay Deposit"
+            color="primary"
+            icon="payments"
+            rounded
+            unelevated
+            :disable="isPaymentProcessing"
+            :loading="isPaymentProcessing"
+            @click="handlePayment"
           />
         </div>
       </q-card-actions>
@@ -129,13 +156,14 @@ import { SearchDialog, FilterDialog, SortDialog } from 'src/components/Dialogs';
 import ArtistStep from './CreateBookingSteps/ArtistStep.vue';
 import DetailsStep from './CreateBookingSteps/DetailsStep.vue';
 import ScheduleStep from './CreateBookingSteps/ScheduleStep.vue';
+import PaymentStep from './CreateBookingSteps/PaymentStep.vue';
 
-import { USERS_QUERY } from 'src/apollo/types/user';
+import { USERS_QUERY, USER_QUERY } from 'src/apollo/types/user';
 import { CITIES_QUERY } from 'src/apollo/types/city';
 import { CREATE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 
-import type { IUser, IGraphQLUsersResult } from 'src/interfaces/user';
+import type { IUser, IGraphQLUsersResult, IGraphQLUserResult } from 'src/interfaces/user';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import type { IFilters } from 'src/interfaces/filters';
 import type {
@@ -153,7 +181,9 @@ import { useCitiesStore } from 'src/stores/cities';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
+import useBookingPayment from 'src/composables/useBookingPayment';
 import { useRouter } from 'vue-router';
+import { centsToDollars } from 'src/helpers/currency';
 
 interface Props {
   modelValue: boolean;
@@ -176,18 +206,37 @@ const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
 const { user } = useUser();
+const {
+  initiatePayment: initiateBookingPayment,
+  isProcessing: isPaymentProcessing,
+} = useBookingPayment();
 const router = useRouter();
 
 const baseSteps = [
   { id: 1, title: 'Artist', icon: 'person' },
   { id: 2, title: 'Details', icon: 'assignment' },
   { id: 3, title: 'Schedule', icon: 'event' },
+  { id: 4, title: 'Payment', icon: 'payment' },
 ] as const;
 
 const isArtistSelectionRequired = computed(() => !props.artistDocumentId);
-const visibleSteps = computed(() =>
-  isArtistSelectionRequired.value ? baseSteps : baseSteps.filter((step) => step.id !== 1),
-);
+
+const selectedArtist = ref<IUser | null>(null);
+const createdBooking = ref<IBookingCreateResponse | null>(null);
+
+const shouldShowPaymentStep = computed(() => selectedArtist.value?.payoutsEnabled === true);
+const selectedArtistDepositAmount = computed(() => centsToDollars(selectedArtist.value?.depositAmount ?? 0));
+
+const visibleSteps = computed(() => {
+  let steps: typeof baseSteps[number][] = isArtistSelectionRequired.value
+    ? [...baseSteps]
+    : baseSteps.filter((step) => step.id !== 1);
+  if (!shouldShowPaymentStep.value) {
+    steps = steps.filter((step) => step.id !== 4);
+  }
+  return steps;
+});
+
 const firstVisibleStepId = computed(() => visibleSteps.value[0]?.id ?? baseSteps[0].id);
 
 const isVisible = ref(props.modelValue);
@@ -196,6 +245,14 @@ const isSubmitting = ref(false);
 const isResetting = ref(false);
 
 const isAtFirstStep = computed(() => currentStep.value === firstVisibleStepId.value);
+const lastVisibleStepId = computed<number>(() => {
+  const steps = visibleSteps.value;
+  if (steps.length > 0) {
+    return steps[steps.length - 1]!.id;
+  }
+  return baseSteps[baseSteps.length - 1]!.id;
+});
+const isAtLastStep = computed(() => currentStep.value === lastVisibleStepId.value);
 
 const detailsStepRef = ref<InstanceType<typeof DetailsStep> | null>(null);
 const scheduleStepRef = ref<InstanceType<typeof ScheduleStep> | null>(null);
@@ -291,7 +348,8 @@ const localArtists = ref<IUser[]>([]);
 const currentPage = ref(1);
 const totalArtists = ref(0);
 const hasMoreArtists = ref(true);
-const selectedArtistId = ref<string | null>(props.artistDocumentId || null);
+
+const selectedArtistId = computed(() => selectedArtist.value?.documentId || null);
 
 const {
   load: loadArtistsQuery,
@@ -305,6 +363,12 @@ const {
   onResult: onResultCities,
   onError: onErrorCities,
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
+
+const {
+  load: loadSingleArtist,
+  onResult: onSingleArtistResult,
+  onError: onSingleArtistError,
+} = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
 const { load: loadArtistBookings, stop: stopArtistBookings } =
   useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
@@ -409,6 +473,10 @@ const fetchArtistBookings = async (artistId: string | null) => {
           },
         },
       },
+      sort: ['createdAt:desc'],
+      pagination: {
+        limit: 100,
+      },
     });
 
     if (!response) {
@@ -425,12 +493,12 @@ const fetchArtistBookings = async (artistId: string | null) => {
   }
 };
 
-const updateReferenceFiles = (files: File[]) => {
-  referenceFiles.value = [...files];
+const updateReferenceFiles = (files: (File | null)[]) => {
+  referenceFiles.value = files.filter((file): file is File => file !== null);
 };
 
 const selectArtist = (artist: IUser) => {
-  selectedArtistId.value = artist.documentId;
+  selectedArtist.value = artist;
 };
 
 const updateSearchQuery = (value: string) => {
@@ -456,6 +524,7 @@ const goToPrevStep = () => {
 };
 
 const handleStepClick = (stepId: number) => {
+  if (isAtLastStep.value) return;
   const stepsOrder = visibleSteps.value;
   const targetIndex = stepsOrder.findIndex((step) => step.id === stepId);
   const currentIndex = stepsOrder.findIndex((step) => step.id === currentStep.value);
@@ -558,11 +627,19 @@ const onSubmit = async () => {
       showError('Failed to create booking. Please try again.');
       return;
     }
+    // Save created booking
+    createdBooking.value = booking;
 
-    emit('submit', booking);
-    showSuccess('Booking request sent!');
-    closeDialog();
-    void router.push(`/my-bookings`);
+    // Check if payment step should be shown
+    if (shouldShowPaymentStep.value) {
+      // Move to payment step
+      currentStep.value = 4;
+    } else {
+      // No payment needed, close dialog and show success
+      showSuccess('Booking request sent!');
+      closeDialog();
+      void router.push(`/my-bookings`);
+    }
   } catch (error) {
     console.error('Failed to submit booking:', error);
     showError('Failed to submit booking. Please try again.');
@@ -571,15 +648,25 @@ const onSubmit = async () => {
   }
 };
 
+const handlePayment = async () => {
+  await initiateBookingPayment(createdBooking.value?.documentId ?? null);
+};
+
 const resetFormState = () => {
   isResetting.value = true;
+  isPaymentProcessing.value = false;
   currentStep.value = firstVisibleStepId.value;
   searchQuery.value = '';
   activeFilters.value = { type: UserType.Artist, city: null, name: null };
   sortSettings.value = { sortBy: null, sortDirection: 'asc' };
   referenceFiles.value = [];
   artistBookings.value = [];
-  selectedArtistId.value = props.artistDocumentId || null;
+  createdBooking.value = null;
+
+  // Reset selectedArtist if artistDocumentId is not provided
+  if (!props.artistDocumentId) {
+    selectedArtist.value = null;
+  }
 
   // Auto-fill user data if available
   Object.assign(bookingDetails, {
@@ -621,6 +708,8 @@ watch(
       if (isArtistSelectionRequired.value) {
         loadArtistsList(true);
         void loadCities();
+      } else if (props.artistDocumentId) {
+        void loadSingleArtist(null, { documentId: props.artistDocumentId });
       }
     }
   },
@@ -634,9 +723,9 @@ watch(isVisible, (newValue) => {
 });
 
 watch(
-  () => selectedArtistId.value,
-  (newId, oldId) => {
-    if (newId === oldId) return;
+  () => selectedArtist.value,
+  (newArtist, oldArtist) => {
+    if (newArtist?.documentId === oldArtist?.documentId) return;
     artistBookings.value = [];
     stopArtistBookings();
     Object.assign(schedule, {
@@ -674,7 +763,11 @@ watch(
 watch(
   () => props.artistDocumentId,
   (id) => {
-    selectedArtistId.value = id || null;
+    if (id && isVisible.value) {
+      void loadSingleArtist(null, { documentId: id });
+    } else if (!id) {
+      selectedArtist.value = null;
+    }
     if (isVisible.value) {
       currentStep.value = firstVisibleStepId.value;
     }
@@ -707,12 +800,25 @@ onErrorCities((error) => {
   console.error('Error loading cities:', error);
 });
 
+onSingleArtistResult(({ data }) => {
+  if (data?.usersPermissionsUser) {
+    selectedArtist.value = data.usersPermissionsUser;
+  }
+});
+
+onSingleArtistError((error) => {
+  console.error('Error loading artist:', error);
+  showError('Failed to load artist information.');
+});
+
 onMounted(() => {
   if (props.modelValue) {
     resetPagination();
     if (isArtistSelectionRequired.value) {
       loadArtistsList(true);
       void loadCities();
+    } else if (props.artistDocumentId) {
+      void loadSingleArtist(null, { documentId: props.artistDocumentId });
     }
   }
 });

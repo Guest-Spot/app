@@ -9,4 +9,5 @@ export interface IArtistFormData {
   email?: string;
   avatar?: IPicture | null;
   experience?: number | null;
+  depositAmount?: number | null;
 }

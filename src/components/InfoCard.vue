@@ -26,7 +26,7 @@
         <a v-else-if="item.type === InfoItemType.Link" target="_blank" :href="item.value">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
-        <ExpandableText v-else :text="item.value" collapsible class="info-value text-grey-6" />
+        <ExpandableText v-else :text="item.value" collapsible :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']" />
         <q-btn
           v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
           :icon="whatsappIcon"

@@ -38,12 +38,16 @@
     </div>
 
     <!-- Booking Details Dialog -->
-    <BookingDetailsDialog v-model="showDetailsDialog" :booking="selectedBooking" />
+    <BookingDetailsDialog
+      v-model="showDetailsDialog"
+      :booking="selectedBooking"
+      @cancel-booking="handleBookingCancellation"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import type { IBooking, IBookingsQueryResponse } from 'src/interfaces/booking';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
@@ -55,10 +59,12 @@ import { useUserStore } from 'src/stores/user';
 import TabsComp from 'src/components/TabsComp.vue';
 import type { ITab } from 'src/interfaces/tabs';
 import { EReactions } from 'src/interfaces/enums';
+import useStripe from 'src/composables/useStripe';
 
 const userStore = useUserStore();
+const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 
-const { result, loading } = useQuery<IBookingsQueryResponse>(
+const { result, loading, refetch } = useQuery<IBookingsQueryResponse>(
   BOOKINGS_QUERY,
   {
     filters: {
@@ -69,6 +75,9 @@ const { result, loading } = useQuery<IBookingsQueryResponse>(
       },
     },
     sort: ['createdAt:desc'],
+    pagination: {
+      limit: 100,
+    },
   },
   {
     fetchPolicy: 'network-only',
@@ -172,6 +181,18 @@ const emptyState = computed(() => {
   }
 });
 
+const refetchBookings = async () => {
+  try {
+    await refetch();
+  } catch (error) {
+    console.error('Failed to refetch bookings:', error);
+  }
+};
+
+const handleBrowserFinished = async () => {
+  await refetchBookings();
+};
+
 // Watch for query results
 watch(
   () => result.value?.bookings,
@@ -196,10 +217,29 @@ const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
 
+const handleBookingCancellation = async (documentId: string) => {
+  bookings.value = bookings.value.filter((booking) => booking.documentId !== documentId);
+
+  if (selectedBooking.value?.documentId === documentId) {
+    selectedBooking.value = null;
+    showDetailsDialog.value = false;
+  }
+
+  await refetchBookings();
+};
+
 const openBookingDetails = (booking: IBooking) => {
   selectedBooking.value = booking;
   showDetailsDialog.value = true;
 };
+
+onMounted(() => {
+  addBrowserFinishedListener(() => void handleBrowserFinished());
+});
+
+onBeforeUnmount(async () => {
+  await removeAllBrowserListeners();
+});
 </script>
 
 <style scoped lang="scss">

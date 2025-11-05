@@ -135,8 +135,139 @@
             clearable
             suffix="years"
             v-model.number="artistData.experience"
-            :rules="[(val) => val >= 1 || 'Experience must be at least 1 year']"
           />
+        </div>
+      </div>
+    </q-expansion-item>
+
+    <!-- Payment Settings -->
+    <q-expansion-item
+      icon="payment"
+      label="Payment Settings"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
+        <!-- Not Configured State -->
+        <div v-if="!user?.stripeAccountID" class="payment-not-configured flex column items-center justify-center">
+          <div class="q-mb-md text-body2 text-grey-7">
+            Configure your payment settings to receive payments from clients
+          </div>
+          <div class="flex q-gap-sm full-width no-wrap">
+            <q-btn
+              rounded
+              unelevated
+              color="primary"
+              label="Setup payment account"
+              icon="payment"
+              class="full-width"
+              @click="setupStripeAccount"
+              :loading="stripeSetupLoading"
+              :disable="stripeSetupLoading"
+            />
+            <q-btn
+              round
+              outline
+              color="primary"
+              icon="refresh"
+              @click="checkStripeStatus"
+              :loading="stripeStatusLoading"
+              :disable="stripeStatusLoading"
+            />
+          </div>
+        </div>
+
+        <!-- Setup Incomplete State -->
+        <div v-else-if="user?.stripeAccountID && user?.payoutsEnabled !== true" class="payment-setup-incomplete flex column items-start justify-center">
+          <div class="flex items-start justify-start q-mb-md">
+            <q-icon name="warning" color="warning" size="24px" class="q-mr-sm" />
+            <span class="text-body1 text-weight-medium">Complete Stripe account setup</span>
+          </div>
+          <div class="q-mb-md text-body2 text-grey-7">
+            Your Stripe account has been created, but the setup is incomplete. Please complete the setup to enable payouts.
+          </div>
+          <div class="flex q-gap-sm full-width no-wrap">
+            <q-btn
+              rounded
+              unelevated
+              color="primary"
+              label="Continue setup"
+              icon="payment"
+              class="full-width"
+              @click="openStripeDashboard"
+              :loading="stripeDashboardLoading"
+              :disable="stripeDashboardLoading"
+            />
+            <q-btn
+              round
+              outline
+              color="primary"
+              icon="refresh"
+              @click="checkStripeStatus"
+              :loading="stripeStatusLoading"
+              :disable="stripeStatusLoading"
+            />
+          </div>
+        </div>
+
+        <!-- Configured State -->
+        <div v-else class="payment-configured">
+          <div class="flex items-center q-mb-md">
+            <q-icon name="check_circle" color="positive" size="24px" class="q-mr-sm" />
+            <span class="text-body1 text-weight-medium">Payment settings configured</span>
+          </div>
+
+          <div v-if="user?.stripeAccountID" class="q-mb-md text-body2 text-grey-7">
+            Account ID: •••• {{ user.stripeAccountID.slice(-4) }}
+            <!-- Copy to clipboard -->
+            <q-btn
+              round
+              flat
+              size="sm"
+              icon="content_copy"
+              @click="onCopyToClipboard(user.stripeAccountID)"
+            />
+          </div>
+
+          <div class="flex q-gap-sm">
+            <q-btn
+              rounded
+              unelevated
+              flat
+              color="primary"
+              class="full-width bg-block"
+              label="Open Stripe Dashboard"
+              icon="open_in_new"
+              @click="openStripeDashboard"
+              :loading="stripeDashboardLoading"
+              :disable="stripeDashboardLoading"
+            />
+          </div>
+
+          <div class="input-group q-mt-md bg-block border-radius-lg q-pa-md">
+            <label class="input-label">Deposit Amount</label>
+            <q-input
+              outlined
+              dense
+              rounded
+              type="number"
+              class="custom-input"
+              placeholder="Enter deposit amount"
+              prefix="$"
+              :min="0"
+              v-model.number="artistData.depositAmount"
+              :rules="[
+                (val) =>
+                  val === null ||
+                  val === undefined ||
+                  val >= 0 ||
+                  'Deposit amount must be zero or greater',
+              ]"
+            />
+            <div class="text-caption text-grey-7 q-mt-xs">
+              Guests will be charged this amount upfront when booking.
+            </div>
+          </div>
         </div>
       </div>
     </q-expansion-item>
@@ -170,7 +301,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, computed } from 'vue';
+import { ref, watch, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+import { copyToClipboard } from 'quasar';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
@@ -182,13 +314,33 @@ import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import { PHONE_INPUT_MASK } from 'src/constants/masks';
+import {
+  GET_STRIPE_DASHBOARD_URL_MUTATION,
+  CHECK_STRIPE_ACCOUNT_STATUS_MUTATION,
+} from 'src/apollo/types/mutations/stripe';
+import useStripe from 'src/composables/useStripe';
+import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
+const { openStripeUrl, addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 
 // Setup mutation
 const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
+
+// Stripe mutations
+const {
+  mutate: getStripeDashboardUrl,
+  onDone: onDoneGetStripeDashboardUrl,
+  onError: onErrorGetStripeDashboardUrl,
+} = useMutation(GET_STRIPE_DASHBOARD_URL_MUTATION);
+
+const {
+  mutate: checkStripeAccountStatus,
+  onDone: onDoneCheckStripeAccountStatus,
+  onError: onErrorCheckStripeAccountStatus,
+} = useMutation(CHECK_STRIPE_ACCOUNT_STATUS_MUTATION);
 
 // Form data
 const artistData = reactive<IArtistFormData>({
@@ -200,6 +352,7 @@ const artistData = reactive<IArtistFormData>({
   email: '',
   avatar: null,
   experience: null,
+  depositAmount: null,
 });
 // NOTE: This variable is used to compare the original data with the new data
 const artistDataOriginal = { ...artistData };
@@ -208,6 +361,11 @@ const artistDataOriginal = { ...artistData };
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
+
+// Stripe loading states
+const stripeSetupLoading = ref(false);
+const stripeDashboardLoading = ref(false);
+const stripeStatusLoading = ref(false);
 
 const hasChanges = computed(
   () =>
@@ -220,6 +378,8 @@ const hasChanges = computed(
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
   const preparedData = {
     ...artistData,
+    // Convert dollars to cents for backend
+    depositAmount: dollarsToCents(artistData.depositAmount),
     ...(uploadedFiles.length > 0 && {
       avatar: uploadedFiles[0]?.id,
     }),
@@ -254,6 +414,11 @@ async function deleteImages(): Promise<void> {
 const onUpdateImages = (files: { id: string; file: File }[]) => {
   imagesForRemove.value = files.map((file) => file.id);
   imagesForUpload.value = files.map((file) => file.file);
+};
+
+const onCopyToClipboard = (text: string) => {
+  void copyToClipboard(text);
+  showSuccess('Copied to clipboard');
 };
 
 const saveChanges = async () => {
@@ -301,6 +466,8 @@ watch(
   (profile) => {
     Object.assign(artistData, {
       ...profile,
+      // Convert cents to dollars for display
+      depositAmount: centsToDollars(profile?.depositAmount),
       avatar: profile?.avatar
         ? {
             url: profile?.avatar?.url,
@@ -313,6 +480,116 @@ watch(
   },
   { immediate: true },
 );
+
+// Stripe functions
+const setupStripeAccount = async () => {
+  stripeSetupLoading.value = true;
+  try {
+    await getStripeDashboardUrl();
+  } catch (error) {
+    console.error('Error getting Stripe dashboard URL:', error);
+    showError('Error setting up payment account');
+    stripeSetupLoading.value = false;
+  }
+};
+
+const openStripeDashboard = async () => {
+  stripeDashboardLoading.value = true;
+  try {
+    await getStripeDashboardUrl();
+  } catch (error) {
+    console.error('Error opening Stripe dashboard:', error);
+    showError('Error opening Stripe dashboard');
+    stripeDashboardLoading.value = false;
+  }
+};
+
+const checkStripeStatus = async () => {
+  stripeStatusLoading.value = true;
+  try {
+    await checkStripeAccountStatus();
+  } catch (error) {
+    console.error('Error checking Stripe status:', error);
+    showError('Error checking payment status');
+    stripeStatusLoading.value = false;
+  }
+};
+
+// Handle Stripe dashboard URL response
+onDoneGetStripeDashboardUrl((result) => {
+  stripeSetupLoading.value = false;
+  stripeDashboardLoading.value = false;
+
+  if (result.errors?.length) {
+    console.error('Error getting Stripe dashboard URL:', result.errors);
+    showError('Error getting Stripe URL');
+    return;
+  }
+
+  const url = result.data?.getStripeDashboardUrl?.url;
+  if (url) {
+    try {
+      void openStripeUrl(url);
+    } catch (error) {
+      console.error('Error opening URL:', error);
+      showError('Error opening Stripe dashboard');
+    }
+  }
+});
+
+onErrorGetStripeDashboardUrl((error) => {
+  stripeSetupLoading.value = false;
+  stripeDashboardLoading.value = false;
+  console.error('Stripe dashboard URL mutation error:', error);
+  showError('Error connecting to Stripe');
+});
+
+// Handle Stripe status check response
+onDoneCheckStripeAccountStatus((result) => {
+  stripeStatusLoading.value = false;
+
+  if (result.errors?.length) {
+    console.error('Error checking Stripe status:', result.errors);
+    showError('Error checking payment status');
+    return;
+  }
+
+  const statusData = result.data?.checkStripeAccountStatus;
+  if (statusData) {
+    // Refresh user data to get updated status
+    void fetchMe();
+
+    if (statusData.payoutsEnabled) {
+      showSuccess('Payment account is fully configured');
+    } else if (statusData.detailsSubmitted) {
+      showError('Payment account setup is incomplete. Please complete the setup.');
+    } else {
+      showError('Payment account is not yet configured');
+    }
+  }
+});
+
+onErrorCheckStripeAccountStatus((error) => {
+  stripeStatusLoading.value = false;
+  console.error('Stripe status check mutation error:', error);
+  showError('Error checking payment status');
+});
+
+// Handle browser close event - refresh user data
+const handleBrowserFinished = async () => {
+  console.log('Browser closed, refreshing user data...');
+  await fetchMe();
+};
+
+// Setup browser finished listener on mount
+onMounted(() => {
+  void addBrowserFinishedListener(() => void handleBrowserFinished());
+});
+
+// Cleanup listener on unmount
+onBeforeUnmount(async () => {
+  await removeAllBrowserListeners();
+});
 
 // Expose data for parent component
 defineExpose({

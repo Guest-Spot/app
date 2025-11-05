@@ -140,7 +140,14 @@ const {
   BOOKINGS_QUERY,
   () => {
     const filters = bookingFilters.value;
-    return filters ? { filters } : {};
+
+    return {
+      ...(filters ? { filters } : {}),
+      sort: ['createdAt:desc'],
+      pagination: {
+        limit: 100,
+      },
+    };
   },
   {
     fetchPolicy: 'network-only',

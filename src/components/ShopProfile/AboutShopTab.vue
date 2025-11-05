@@ -98,7 +98,7 @@
             outlined
             dense
             rounded
-            mask="+(###) ### - ####"
+            :mask="PHONE_INPUT_MASK"
             placeholder="Enter phone number"
             class="custom-input"
             clearable
@@ -174,6 +174,7 @@ import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import useOpeningHours from 'src/modules/useOpeningHours';
+import { PHONE_INPUT_MASK } from 'src/constants/masks';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();

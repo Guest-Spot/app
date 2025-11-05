@@ -38,3 +38,23 @@ export const UPDATE_BOOKING_MUTATION = gql`
     }
   }
 `;
+
+export const CREATE_BOOKING_PAYMENT_MUTATION = gql`
+  mutation CreateBookingPayment($documentId: ID!, $customerEmail: String) {
+    createBookingPayment(documentId: $documentId, customerEmail: $customerEmail) {
+      booking {
+        documentId
+      }
+      sessionId
+      sessionUrl
+    }
+  }
+`;
+
+export const DELETE_BOOKING_MUTATION = gql`
+  mutation DeleteBooking($documentId: ID!) {
+    deleteBooking(documentId: $documentId) {
+      documentId
+    }
+  }
+`;
