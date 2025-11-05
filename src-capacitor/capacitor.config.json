@@ -58,17 +58,6 @@
       "style": "default",
       "resizeOnFullScreen": true
     },
-    "GoogleAuth": {
-      "clientId": "98698152935-pbjjiu6ha8r0v7964srno59f978o5roo.apps.googleusercontent.com",
-      "iosClientId": "98698152935-6euspec4r470nitlciq2p3a3cpu384aj.apps.googleusercontent.com",
-      "androidClientId": "",
-      "serverClientId": "",
-      "scopes": [
-        "profile",
-        "email"
-      ],
-      "forceCodeForRefreshToken": false
-    },
     "Sentry": {
       "dsn": "https://3f83002c1f5bc60a34470709dcb1d353@o565662.ingest.us.sentry.io/4510164379303936",
       "debug": true,
