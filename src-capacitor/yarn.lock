@@ -53,7 +53,7 @@
     tslib "^2.8.1"
     xml2js "^0.6.2"
 
-"@capacitor/core@^7.0.0":
+"@capacitor/core@^7.0.0", "@capacitor/core@^7.4.0", "@capacitor/core@>=3.0.0", "@capacitor/core@>=7.0.0":
   version "7.4.3"
   resolved "https://registry.npmjs.org/@capacitor/core/-/core-7.4.3.tgz"
   integrity sha512-wCWr8fQ9Wxn0466vPg7nMn0tivbNVjNy1yL4GvDSIZuZx7UpU2HeVGNe9QjN/quEd+YLRFeKEBLBw619VqUiNg==
@@ -70,10 +70,10 @@
   resolved "https://registry.npmjs.org/@capacitor/push-notifications/-/push-notifications-7.0.3.tgz"
   integrity sha512-4qt5dRVBkHzq202NEoj3JC+S+zQCrZ1FJh7sjkICy/i1iEos+VaoB3bie8eWDQ2LTARktB4+k2xkdpu8pcVo/g==
 
-"@codetrix-studio/capacitor-google-auth@^3.4.0-rc.4":
-  version "3.4.0-rc.4"
-  resolved "https://registry.npmjs.org/@codetrix-studio/capacitor-google-auth/-/capacitor-google-auth-3.4.0-rc.4.tgz"
-  integrity sha512-d548/xKrbMHHbzMYSWnlgZCLZYo2zzY7Onrh3x8ujojrb7atkNK68I6su5WgmaBt4E+R4gxBsWams4554aOFjA==
+"@capgo/capacitor-social-login@^7.14.11":
+  version "7.14.11"
+  resolved "https://registry.npmjs.org/@capgo/capacitor-social-login/-/capacitor-social-login-7.14.11.tgz"
+  integrity sha512-Uz8jRPc53z8wXAo4+Q+7v0FNuL4tBL8UVEKv3xH1TnI0kuPsKmESCgOYorQvL7cr08bHofjUV+8eEGKxyuaoDg==
 
 "@ionic/cli-framework-output@^2.2.8":
   version "2.2.8"
