@@ -21,26 +21,24 @@
 
     <!-- Not Authenticated -->
     <SingInToContinue
-      v-else-if="!isAuthenticated"
+      v-else-if="!hasTokens"
       class="fixed-center full-width"
       title="My Booking Requests"
     />
-
-    <!-- Not a Guest User -->
-    <div v-else class="fixed-center full-width text-center q-px-lg">
-      <q-icon name="info" size="64px" color="grey-6" class="q-mb-md" />
-      <h3 class="text-h6 text-bold q-mb-sm">Access Restricted</h3>
-      <p class="text-body2 text-grey-7">This page is only available for guest users.</p>
-    </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import GuestBookingsList from 'src/components/Bookings/Guest/GuestBookingsList.vue';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
+import useTokens from 'src/modules/useTokens';
 
 const { isAuthenticated, isGuest } = useUser();
+
+const { getStoredTokens } = useTokens();
+const hasTokens = computed(() => getStoredTokens()?.accessToken);
 </script>
 
 <style scoped lang="scss">

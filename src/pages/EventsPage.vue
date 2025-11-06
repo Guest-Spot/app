@@ -28,7 +28,7 @@
         </div>
       </div>
     </template>
-    <SingInToContinue v-else class="fixed-center full-width" title="My Trips & Bookings" />
+    <SingInToContinue v-else-if="!hasTokens" class="fixed-center full-width" title="My Trips & Bookings" />
   </q-page>
 </template>
 
@@ -44,12 +44,15 @@ import { type ITab } from 'src/interfaces/tabs';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
 import InvitesTab from 'src/components/Events/InvitesTab/index.vue';
+import useTokens from 'src/modules/useTokens';
 
 const TAB_INVITES = 'invites';
 const TAB_TRIPS = 'trips';
 const TAB_BOOKINGS = 'bookings';
 
 const { isAuthenticated, isArtist } = useUser();
+const { getStoredTokens } = useTokens();
+const hasTokens = computed(() => getStoredTokens()?.accessToken);
 const userStore = useUserStore();
 
 const tabs = computed<ITab[]>(() => {

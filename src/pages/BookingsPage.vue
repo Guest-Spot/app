@@ -11,7 +11,7 @@
       </div>
     </template>
 
-    <SingInToContinue v-else class="fixed-center full-width" title="My Bookings" />
+    <SingInToContinue v-else-if="!hasTokens" class="fixed-center full-width" title="My Bookings" />
   </q-page>
 </template>
 
@@ -24,9 +24,12 @@ import useUser from 'src/modules/useUser';
 import { useUserStore } from 'src/stores/user';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 import type { IBookingsQueryResponse } from 'src/interfaces/booking';
+import useTokens from 'src/modules/useTokens';
 
 const { isAuthenticated } = useUser();
 const userStore = useUserStore();
+const { getStoredTokens } = useTokens();
+const hasTokens = computed(() => getStoredTokens()?.accessToken);
 
 const userDocumentId = computed(() => userStore.getUser?.documentId);
 

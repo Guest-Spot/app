@@ -12,8 +12,7 @@
       "*.googleapis.com",
       "*.stripe.com",
       "connect.stripe.com"
-    ],
-    "url": "http://192.168.20.20:9500"
+    ]
   },
   "plugins": {
     "App": {

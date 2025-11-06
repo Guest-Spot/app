@@ -379,6 +379,5 @@ defineExpose({
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  color: var(--brand-dark);
 }
 </style>
