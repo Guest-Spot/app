@@ -184,6 +184,7 @@ import useUser from 'src/modules/useUser';
 import useBookingPayment from 'src/composables/useBookingPayment';
 import { useRouter } from 'vue-router';
 import { centsToDollars } from 'src/helpers/currency';
+import { useSettingsStore } from 'src/stores/settings';
 
 interface Props {
   modelValue: boolean;
@@ -211,6 +212,7 @@ const {
   isProcessing: isPaymentProcessing,
 } = useBookingPayment();
 const router = useRouter();
+const settingsStore = useSettingsStore();
 
 const baseSteps = [
   { id: 1, title: 'Artist', icon: 'person' },
@@ -224,7 +226,9 @@ const isArtistSelectionRequired = computed(() => !props.artistDocumentId);
 const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
 
-const shouldShowPaymentStep = computed(() => selectedArtist.value?.payoutsEnabled === true);
+const shouldShowPaymentStep = computed(() =>
+  settingsStore.getStripeEnabled && selectedArtist.value?.payoutsEnabled === true
+);
 const selectedArtistDepositAmount = computed(() => centsToDollars(selectedArtist.value?.depositAmount ?? 0));
 
 const visibleSteps = computed(() => {

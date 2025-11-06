@@ -56,7 +56,7 @@
 
       <!-- Deposit Info -->
       <div
-        v-if="showDeposit && depositAmount"
+        v-if="settingsStore.getStripeEnabled && showDeposit && depositAmount"
         class="deposit-info q-mb-xs text-warning"
       >
         <q-icon name="payment" size="16px" />
@@ -92,6 +92,7 @@ import { EReactions, EBookingPaymentStatus } from 'src/interfaces/enums';
 import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
 import { centsToDollars } from 'src/helpers/currency';
+import { useSettingsStore } from 'src/stores/settings';
 
 interface Props {
   booking: IBooking;
@@ -105,6 +106,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const { formatTime } = useDate();
+const settingsStore = useSettingsStore();
 
 const formattedDate = computed(() => {
   const date = new Date(props.booking.day || '');
@@ -119,7 +121,7 @@ const formattedTime = computed(() => {
   return formatTime(props.booking.start || '');
 });
 
-const statusInfo = computed(() => getBookingStatusInfo(props.booking, props.booking.artist?.payoutsEnabled));
+const statusInfo = computed(() => getBookingStatusInfo(props.booking, settingsStore.getStripeEnabled && props.booking.artist?.payoutsEnabled));
 
 const depositAmount = computed(() => centsToDollars(props.booking.artist?.depositAmount));
 

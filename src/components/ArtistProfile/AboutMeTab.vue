@@ -142,6 +142,7 @@
 
     <!-- Payment Settings -->
     <q-expansion-item
+      v-if="settingsStore.getStripeEnabled"
       icon="payment"
       label="Payment Settings"
       header-class="expansion-header"
@@ -320,10 +321,12 @@ import {
 } from 'src/apollo/types/mutations/stripe';
 import useStripe from 'src/composables/useStripe';
 import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
+import { useSettingsStore } from 'src/stores/settings';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
 const { openStripeUrl, addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
+const settingsStore = useSettingsStore();
 
 // Setup mutation
 const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_USER_MUTATION);

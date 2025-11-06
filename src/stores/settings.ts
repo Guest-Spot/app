@@ -10,6 +10,7 @@ export const useSettingsStore = defineStore('settings', {
     getSettings: (state) => state.settings,
     getPlatformFeePercent: (state) => state.settings?.platformFeePercent ?? null,
     getStripeFeePercent: (state) => state.settings?.stripeFeePercent ?? null,
+    getStripeEnabled: (state) => state.settings?.stripeEnabled ?? false,
     getTotalFeePercent: (state) => state.settings?.totalFeePercent ?? null,
     getIsLoading: (state) => state.isLoading,
   },

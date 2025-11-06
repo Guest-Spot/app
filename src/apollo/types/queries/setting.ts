@@ -5,6 +5,7 @@ export const SETTING_QUERY = gql`
     setting {
       platformFeePercent
       stripeFeePercent
+      stripeEnabled
       totalFeePercent
     }
   }

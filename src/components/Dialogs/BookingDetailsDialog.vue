@@ -76,6 +76,13 @@
               </div>
             </div>
 
+            <InfoCard
+              v-if="paymentData.length"
+              title="Payment"
+              icon="payment"
+              :data="paymentData"
+            />
+
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
 
             <InfoCard
@@ -86,13 +93,6 @@
             />
 
             <InfoCard title="Tattoo Description" icon="description" :data="descriptionData" />
-
-            <InfoCard
-              v-if="canInitiatePayment && paymentData.length"
-              title="Payment"
-              icon="payment"
-              :data="paymentData"
-            />
           </div>
         </div>
       </q-card-section>
@@ -371,6 +371,7 @@ const canInitiatePayment = computed(() => {
   return (
     !isCurrentUserArtist.value &&
     props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid &&
+    settingsStore.getStripeEnabled &&
     artist.value?.payoutsEnabled === true &&
     artist.value.depositAmount !== null
   );
