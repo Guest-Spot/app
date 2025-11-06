@@ -226,9 +226,12 @@ const isArtistSelectionRequired = computed(() => !props.artistDocumentId);
 const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
 
-const shouldShowPaymentStep = computed(() =>
-  settingsStore.getStripeEnabled && selectedArtist.value?.payoutsEnabled === true
-);
+const shouldShowPaymentStep = computed(() => {
+  if (settingsStore.getStripeEnabled !== true) {
+    return false;
+  }
+  return selectedArtist.value?.payoutsEnabled === true;
+});
 const selectedArtistDepositAmount = computed(() => centsToDollars(selectedArtist.value?.depositAmount ?? 0));
 
 const visibleSteps = computed(() => {
