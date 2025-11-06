@@ -46,6 +46,32 @@
                 </div>
               </q-item-section>
             </q-item>
+            <q-separator />
+            <q-item clickable v-close-popup @click="handleTermsOfService">
+              <q-item-section>
+                <div class="flex items-center q-gap-sm">
+                  <q-icon name="description" size="18px" />
+                  <q-item-label>Terms of Service</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="handlePrivacyPolicy">
+              <q-item-section>
+                <div class="flex items-center q-gap-sm">
+                  <q-icon name="privacy_tip" size="18px" />
+                  <q-item-label>Privacy Policy</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="handleUserAgreement">
+              <q-item-section>
+                <div class="flex items-center q-gap-sm">
+                  <q-icon name="description" size="18px" />
+                  <q-item-label>User Agreement</q-item-label>
+                </div>
+              </q-item-section>
+            </q-item>
+            <q-separator />
             <q-item clickable @click="handleLogout" v-close-popup>
               <q-item-section>
                 <div class="flex items-center q-gap-sm text-negative">
@@ -136,6 +162,18 @@ const showNotificationDialog = () => {
 
 const handleFeedback = () => {
   void router.push('/feedback');
+};
+
+const handleTermsOfService = () => {
+  void window.open('https://www.getguestspot.com/terms-of-service', '_blank');
+};
+
+const handlePrivacyPolicy = () => {
+  void window.open('https://www.getguestspot.com/privacy-policy', '_blank');
+};
+
+const handleUserAgreement = () => {
+  void window.open('https://www.getguestspot.com/user-agreement', '_blank');
 };
 
 onMounted(() => {
