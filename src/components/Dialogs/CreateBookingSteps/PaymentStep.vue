@@ -31,35 +31,92 @@
       </div>
 
       <!-- Pricing Information Card -->
-        <div v-if="depositAmount" class="pricing-card bg-block border-radius-lg full-width">
-          <div class="pricing-content">
-            <div class="pricing-icon">
-              <q-icon name="payments" size="32px" color="primary" />
-            </div>
-            <div class="pricing-info flex column items-start">
-              <span class="text-body2 text-grey-7">Amount to Pay</span>
-              <span class="text-h5 text-bold text-primary">${{ depositAmount.toFixed(2) }}</span>
-            </div>
+      <div v-if="depositDisplay !== null" class="pricing-card bg-block border-radius-lg full-width">
+        <div class="pricing-content">
+          <div class="pricing-icon">
+            <q-icon name="payments" size="32px" color="primary" />
+          </div>
+          <div class="pricing-info flex column items-start">
+            <span class="text-body2 text-grey-7">Amount to Pay</span>
+            <span v-if="totalDisplayText" class="text-h5 text-bold text-primary">${{ totalDisplayText }}</span>
+            <span v-else class="text-h6 text-bold text-grey-5">—</span>
           </div>
         </div>
+
+        <div class="pricing-breakdown">
+          <div class="breakdown-item">
+            <span>Deposit</span>
+            <span>${{ depositDisplayText }}</span>
+          </div>
+          <div v-if="commissionDisplayText" class="breakdown-item">
+            <span>Platform commission</span>
+            <span>${{ commissionDisplayText }}</span>
+          </div>
+          <q-separator v-if="commissionDisplayText" class="breakdown-separator" />
+          <div class="breakdown-total">
+            <span>Total due</span>
+            <span>${{ totalDisplayText }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
-  loading: {
-    type: Boolean,
-    default: false,
+import { computed, withDefaults } from 'vue';
+
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean;
+    disabled?: boolean;
+    depositAmount?: number | null;
+    platformCommission?: number | null;
+    totalAmount?: number | null;
+  }>(),
+  {
+    loading: false,
+    disabled: false,
+    depositAmount: null,
+    platformCommission: null,
+    totalAmount: null,
   },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  depositAmount: {
-    type: Number,
-    default: null,
-  },
+);
+
+const depositDisplay = computed<number | null>(() => {
+  if (props.depositAmount === null || props.depositAmount === undefined) {
+    return null;
+  }
+  return Math.round(props.depositAmount * 100) / 100;
+});
+
+const commissionDisplay = computed<number | null>(() => {
+  if (props.platformCommission === null || props.platformCommission === undefined) {
+    return null;
+  }
+  return Math.round(props.platformCommission * 100) / 100;
+});
+
+const totalDisplay = computed<number | null>(() => {
+  if (props.totalAmount !== null && props.totalAmount !== undefined) {
+    return Math.round(props.totalAmount * 100) / 100;
+  }
+  if (depositDisplay.value !== null) {
+    return depositDisplay.value;
+  }
+  return null;
+});
+
+const depositDisplayText = computed<string | null>(() => {
+  return depositDisplay.value !== null ? depositDisplay.value.toFixed(2) : null;
+});
+
+const commissionDisplayText = computed<string | null>(() => {
+  return commissionDisplay.value !== null ? commissionDisplay.value.toFixed(2) : null;
+});
+
+const totalDisplayText = computed<string | null>(() => {
+  return totalDisplay.value !== null ? totalDisplay.value.toFixed(2) : null;
 });
 
 defineEmits<{
@@ -86,6 +143,9 @@ defineEmits<{
 
 .pricing-card {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
   .pricing-content {
     display: flex;
@@ -101,6 +161,31 @@ defineEmits<{
       border-radius: 12px;
       background: rgba(var(--q-primary-rgb), 0.1);
     }
+  }
+}
+
+.pricing-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .breakdown-item,
+  .breakdown-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .breakdown-total {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--q-primary);
+  }
+
+  .breakdown-separator {
+    opacity: 0.2;
   }
 }
 
