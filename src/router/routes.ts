@@ -66,21 +66,6 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'My Profile' },
       },
       {
-        path: 'faq',
-        component: () => import('pages/FAQPage.vue'),
-        meta: { title: 'FAQ' },
-      },
-      {
-        path: 'tos',
-        component: () => import('pages/TOSPage.vue'),
-        meta: { title: 'Terms of Service' },
-      },
-      {
-        path: 'privacy',
-        component: () => import('pages/PrivacyPage.vue'),
-        meta: { title: 'Privacy Policy' },
-      },
-      {
         path: 'feedback',
         component: () => import('pages/FeedbackPage.vue'),
         meta: { title: 'Feedback', requiresAuth: true },
