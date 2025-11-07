@@ -155,19 +155,15 @@ const useUser = () => {
 
       userStore.setIsLoading(true);
 
-      const result = await deleteUserMutation({
+      await deleteUserMutation({
         deleteUsersPermissionsUserId: userId,
       });
-
-      if (!result?.data?.deleteUsersPermissionsUser?.data?.documentId) {
-        throw new Error(result?.errors?.[0]?.message || 'Account deletion failed');
-      }
 
       // Perform full logout to clear all tokens and state
       // Note: logoutMutation may fail since account is deleted, but tokens and state will still be cleared
       try {
         await logout();
-      } catch (logoutError) {
+      } catch {
         // Ignore logout errors since account is already deleted
         // Still clear tokens and state manually to ensure cleanup
         console.log('Logout mutation failed (account already deleted), clearing local state');
