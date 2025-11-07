@@ -1,6 +1,6 @@
 <template>
   <div class="time-slot-picker" :class="{ 'time-slot-picker--disabled': disabled }">
-    <div v-if="!disabled && times.length" class="time-slot-picker__scroll">
+    <div v-if="!disabled && times.length" class="flex flex-wrap q-gap-sm">
       <button
         v-for="time in times"
         :key="time"
@@ -72,16 +72,9 @@ const formatDisplay = (time: string) => periodFormatter(time);
   min-width: 260px;
   max-width: 100%;
 
-  &__scroll {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding: 4px 0;
-  }
-
   &__item {
     flex: 0 0 auto;
-    width: 25%;
+    width: calc(25% - 6px);
     height: 50px;
     display: flex;
     align-items: center;

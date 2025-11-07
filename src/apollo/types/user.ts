@@ -93,6 +93,11 @@ export const USERS_QUERY = gql`
         name
         city
         address
+        openingHours {
+          day
+          start
+          end
+        }
         pictures {
           id
           documentId

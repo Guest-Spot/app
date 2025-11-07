@@ -744,6 +744,9 @@ watch(
       shopOpeningHours.value = [];
     }
   },
+  {
+    immediate: true,
+  }
 );
 
 watch(
