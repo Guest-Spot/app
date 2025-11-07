@@ -257,3 +257,13 @@ export const REFRESH_TOKEN_MUTATION = `
     }
   }
 `;
+
+export const DELETE_USER_MUTATION = gql`
+  mutation DeleteUsersPermissionsUser($deleteUsersPermissionsUserId: ID!) {
+    deleteUsersPermissionsUser(id: $deleteUsersPermissionsUserId) {
+      data {
+        documentId
+      }
+    }
+  }
+`;

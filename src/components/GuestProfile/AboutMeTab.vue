@@ -105,6 +105,9 @@
     <!-- Theme Settings -->
     <ThemeSettings />
 
+    <!-- Delete Account Section -->
+    <DeleteAccountSection />
+
     <!-- Save Button -->
     <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
       <q-btn
@@ -134,6 +137,7 @@
 import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
+import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
 import type { IGuestFormData } from 'src/interfaces/guest';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
