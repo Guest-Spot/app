@@ -32,6 +32,18 @@ const routes: RouteRecordRaw[] = [
     name: 'Payment Failure',
   },
   {
+    path: '/stripe-onboarding-success',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [{ path: '', component: () => import('pages/StripeOnboardingSuccessPage.vue') }],
+    name: 'Stripe Onboarding Success',
+  },
+  {
+    path: '/stripe-onboarding-expired',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [{ path: '', component: () => import('pages/StripeOnboardingExpiredPage.vue') }],
+    name: 'Stripe Onboarding Expired',
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -64,21 +76,6 @@ const routes: RouteRecordRaw[] = [
         path: 'profile',
         component: () => import('src/pages/ProfileRouter.vue'),
         meta: { title: 'My Profile' },
-      },
-      {
-        path: 'faq',
-        component: () => import('pages/FAQPage.vue'),
-        meta: { title: 'FAQ' },
-      },
-      {
-        path: 'tos',
-        component: () => import('pages/TOSPage.vue'),
-        meta: { title: 'Terms of Service' },
-      },
-      {
-        path: 'privacy',
-        component: () => import('pages/PrivacyPage.vue'),
-        meta: { title: 'Privacy Policy' },
       },
       {
         path: 'feedback',
