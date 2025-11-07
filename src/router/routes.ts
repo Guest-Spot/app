@@ -32,6 +32,18 @@ const routes: RouteRecordRaw[] = [
     name: 'Payment Failure',
   },
   {
+    path: '/stripe-onboarding-success',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [{ path: '', component: () => import('pages/StripeOnboardingSuccessPage.vue') }],
+    name: 'Stripe Onboarding Success',
+  },
+  {
+    path: '/stripe-onboarding-expired',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [{ path: '', component: () => import('pages/StripeOnboardingExpiredPage.vue') }],
+    name: 'Stripe Onboarding Expired',
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
