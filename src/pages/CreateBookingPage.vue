@@ -1,30 +1,31 @@
 <template>
-  <!-- Search/Filter/Sort dialogs -->
-  <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" no-route-replace />
-  <FilterDialog
-    v-model="showFilterDialog"
-    v-model:filterValue="activeFilters"
-    no-route-replace
-    unelevated
-  />
-  <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
+  <q-page class="page flex column items-start create-booking-page">
+    <!-- Search/Filter/Sort dialogs -->
+    <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" no-route-replace />
+    <FilterDialog
+      v-model="showFilterDialog"
+      v-model:filterValue="activeFilters"
+      no-route-replace
+      unelevated
+    />
+    <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
 
-  <q-dialog v-model="isVisible" position="bottom" no-route-dismiss>
-    <q-card class="create-booking-dialog full-height">
-      <q-card-section class="dialog-header">
-        <div class="text-subtitle1 text-bold">Create Booking Request</div>
+    <div class="page-card">
+      <div class="dialog-header">
+        <div class="header-left flex items-center q-gap-sm">
+          <div class="text-subtitle1 text-bold">Create Booking Request</div>
+        </div>
         <q-btn
           icon="close"
           class="bg-block"
           text-color="primary"
           round
           dense
-          size="sm"
-          @click="closeDialog"
+          @click="closePage"
         />
-      </q-card-section>
+      </div>
 
-      <q-card-section class="dialog-content">
+      <div class="dialog-content">
         <div class="custom-stepper">
           <div class="stepper-header">
             <div
@@ -79,7 +80,7 @@
             ref="scheduleStepRef"
             v-model:day="schedule.day"
             v-model:start-time="schedule.startTime"
-            :opening-hours="shopOpeningHours || []"
+            :opening-hours="shopOpeningHours"
             :disabled-days="artistUnavailableDays"
             :rules="rules"
           />
@@ -88,75 +89,79 @@
             v-else-if="currentStep === 4"
             :loading="isPaymentProcessing"
             :disabled="isPaymentProcessing"
-            :deposit-amount="selectedArtistDepositAmount || 0"
+            :deposit-amount="depositAmountDisplay"
+            :platform-commission="platformCommissionAmount"
+            :total-amount="totalPaymentAmount"
             @on-pay="handlePayment"
           />
         </div>
-      </q-card-section>
-
-      <q-card-actions class="dialog-actions bg-block">
+      </div>
+    </div>
+    <div class="dialog-actions bg-block full-width">
+      <q-btn
+        v-if="isAtFirstStep"
+        label="Cancel"
+        rounded
+        unelevated
+        class="bg-block"
+        @click="closePage"
+      />
+      <q-btn
+        v-else-if="currentStep === 4"
+        label="Pay later"
+        rounded
+        unelevated
+        class="bg-block"
+        @click="closePage"
+      />
+      <q-btn v-else label="Back" rounded unelevated class="bg-block" @click="goToPrevStep" />
+      <div class="actions-right flex q-gap-sm">
         <q-btn
-          v-if="isAtFirstStep"
-          label="Cancel"
+          v-if="currentStep < 3"
+          label="Next"
+          color="primary"
           rounded
           unelevated
-          class="bg-block"
-          @click="closeDialog"
+          :disable="isArtistSelectionRequired && currentStep === 1 && !selectedArtistId"
+          @click="goToNextStep"
+        />
+        <q-btn
+          v-else-if="currentStep === 3"
+          label="Submit Request"
+          color="primary"
+          rounded
+          unelevated
+          :disable="isSubmitDisabled"
+          :loading="isSubmitting"
+          @click="onSubmit"
         />
         <q-btn
           v-else-if="currentStep === 4"
-          label="Pay later"
+          label="Pay Deposit"
+          color="primary"
+          icon="payments"
           rounded
           unelevated
-          class="bg-block"
-          @click="closeDialog"
+          :disable="isPaymentProcessing"
+          :loading="isPaymentProcessing"
+          @click="handlePayment"
         />
-        <q-btn v-else label="Back" rounded unelevated class="bg-block" @click="goToPrevStep" />
-        <div class="actions-right flex q-gap-sm">
-          <q-btn
-            v-if="currentStep < 3"
-            label="Next"
-            color="primary"
-            rounded
-            unelevated
-            :disable="isArtistSelectionRequired && currentStep === 1 && !selectedArtistId"
-            @click="goToNextStep"
-          />
-          <q-btn
-            v-else-if="currentStep === 3"
-            label="Submit Request"
-            color="primary"
-            rounded
-            unelevated
-            :disable="isSubmitDisabled"
-            :loading="isSubmitting"
-            @click="onSubmit"
-          />
-          <q-btn
-            v-else-if="currentStep === 4"
-            label="Pay Deposit"
-            color="primary"
-            icon="payments"
-            rounded
-            unelevated
-            :disable="isPaymentProcessing"
-            :loading="isPaymentProcessing"
-            @click="handlePayment"
-          />
-        </div>
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
+      </div>
+    </div>
+  </q-page>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import { SearchDialog, FilterDialog, SortDialog } from 'src/components/Dialogs';
-import ArtistStep from './CreateBookingSteps/ArtistStep.vue';
-import DetailsStep from './CreateBookingSteps/DetailsStep.vue';
-import ScheduleStep from './CreateBookingSteps/ScheduleStep.vue';
-import PaymentStep from './CreateBookingSteps/PaymentStep.vue';
+import {
+  ArtistStep,
+  DetailsStep,
+  ScheduleStep,
+  PaymentStep,
+} from 'src/components/Dialogs/CreateBookingSteps';
 
 import { USERS_QUERY, USER_QUERY } from 'src/apollo/types/user';
 import { CITIES_QUERY } from 'src/apollo/types/city';
@@ -182,25 +187,11 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
 import useBookingPayment from 'src/composables/useBookingPayment';
-import { useRouter } from 'vue-router';
 import { centsToDollars } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
 
-interface Props {
-  modelValue: boolean;
-  shopDocumentId?: string;
-  artistDocumentId?: string;
-  type?: 'shop-to-artist' | 'artist-to-shop';
-  shopOpeningHours?: IOpeningHours[];
-}
-
-interface Emits {
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'submit', booking: IBookingCreateResponse): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+const route = useRoute();
+const router = useRouter();
 
 const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showError, showSuccess } = useNotify();
@@ -211,8 +202,10 @@ const {
   initiatePayment: initiateBookingPayment,
   isProcessing: isPaymentProcessing,
 } = useBookingPayment();
-const router = useRouter();
 const settingsStore = useSettingsStore();
+
+const routeShopDocumentId = computed(() => (route.query.shopId as string | undefined) ?? null);
+const routeArtistDocumentId = computed(() => (route.query.artistId as string | undefined) ?? null);
 
 const baseSteps = [
   { id: 1, title: 'Artist', icon: 'person' },
@@ -221,7 +214,9 @@ const baseSteps = [
   { id: 4, title: 'Payment', icon: 'payment' },
 ] as const;
 
-const isArtistSelectionRequired = computed(() => !props.artistDocumentId);
+const shopOpeningHours = ref<IOpeningHours[]>([]);
+
+const isArtistSelectionRequired = computed(() => !routeArtistDocumentId.value);
 
 const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
@@ -234,10 +229,37 @@ const shouldShowPaymentStep = computed(() => {
 });
 const selectedArtistDepositAmount = computed(() => centsToDollars(selectedArtist.value?.depositAmount ?? 0));
 
+const depositAmountDisplay = computed<number | null>(() => {
+  const amount = selectedArtistDepositAmount.value;
+  if (!amount || amount <= 0) {
+    return null;
+  }
+  return Math.round(amount * 100) / 100;
+});
+
+const platformCommissionAmount = computed<number | null>(() => {
+  const deposit = depositAmountDisplay.value;
+  const totalFeePercent = settingsStore.getTotalFeePercent;
+  if (!deposit || !totalFeePercent) {
+    return null;
+  }
+  const feePercent = totalFeePercent / 100;
+  const commission = deposit * feePercent;
+  return Math.round(commission * 100) / 100;
+});
+
+const totalPaymentAmount = computed<number | null>(() => {
+  const deposit = depositAmountDisplay.value;
+  if (!deposit) {
+    return null;
+  }
+  const commission = platformCommissionAmount.value ?? 0;
+  const total = deposit + commission;
+  return Math.round(total * 100) / 100;
+});
+
 const visibleSteps = computed(() => {
-  let steps: typeof baseSteps[number][] = isArtistSelectionRequired.value
-    ? [...baseSteps]
-    : baseSteps.filter((step) => step.id !== 1);
+  let steps: typeof baseSteps[number][] = isArtistSelectionRequired.value ? [...baseSteps] : baseSteps.filter((step) => step.id !== 1);
   if (!shouldShowPaymentStep.value) {
     steps = steps.filter((step) => step.id !== 4);
   }
@@ -246,7 +268,6 @@ const visibleSteps = computed(() => {
 
 const firstVisibleStepId = computed(() => visibleSteps.value[0]?.id ?? baseSteps[0].id);
 
-const isVisible = ref(props.modelValue);
 const currentStep = ref(firstVisibleStepId.value);
 const isSubmitting = ref(false);
 const isResetting = ref(false);
@@ -372,13 +393,18 @@ const {
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
 
 const {
-  load: loadSingleArtist,
-  onResult: onSingleArtistResult,
-  onError: onSingleArtistError,
+  load: loadArtistById,
+  onResult: onArtistResult,
+  onError: onArtistError,
 } = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
-const { load: loadArtistBookings, stop: stopArtistBookings } =
-  useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
+const {
+  load: loadShopById,
+  onResult: onShopResult,
+  onError: onShopError,
+} = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
+
+const { load: loadArtistBookings, stop: stopArtistBookings } = useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
 
 const { mutate: createBooking } = useMutation(CREATE_BOOKING_MUTATION);
 
@@ -414,11 +440,10 @@ const buildQueryVariables = () => {
     }),
   };
 
-  // If shopDocumentId is provided, filter artists by parent shop
-  if (props.shopDocumentId) {
+  if (routeShopDocumentId.value) {
     filters.parent = {
       documentId: {
-        eq: props.shopDocumentId,
+        eq: routeShopDocumentId.value,
       },
     };
   }
@@ -619,7 +644,6 @@ const onSubmit = async () => {
       },
     };
 
-    // Remove undefined fields to avoid GraphQL errors
     Object.keys(mutationVariables.data).forEach((key) => {
       const value = mutationVariables.data[key as keyof typeof mutationVariables.data];
       if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
@@ -634,18 +658,15 @@ const onSubmit = async () => {
       showError('Failed to create booking. Please try again.');
       return;
     }
-    // Save created booking
+
     createdBooking.value = booking;
 
-    // Check if payment step should be shown
     if (shouldShowPaymentStep.value) {
-      // Move to payment step
       currentStep.value = 4;
     } else {
-      // No payment needed, close dialog and show success
       showSuccess('Booking request sent!');
-      closeDialog();
-      void router.push(`/my-bookings`);
+      await resetFormState();
+      void router.push('/my-bookings');
     }
   } catch (error) {
     console.error('Failed to submit booking:', error);
@@ -659,7 +680,7 @@ const handlePayment = async () => {
   await initiateBookingPayment(createdBooking.value?.documentId ?? null);
 };
 
-const resetFormState = () => {
+const resetFormState = async () => {
   isResetting.value = true;
   isPaymentProcessing.value = false;
   currentStep.value = firstVisibleStepId.value;
@@ -670,12 +691,10 @@ const resetFormState = () => {
   artistBookings.value = [];
   createdBooking.value = null;
 
-  // Reset selectedArtist if artistDocumentId is not provided
-  if (!props.artistDocumentId) {
+  if (!routeArtistDocumentId.value) {
     selectedArtist.value = null;
   }
 
-  // Auto-fill user data if available
   Object.assign(bookingDetails, {
     name: user.value?.name || '',
     email: user.value?.email || '',
@@ -691,43 +710,21 @@ const resetFormState = () => {
   });
 
   resetPagination();
-  void nextTick(() => {
-    detailsStepRef.value?.resetForm();
-    scheduleStepRef.value?.resetForm();
-    isResetting.value = false;
-    currentStep.value = firstVisibleStepId.value;
-  });
+
+  await nextTick();
+  detailsStepRef.value?.resetForm();
+  scheduleStepRef.value?.resetForm();
+  isResetting.value = false;
+  currentStep.value = firstVisibleStepId.value;
 };
 
-const closeDialog = () => {
-  isVisible.value = false;
-};
-
-// Watchers
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    isVisible.value = newValue;
-    if (newValue) {
-      resetFormState();
-      // Force reload artists on dialog open
-      resetPagination();
-      if (isArtistSelectionRequired.value) {
-        loadArtistsList(true);
-        void loadCities();
-      } else if (props.artistDocumentId) {
-        void loadSingleArtist(null, { documentId: props.artistDocumentId });
-      }
-    }
-  },
-);
-
-watch(isVisible, (newValue) => {
-  emit('update:modelValue', newValue);
-  if (!newValue) {
-    resetFormState();
+const closePage = () => {
+  if (typeof window !== 'undefined' && window.history.length > 1) {
+    router.back();
+    return;
   }
-});
+  void router.push('/');
+};
 
 watch(
   () => selectedArtist.value,
@@ -740,19 +737,26 @@ watch(
       startTime: '',
     });
     scheduleStepRef.value?.resetForm();
+
+    if (newArtist?.parent?.openingHours) {
+      shopOpeningHours.value = newArtist.parent.openingHours;
+    } else if (!routeShopDocumentId.value) {
+      shopOpeningHours.value = [];
+    }
   },
+  {
+    immediate: true,
+  }
 );
 
 watch(
-  () => [isVisible.value, selectedArtistId.value] as const,
-  ([visible, artistId]) => {
-    if (!visible) {
-      artistBookings.value = [];
-      stopArtistBookings();
-      return;
-    }
+  selectedArtistId,
+  (artistId) => {
     if (artistId) {
       void fetchArtistBookings(artistId);
+    } else {
+      artistBookings.value = [];
+      stopArtistBookings();
     }
   },
   { immediate: true },
@@ -761,25 +765,59 @@ watch(
 watch(
   [activeFilters, searchQuery, sortSettings],
   () => {
-    if (isResetting.value || !isVisible.value || !isArtistSelectionRequired.value) return;
+    if (isResetting.value || !isArtistSelectionRequired.value) return;
     refetchArtistsData();
   },
   { deep: true },
 );
 
 watch(
-  () => props.artistDocumentId,
+  () => routeArtistDocumentId.value,
   (id) => {
-    if (id && isVisible.value) {
-      void loadSingleArtist(null, { documentId: id });
-    } else if (!id) {
+    if (id) {
+      void loadArtistById(null, { documentId: id });
+    } else {
       selectedArtist.value = null;
     }
-    if (isVisible.value) {
-      currentStep.value = firstVisibleStepId.value;
+  },
+  { immediate: true },
+);
+
+watch(
+  () => routeShopDocumentId.value,
+  (id) => {
+    if (id) {
+      void loadShopById(null, { documentId: id });
+    } else {
+      shopOpeningHours.value = [];
     }
   },
+  { immediate: true },
 );
+
+let initialized = false;
+
+const initializePage = async () => {
+  await resetFormState();
+
+  if (isArtistSelectionRequired.value) {
+    loadArtistsList(true);
+    void loadCities();
+  }
+};
+
+watch(
+  () => route.fullPath,
+  async () => {
+    if (!initialized) return;
+    await initializePage();
+  },
+);
+
+onMounted(async () => {
+  await initializePage();
+  initialized = true;
+});
 
 onArtistsResult(({ data, loading }) => {
   if (loading) return;
@@ -807,140 +845,137 @@ onErrorCities((error) => {
   console.error('Error loading cities:', error);
 });
 
-onSingleArtistResult(({ data }) => {
+onArtistResult(({ data }) => {
   if (data?.usersPermissionsUser) {
     selectedArtist.value = data.usersPermissionsUser;
   }
 });
 
-onSingleArtistError((error) => {
+onArtistError((error) => {
   console.error('Error loading artist:', error);
   showError('Failed to load artist information.');
 });
 
-onMounted(() => {
-  if (props.modelValue) {
-    resetPagination();
-    if (isArtistSelectionRequired.value) {
-      loadArtistsList(true);
-      void loadCities();
-    } else if (props.artistDocumentId) {
-      void loadSingleArtist(null, { documentId: props.artistDocumentId });
-    }
-  }
+onShopResult(({ data }) => {
+  shopOpeningHours.value = data?.usersPermissionsUser?.openingHours || [];
+});
+
+onShopError((error) => {
+  console.error('Error loading shop:', error);
 });
 </script>
 
 <style scoped lang="scss">
-.create-booking-dialog {
+.create-booking-page {
+  box-sizing: border-box;
+  padding-bottom: 90px;
+}
+
+.page-card {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  overflow: hidden;
+}
 
-  .dialog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
 
-    .text-subtitle1 {
-      font-weight: 600;
-    }
+.dialog-content {
+  padding: 0 20px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.custom-stepper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.stepper-header {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0 16px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+
+.stepper-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  min-height: 32px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+
+  &.active {
+    border: 1px solid var(--q-primary);
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-1px);
   }
 
-  .dialog-content {
-    padding: 0 20px;
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+  &.completed {
+    background: var(--q-primary) !important;
+    color: #fff;
   }
 
-  .custom-stepper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-
-    .stepper-header {
-      display: flex;
-      gap: 12px;
-      padding: 20px 0 16px;
-      flex-shrink: 0;
-      overflow-x: auto;
-      flex-wrap: nowrap;
-    }
-
-    .stepper-item {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 16px;
-      min-height: 32px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.03);
-      color: rgba(0, 0, 0, 0.4);
-      font-weight: 600;
-      cursor: pointer;
-      transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
-
-      &.active {
-        border: 1px solid var(--q-primary);
-        background: rgba(0, 0, 0, 0.06);
-        color: rgba(0, 0, 0, 0.6);
-        transform: translateY(-1px);
-      }
-
-      &.completed {
-        background: var(--q-primary) !important;
-        color: #fff;
-      }
-
-      span {
-        font-size: 12px;
-      }
-    }
+  span {
+    font-size: 12px;
   }
+}
 
-  .dialog-actions {
-    padding: 16px 20px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
+.dialog-actions {
+  padding: 16px 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  z-index: 10;
 
-    .q-btn {
-      font-weight: 600;
-    }
+  .q-btn {
+    font-weight: 600;
   }
 }
 
 .body--dark {
-  .create-booking-dialog {
+  .create-booking-page {
     .dialog-header {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .custom-stepper {
-      .stepper-item {
-        background: rgba(255, 255, 255, 0.04);
-        color: rgba(255, 255, 255, 0.4);
+    .stepper-item {
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.4);
 
-        &.active,
-        &.completed {
-          background: rgba(255, 255, 255, 0.08);
-          color: rgba(255, 255, 255, 0.7);
-        }
+      &.active,
+      &.completed {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.7);
       }
     }
   }
 }
 </style>
+

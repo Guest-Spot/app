@@ -93,26 +93,18 @@
           round
           size="lg"
           :disable="!shopData.documentId"
-          @click="openBookingDialog"
+          @click="goToBookingPage"
         >
           <q-icon name="event" color="primary" />
         </q-btn>
       </div>
     </div>
-
-    <!-- Create Booking Dialog -->
-    <CreateBookingDialog
-      v-model="showBookingDialog"
-      :shop-document-id="shopData.documentId"
-      :shop-opening-hours="shopData.openingHours || []"
-      type="shop-to-artist"
-    />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -121,7 +113,6 @@ import PublicShopPortfolioTab from 'src/components/PublicShopProfile/PublicShopP
 import TabsComp from 'src/components/TabsComp.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import { useFavorites } from 'src/modules/useFavorites';
-import CreateBookingDialog from 'src/components/Dialogs/CreateBookingDialog.vue';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import { useLazyQuery } from '@vue/apollo-composable';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
@@ -133,6 +124,7 @@ import { useUserStore } from 'src/stores/user';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
+const router = useRouter();
 const shopsStore = useShopsStore();
 const userStore = useUserStore();
 
@@ -214,7 +206,6 @@ const TABS = computed<ITab[]>(() => [
   },
 ]);
 
-const showBookingDialog = ref(false);
 const activeTab = ref<ITab>(TABS.value[0]!);
 
 // Methods
@@ -227,8 +218,14 @@ const setActiveTab = (tab: ITab) => {
 };
 
 // Booking dialog state
-const openBookingDialog = () => {
-  showBookingDialog.value = true;
+const goToBookingPage = () => {
+  if (!shopData.value.documentId) return;
+  void router.push({
+    name: 'CreateBooking',
+    query: {
+      shopId: shopData.value.documentId,
+    },
+  });
 };
 
 // Fetch shop data from store or via Apollo

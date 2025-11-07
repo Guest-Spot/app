@@ -3,43 +3,55 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/sign-in',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     meta: { title: 'Sign In' },
     children: [{ path: '', component: () => import('pages/SignInPage.vue') }],
   },
   {
     path: '/sign-up',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     meta: { title: 'Sign Up' },
     children: [{ path: '', component: () => import('pages/SignUpPage.vue') }],
   },
   {
     path: '/connect/:provider',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/connect/Provider.vue') }],
     name: 'ConnectProvider',
   },
   {
     path: '/payment-success',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/PaymentSuccessPage.vue') }],
     name: 'Payment Success',
   },
   {
     path: '/payment-failure',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/PaymentFailurePage.vue') }],
     name: 'Payment Failure',
   },
   {
+    path: '/create-booking',
+    component: () => import('layouts/SimpleLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/CreateBookingPage.vue'),
+        name: 'CreateBooking',
+        meta: { title: 'Create Booking Request' },
+      },
+    ],
+  },
+  {
     path: '/stripe-onboarding-success',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/StripeOnboardingSuccessPage.vue') }],
     name: 'Stripe Onboarding Success',
   },
   {
     path: '/stripe-onboarding-expired',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/StripeOnboardingExpiredPage.vue') }],
     name: 'Stripe Onboarding Expired',
   },
@@ -116,7 +128,7 @@ const routes: RouteRecordRaw[] = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('layouts/AuthLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [
       {
         path: '',

@@ -82,20 +82,11 @@
 
       <!-- Booking Button -->
       <div v-if="isGuest && artistData?.parent" class="action-buttons flex justify-center q-mt-lg q-gap-sm">
-        <q-btn round class="bg-block" size="lg" text-color="primary" @click="openBookingDialog">
+        <q-btn round class="bg-block" size="lg" text-color="primary" @click="goToBookingPage">
           <q-icon name="event" color="primary" />
         </q-btn>
       </div>
     </div>
-
-    <!-- Create Booking Dialog -->
-    <CreateBookingDialog
-      v-model="showBookingDialog"
-      :artist-document-id="artistData.documentId"
-      :shop-opening-hours="artistData.parent?.openingHours || []"
-      type="artist-to-shop"
-      @submit="handleBookingSubmit"
-    />
 
     <!-- Shop Info Dialog -->
     <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
@@ -104,15 +95,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
-import type { IBookingCreateResponse } from 'src/interfaces/booking';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
-import { CreateBookingDialog, ShopInfoDialog } from 'src/components/Dialogs';
+import { ShopInfoDialog } from 'src/components/Dialogs';
 import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
 import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -147,6 +137,7 @@ const {
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 const route = useRoute();
+const router = useRouter();
 const artistsStore = useArtistsStore();
 const { onInviteSuccess, onInviteError } = useInviteCompos();
 const { showError, showSuccess } = useNotify();
@@ -244,20 +235,20 @@ const toggleFavorite = () => {
 };
 
 // Dialog state
-const showBookingDialog = ref(false);
 const showShopDialog = ref(false);
-
-const openBookingDialog = () => {
-  showBookingDialog.value = true;
-};
 
 const openShopDialog = () => {
   showShopDialog.value = true;
 };
 
-const handleBookingSubmit = (booking: IBookingCreateResponse) => {
-  console.log('Booking submitted:', booking);
-  showBookingDialog.value = false;
+const goToBookingPage = () => {
+  if (!artistData.value.documentId) return;
+  void router.push({
+    name: 'CreateBooking',
+    query: {
+      artistId: artistData.value.documentId,
+    },
+  });
 };
 
 // Function to load artist data
