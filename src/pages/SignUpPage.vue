@@ -9,96 +9,376 @@
 
     <div class="q-my-auto full-width">
       <div class="container">
-        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
+        <div class="full-width bg-block border-radius-lg q-pa-lg">
           <div class="flex column items-start q-gap-md full-width">
             <div class="step-indicator text-subtitle2 text-grey-5 q-px-md q-py-sm border-radius-lg">
-              Step {{ currentStep }} of 2
+              Step {{ currentStep }} of {{ totalSteps }}
             </div>
 
+            <div v-if="currentStep === 1" class="flex column items-start q-gap-md full-width">
+              <div class="full-width">
+                <h3 class="text-subtitle1 q-my-none">Choose account type</h3>
+                <p class="text-body2 text-grey-5 q-mt-xs q-mb-none">
+                  Select who you are signing up as to see the right fields.
+                </p>
+              </div>
+
+              <div class="user-type-selector full-width">
+                <q-card
+                  v-for="type in userTypes"
+                  :key="type.value"
+                  class="user-type-option"
+                  :class="{
+                    'user-type-option--active': form.type === type.value,
+                    'user-type-option--guest': type.value === 'guest',
+                  }"
+                  flat
+                  bordered
+                  clickable
+                  @click="form.type = type.value"
+                >
+                  <div class="flex column q-gap-sm">
+                    <div class="flex row items-center q-gap-sm">
+                      <q-icon :name="type.icon" color="primary" />
+                      <span class="text-subtitle1">{{ type.label }}</span>
+                    </div>
+                    <p class="text-body2 text-grey-5 q-mb-none">{{ type.description }}</p>
+                  </div>
+                </q-card>
+              </div>
+
+              <div class="button-group full-width q-mt-sm">
+                <q-btn
+                  round
+                  flat
+                  class="bg-block"
+                  icon="arrow_back"
+                  @click="goBack"
+                />
+                <q-btn
+                  class="register-btn bg-block full-width"
+                  rounded
+                  unelevated
+                  label="Continue"
+                  @click="goToNextStep"
+                  :disable="!form.type"
+                />
+              </div>
+            </div>
+
+            <template v-else-if="currentStep === 2">
+              <q-form
+                v-if="isGuest"
+                ref="guestDetailsForm"
+                @submit.prevent="goToNextStep"
+                class="flex column items-start q-gap-sm full-width"
+              >
+                <div class="flex column items-start q-gap-xs full-width">
+                  <label class="input-label">Full name</label>
+                  <q-input
+                    v-model="form.name"
+                    type="text"
+                    placeholder="Name"
+                    outlined
+                    rounded
+                    size="lg"
+                    :rules="nameRules"
+                    class="full-width"
+                    bg-color="transparent"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="person" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="flex column items-start q-gap-xs full-width">
+                  <label class="input-label">Email</label>
+                  <q-input
+                    v-model="form.email"
+                    type="email"
+                    placeholder="Email"
+                    outlined
+                    rounded
+                    size="lg"
+                    :rules="emailRules"
+                    :loading="emailStatus === 'checking'"
+                    :error="emailStatus === 'taken' || emailStatus === 'error'"
+                    :error-message="emailErrorMessage"
+                    :hint="emailHint"
+                    :persistent-hint="emailStatus === 'available'"
+                    class="full-width"
+                    bg-color="transparent"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="email" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="flex column items-start q-gap-xs full-width">
+                  <label class="input-label">Phone number</label>
+                  <q-input
+                    v-model="form.phone"
+                    type="tel"
+                    placeholder="Phone number"
+                    outlined
+                    rounded
+                    size="lg"
+                    :mask="PHONE_INPUT_MASK"
+                    class="full-width"
+                    bg-color="transparent"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="call" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="button-group full-width q-mt-sm">
+                  <q-btn
+                    round
+                    flat
+                    class="bg-block"
+                    icon="arrow_back"
+                    @click="goBack"
+                  />
+                  <q-btn
+                    type="submit"
+                    class="register-btn bg-block full-width"
+                    rounded
+                    unelevated
+                  >
+                    Continue
+                  </q-btn>
+                </div>
+              </q-form>
+
+              <q-form
+                v-else
+                ref="businessDetailsForm"
+                @submit.prevent="goToNextStep"
+                class="flex column items-start q-gap-sm full-width"
+              >
+                <div class="flex column items-start q-gap-xs full-width">
+                  <label class="input-label">{{ nameLabel }}</label>
+                  <q-input
+                    v-model="form.name"
+                    type="text"
+                    :placeholder="nameLabel"
+                    outlined
+                    rounded
+                    size="lg"
+                    :rules="nameRules"
+                    class="full-width"
+                    bg-color="transparent"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon :name="isShop ? 'store' : 'brush'" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="flex column items-start q-gap-xs full-width">
+                  <label class="input-label">Email</label>
+                  <q-input
+                    v-model="form.email"
+                    type="email"
+                    placeholder="Email"
+                    outlined
+                    rounded
+                    size="lg"
+                    :rules="emailRules"
+                    :loading="emailStatus === 'checking'"
+                    :error="emailStatus === 'taken' || emailStatus === 'error'"
+                    :error-message="emailErrorMessage"
+                    :hint="emailHint"
+                    :persistent-hint="emailStatus === 'available'"
+                    class="full-width"
+                    bg-color="transparent"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="email" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="flex column items-start q-gap-xs full-width">
+                  <label class="input-label">Phone number</label>
+                  <q-input
+                    v-model="form.phone"
+                    type="tel"
+                    placeholder="Phone number"
+                    outlined
+                    rounded
+                    size="lg"
+                    :mask="PHONE_INPUT_MASK"
+                    class="full-width"
+                    bg-color="transparent"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="call" color="grey-6" />
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="button-group full-width q-mt-sm">
+                  <q-btn
+                    round
+                    flat
+                    class="bg-block"
+                    icon="arrow_back"
+                    @click="goBack"
+                  />
+                  <q-btn
+                    type="submit"
+                    class="register-btn bg-block full-width"
+                    rounded
+                    unelevated
+                  >
+                    Continue
+                  </q-btn>
+                </div>
+              </q-form>
+            </template>
+
             <q-form
-              v-if="currentStep === 1"
-              ref="stepOneForm"
+              v-else-if="currentStep === 3"
+              ref="locationForm"
               @submit.prevent="goToNextStep"
-              class="flex column items-start q-gap-sm full-width"
+              class="flex column items-start q-gap-lg full-width"
             >
               <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">Full name</label>
+                <label class="input-label">City</label>
                 <q-input
-                  v-model="form.name"
+                  v-model="form.city"
                   type="text"
-                  placeholder="Name"
+                  placeholder="City"
                   outlined
                   rounded
                   size="lg"
-                  :rules="nameRules"
                   class="full-width"
                   bg-color="transparent"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="person" color="grey-6" />
+                    <q-icon name="location_on" color="grey-6" />
                   </template>
                 </q-input>
               </div>
 
               <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">Email</label>
+                <label class="input-label">Address</label>
                 <q-input
-                  v-model="form.email"
-                  type="email"
-                  placeholder="Email"
+                  v-model="form.address"
+                  type="text"
+                  placeholder="Address"
                   outlined
                   rounded
                   size="lg"
-                  :rules="emailRules"
-                  :loading="emailStatus === 'checking'"
-                  :error="emailStatus === 'taken' || emailStatus === 'error'"
-                  :error-message="emailErrorMessage"
-                  :hint="emailHint"
-                  :persistent-hint="emailStatus === 'available'"
                   class="full-width"
                   bg-color="transparent"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="email" color="grey-6" />
-                  </template>
-                </q-input>
-              </div>
-
-              <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">Phone number</label>
-                <q-input
-                  v-model="form.phone"
-                  type="tel"
-                  placeholder="Phone number"
-                  outlined
-                  rounded
-                  size="lg"
-                  :mask="PHONE_INPUT_MASK"
-                  :rules="phoneRules"
-                  class="full-width"
-                  bg-color="transparent"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="call" color="grey-6" />
+                    <q-icon name="home" color="grey-6" />
                   </template>
                 </q-input>
               </div>
 
               <div class="button-group full-width q-mt-sm">
                 <q-btn
-                  type="submit"
+                  round
+                  flat
+                  class="bg-block"
+                  icon="arrow_back"
+                  @click="goBack"
+                />
+                <q-btn
                   class="register-btn bg-block full-width"
                   rounded
                   unelevated
                   label="Continue"
-                  :disable="emailStatus === 'checking'"
+                  @click="goToNextStep"
                 />
               </div>
             </q-form>
 
             <q-form
+              v-else-if="!isGuest && currentStep === 4"
+              ref="profileDetailsForm"
+              @submit.prevent="goToNextStep"
+              class="flex column items-start q-gap-lg full-width"
+            >
+              <div class="flex column items-start q-gap-xs full-width">
+                <label class="input-label">{{ experienceLabel }}</label>
+                <q-input
+                  v-model="form.experience"
+                  type="number"
+                  :placeholder="experienceLabel"
+                  outlined
+                  rounded
+                  size="lg"
+                  class="full-width"
+                  bg-color="transparent"
+                  min="0"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="schedule" color="grey-6" />
+                  </template>
+                </q-input>
+              </div>
+
+              <div class="flex column items-start q-gap-xs full-width">
+                <label class="input-label">Portfolio URL</label>
+                <q-input
+                  v-model="form.link"
+                  type="url"
+                  placeholder="Portfolio URL"
+                  outlined
+                  rounded
+                  size="lg"
+                  class="full-width"
+                  bg-color="transparent"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="link" color="grey-6" />
+                  </template>
+                </q-input>
+              </div>
+
+              <div class="flex column items-start q-gap-xs full-width">
+                <label class="input-label">Tell us about yourself</label>
+                <q-input
+                  v-model="form.description"
+                  type="textarea"
+                  placeholder="Description"
+                  outlined
+                  rounded
+                  :rows="5"
+                  class="full-width"
+                  bg-color="transparent"
+                />
+              </div>
+
+              <div class="button-group full-width q-mt-sm">
+                <q-btn
+                  round
+                  flat
+                  class="bg-block"
+                  icon="arrow_back"
+                  @click="goBack"
+                />
+                <q-btn
+                  type="submit"
+                  class="register-btn bg-block full-width"
+                  rounded
+                  unelevated
+                  label="Continue"
+                />
+              </div>
+            </q-form>
+            <q-form
               v-else
-              ref="stepTwoForm"
+              ref="passwordForm"
               @submit.prevent="handleRegister"
               class="flex column items-start q-gap-sm full-width"
             >
@@ -228,7 +508,29 @@ type RegisterVariables = {
     password: string;
     name?: string;
     phone?: string;
+    type?: string;
+    description?: string;
+    city?: string;
+    address?: string;
+    link?: string;
+    experience?: string;
   };
+};
+
+type UserType = 'guest' | 'shop' | 'artist';
+
+type RegisterForm = {
+  type: UserType;
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  address: string;
+  link: string;
+  description: string;
+  experience: string;
+  password: string;
+  confirmPassword: string;
 };
 
 const router = useRouter();
@@ -238,29 +540,64 @@ const loading = ref(false);
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const currentStep = ref(1);
-const form = ref({
+const form = ref<RegisterForm>({
+  type: 'guest',
   name: '',
   email: '',
   phone: '',
+  city: '',
+  address: '',
+  link: '',
+  description: '',
+  experience: '',
   password: '',
   confirmPassword: '',
 });
-const stepOneForm = ref<QForm | null>(null);
-const stepTwoForm = ref<QForm | null>(null);
+const guestDetailsForm = ref<QForm | null>(null);
+const businessDetailsForm = ref<QForm | null>(null);
+const profileDetailsForm = ref<QForm | null>(null);
+const locationForm = ref<QForm | null>(null);
+const passwordForm = ref<QForm | null>(null);
 const emailValidationTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const emailStatus = ref<'idle' | 'checking' | 'available' | 'taken' | 'error'>('idle');
 const lastRequestedEmail = ref('');
 
+const userTypes = [
+  {
+    label: 'Guest',
+    value: 'guest',
+    icon: 'person',
+    description: 'Book sessions as a guest user.',
+  },
+  {
+    label: 'Shop',
+    value: 'shop',
+    icon: 'storefront',
+    description: 'Promote your shop and manage bookings.',
+  },
+  {
+    label: 'Artist',
+    value: 'artist',
+    icon: 'brush',
+    description: 'Showcase your work and accept appointments.',
+  },
+] satisfies Array<{ label: string; value: UserType; icon: string; description: string }>;
+
+const isGuest = computed(() => form.value.type === 'guest');
+const isShop = computed(() => form.value.type === 'shop');
+const totalSteps = computed(() => (isGuest.value ? 4 : 5));
+const nameLabel = computed(() => (isShop.value ? 'Business name' : 'Artist name'));
+const experienceLabel = computed(() => (isShop.value ? 'Years of Founded' : 'Years of experience'));
+
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-const nameRules = [(val: string) => !!val || 'Name is required'];
+const nameRules = [(val: string) => !!val?.trim() || 'Name is required'];
 const emailRules = [
   (val: string) => !!val || 'Email is required',
   (val: string) => isValidEmail(val) || 'Please enter a valid email address',
   () => emailStatus.value !== 'taken' || 'Email already in use',
   () => emailStatus.value !== 'error' || 'Unable to verify email right now',
 ];
-const phoneRules = [(val: string) => !!val || 'Phone number is required'];
 const passwordRules = [
   (val: string) => !!val || 'Password is required',
   (val: string) => val.length >= 8 || 'Password must be at least 8 characters long',
@@ -297,7 +634,7 @@ const emailHint = computed(() => {
 
 const goBack = () => {
   if (currentStep.value > 1) {
-    currentStep.value = 1;
+    currentStep.value -= 1;
     return;
   }
 
@@ -308,21 +645,47 @@ const goBack = () => {
   }
 };
 
-const goToNextStep = async () => {
-  const isValid = await stepOneForm.value?.validate();
+const validateStepForm = async () => {
+  if (currentStep.value === 1) {
+    return !!form.value.type;
+  }
 
-  if (emailStatus.value === 'checking') {
-    showError('Please wait while we validate your email.');
+  if (currentStep.value === 2) {
+    if (emailStatus.value === 'checking') {
+      showError('Please wait while we validate your email.');
+      return false;
+    }
+    if (isGuest.value) {
+      return guestDetailsForm.value ? guestDetailsForm.value.validate() : false;
+    }
+    return businessDetailsForm.value ? businessDetailsForm.value.validate() : false;
+  }
+
+  if (currentStep.value === 3) {
+    return locationForm.value ? locationForm.value.validate() : true;
+  }
+
+  if (!isGuest.value && currentStep.value === 4) {
+    return profileDetailsForm.value ? profileDetailsForm.value.validate() : false;
+  }
+
+  return true;
+};
+
+const goToNextStep = async () => {
+  const isValid = await validateStepForm();
+
+  if (!isValid) {
     return;
   }
 
-  if (isValid) {
-    currentStep.value = 2;
+  if (currentStep.value < totalSteps.value) {
+    currentStep.value += 1;
   }
 };
 
 const goToPreviousStep = () => {
-  currentStep.value = 1;
+  goBack();
 };
 
 const handleRegister = async () => {
@@ -331,7 +694,7 @@ const handleRegister = async () => {
     return;
   }
 
-  const isValid = await stepTwoForm.value?.validate();
+  const isValid = await passwordForm.value?.validate();
 
   if (!isValid) {
     return;
@@ -349,6 +712,12 @@ const handleRegister = async () => {
         password: form.value.password,
         name: form.value.name,
         phone: form.value.phone,
+        type: form.value.type,
+        description: form.value.description,
+        city: form.value.city,
+        address: form.value.address,
+        link: form.value.link,
+        experience: form.value.experience,
       },
     });
 
@@ -403,6 +772,13 @@ watch(
   },
 );
 
+watch(
+  () => form.value.type,
+  () => {
+    currentStep.value = Math.min(currentStep.value, totalSteps.value);
+  },
+);
+
 onBeforeUnmount(() => {
   if (emailValidationTimer.value) {
     clearTimeout(emailValidationTimer.value);
@@ -424,7 +800,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
 }
 
 .register-btn {
@@ -439,6 +815,31 @@ onBeforeUnmount(() => {
   width: 100%;
   text-align: left;
   background-color: rgba(255, 255, 255, 0.04);
+  border-radius: 24px;
+}
+
+.user-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.user-type-option {
+  padding: 16px;
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.user-type-option--active {
+  border-color: var(--q-primary);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.user-type-option--guest {
+  grid-column: 1 / -1;
 }
 </style>
