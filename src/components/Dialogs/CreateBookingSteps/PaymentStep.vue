@@ -36,7 +36,7 @@
           <div class="pricing-icon">
             <q-icon name="payments" size="32px" color="primary" />
           </div>
-          <div class="pricing-info flex column items-start">
+          <div class="pricing-info flex column items-start q-ml-auto">
             <span class="text-body2 text-grey-7">Amount to Pay</span>
             <span v-if="totalDisplayText" class="text-h5 text-bold text-primary">${{ totalDisplayText }}</span>
             <span v-else class="text-h6 text-bold text-grey-5">—</span>
@@ -51,11 +51,6 @@
           <div v-if="commissionDisplayText" class="breakdown-item">
             <span>Platform commission</span>
             <span>${{ commissionDisplayText }}</span>
-          </div>
-          <q-separator v-if="commissionDisplayText" class="breakdown-separator" />
-          <div class="breakdown-total">
-            <span>Total due</span>
-            <span>${{ totalDisplayText }}</span>
           </div>
         </div>
       </div>
@@ -169,19 +164,12 @@ defineEmits<{
   flex-direction: column;
   gap: 12px;
 
-  .breakdown-item,
-  .breakdown-total {
+  .breakdown-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
     font-weight: 500;
-  }
-
-  .breakdown-total {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--q-primary);
   }
 
   .breakdown-separator {

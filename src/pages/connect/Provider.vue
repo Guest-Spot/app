@@ -4,13 +4,13 @@
       <q-card class="bg-block full-width border-radius-md">
         <q-card-section class="flex items-center bg-primary">
           <h4 class="text-h6 text-white q-my-none q-py-none">
-            {{ error ? 'Error' : 'Connecting...' }}
+            {{ error ? 'Error' : 'Authenticating...' }}
           </h4>
         </q-card-section>
         <q-card-section v-if="!error">
           <div class="flex items-center">
             <q-spinner color="primary" size="sm" class="q-mr-md" />
-            <p class="q-ma-none">Processing...</p>
+            <p class="q-ma-none">Please wait while we authenticate you...</p>
           </div>
         </q-card-section>
         <q-card-section v-else>

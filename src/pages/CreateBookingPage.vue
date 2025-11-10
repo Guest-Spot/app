@@ -152,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import { SearchDialog, FilterDialog, SortDialog } from 'src/components/Dialogs';
@@ -189,6 +189,7 @@ import useUser from 'src/modules/useUser';
 import useBookingPayment from 'src/composables/useBookingPayment';
 import { centsToDollars } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
+import useStripe from 'src/composables/useStripe';
 
 const route = useRoute();
 const router = useRouter();
@@ -203,6 +204,7 @@ const {
   isProcessing: isPaymentProcessing,
 } = useBookingPayment();
 const settingsStore = useSettingsStore();
+const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 
 const routeShopDocumentId = computed(() => (route.query.shopId as string | undefined) ?? null);
 const routeArtistDocumentId = computed(() => (route.query.artistId as string | undefined) ?? null);
@@ -862,6 +864,19 @@ onShopResult(({ data }) => {
 
 onShopError((error) => {
   console.error('Error loading shop:', error);
+});
+
+const handleBrowserFinished = () => {
+  console.log('Browser closed, redirecting to my bookings...');
+  void router.push('/my-bookings');
+};
+
+onMounted(() => {
+  addBrowserFinishedListener(() => void handleBrowserFinished());
+});
+
+onBeforeUnmount(async () => {
+  await removeAllBrowserListeners();
 });
 </script>
 

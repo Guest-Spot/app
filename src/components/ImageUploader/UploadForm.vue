@@ -154,10 +154,6 @@ async function openCamera() {
     }
   } catch (error) {
     console.error('Camera error:', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to open camera',
-    });
   }
 }
 </script>

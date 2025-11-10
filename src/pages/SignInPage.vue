@@ -108,12 +108,6 @@
                     <AppleIcon width="18px" height="18px" />
                   </div>
                 </q-btn>
-
-                <q-btn round unelevated outline color="primary" disable>
-                  <div class="flex items-center justify-center q-gap-sm">
-                    <FacebookIcon width="18px" height="18px" />
-                  </div>
-                </q-btn>
               </div>
             </div>
           </q-form>
@@ -144,7 +138,6 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
-import FacebookIcon from 'src/components/Icons/FacebookIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
 import useNotify from 'src/modules/useNotify';
 import useGoogleAuth from 'src/modules/auth/useGoogleAuth';
