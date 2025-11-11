@@ -44,6 +44,18 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/portfolio',
+    component: () => import('layouts/SimpleLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/PortfolioPage.vue'),
+        name: 'Portfolio',
+        meta: { title: 'Portfolio Work' },
+      },
+    ],
+  },
+  {
     path: '/stripe-onboarding-success',
     component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/StripeOnboardingSuccessPage.vue') }],

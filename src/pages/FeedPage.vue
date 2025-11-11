@@ -186,19 +186,5 @@ onBeforeMount(() => {
     }
   }
 }
-
-// Responsive adjustments
-@media (min-width: 768px) {
-  .feed-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .feed-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
 </style>
 

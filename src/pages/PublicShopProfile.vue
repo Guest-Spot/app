@@ -280,7 +280,13 @@ onErrorPortfolio((error) => {
 onBeforeMount(() => {
   void loadShopData();
   void loadPortfolio(null, {
-    filters: { ownerDocumentId: { eq: route.params.documentId as string } },
+    filters: {
+      owner: {
+        documentId: {
+          eq: route.params.documentId as string,
+        },
+      },
+    },
   });
   void loadShopArtists(
     null,

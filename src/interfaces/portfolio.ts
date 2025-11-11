@@ -7,8 +7,7 @@ export interface IPortfolio {
   description: string;
   pictures: IPicture[];
   tags: ITag[];
-  ownerDocumentId: string;
-  owner?: IUser;
+  owner: IUser;
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;

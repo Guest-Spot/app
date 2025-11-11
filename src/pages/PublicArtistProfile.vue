@@ -276,8 +276,10 @@ const loadPortfolioData = () => {
   if (documentId) {
     void loadPortfolio(null, {
       filters: {
-        ownerDocumentId: {
-          eq: documentId,
+        owner: {
+          documentId: {
+            eq: documentId,
+          },
         },
       },
     });

@@ -2,7 +2,6 @@ export { default as ArtistInviteDialog } from './ArtistInviteDialog.vue';
 export { default as BookingDetailsDialog } from './BookingDetailsDialog.vue';
 export { default as FilterDialog } from './FilterDialog.vue';
 export { default as ImagePreviewDialog } from './ImagePreviewDialog.vue';
-export { default as PortfolioDialog } from './PortfolioDialog.vue';
 export { default as SearchDialog } from './SearchDialog.vue';
 export { default as ShopInfoDialog } from './ShopInfoDialog.vue';
 export { default as SortDialog } from './SortDialog.vue';

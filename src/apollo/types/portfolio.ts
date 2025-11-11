@@ -19,7 +19,6 @@ export const PORTFOLIOS_QUERY = gql`
         name
         id
       }
-      ownerDocumentId
       owner {
         documentId
         name
@@ -57,7 +56,14 @@ export const PORTFOLIO_QUERY = gql`
         name
         id
       }
-      ownerDocumentId
+      owner {
+        documentId
+        name
+        type
+        city
+        address
+        verified
+      }
       createdAt
       updatedAt
     }
@@ -78,7 +84,14 @@ export const CREATE_PORTFOLIO_MUTATION = gql`
         name
         id
       }
-      ownerDocumentId
+      owner {
+        documentId
+        name
+        type
+        city
+        address
+        verified
+      }
       createdAt
       updatedAt
     }
@@ -99,7 +112,14 @@ export const UPDATE_PORTFOLIO_MUTATION = gql`
         name
         id
       }
-      ownerDocumentId
+      owner {
+        documentId
+        name
+        type
+        city
+        address
+        verified
+      }
       createdAt
       updatedAt
     }
