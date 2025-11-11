@@ -31,8 +31,8 @@ defineProps({
   gap: 6px;
   font-size: 0.75rem;
   text-transform: none;
-  line-height: 1;
-  padding: 0 6px;
+  line-height: normal;
+  padding: 1px 6px;
 }
 
 .verified-badge q-icon {
@@ -41,5 +41,10 @@ defineProps({
 
 .verified-badge--icon-only {
   padding: 1px;
+  background-color: transparent !important;
+
+  .q-icon {
+    color: var(--q-primary);
+  }
 }
 </style>
