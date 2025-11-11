@@ -1,22 +1,6 @@
 <template>
-  <q-page class="page q-pb-xl q-pt-lg flex column items-center">
+  <q-page class="page feed-page q-pb-xl q-pt-lg flex column items-center">
     <div class="container full-width">
-      <!-- Header -->
-      <div class="feed-header q-mb-md">
-        <h5 class="feed-title q-my-none">{{ feedTitle }}</h5>
-        <q-btn
-          v-if="selectedItem"
-          flat
-          round
-          icon="grid_view"
-          color="primary"
-          size="sm"
-          @click="closeDetailView"
-        >
-          <q-tooltip>Back to grid view</q-tooltip>
-        </q-btn>
-      </div>
-
       <!-- Loading State -->
       <LoadingState
         v-if="isLoadingPortfolios && !portfolios.length"
@@ -71,36 +55,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch } from 'vue';
+import { ref, onBeforeMount, watch } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import { NoResult, LoadingState } from 'src/components';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 import usePortfolios from 'src/composables/usePortfolios';
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 
 const {
   portfolios,
-  totalPortfolios,
   isLoadingPortfolios,
   hasMorePortfolios,
   fetchPortfolios,
 } = usePortfolios();
 
 const selectedItem = ref<IPortfolio | null>(null);
-
-const feedTitle = computed(() => {
-  if (selectedItem.value) {
-    return 'Portfolio Item';
-  }
-  if (totalPortfolios.value === 0) {
-    return 'Feed';
-  }
-  if (totalPortfolios.value <= PAGINATION_PAGE_SIZE) {
-    return `Feed (${portfolios.value.length})`;
-  }
-  return `Feed (${portfolios.value.length}/${totalPortfolios.value})`;
-});
 
 const selectItem = (item: IPortfolio) => {
   if (selectedItem.value?.documentId === item.documentId) {
@@ -116,10 +85,6 @@ const selectItem = (item: IPortfolio) => {
       }
     }, 100);
   }
-};
-
-const closeDetailView = () => {
-  selectedItem.value = null;
 };
 
 const loadMorePortfolios = () => {
@@ -150,6 +115,16 @@ onBeforeMount(() => {
 </script>
 
 <style scoped lang="scss">
+.feed-page {
+  height: 100vh;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 .feed-header {
   display: flex;
   justify-content: space-between;
@@ -178,13 +153,22 @@ onBeforeMount(() => {
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: 0 0 80px;
+  scroll-snap-type: y mandatory;
+  scroll-padding-block: 40vh;
+  scroll-behavior: smooth;
+
+  .feed-item-card.single-view {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
 
   .feed-item-card {
     &.active {
-      border: 2px solid var(--q-primary);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
   }
 }
 </style>
-

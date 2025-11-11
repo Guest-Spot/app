@@ -128,6 +128,11 @@ const navigateToOwner = () => {
   }
 
   &.single-view {
+    min-height: 70vh;
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+
     .feed-item-details {
       padding: 16px;
     }
@@ -206,4 +211,3 @@ const navigateToOwner = () => {
   font-weight: 600;
 }
 </style>
-
