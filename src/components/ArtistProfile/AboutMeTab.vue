@@ -1,7 +1,7 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <div class="relative-position" v-if="user?.verified">
-      <VerifiedBadge class="absolute-top-right q-z-2 q-ma-md" :verified="user.verified" />
+    <div class="relative-position">
+      <VerifiedBadge v-if="user?.verified" class="absolute-top-right q-z-2 q-ma-md" :verified="user.verified" />
       <ImageUploader
         :images="artistData.avatar ? [artistData.avatar] : []"
         placeholder-icon="person"
