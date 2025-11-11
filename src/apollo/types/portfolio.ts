@@ -1,8 +1,13 @@
 import { gql } from '@apollo/client/core';
 
 export const PORTFOLIOS_QUERY = gql`
-  query Portfolios($filters: PortfolioFiltersInput) {
-    portfolios(filters: $filters) {
+  query Portfolios($filters: PortfolioFiltersInput, $sort: [String], $pagination: PaginationArg) {
+    portfolios_connection(filters: $filters, sort: $sort, pagination: $pagination) {
+      pageInfo {
+        total
+      }
+    }
+    portfolios(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       title
       description
@@ -15,6 +20,22 @@ export const PORTFOLIOS_QUERY = gql`
         id
       }
       ownerDocumentId
+      owner {
+        documentId
+        name
+        type
+        city
+        address
+        verified
+        avatar {
+          id
+          url
+        }
+        pictures {
+          id
+          url
+        }
+      }
       createdAt
       updatedAt
       publishedAt
