@@ -28,7 +28,7 @@ export interface IBooking {
   shopDocumentId?: string | null;
   references: IPicture[];
   artist?:
-    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience' | 'payoutsEnabled' | 'depositAmount'> & {
+    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience' | 'payoutsEnabled' | 'depositAmount' | 'verified'> & {
         avatar?: IPicture | null;
         parent?: Pick<IUser, 'documentId' | 'name'> | null;
       })

@@ -8,7 +8,10 @@
     </div>
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
-        <h4 class="shop-title">{{ shop?.name || 'Unknown shop' }}</h4>
+        <div class="shop-title-row flex items-center q-gap-xs">
+          <h4 class="shop-title">{{ shop?.name || 'Unknown shop' }}</h4>
+          <VerifiedBadge :verified="shop?.verified" iconOnly />
+        </div>
         <q-btn
           round
           flat
@@ -37,7 +40,7 @@ import { computed } from 'vue';
 import { useFavorites } from 'src/modules/useFavorites';
 import useDate from 'src/modules/useDate';
 import type { IUser } from 'src/interfaces/user';
-import ImageCarousel from 'src/components/ImageCarousel.vue';
+import { ImageCarousel, VerifiedBadge } from 'src/components';
 import { OpeningHoursIndexDays } from 'src/interfaces/enums';
 
 interface Props {
@@ -115,6 +118,10 @@ const toggleFavorite = () => {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+}
+
+.shop-title-row {
+  align-items: center;
 }
 
 .shop-info {

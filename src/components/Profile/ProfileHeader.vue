@@ -1,9 +1,12 @@
 <template>
   <div class="flex justify-between items-start q-gap-md no-wrap">
-    <div class="text-h6">
-      Welcome<template v-if="name"
-        >, <span class="text-primary">{{ name }}</span></template
-      >
+    <div class="profile-welcome-row text-h6 flex items-center q-gap-sm">
+      <span>
+        Welcome<template v-if="name"
+          >, <span class="text-primary">{{ name }}</span></template
+        >
+      </span>
+      <VerifiedBadge v-if="isVerified" />
     </div>
     <div class="flex items-center no-wrap q-gap-sm">
       <q-btn
@@ -12,14 +15,13 @@
         round
         unelevated
         class="bg-block"
-        size="sm"
         @click="showNotificationDialog"
       >
         <q-badge v-if="notificationsCount > 0" color="warning" text-color="dark" floating
           >{{ notificationsCount }}</q-badge
         >
       </q-btn>
-      <q-btn text-color="primary" icon="settings" round unelevated class="bg-block" size="sm">
+      <q-btn text-color="primary" icon="settings" round unelevated class="bg-block">
         <q-menu style="width: 200px" anchor="bottom right" self="top right" :offset="[0, 4]">
           <q-list>
             <q-item v-if="!isGuest" v-close-popup clickable @click="handlePublicProfile">
@@ -97,6 +99,7 @@ import NotificationDialog from 'src/components/Dialogs/NotificationDialog.vue';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { useUserStore } from 'src/stores/user';
 import { useNotifiesStore } from 'src/stores/notifies';
+import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 
 defineOptions({
   name: 'ProfileHeader',
@@ -120,6 +123,7 @@ const { fetchNotifies } = useNotifyCompos();
 const userStore = useUserStore();
 
 const isGuest = computed(() => userStore.getIsGuest);
+const isVerified = computed(() => Boolean(userStore.getUser?.verified));
 const notificationsCount = computed(() => notifiesStore.getHasNewNotifies);
 
 const handleLogout = () => {
@@ -180,3 +184,9 @@ onMounted(() => {
   void fetchNotifies();
 });
 </script>
+
+<style scoped lang="scss">
+.profile-welcome-row {
+  flex-wrap: wrap;
+}
+</style>
