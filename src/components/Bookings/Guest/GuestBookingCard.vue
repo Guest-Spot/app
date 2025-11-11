@@ -121,7 +121,14 @@ const formattedTime = computed(() => {
   return formatTime(props.booking.start || '');
 });
 
-const statusInfo = computed(() => getBookingStatusInfo(props.booking, settingsStore.getStripeEnabled && props.booking.artist?.payoutsEnabled));
+const statusInfo = computed(() =>
+  getBookingStatusInfo(
+    props.booking,
+    settingsStore.getStripeEnabled &&
+      props.booking.artist?.payoutsEnabled === true &&
+      props.booking.artist?.verified === true,
+  ),
+);
 
 const depositAmount = computed(() => centsToDollars(props.booking.artist?.depositAmount));
 

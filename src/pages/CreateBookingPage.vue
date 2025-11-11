@@ -86,7 +86,7 @@
           />
 
           <PaymentStep
-            v-else-if="currentStep === 4"
+            v-else-if="currentStep === 4 && shouldShowPaymentStep"
             :loading="isPaymentProcessing"
             :disabled="isPaymentProcessing"
             :deposit-amount="depositAmountDisplay"
@@ -223,8 +223,10 @@ const isArtistSelectionRequired = computed(() => !routeArtistDocumentId.value);
 const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
 
+const isSelectedArtistVerified = computed(() => selectedArtist.value?.verified === true);
+
 const shouldShowPaymentStep = computed(() => {
-  if (settingsStore.getStripeEnabled !== true || selectedArtist.value?.verified !== true) {
+  if (settingsStore.getStripeEnabled !== true || !isSelectedArtistVerified.value) {
     return false;
   }
   return selectedArtist.value?.payoutsEnabled === true;
@@ -993,4 +995,3 @@ onBeforeUnmount(async () => {
   }
 }
 </style>
-
