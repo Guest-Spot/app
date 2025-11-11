@@ -41,7 +41,10 @@
                 v-if="shopData.name || shopData.description"
                 class="flex column items-start q-gap-sm"
               >
-                <span class="full-name text-h6">{{ shopData.name }}</span>
+                <div class="profile-name-row flex items-center q-gap-xs">
+                  <span class="full-name text-h6">{{ shopData.name }}</span>
+                  <VerifiedBadge :verified="shopData.verified" />
+                </div>
                 <ExpandableText
                   collapsible
                   :text="shopData.description"
@@ -121,6 +124,7 @@ import { useShopsStore } from 'src/stores/shops';
 import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
+import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -176,6 +180,7 @@ const shopData = ref<IUser>({
   type: UserType.Shop,
   id: '',
   device_tokens: [],
+  verified: false,
 });
 
 // Artists data
@@ -329,6 +334,11 @@ onBeforeMount(() => {
   display: flex;
   align-items: center;
   overflow: hidden;
+}
+
+.profile-name-row {
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .profile-carousel {

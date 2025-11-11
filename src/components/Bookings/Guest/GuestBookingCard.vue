@@ -56,7 +56,7 @@
 
       <!-- Deposit Info -->
       <div
-        v-if="settingsStore.getStripeEnabled && showDeposit && depositAmount"
+        v-if="settingsStore.getStripeEnabled && showDeposit && depositAmount && booking.artist?.verified"
         class="deposit-info q-mb-xs text-warning"
       >
         <q-icon name="payment" size="16px" />

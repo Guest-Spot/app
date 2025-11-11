@@ -224,7 +224,7 @@ const selectedArtist = ref<IUser | null>(null);
 const createdBooking = ref<IBookingCreateResponse | null>(null);
 
 const shouldShowPaymentStep = computed(() => {
-  if (settingsStore.getStripeEnabled !== true) {
+  if (settingsStore.getStripeEnabled !== true || selectedArtist.value?.verified !== true) {
     return false;
   }
   return selectedArtist.value?.payoutsEnabled === true;

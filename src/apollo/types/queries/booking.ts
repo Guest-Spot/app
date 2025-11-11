@@ -30,6 +30,7 @@ export const BOOKINGS_QUERY = gql`
         experience
         depositAmount
         payoutsEnabled
+        verified
         avatar {
           url
         }

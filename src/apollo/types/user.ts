@@ -7,6 +7,7 @@ export const ME_QUERY = gql`
       documentId
       username
       type
+      verified
       name
       pictures {
         id
@@ -28,6 +29,7 @@ export const ME_QUERY = gql`
       stripeAccountID
       payoutsEnabled
       depositAmount
+      verified
       parent {
         documentId
         name
@@ -83,6 +85,7 @@ export const USERS_QUERY = gql`
       stripeAccountID
       payoutsEnabled
       depositAmount
+      verified
       openingHours {
         day
         start
@@ -136,6 +139,7 @@ export const USER_QUERY = gql`
       stripeAccountID
       payoutsEnabled
       depositAmount
+      verified
       openingHours {
         day
         start
@@ -151,6 +155,7 @@ export const USER_QUERY = gql`
           start
           end
         }
+        verified
         pictures {
           id
           documentId
@@ -190,6 +195,7 @@ export const UPDATE_USER_MUTATION = gql`
         stripeAccountID
         payoutsEnabled
         depositAmount
+        verified
         openingHours {
           day
           start

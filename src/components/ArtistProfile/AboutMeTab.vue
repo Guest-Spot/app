@@ -1,14 +1,17 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <ImageUploader
-      :images="artistData.avatar ? [artistData.avatar] : []"
-      placeholder-icon="person"
-      class="artist-avatar"
-      placeholder="Upload avatar"
-      @on-upload="imagesForUpload = $event"
-      @on-remove="imagesForRemove = $event"
-      @on-update="onUpdateImages"
-    />
+    <div class="relative-position" v-if="user?.verified">
+      <VerifiedBadge class="absolute-top-right q-z-2 q-ma-md" :verified="user.verified" />
+      <ImageUploader
+        :images="artistData.avatar ? [artistData.avatar] : []"
+        placeholder-icon="person"
+        class="artist-avatar q-z-1"
+        placeholder="Upload avatar"
+        @on-upload="imagesForUpload = $event"
+        @on-remove="imagesForRemove = $event"
+        @on-update="onUpdateImages"
+      />
+    </div>
 
     <!-- BIO Section -->
     <q-expansion-item
@@ -142,7 +145,7 @@
 
     <!-- Payment Settings -->
     <q-expansion-item
-      v-if="settingsStore.getStripeEnabled"
+      v-if="settingsStore.getStripeEnabled && user?.verified"
       icon="payment"
       label="Payment Settings"
       header-class="expansion-header"
@@ -308,6 +311,7 @@
 import { ref, watch, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
 import { copyToClipboard } from 'quasar';
 import { ThemeSettings } from 'src/components';
+import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
@@ -607,6 +611,11 @@ defineExpose({
 <style scoped lang="scss">
 .info-section {
   padding: 16px;
+}
+
+.profile-verified-status {
+  display: flex;
+  justify-content: center;
 }
 
 .input-group {

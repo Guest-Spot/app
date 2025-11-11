@@ -44,7 +44,10 @@
           </q-avatar>
           <div class="flex column items-center full-width">
             <template v-if="artistData.name">
-              <span class="full-name text-h6">{{ artistData.name }}</span>
+              <div class="profile-name-row flex items-center q-gap-xs">
+                <span class="full-name text-h6">{{ artistData.name }}</span>
+                <VerifiedBadge :verified="artistData.verified" />
+              </div>
             </template>
             <template v-else>
               <q-skeleton type="text" width="50%" height="20px" />
@@ -97,7 +100,7 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
-import { TabsComp } from 'src/components';
+import { TabsComp, VerifiedBadge } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
@@ -170,6 +173,7 @@ const artistData = ref<IUser>({
   type: UserType.Artist,
   id: '',
   device_tokens: [],
+  verified: false,
 });
 
 // Portfolio data
@@ -362,6 +366,11 @@ onBeforeMount(() => {
 
 .profile-avatar {
   overflow: hidden;
+}
+
+.profile-name-row {
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .user-details {

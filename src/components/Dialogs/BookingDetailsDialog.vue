@@ -372,6 +372,7 @@ const canInitiatePayment = computed(() => {
     !isCurrentUserArtist.value &&
     props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid &&
     settingsStore.getStripeEnabled &&
+    artist.value?.verified === true &&
     artist.value?.payoutsEnabled === true &&
     artist.value.depositAmount !== null
   );

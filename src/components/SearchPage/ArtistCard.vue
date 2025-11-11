@@ -15,7 +15,10 @@
         <q-icon name="person" size="42px" color="grey-9" v-else />
       </q-avatar>
       <div class="artist-content q-pr-md">
-        <div class="artist-name q-mb-sm">{{ artist.name }}</div>
+        <div class="artist-name-row flex items-center q-gap-xs q-mb-sm">
+          <div class="artist-name">{{ artist.name }}</div>
+          <VerifiedBadge :verified="artist.verified ?? false" :icon-only="true" />
+        </div>
         <div class="artist-info">
           <div v-if="artist.parent" class="artist-shop text-grey-6 q-mb-xs">
             <q-icon name="store" size="14px" />
@@ -56,6 +59,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFavorites } from 'src/modules/useFavorites';
 import type { IUser } from 'src/interfaces/user';
+import { VerifiedBadge } from 'src/components';
 
 interface Props {
   artist: IUser;
@@ -119,6 +123,10 @@ const navigateToProfile = () => {
   font-weight: 600;
   margin-bottom: 8px;
   line-height: 1.2;
+}
+
+.artist-name-row {
+  align-items: center;
 }
 
 .artist-info {
