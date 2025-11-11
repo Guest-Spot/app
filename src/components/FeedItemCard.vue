@@ -10,7 +10,7 @@
         :height="viewMode === 'single' ? '400px' : '200px'"
       />
     </div>
-    <div class="feed-item-details">
+    <div v-if="viewMode === 'single'" class="feed-item-details">
       <div class="feed-item-info">
         <div class="owner-info" @click.stop="navigateToOwner">
           <q-avatar v-if="item.owner?.avatar?.url" size="24px" class="q-mr-xs">
@@ -96,12 +96,12 @@ const handleClick = () => {
 
 const navigateToOwner = () => {
   if (!props.item.owner) return;
-  
+
   const ownerType = props.item.owner.type;
-  const path = ownerType === UserType.Artist 
+  const path = ownerType === UserType.Artist
     ? `/artist/${props.item.owner.documentId}`
     : `/shop/${props.item.owner.documentId}`;
-  
+
   void router.push(path);
 };
 </script>
@@ -128,8 +128,6 @@ const navigateToOwner = () => {
   }
 
   &.single-view {
-    min-height: 70vh;
-    height: 70vh;
     display: flex;
     flex-direction: column;
 

@@ -82,6 +82,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Feed', saveScrollPosition: true },
       },
       {
+        path: 'bookmarks',
+        component: () => import('pages/BookmarksPage.vue'),
+        meta: { title: 'Bookmarks', saveScrollPosition: true },
+      },
+      {
         path: 'events',
         component: () => import('src/pages/EventsPage.vue'),
         meta: { title: 'My Trips & Bookings' },
