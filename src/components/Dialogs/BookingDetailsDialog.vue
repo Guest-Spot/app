@@ -237,7 +237,19 @@ const artist = computed<IUser | null>(() => {
   return props.booking.artist as IUser;
 });
 
-const bookingStatus = computed(() => getBookingStatusInfo(props.booking, artist.value?.payoutsEnabled));
+const isArtistVerified = computed(() => artist.value?.verified === true);
+
+const isArtistEligibleForPayments = computed(() => {
+  return (
+    settingsStore.getStripeEnabled &&
+    artist.value?.payoutsEnabled === true &&
+    isArtistVerified.value
+  );
+});
+
+const bookingStatus = computed(() =>
+  getBookingStatusInfo(props.booking, isArtistEligibleForPayments.value),
+);
 const depositAmount = computed(() => centsToDollars(artist.value?.depositAmount ?? 0));
 
 // Platform commission calculated from global settings
@@ -258,9 +270,12 @@ const totalPaymentAmount = computed(() => {
 // Show deposit only for paid or authorized bookings
 const showDeposit = computed(() => {
   const paymentStatus = props.booking?.paymentStatus;
-  return depositAmount.value !== null &&
-         (paymentStatus === EBookingPaymentStatus.Paid ||
-          paymentStatus === EBookingPaymentStatus.Authorized);
+  return (
+    isArtistVerified.value &&
+    depositAmount.value !== null &&
+    (paymentStatus === EBookingPaymentStatus.Paid ||
+      paymentStatus === EBookingPaymentStatus.Authorized)
+  );
 });
 
 // Session details data for InfoCard
@@ -372,9 +387,9 @@ const canInitiatePayment = computed(() => {
     !isCurrentUserArtist.value &&
     props.booking?.paymentStatus === EBookingPaymentStatus.Unpaid &&
     settingsStore.getStripeEnabled &&
-    artist.value?.verified === true &&
+    isArtistVerified.value &&
     artist.value?.payoutsEnabled === true &&
-    artist.value.depositAmount !== null
+    artist.value?.depositAmount !== null
   );
 });
 
