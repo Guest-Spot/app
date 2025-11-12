@@ -246,6 +246,7 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
   touch-action: pan-y;
   will-change: transform;
+  border-radius: 50px;
 }
 
 .single-view-container {

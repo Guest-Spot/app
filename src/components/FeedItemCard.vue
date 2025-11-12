@@ -12,36 +12,41 @@
     </div>
     <div v-if="viewMode === 'single'" class="feed-item-details">
       <div class="feed-item-info">
-        <div class="owner-info" @click.stop="navigateToOwner">
-          <q-avatar v-if="item.owner?.avatar?.url" size="24px" class="q-mr-xs">
-            <q-img :src="item.owner.avatar.url" />
-          </q-avatar>
-          <span class="owner-name text-weight-medium">
-            {{ item.owner?.name || 'Unknown' }}
-            <VerifiedBadge v-if="item.owner?.verified" :size="12" />
-          </span>
-        </div>
-        <div v-if="item.owner?.city" class="location text-grey-6">
-          <q-icon name="location_on" size="14px" />
-          <span>{{ item.owner.city }}</span>
-        </div>
-        <div v-if="item.createdAt" class="date text-grey-6">
-          <q-icon name="schedule" size="14px" />
-          <span>{{ formattedDate }}</span>
+        <div class="flex items-center q-gap-sm">
+          <div class="owner-info" @click.stop="navigateToOwner">
+            <q-avatar v-if="item.owner?.avatar?.url" size="24px" class="q-mr-xs">
+              <q-img :src="item.owner.avatar.url" fit="cover" ratio="0.85" />
+            </q-avatar>
+            <span class="owner-name text-weight-medium">
+              {{ item.owner?.name || 'Unknown' }}
+              <VerifiedBadge v-if="item.owner?.verified" :size="12" />
+            </span>
+          </div>
+          <div v-if="item.owner?.city" class="location text-grey-6">
+            <span class="text-grey-6">•</span>
+            <q-icon name="location_on" size="14px" />
+            <span>{{ item.owner.city }}</span>
+          </div>
+          <div v-if="item.createdAt" class="date text-grey-6">
+            <span class="text-grey-6">•</span>
+            <q-icon name="schedule" size="14px" />
+            <span>{{ formattedDate }}</span>
+          </div>
         </div>
       </div>
       <div v-if="viewMode === 'single' && item.title" class="portfolio-title">
         {{ item.title }}
       </div>
-      <div v-if="viewMode === 'single' && item.description" class="portfolio-description text-grey-7">
-        {{ item.description }}
-      </div>
+      <ExpandableText
+        collapsible
+        :text="item.description"
+        class="portfolio-description text-grey-7"
+      />
       <div v-if="viewMode === 'single' && item.tags?.length" class="portfolio-tags">
         <q-chip
           v-for="(tag, index) in item.tags"
           :key="`tag-${index}`"
           :label="tag.name"
-          size="sm"
           class="portfolio-tag bg-block"
         />
       </div>
@@ -54,6 +59,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
+import ExpandableText from 'src/components/ExpandableText.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { UserType } from 'src/interfaces/enums';
 
