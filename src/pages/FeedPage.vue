@@ -12,7 +12,7 @@
 
       <!-- Feed Content - Tile View -->
       <InfiniteScrollWrapper
-        v-else-if="portfolios.length > 0 && !selectedItem"
+        v-else-if="portfolios.length > 0"
         class="feed-grid"
         :offset="250"
         :loading="isLoadingPortfolios"
@@ -28,20 +28,6 @@
         />
       </InfiniteScrollWrapper>
 
-      <!-- Feed Content - Single View -->
-      <div v-else-if="selectedItem" class="feed-single">
-        <div class="single-view-container">
-          <FeedItemCard
-            v-for="(item, index) in portfolios"
-            :key="`feed-single-${index}`"
-            :item="item"
-            view-mode="single"
-            :class="{ active: item.documentId === selectedItem.documentId }"
-            @click="selectItem"
-          />
-        </div>
-      </div>
-
       <!-- No Results -->
       <NoResult
         v-else
@@ -50,6 +36,20 @@
         description="Start exploring artists and shops to see their work here"
         no-btn
       />
+
+      <!-- Feed Content - Single View -->
+      <div v-show="selectedItem" class="feed-single bg-block">
+        <div class="single-view-container">
+          <FeedItemCard
+            v-for="(item, index) in portfolios"
+            :key="`feed-single-${index}`"
+            :item="item"
+            view-mode="single"
+            :class="{ active: item.documentId === selectedItem?.documentId }"
+            @click="selectItem"
+          />
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
@@ -138,6 +138,17 @@ onBeforeMount(() => {
 
 .feed-single {
   width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 130px;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
 }
 
 .single-view-container {
