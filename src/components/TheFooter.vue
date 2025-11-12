@@ -71,10 +71,10 @@ const LINKS = computed(() => {
       isActive: route.path === '/',
     },
     {
-      icon: 'bookmark',
-      label: 'Bookmarks',
-      path: '/bookmarks',
-      isActive: route.path === '/bookmarks',
+      icon: 'dashboard',
+      label: 'Feed',
+      path: '/feed',
+      isActive: route.path === '/feed',
     },
     {
       icon: bookings[userStore.user?.type || UserType.Guest]?.icon,

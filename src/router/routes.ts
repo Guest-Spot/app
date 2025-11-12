@@ -44,6 +44,18 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/portfolio',
+    component: () => import('layouts/SimpleLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/PortfolioPage.vue'),
+        name: 'Portfolio',
+        meta: { title: 'Portfolio Work' },
+      },
+    ],
+  },
+  {
     path: '/stripe-onboarding-success',
     component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/StripeOnboardingSuccessPage.vue') }],
@@ -65,9 +77,14 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Search Page', saveScrollPosition: true },
       },
       {
+        path: 'feed',
+        component: () => import('pages/FeedPage.vue'),
+        meta: { title: 'Feed', saveScrollPosition: true },
+      },
+      {
         path: 'bookmarks',
         component: () => import('pages/BookmarksPage.vue'),
-        meta: { title: 'Bookmarks' },
+        meta: { title: 'Bookmarks', saveScrollPosition: true },
       },
       {
         path: 'events',

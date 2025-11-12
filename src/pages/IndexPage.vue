@@ -2,7 +2,10 @@
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <!-- Navigation Tabs -->
     <div class="container">
-      <SearchTabs v-model="activeTab" />
+      <div class="flex items-center q-gap-sm no-wrap">
+        <SearchTabs v-model="activeTab" />
+        <q-btn flat round icon="bookmark_border" color="primary" class="bg-block" to="/bookmarks" />
+      </div>
     </div>
 
     <div class="container">
