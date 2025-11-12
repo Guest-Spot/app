@@ -145,6 +145,11 @@ const handlePointerDown = (event: PointerEvent) => {
   if (!selectedItem.value) return;
   if (event.pointerType === 'mouse' && event.button !== 0) return;
 
+  const targetElement = event.target instanceof Element ? event.target : null;
+  if (targetElement?.closest('.image-carousel')) {
+    return;
+  }
+
   startX = event.clientX;
   startY = event.clientY;
   isPointerDown.value = true;
