@@ -2,7 +2,10 @@
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <div class="container">
       <!-- Navigation Tabs -->
-      <SearchTabs v-model="activeTab" />
+      <div class="flex items-center q-gap-sm no-wrap">
+        <q-btn flat round icon="arrow_back" color="primary" class="bg-block" @click="$router.back()" />
+        <SearchTabs v-model="activeTab" />
+      </div>
     </div>
 
     <div class="container">

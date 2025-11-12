@@ -38,7 +38,12 @@
       />
 
       <!-- Feed Content - Single View -->
-      <div v-show="selectedItem" class="feed-single bg-block">
+      <div
+        v-show="selectedItem"
+        class="feed-single bg-block"
+        :style="singleStyle"
+        @pointerdown="handlePointerDown"
+      >
         <div class="single-view-container">
           <FeedItemCard
             v-for="(item, index) in portfolios"
@@ -55,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch } from 'vue';
+import { ref, onBeforeMount, onBeforeUnmount, watch, computed } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import { NoResult, LoadingState } from 'src/components';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
@@ -70,6 +75,85 @@ const {
 } = usePortfolios();
 
 const selectedItem = ref<IPortfolio | null>(null);
+
+const SWIPE_CLOSE_THRESHOLD = 120;
+const MAX_OPACITY_DISTANCE = 340;
+const isPointerDown = ref(false);
+const isSwiping = ref(false);
+const swipeOffset = ref(0);
+let startX = 0;
+let startY = 0;
+
+const singleStyle = computed(() => {
+  const opacity =
+    swipeOffset.value > 0
+      ? Math.max(0.05, 1 - swipeOffset.value / MAX_OPACITY_DISTANCE)
+      : 1;
+
+  return {
+    transform: `translateX(${swipeOffset.value}px)`,
+    transition: isSwiping.value ? 'none' : 'transform 0.2s ease',
+    opacity,
+  };
+});
+
+const handlePointerMove = (event: PointerEvent) => {
+  if (!isPointerDown.value) return;
+  const deltaX = event.clientX - startX;
+  const deltaY = event.clientY - startY;
+
+  if (!isSwiping.value) {
+    if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      isSwiping.value = true;
+    } else {
+      return;
+    }
+  }
+
+  if (deltaX <= 0) {
+    swipeOffset.value = 0;
+    return;
+  }
+
+  swipeOffset.value = deltaX;
+  event.preventDefault();
+};
+
+const removePointerListeners = () => {
+  window.removeEventListener('pointermove', handlePointerMove);
+  window.removeEventListener('pointerup', handlePointerEnd);
+  window.removeEventListener('pointercancel', handlePointerEnd);
+};
+
+const resetSwipeState = () => {
+  isPointerDown.value = false;
+  isSwiping.value = false;
+  swipeOffset.value = 0;
+  removePointerListeners();
+};
+
+const handlePointerEnd = () => {
+  if (!isPointerDown.value) return;
+  const shouldClose = swipeOffset.value > SWIPE_CLOSE_THRESHOLD;
+  resetSwipeState();
+  if (shouldClose) {
+    selectedItem.value = null;
+  }
+};
+
+const handlePointerDown = (event: PointerEvent) => {
+  if (!selectedItem.value) return;
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+  startX = event.clientX;
+  startY = event.clientY;
+  isPointerDown.value = true;
+  isSwiping.value = false;
+  swipeOffset.value = 0;
+  window.addEventListener('pointermove', handlePointerMove);
+  window.addEventListener('pointerup', handlePointerEnd);
+  window.addEventListener('pointercancel', handlePointerEnd);
+};
 
 const selectItem = (item: IPortfolio) => {
   if (selectedItem.value?.documentId === item.documentId) {
@@ -105,12 +189,18 @@ watch(
   (newValue) => {
     if (newValue) {
       // Disable infinite scroll when in single view
+    } else {
+      resetSwipeState();
     }
   },
 );
 
 onBeforeMount(() => {
   initializeFeed();
+});
+
+onBeforeUnmount(() => {
+  resetSwipeState();
 });
 </script>
 
@@ -149,6 +239,8 @@ onBeforeMount(() => {
   padding-left: 16px;
   padding-right: 16px;
   box-sizing: border-box;
+  touch-action: pan-y;
+  will-change: transform;
 }
 
 .single-view-container {
