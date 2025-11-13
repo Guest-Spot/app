@@ -121,11 +121,12 @@
                   <q-input
                     v-model="form.phone"
                     type="tel"
-                    placeholder="Phone number"
+                    placeholder="+# ### ###-####"
                     outlined
                     rounded
                     size="lg"
-                    :mask="PHONE_INPUT_MASK"
+                    :mask="phoneInputMask"
+                    clearable
                     class="full-width"
                     bg-color="transparent"
                   >
@@ -208,11 +209,12 @@
                   <q-input
                     v-model="form.phone"
                     type="tel"
-                    placeholder="Phone number"
+                    placeholder="+# ### ###-####"
                     outlined
                     rounded
+                    clearable
                     size="lg"
-                    :mask="PHONE_INPUT_MASK"
+                    :mask="phoneInputMask"
                     class="full-width"
                     bg-color="transparent"
                   >
@@ -487,7 +489,7 @@ import { useRouter } from 'vue-router';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import { type QForm } from 'quasar';
 import { REGISTER_MUTATION, USER_EMAIL_EXISTS_QUERY } from 'src/apollo/types/user';
-import { PHONE_INPUT_MASK } from 'src/constants/masks';
+import { getPhoneInputMask } from 'src/modules/usePhoneMask';
 import useNotify from 'src/modules/useNotify';
 import getMutationErrorMessage from 'src/helpers/getMutationErrorMessage';
 
@@ -607,6 +609,8 @@ const confirmPasswordRules = [
   (val: string) => val === form.value.password || 'Passwords must match',
 ];
 
+const phoneInputMask = computed(() => getPhoneInputMask(form.value.phone));
+
 const { mutate: registerMutation } = useMutation<RegisterResponse, RegisterVariables>(
   REGISTER_MUTATION,
 );
@@ -722,8 +726,11 @@ const handleRegister = async () => {
     });
 
     if (!result?.errors?.length) {
-      showSuccess('Registration successful. Please sign in.');
-      void router.push('/sign-in');
+      showSuccess('Registration successful. Please confirm your email.');
+      void router.push({
+        path: '/confirm/email',
+        query: { email: form.value.email },
+      });
     } else {
       showError(getMutationErrorMessage(result.errors, fallbackMessage));
     }

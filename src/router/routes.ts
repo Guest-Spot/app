@@ -14,6 +14,18 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/SignUpPage.vue') }],
   },
   {
+    path: '/confirm/email',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Email Confirmation' },
+    children: [{ path: '', component: () => import('pages/ConfirmEmailPage.vue') }],
+  },
+  {
+    path: '/confirm/email-response',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Confirm Email Response' },
+    children: [{ path: '', component: () => import('pages/ConfirmEmailResponsePage.vue') }],
+  },
+  {
     path: '/connect/:provider',
     component: () => import('layouts/SimpleLayout.vue'),
     children: [{ path: '', component: () => import('pages/connect/Provider.vue') }],

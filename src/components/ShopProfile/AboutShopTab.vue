@@ -98,8 +98,8 @@
             outlined
             dense
             rounded
-            :mask="PHONE_INPUT_MASK"
-            placeholder="Enter phone number"
+            :mask="shopPhoneMask"
+            placeholder="+# ### ###-####"
             class="custom-input"
             clearable
             v-model="shopData.phone"
@@ -178,7 +178,7 @@ import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import useOpeningHours from 'src/modules/useOpeningHours';
-import { PHONE_INPUT_MASK } from 'src/constants/masks';
+import { getPhoneInputMask } from 'src/modules/usePhoneMask';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -202,6 +202,7 @@ const shopData = reactive<IShopFormData>({
   email: '',
   openingHours: [],
 });
+const shopPhoneMask = computed(() => getPhoneInputMask(shopData.phone));
 const shopDataOriginal = reactive<IShopFormData>({ ...shopData });
 // ------------------------------------------------------------------------//
 

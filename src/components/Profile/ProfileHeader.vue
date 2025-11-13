@@ -1,12 +1,10 @@
 <template>
-  <div class="flex justify-between items-start q-gap-md no-wrap">
+  <div class="flex justify-between items-center q-gap-md no-wrap">
     <div class="profile-welcome-row text-h6 flex items-center q-gap-sm">
-      <span>
-        Welcome<template v-if="name"
-          >, <span class="text-primary">{{ name }}</span></template
-        >
+      <span class="text-primary">
+        {{ name }}
+        <VerifiedBadge v-if="isVerified" :verified="isVerified" />
       </span>
-      <VerifiedBadge v-if="isVerified" />
     </div>
     <div class="flex items-center no-wrap q-gap-sm">
       <q-btn

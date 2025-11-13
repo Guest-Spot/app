@@ -247,6 +247,17 @@ export const REGISTER_MUTATION = gql`
   }
 `;
 
+export const EMAIL_CONFIRMATION_MUTATION = gql`
+  mutation EmailConfirmation($confirmation: String!) {
+    emailConfirmation(confirmation: $confirmation) {
+      jwt
+      user {
+        documentId
+      }
+    }
+  }
+`;
+
 export const USER_EMAIL_EXISTS_QUERY = gql`
   query Query($email: String!) {
     userEmailExists(email: $email)

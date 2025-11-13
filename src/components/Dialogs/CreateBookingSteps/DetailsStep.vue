@@ -52,8 +52,9 @@
                 outlined
                 dense
                 rounded
-                :mask="PHONE_INPUT_MASK"
-                placeholder="Enter your phone"
+                :mask="phoneInputMask"
+                placeholder="+# ### ###-####"
+                clearable
                 :rules="[rules.required('Phone')]"
               />
             </div>
@@ -118,7 +119,7 @@
 import { computed, ref, type PropType } from 'vue';
 import type { QForm } from 'quasar';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
-import { PHONE_INPUT_MASK } from 'src/constants/masks';
+import { getPhoneInputMask } from 'src/modules/usePhoneMask';
 
 type Rules = {
   required: (field: string) => (val: string | null | undefined) => true | string;
@@ -201,6 +202,7 @@ const sizeModel = computed({
   set: (val: string) => emit('update:size', val),
 });
 
+const phoneInputMask = computed(() => getPhoneInputMask(phoneModel.value));
 const uploaderKey = ref(0);
 
 const onReferenceUpload = (files: (File | null)[]) => {

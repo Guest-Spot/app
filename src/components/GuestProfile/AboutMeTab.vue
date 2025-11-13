@@ -46,8 +46,8 @@
             outlined
             dense
             rounded
-            :mask="PHONE_INPUT_MASK"
-            placeholder="Enter phone number"
+            :mask="guestPhoneMask"
+            placeholder="+# ### ###-####"
             class="custom-input"
             clearable
             v-model="guestData.phone"
@@ -146,7 +146,7 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
-import { PHONE_INPUT_MASK } from 'src/constants/masks';
+import { getPhoneInputMask } from 'src/modules/usePhoneMask';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -171,6 +171,8 @@ const guestDataOriginal = { ...guestData };
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
+
+const guestPhoneMask = computed(() => getPhoneInputMask(guestData.phone));
 
 const hasChanges = computed(
   () =>
