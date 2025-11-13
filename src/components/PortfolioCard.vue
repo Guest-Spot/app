@@ -3,7 +3,7 @@
     <div class="portfolio-carousel q-z-1">
       <ImageCarousel :pictures="pictures" height="200px" />
     </div>
-    <div v-if="editable" class="portfolio-edit q-z-2">
+    <div v-if="editable" class="portfolio-edit bg-block q-z-2">
       <q-btn round color="dark" icon="edit" size="sm" @click="$emit('edit', work.documentId)" />
       <q-btn
         round
@@ -74,8 +74,6 @@ defineExpose({});
   display: flex;
   gap: 4px;
   transition: opacity 0.3s ease;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 4px;
 }
