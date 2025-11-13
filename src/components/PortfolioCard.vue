@@ -1,5 +1,5 @@
 <template>
-  <div class="portfolio-item bg-block border-radius-md">
+  <div @click="$emit('edit', work.documentId)" class="portfolio-item bg-block border-radius-md">
     <div class="portfolio-carousel q-z-1">
       <ImageCarousel :pictures="pictures" height="200px" />
     </div>

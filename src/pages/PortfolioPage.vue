@@ -255,7 +255,7 @@ onMounted(async () => {
   if (isEditing.value && workId.value) {
     try {
       isLoading.value = true;
-      await loadPortfolio(null, { documentId: workId.value });
+      await loadPortfolio(null, { documentId: workId.value }, { fetchPolicy: 'network-only' });
     } catch (error) {
       console.error('Failed to load portfolio work:', error);
       showError('Failed to load portfolio work');

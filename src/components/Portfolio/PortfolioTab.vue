@@ -156,7 +156,7 @@ const deleteWork = (portfolioId: string) => {
 const loadPortfoliosData = () => {
   const profile = user.value;
   if (profile?.documentId) {
-    void loadPortfolios(PORTFOLIOS_QUERY, {
+    void loadPortfolios(null, {
       filters: {
         owner: {
           documentId: {
@@ -164,7 +164,7 @@ const loadPortfoliosData = () => {
           },
         },
       },
-    });
+    }, { fetchPolicy: 'network-only' });
   }
 };
 
