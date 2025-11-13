@@ -4,7 +4,7 @@ type PhoneMaskDefinition = {
   prefixes: string[];
 };
 
-const DEFAULT_PHONE_INPUT_MASK = '+1 (###) ###-####';
+const DEFAULT_PHONE_INPUT_MASK = '+1 ### ### ####';
 
 const PHONE_MASK_DEFINITIONS: PhoneMaskDefinition[] = [
   {
@@ -19,12 +19,12 @@ const PHONE_MASK_DEFINITIONS: PhoneMaskDefinition[] = [
   },
   {
     name: 'China',
-    mask: '+86 (###) ###-####',
+    mask: '+86 ### #### ####',
     prefixes: ['+86'],
   },
   {
     name: 'Germany',
-    mask: '+49 #### ########',
+    mask: '+49 ## #### ####',
     prefixes: ['+49'],
   },
   {
@@ -34,7 +34,7 @@ const PHONE_MASK_DEFINITIONS: PhoneMaskDefinition[] = [
   },
   {
     name: 'Brazil',
-    mask: '+55 (##) #####-####',
+    mask: '+55 ## #####-####',
     prefixes: ['+55'],
   },
   {
@@ -49,12 +49,12 @@ const PHONE_MASK_DEFINITIONS: PhoneMaskDefinition[] = [
   },
   {
     name: 'Russia',
-    mask: '+7 (###) ###-##-##',
+    mask: '+7 ### ### ## ##',
     prefixes: ['+7'],
   },
   {
     name: 'Kyrgyzstan',
-    mask: '+996 (###) ## ## ##',
+    mask: '+996 ### ## ## ##',
     prefixes: ['+996'],
   },
   {
