@@ -1,7 +1,6 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
     <div class="relative-position">
-      <VerifiedBadge v-if="user?.verified" class="absolute-top-right q-z-2 q-ma-md" :verified="user.verified" />
       <ImageUploader
         :images="artistData.avatar ? [artistData.avatar] : []"
         placeholder-icon="person"
@@ -312,7 +311,6 @@
 import { ref, watch, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
 import { copyToClipboard } from 'quasar';
 import { ThemeSettings } from 'src/components';
-import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
