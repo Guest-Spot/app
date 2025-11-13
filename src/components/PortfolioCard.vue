@@ -4,13 +4,13 @@
       <ImageCarousel :pictures="pictures" height="200px" />
     </div>
     <div v-if="editable" class="portfolio-edit bg-block q-z-2">
-      <q-btn round color="dark" icon="edit" size="sm" @click="$emit('edit', work.documentId)" />
+      <q-btn round color="dark" icon="edit" size="sm" @click.stop="$emit('edit', work.documentId)" />
       <q-btn
         round
         color="negative"
         icon="delete"
         size="sm"
-        @click="$emit('delete', work.documentId)"
+        @click.stop="$emit('delete', work.documentId)"
       />
     </div>
     <div class="portfolio-details">
