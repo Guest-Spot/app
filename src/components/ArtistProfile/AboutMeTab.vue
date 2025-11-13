@@ -97,10 +97,11 @@
             outlined
             dense
             rounded
-            placeholder="Enter phone number"
+            placeholder="+# ### ###-####"
             class="custom-input"
             v-model="artistData.phone"
-            :mask="PHONE_INPUT_MASK"
+            :mask="artistPhoneMask"
+            clearable
           />
         </div>
         <div class="input-group">
@@ -322,7 +323,7 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
-import { PHONE_INPUT_MASK } from 'src/constants/masks';
+import { getPhoneInputMask } from 'src/modules/usePhoneMask';
 import {
   GET_STRIPE_DASHBOARD_URL_MUTATION,
   CHECK_STRIPE_ACCOUNT_STATUS_MUTATION,
@@ -365,6 +366,7 @@ const artistData = reactive<IArtistFormData>({
   experience: null,
   depositAmount: null,
 });
+const artistPhoneMask = computed(() => getPhoneInputMask(artistData.phone));
 // NOTE: This variable is used to compare the original data with the new data
 const artistDataOriginal = { ...artistData };
 // ------------------------------------------------------------------------//
