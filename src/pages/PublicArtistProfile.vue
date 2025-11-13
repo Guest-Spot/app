@@ -46,7 +46,7 @@
             <template v-if="artistData.name">
               <div class="profile-name-row flex items-center q-gap-xs">
                 <span class="full-name text-h6">{{ artistData.name }}</span>
-                <VerifiedBadge :verified="artistData.verified" />
+                <VerifiedBadge v-if="artistData.verified" :verified="artistData.verified" />
               </div>
             </template>
             <template v-else>

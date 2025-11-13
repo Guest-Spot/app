@@ -43,7 +43,7 @@
               >
                 <div class="profile-name-row flex items-center q-gap-xs">
                   <span class="full-name text-h6">{{ shopData.name }}</span>
-                  <VerifiedBadge :verified="shopData.verified" />
+                  <VerifiedBadge v-if="shopData.verified" :verified="shopData.verified" />
                 </div>
                 <ExpandableText
                   collapsible
