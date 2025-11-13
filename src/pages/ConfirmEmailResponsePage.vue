@@ -30,8 +30,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { api } from 'src/boot/axios';
-import type { AxiosError } from 'axios';
+import { useMutation } from '@vue/apollo-composable';
+import { EMAIL_CONFIRMATION_MUTATION } from 'src/apollo/types/user';
+import getMutationErrorMessage from 'src/helpers/getMutationErrorMessage';
 
 type ConfirmationStatus = 'pending' | 'success' | 'error' | 'missing';
 
@@ -85,6 +86,24 @@ const description = computed(() => {
   }
 });
 
+type EmailConfirmationResponse = {
+  emailConfirmation?: {
+    jwt: string;
+    user?: {
+      documentId: string;
+    };
+  };
+};
+
+type EmailConfirmationVariables = {
+  confirmation: string;
+};
+
+const { mutate: emailConfirmationMutation } = useMutation<
+  EmailConfirmationResponse,
+  EmailConfirmationVariables
+>(EMAIL_CONFIRMATION_MUTATION);
+
 const confirmEmail = async () => {
   const confirmationToken = token.value;
 
@@ -94,17 +113,26 @@ const confirmEmail = async () => {
   }
 
   try {
-    await api.post('/api/auth/confirm-email', {
-      token: confirmationToken,
+    const result = await emailConfirmationMutation({
+      confirmation: confirmationToken,
     });
+
+    if (result?.errors?.length) {
+      throw new Error(getMutationErrorMessage(result.errors, 'Failed to confirm email'));
+    }
+
+    if (!result?.data?.emailConfirmation) {
+      throw new Error('Email confirmation returned no data');
+    }
+
     status.value = 'success';
   } catch (error: unknown) {
     console.error('Email confirmation failed', error);
     status.value = 'error';
-    errorMessage.value =
-      (error as AxiosError<{ message: string }>)?.response?.data?.message ||
-      (error as Error)?.message ||
-      'Check the link from the email or request a new one.';
+    errorMessage.value = getMutationErrorMessage(
+      error,
+      'Check the link from the email or request a new one.',
+    );
   }
 };
 
