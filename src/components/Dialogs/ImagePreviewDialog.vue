@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="dialogModel" maximized>
+  <q-dialog v-model="dialogModel" maximized no-route-dismiss>
     <q-card class="full-width full-height image-preview-dialog flex column justify-between">
       <!-- Header -->
       <q-card-section class="row items-center dialog-header bg-block">
@@ -9,7 +9,6 @@
           icon="close"
           round
           dense
-          size="sm"
           text-color="primary"
           class="bg-block"
           unelevated
@@ -53,12 +52,12 @@
       <!-- Footer Actions -->
       <q-card-section class="dialog-footer q-mt-auto bg-block">
         <!-- Crop Mode Actions -->
-        <div v-if="isCropMode" class="row justify-center q-gap-sm">
+        <div v-if="isCropMode" class="row justify-between q-gap-sm q-pb-md">
           <q-btn label="Cancel" class="bg-block" unelevated rounded @click="cancelCrop" />
           <q-btn label="Apply Crop" color="primary" unelevated rounded @click="applyCrop" />
         </div>
         <!-- Normal Mode Actions -->
-        <div v-else class="row justify-center q-gap-sm">
+        <div v-else class="row justify-center q-gap-sm q-pb-md">
           <q-btn
             v-if="allowCropping && imagePreview"
             icon="crop"
@@ -306,6 +305,9 @@ watch(dialogModel, (newValue) => {
 
 <style lang="scss" scoped>
 .image-preview-dialog {
+  box-shadow: none;
+  min-height: calc(100vh - env(safe-area-inset-top));
+
   .dialog-header {
     position: sticky;
     top: 0;
