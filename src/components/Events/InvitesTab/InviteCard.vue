@@ -1,14 +1,14 @@
 <template>
   <div
-    class="invite-card-card bg-block border-radius-md q-pa-md"
+    class="invite-card-card bg-block flex column q-gap-md border-radius-md q-pa-md"
     :class="{
       sent: isSent,
       received: isReceived,
       pending: invite.reaction === EReactions.Pending,
     }"
   >
-    <div class="card-content">
-      <div class="flex items-center q-gap-xs q-mb-sm">
+    <div class="card-content flex column q-gap-sm">
+      <div class="flex items-center q-gap-xs">
         <span class="text-primary text-weight-medium text-caption text-grey-6">
           {{ formatTimeAgo(invite.createdAt) }}
         </span>
@@ -58,7 +58,7 @@
 
       <!-- View shop for other statuses -->
       <q-btn
-        v-else
+        v-else-if="isArtist"
         label="View Shop"
         rounded
         :to="`/shop/${invite.sender.documentId}`"
@@ -96,6 +96,7 @@ defineEmits<Emits>();
 const userStore = useUserStore();
 const { formatTimeAgo } = useDate();
 
+const isArtist = computed(() => userStore.getIsArtist);
 const isSent = computed(() => props.invite.sender.documentId === userStore.getUser?.documentId);
 const isReceived = computed(() => props.invite.recipient.documentId === userStore.getUser?.documentId);
 
@@ -115,8 +116,6 @@ const getStatusLabel = (status: IInvite['reaction']) => {
   transition: all 0.3s ease;
 
   .card-content {
-    margin-bottom: 20px;
-
     .status-badge {
       padding: 4px 8px;
       border-radius: 20px;
@@ -163,7 +162,7 @@ const getStatusLabel = (status: IInvite['reaction']) => {
     }
 
     .invite-card-description {
-      margin: 0 0 16px 0;
+      margin: 0;
       line-height: 1.5;
     }
   }
