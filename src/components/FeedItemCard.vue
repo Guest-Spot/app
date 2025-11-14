@@ -4,6 +4,16 @@
     :class="{ 'single-view': viewMode === 'single', 'tile-view': viewMode === 'tile' }"
     @click="handleClick"
   >
+    <div v-if="editable" class="feed-item-edit bg-block q-z-2">
+      <q-btn round color="dark" icon="edit" size="sm" @click.stop="$emit('edit', item.documentId)" />
+      <q-btn
+        round
+        color="negative"
+        icon="delete"
+        size="sm"
+        @click.stop="$emit('delete', item.documentId)"
+      />
+    </div>
     <div class="feed-item-image">
       <ImageCarousel
         :pictures="pictures"
@@ -66,14 +76,18 @@ import { UserType } from 'src/interfaces/enums';
 interface Props {
   item: IPortfolio;
   viewMode?: 'tile' | 'single';
+  editable?: boolean;
 }
 
 interface Emits {
   (e: 'click', item: IPortfolio): void;
+  (e: 'edit', documentId: string): void;
+  (e: 'delete', documentId: string): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'tile',
+  editable: false,
 });
 
 const emit = defineEmits<Emits>();
@@ -145,6 +159,17 @@ const navigateToOwner = () => {
       gap: 8px;
     }
   }
+}
+
+.feed-item-edit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+  transition: opacity 0.3s ease;
+  border-radius: 20px;
+  padding: 4px;
 }
 
 .feed-item-image {
