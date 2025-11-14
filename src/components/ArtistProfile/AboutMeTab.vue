@@ -533,7 +533,7 @@ onDoneGetStripeDashboardUrl((result) => {
 
   if (result.errors?.length) {
     console.error('Error getting Stripe dashboard URL:', result.errors);
-    showError('Error getting Stripe URL');
+    showError(result.errors.map((error) => error.message).join(', ') || 'Error getting Stripe URL');
     return;
   }
 
