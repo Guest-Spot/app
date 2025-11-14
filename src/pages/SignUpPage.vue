@@ -726,11 +726,12 @@ const handleRegister = async () => {
     });
 
     if (!result?.errors?.length) {
-      showSuccess('Registration successful. Please confirm your email.');
+      // showSuccess('Registration successful. Please confirm your email.');
       // void router.push({
       //   path: '/confirm/email',
       //   query: { email: form.value.email },
       // });
+      showSuccess('Registration successful');
       void router.push('/sign-in');
     } else {
       showError(getMutationErrorMessage(result.errors, fallbackMessage));
