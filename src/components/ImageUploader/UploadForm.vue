@@ -23,7 +23,7 @@
 
     <!-- Open camera button (mobile only) -->
     <q-btn
-      v-if="isMobile && isNative"
+      v-if="isMobile && isNative && ENABLED"
       round
       size="sm"
       icon="camera_alt"
@@ -43,6 +43,7 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
 
 const MAX_SIZE = 4096;
+const ENABLED = false;
 
 defineOptions({
   name: 'UploadForm',

@@ -3,8 +3,8 @@
     <!-- Navigation Tabs -->
     <div class="container">
       <div class="flex items-center q-gap-sm no-wrap">
-        <SearchTabs v-model="activeTab" />
         <q-btn flat round icon="bookmark_border" color="primary" class="bg-block" to="/bookmarks" />
+        <SearchTabs v-model="activeTab" />
       </div>
     </div>
 
