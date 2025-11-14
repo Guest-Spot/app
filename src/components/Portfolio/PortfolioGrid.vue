@@ -22,6 +22,7 @@
         v-for="(item, index) in items"
         :key="`feed-single-${index}`"
         :item="item"
+        enable-image-preview
         view-mode="single"
         :class="{ active: item.documentId === selectedItem?.documentId }"
         @click="selectItem"
@@ -150,9 +151,7 @@ const handlePointerDown = (event: PointerEvent) => {
 };
 
 const selectItem = (item: IPortfolio) => {
-  if (selectedItem.value?.documentId === item.documentId) {
-    selectedItem.value = null;
-  } else {
+  if (selectedItem.value?.documentId !== item.documentId) {
     selectedItem.value = item;
     setTimeout(() => {
       const element = document.querySelector('.single-view-container .active');

@@ -8,6 +8,7 @@
       <ImageCarousel
         :pictures="pictures"
         :height="viewMode === 'single' ? '400px' : '200px'"
+        :enable-image-preview="enableImagePreview"
       />
     </div>
     <div v-if="viewMode === 'single'" class="feed-item-details">
@@ -79,6 +80,7 @@ interface Props {
   item: IPortfolio;
   viewMode?: 'tile' | 'single';
   editable?: boolean;
+  enableImagePreview?: boolean;
 }
 
 interface Emits {
@@ -90,6 +92,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'tile',
   editable: false,
+  enableImagePreview: false,
 });
 
 const emit = defineEmits<Emits>();
