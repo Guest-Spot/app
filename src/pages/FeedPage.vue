@@ -13,6 +13,7 @@
       <!-- Feed Content - Tile View -->
       <PortfolioGrid
         v-else-if="portfolios.length > 0"
+        ref="portfoliosGridRef"
         :items="portfolios"
         :offset="250"
         :loading="isLoadingPortfolios"
@@ -37,10 +38,14 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import type { EventBus } from 'quasar';
+import { inject } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import { NoResult, LoadingState, PortfolioGrid } from 'src/components';
 import usePortfolios from 'src/composables/usePortfolios';
+
+const bus = inject('bus') as EventBus;
 
 const {
   portfolios,
@@ -48,6 +53,8 @@ const {
   hasMorePortfolios,
   fetchPortfolios,
 } = usePortfolios();
+
+const portfoliosGridRef = ref<InstanceType<typeof PortfolioGrid> | null>(null);
 
 const loadMorePortfolios = () => {
   fetchPortfolios();
@@ -59,7 +66,16 @@ const initializeFeed = () => {
   }
 };
 
+const forceCloseSingleView = () => {
+  portfoliosGridRef.value?.forceCloseSingleView();
+};
+
+onBeforeUnmount(() => {
+  bus.off('opened-feed-page', forceCloseSingleView);
+});
+
 onBeforeMount(() => {
+  bus.on('opened-feed-page', forceCloseSingleView);
   initializeFeed();
 });
 </script>

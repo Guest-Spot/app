@@ -171,6 +171,11 @@ const handleLoadMore = () => {
 const getItemKey = (item: IPortfolio, index: number) =>
   item.documentId || `portfolio-item-${index}`;
 
+const forceCloseSingleView = () => {
+  resetSwipeState();
+  selectedItem.value = null;
+};
+
 watch(selectedItem, (newValue) => {
   if (!newValue) {
     resetSwipeState();
@@ -179,6 +184,10 @@ watch(selectedItem, (newValue) => {
 
 onBeforeUnmount(() => {
   resetSwipeState();
+});
+
+defineExpose({
+  forceCloseSingleView,
 });
 </script>
 
