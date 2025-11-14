@@ -62,8 +62,8 @@
             outlined
             dense
             rounded
-            :mask="shopPhoneMask"
-            placeholder="+# ### ###-####"
+            type="tel"
+            placeholder="Enter phone number"
             clearable
             class="custom-input"
             v-model="shopData.phone"
@@ -199,10 +199,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { TimePickerDialog } from '../Dialogs';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
-import { getPhoneInputMask } from 'src/modules/usePhoneMask';
 
 // Form data
 const shopData = ref({
@@ -214,7 +213,6 @@ const shopData = ref({
   dateOpened: '',
   instagram: '',
 });
-const shopPhoneMask = computed(() => getPhoneInputMask(shopData.value.phone));
 
 const workingHours = ref<{ start: string | null; end: string | null }>({
   start: '08:00',

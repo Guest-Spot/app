@@ -98,12 +98,12 @@ export const getPhoneInputMask = (value?: string | null) => {
     return DEFAULT_PHONE_INPUT_MASK;
   }
 
-  // Маска появляется только после ввода минимум 2 цифр
+  // Mask appears only after entering at least 2 digits
   if (numericValue.length < 2) {
     return '';
   }
 
-  // Собираем все подходящие определения масок
+  // Collect all matching definitions
   const matchingDefinitions: Array<{ definition: PhoneMaskDefinition; prefixLength: number }> = [];
 
   for (const definition of PHONE_MASKS) {
@@ -111,13 +111,13 @@ export const getPhoneInputMask = (value?: string | null) => {
       const prefixDigits = prefix.replace(/\D/g, '');
       if (prefixDigits.length === 0) continue;
 
-      // Если введенное значение начинается с полного кода страны
+      // If the entered value starts with the full country code
       if (numericValue.startsWith(prefixDigits)) {
         matchingDefinitions.push({ definition, prefixLength: prefixDigits.length });
         break;
       }
 
-      // Если код страны начинается с введенного значения (пользователь еще вводит код)
+      // If the country code starts with the entered value (user is still entering the code)
       if (prefixDigits.startsWith(numericValue)) {
         matchingDefinitions.push({ definition, prefixLength: prefixDigits.length });
         break;
@@ -125,9 +125,9 @@ export const getPhoneInputMask = (value?: string | null) => {
     }
   }
 
-  // Если нашли подходящие маски
+  // If we found matching masks
   if (matchingDefinitions.length > 0) {
-    // Сортируем по длине кода: сначала самые короткие
+    // Sort by code length: first the shortest
     matchingDefinitions.sort((a, b) => a.prefixLength - b.prefixLength);
     const firstMatch = matchingDefinitions[0];
     if (firstMatch) {

@@ -144,6 +144,7 @@ const handleLogout = () => {
     notifiesStore.setNotifies([]);
     notifiesStore.setHasNewNotifies(0);
     void router.push('/');
+    window.location.reload();
   });
 };
 
