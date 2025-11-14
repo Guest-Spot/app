@@ -27,7 +27,7 @@
 
       <div class="dialog-content">
         <div class="custom-stepper">
-          <div class="stepper-header">
+          <div class="stepper-header" ref="stepperHeaderRef">
             <div
               v-for="step in visibleSteps"
               :key="step.id"
@@ -275,6 +275,7 @@ const firstVisibleStepId = computed(() => visibleSteps.value[0]?.id ?? baseSteps
 const currentStep = ref(firstVisibleStepId.value);
 const isSubmitting = ref(false);
 const isResetting = ref(false);
+const stepperHeaderRef = ref<HTMLDivElement | null>(null);
 
 const isAtFirstStep = computed(() => currentStep.value === firstVisibleStepId.value);
 const lastVisibleStepId = computed<number>(() => {
@@ -729,6 +730,21 @@ const closePage = () => {
   }
   void router.push('/');
 };
+
+watch(currentStep, (newStep, oldStep) => {
+  if (newStep > oldStep && newStep === 2) {
+    stepperHeaderRef.value?.scrollTo({
+      left: stepperHeaderRef.value?.offsetWidth ?? 0,
+      behavior: 'smooth',
+    });
+  }
+  if (newStep < oldStep && newStep === 1) {
+    stepperHeaderRef.value?.scrollTo({
+      left: 0,
+      behavior: 'smooth',
+    });
+  }
+});
 
 watch(
   () => selectedArtist.value,
