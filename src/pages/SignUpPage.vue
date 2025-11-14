@@ -333,7 +333,7 @@
                 <label class="input-label">Portfolio URL</label>
                 <q-input
                   v-model="form.link"
-                  type="url"
+                  type="text"
                   prefix="https://"
                   placeholder="Portfolio URL"
                   outlined

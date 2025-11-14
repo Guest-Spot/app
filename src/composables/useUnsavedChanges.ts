@@ -39,10 +39,10 @@ export function useUnsavedChanges(hasChanges: Ref<boolean>) {
           persistent: true,
         })
           .onOk(() => {
-            resolve(true);
+            resolve(false);
           })
           .onCancel(() => {
-            resolve(false);
+            resolve(true);
           });
       });
     }

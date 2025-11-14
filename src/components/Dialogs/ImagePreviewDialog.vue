@@ -75,7 +75,7 @@
           />
           <q-btn
             icon="download"
-            class="bg-block"
+            class="bg-block hidden"
             unelevated
             round
             @click="downloadImage"
