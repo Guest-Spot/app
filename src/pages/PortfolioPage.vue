@@ -22,7 +22,7 @@
         </div>
 
         <template v-else>
-          <div class="input-group">
+          <div class="input-group hidden">
             <label class="input-label">Title</label>
             <q-input
               v-model="formData.title"

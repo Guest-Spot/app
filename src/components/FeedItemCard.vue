@@ -4,16 +4,6 @@
     :class="{ 'single-view': viewMode === 'single', 'tile-view': viewMode === 'tile' }"
     @click="handleClick"
   >
-    <div v-if="editable" class="feed-item-edit bg-block q-z-2">
-      <q-btn round color="dark" icon="edit" size="sm" @click.stop="$emit('edit', item.documentId)" />
-      <q-btn
-        round
-        color="negative"
-        icon="delete"
-        size="sm"
-        @click.stop="$emit('delete', item.documentId)"
-      />
-    </div>
     <div class="feed-item-image">
       <ImageCarousel
         :pictures="pictures"
@@ -44,13 +34,13 @@
           </div>
         </div>
       </div>
-      <div v-if="viewMode === 'single' && item.title" class="portfolio-title">
+      <div v-if="viewMode === 'single' && item.title" class="portfolio-title hidden">
         {{ item.title }}
       </div>
       <ExpandableText
         collapsible
         :text="item.description"
-        class="portfolio-description text-grey-7"
+        class="portfolio-description"
       />
       <div v-if="viewMode === 'single' && item.tags?.length" class="portfolio-tags">
         <q-chip
@@ -60,6 +50,18 @@
           class="portfolio-tag bg-block"
         />
       </div>
+    </div>
+    <div v-if="editable" class="flex justify-between items-start full-width full-height q-z-2 q-pa-sm">
+      <q-btn
+        round
+        color="negative"
+        icon="delete"
+        size="xs"
+        flat
+        class="bg-block"
+        @click.stop="$emit('delete', item.documentId)"
+      />
+      <q-btn round icon="edit" size="xs" flat class="bg-block" @click.stop="$emit('edit', item.documentId)" />
     </div>
   </div>
 </template>
@@ -159,17 +161,6 @@ const navigateToOwner = () => {
       gap: 8px;
     }
   }
-}
-
-.feed-item-edit {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 4px;
-  transition: opacity 0.3s ease;
-  border-radius: 20px;
-  padding: 4px;
 }
 
 .feed-item-image {
