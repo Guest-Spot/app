@@ -11,7 +11,7 @@
           :aria-label="link.label"
           class="relative-position"
           :class="{ 'text-primary bg-block': link.isActive }"
-          @click="$router.push(link.path)"
+          @click="handleClick(link.path, link.event)"
         >
           <q-icon :name="link.icon" :class="{ 'text-primary': link.isActive }">
             <q-badge
@@ -31,9 +31,10 @@
 <script setup lang="ts">
 import { useUserStore } from 'src/stores/user';
 import { useNotifiesStore } from 'src/stores/notifies';
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, inject } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { UserType } from 'src/interfaces/enums';
+import type { EventBus } from 'quasar';
 
 // Footer component with navigation icons
 defineOptions({
@@ -41,8 +42,10 @@ defineOptions({
 });
 
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
 const notifiesStore = useNotifiesStore();
+const bus = inject('bus') as EventBus;
 
 const bookings = {
   [UserType.Shop]: {
@@ -68,29 +71,38 @@ const LINKS = computed(() => {
       icon: 'search',
       label: 'Search',
       path: '/',
+      event: 'opened-search-page',
       isActive: route.path === '/',
     },
     {
       icon: 'dashboard',
       label: 'Feed',
       path: '/feed',
+      event: 'opened-feed-page',
       isActive: route.path === '/feed',
     },
     {
       icon: bookings[userStore.user?.type || UserType.Guest]?.icon,
       label: bookings[userStore.user?.type || UserType.Guest]?.label,
       path: bookings[userStore.user?.type || UserType.Guest]?.path,
+      event: 'opened-bookings-page',
       isActive: route.path === bookings[userStore.user?.type || UserType.Guest]?.path,
     },
     {
       icon: 'person',
       label: 'Profile',
       path: '/profile',
+      event: 'opened-profile-page',
       isActive: route.path === '/profile',
       showBadge: notifiesStore.getHasNewNotifies,
     },
   ];
 });
+
+const handleClick = (path: string, event: string) => {
+  bus.emit(event ?? '');
+  void router.push(path);
+};
 </script>
 
 <style scoped lang="scss">

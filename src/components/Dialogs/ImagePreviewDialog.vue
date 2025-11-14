@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="dialogModel" maximized>
+  <q-dialog v-model="dialogModel" maximized no-route-dismiss>
     <q-card class="full-width full-height image-preview-dialog flex column justify-between">
       <!-- Header -->
       <q-card-section class="row items-center dialog-header bg-block">
@@ -9,7 +9,6 @@
           icon="close"
           round
           dense
-          size="sm"
           text-color="primary"
           class="bg-block"
           unelevated
@@ -38,7 +37,7 @@
             spinner-size="lg"
             spinner-color="dark"
             class="full-width full-height preview-image"
-            :class="{ zoomed: isZoomed }"
+            :class="{ zoomed: zoomLevel > 0 }"
             :style="imageStyle"
             @click="!isZoomed ? toggleZoom() : void 0"
             v-touch-pan.prevent.mouse="isZoomed ? onPan : undefined"
@@ -53,12 +52,12 @@
       <!-- Footer Actions -->
       <q-card-section class="dialog-footer q-mt-auto bg-block">
         <!-- Crop Mode Actions -->
-        <div v-if="isCropMode" class="row justify-center q-gap-sm">
+        <div v-if="isCropMode" class="row justify-between q-gap-sm q-pb-md">
           <q-btn label="Cancel" class="bg-block" unelevated rounded @click="cancelCrop" />
           <q-btn label="Apply Crop" color="primary" unelevated rounded @click="applyCrop" />
         </div>
         <!-- Normal Mode Actions -->
-        <div v-else class="row justify-center q-gap-sm">
+        <div v-else class="row justify-center q-gap-sm q-pb-md">
           <q-btn
             v-if="allowCropping && imagePreview"
             icon="crop"
@@ -68,7 +67,7 @@
             @click="toggleCropMode"
           />
           <q-btn
-            :icon="isZoomed ? 'zoom_out' : 'zoom_in'"
+            :icon="zoomLevel > 1 ? 'zoom_out' : 'zoom_in'"
             class="bg-block"
             unelevated
             round
@@ -76,7 +75,7 @@
           />
           <q-btn
             icon="download"
-            class="bg-block"
+            class="bg-block hidden"
             unelevated
             round
             @click="downloadImage"
@@ -117,7 +116,7 @@ const emit = defineEmits<Emits>();
 
 const { formatFileToBase64 } = useImage();
 
-const isZoomed = ref(false);
+const zoomLevel = ref(0); // 0: normal, 1: zoom level 1, 2: zoom level 2
 const imageRef = ref<ElementRef>(null);
 const translateX = ref(0);
 const translateY = ref(0);
@@ -128,12 +127,18 @@ const cropperRef = ref<{
 } | null>(null);
 const imagePreview = ref<string | null>(null);
 
-// Computed style for image transform
-const imageStyle = computed(() => {
-  if (!isZoomed.value) return {};
+// Zoom scale values for different levels
+const ZOOM_SCALES = [1, 1.5, 2.5];
 
+// Computed properties
+const isZoomed = computed(() => zoomLevel.value > 0);
+
+const imageStyle = computed(() => {
+  if (zoomLevel.value === 0) return {};
+
+  const scale = ZOOM_SCALES[zoomLevel.value] || 1;
   return {
-    transform: `scale(1.5) translate(${translateX.value}px, ${translateY.value}px)`,
+    transform: `scale(${scale}) translate(${translateX.value}px, ${translateY.value}px)`,
   };
 });
 
@@ -165,8 +170,9 @@ const dialogModel = computed({
 
 // Methods
 function toggleZoom() {
-  isZoomed.value = !isZoomed.value;
-  if (!isZoomed.value) {
+  // Cycle through zoom levels: 0 -> 1 -> 2 -> 0
+  zoomLevel.value = (zoomLevel.value + 1) % 3;
+  if (zoomLevel.value === 0) {
     resetPosition();
   }
 }
@@ -189,7 +195,7 @@ function downloadImage() {
 
 function toggleCropMode() {
   isCropMode.value = !isCropMode.value;
-  isZoomed.value = false;
+  zoomLevel.value = 0;
   if (!isCropMode.value) {
     resetPosition();
   }
@@ -222,7 +228,7 @@ async function applyCrop() {
     imagePreview.value = base64;
 
     emit('cropped', { file, base64 });
-    isZoomed.value = false;
+    zoomLevel.value = 0;
     isCropMode.value = false;
   } catch (error) {
     console.error('Error processing cropped image:', error);
@@ -233,7 +239,7 @@ async function applyCrop() {
 
 function cancelCrop() {
   isCropMode.value = false;
-  isZoomed.value = false;
+  zoomLevel.value = 0;
 }
 
 function getElement(elementRef: ElementRef): HTMLElement | null {
@@ -242,7 +248,9 @@ function getElement(elementRef: ElementRef): HTMLElement | null {
 }
 
 function calculateBoundaries() {
-  if (!imageContainer.value || !imageRef.value) return { maxX: 0, maxY: 0, minX: 0, minY: 0 };
+  if (!imageContainer.value || !imageRef.value || zoomLevel.value === 0) {
+    return { maxX: 0, maxY: 0, minX: 0, minY: 0 };
+  }
 
   try {
     const containerEl = getElement(imageContainer.value);
@@ -254,7 +262,7 @@ function calculateBoundaries() {
 
     const containerRect = containerEl.getBoundingClientRect();
     const imageRect = imageEl.getBoundingClientRect();
-    const scale = 1.5;
+    const scale = ZOOM_SCALES[zoomLevel.value] || 1;
 
     // Calculate the boundaries based on the scaled image size vs container size
     const scaledImageWidth = imageRect.width * scale;
@@ -297,7 +305,7 @@ watch(dialogModel, (newValue) => {
   imagePreview.value = props.imageSrc || null;
   if (!newValue) {
     isCropMode.value = false;
-    isZoomed.value = false;
+    zoomLevel.value = 0;
     resetPosition();
     imagePreview.value = null;
   }
@@ -306,6 +314,9 @@ watch(dialogModel, (newValue) => {
 
 <style lang="scss" scoped>
 .image-preview-dialog {
+  box-shadow: none;
+  min-height: calc(100vh - env(safe-area-inset-top));
+
   .dialog-header {
     position: sticky;
     top: 0;

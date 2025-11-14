@@ -333,7 +333,8 @@
                 <label class="input-label">Portfolio URL</label>
                 <q-input
                   v-model="form.link"
-                  type="url"
+                  type="text"
+                  prefix="https://"
                   placeholder="Portfolio URL"
                   outlined
                   rounded
@@ -609,6 +610,14 @@ const confirmPasswordRules = [
   (val: string) => val === form.value.password || 'Passwords must match',
 ];
 
+const stripPortfolioUrlProtocol = (value = '') =>
+  value.trim().replace(/^https?:\/\//i, '');
+
+const formatPortfolioLinkForSubmission = (value: string) => {
+  const cleaned = stripPortfolioUrlProtocol(value);
+  return cleaned ? `https://${cleaned}` : '';
+};
+
 const phoneInputMask = computed(() => getPhoneInputMask(form.value.phone));
 
 const { mutate: registerMutation } = useMutation<RegisterResponse, RegisterVariables>(
@@ -720,7 +729,7 @@ const handleRegister = async () => {
         description: form.value.description,
         city: form.value.city,
         address: form.value.address,
-        link: form.value.link,
+        link: formatPortfolioLinkForSubmission(form.value.link),
         experience: form.value.experience,
       },
     });
@@ -778,6 +787,16 @@ watch(
     emailValidationTimer.value = setTimeout(() => {
       void checkEmailAvailability(trimmedEmail);
     }, 500);
+  },
+);
+
+watch(
+  () => form.value.link,
+  (link) => {
+    const sanitized = stripPortfolioUrlProtocol(link || '');
+    if (sanitized !== link) {
+      form.value.link = sanitized;
+    }
   },
 );
 

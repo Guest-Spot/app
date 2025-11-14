@@ -179,6 +179,7 @@ import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import useOpeningHours from 'src/modules/useOpeningHours';
 import { getPhoneInputMask } from 'src/modules/usePhoneMask';
+import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -225,6 +226,9 @@ const hasChanges = computed(() => {
     openingHoursChanges.value
   );
 });
+
+// Setup unsaved changes warning
+useUnsavedChanges(hasChanges);
 
 // Helper function to build hours map (defined outside computed for better performance)
 const buildHoursMap = (

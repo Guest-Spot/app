@@ -19,12 +19,12 @@ const TAB_ARTISTS = 'artists';
 
 const TABS: ITab[] = [
   {
-    label: 'Shops',
-    tab: TAB_SHOPS,
-  },
-  {
     label: 'Artists',
     tab: TAB_ARTISTS,
+  },
+  {
+    label: 'Shops',
+    tab: TAB_SHOPS,
   },
 ];
 

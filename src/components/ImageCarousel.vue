@@ -6,7 +6,7 @@
       v-bind="carouselConfig"
     >
       <Slide v-for="(picture, index) in pictures" :key="`key-${picture}-${index}`">
-        <div class="carousel-slide">
+        <div class="carousel-slide" @click="handleClick(picture)">
           <q-img
             :src="picture"
             :ratio="16 / 9"
@@ -33,24 +33,35 @@
         spinner-size="32px"
       />
     </div>
+
+    <!-- Dialog -->
+    <ImagePreviewDialog
+      v-if="enableImagePreview"
+      v-model="dialog"
+      :image-src="previewDialogSrc"
+      @loading="isLoading = $event"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import 'vue3-carousel/carousel.css';
+import { ImagePreviewDialog } from 'src/components/Dialogs';
 import { Carousel, Slide, Pagination } from 'vue3-carousel';
 
 interface Props {
   pictures?: string[];
   height?: string;
   fallbackImage?: string;
+  enableImagePreview?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   pictures: () => [],
   height: '200px',
   fallbackImage: 'https://via.placeholder.com/300x200',
+  enableImagePreview: false,
 });
 
 const carouselConfig = computed(() => ({
@@ -59,6 +70,16 @@ const carouselConfig = computed(() => ({
   snapAlign: 'center' as const,
   transition: 500,
 }));
+
+const dialog = ref(false);
+const previewDialogSrc = ref<string | null>(null);
+const isLoading = ref(false);
+
+const handleClick = (picture: string) => {
+  if (!props.enableImagePreview) return;
+  previewDialogSrc.value = picture;
+  dialog.value = true;
+};
 </script>
 
 <style scoped lang="scss">

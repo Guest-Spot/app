@@ -21,8 +21,8 @@
 
     <div class="container">
       <!-- Tab Content -->
-      <AboutMeTab v-if="activeTab.tab === TAB_ABOUT" />
-      <PortfolioTab v-else-if="activeTab.tab === TAB_PORTFOLIO" profile-type="artist" />
+      <AboutMeTab v-show="activeTab.tab === TAB_ABOUT" />
+      <PortfolioTab v-show="activeTab.tab === TAB_PORTFOLIO" profile-type="artist" />
     </div>
   </q-page>
 </template>

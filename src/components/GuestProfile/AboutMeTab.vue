@@ -147,6 +147,7 @@ import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import { getPhoneInputMask } from 'src/modules/usePhoneMask';
+import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -180,6 +181,9 @@ const hasChanges = computed(
     imagesForUpload.value.length > 0 ||
     imagesForRemove.value.length > 0,
 );
+
+// Setup unsaved changes warning
+useUnsavedChanges(hasChanges);
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {

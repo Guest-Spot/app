@@ -15,16 +15,24 @@
       <q-spinner size="40px" color="primary" />
       <p>Loading portfolios...</p>
     </div>
-    <div v-else class="portfolio-grid">
-      <PortfolioCard
-        v-for="(work, index) in portfolioItems"
-        editable
-        :key="`work-${index}`"
-        :work="work"
-        @edit="editWork(work.documentId)"
-        @delete="deleteWork(work.documentId)"
-      />
-    </div>
+    <PortfolioGrid
+      v-else-if="portfolioItems.length"
+      :items="portfolioItems"
+      :has-more="false"
+      :loading="false"
+      class="feed-grid"
+    >
+      <template #default="{ item, selectItem }">
+        <FeedItemCard
+          :item="item"
+          view-mode="tile"
+          editable
+          @edit="editWork(item.documentId)"
+          @delete="deleteWork(item.documentId)"
+          @click="selectItem"
+        />
+      </template>
+    </PortfolioGrid>
 
     <!-- Empty State -->
     <NoResult
@@ -48,7 +56,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import { NoResult, PortfolioCard } from 'src/components';
+import { NoResult, FeedItemCard, PortfolioGrid } from 'src/components';
 import { useQuasar } from 'quasar';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import {
@@ -233,12 +241,6 @@ defineExpose({
   color: var(--brand-dark);
   font-size: 24px;
   font-weight: 600;
-}
-
-.portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
 }
 
 .loading-state {

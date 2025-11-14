@@ -8,6 +8,7 @@
       <ImageCarousel
         :pictures="pictures"
         :height="viewMode === 'single' ? '400px' : '200px'"
+        :enable-image-preview="enableImagePreview"
       />
     </div>
     <div v-if="viewMode === 'single'" class="feed-item-details">
@@ -34,13 +35,13 @@
           </div>
         </div>
       </div>
-      <div v-if="viewMode === 'single' && item.title" class="portfolio-title">
+      <div v-if="viewMode === 'single' && item.title" class="portfolio-title hidden">
         {{ item.title }}
       </div>
       <ExpandableText
         collapsible
         :text="item.description"
-        class="portfolio-description text-grey-7"
+        class="portfolio-description"
       />
       <div v-if="viewMode === 'single' && item.tags?.length" class="portfolio-tags">
         <q-chip
@@ -50,6 +51,18 @@
           class="portfolio-tag bg-block"
         />
       </div>
+    </div>
+    <div v-if="editable" class="flex justify-between items-start full-width full-height q-z-2 q-pa-sm">
+      <q-btn
+        round
+        color="negative"
+        icon="delete"
+        size="xs"
+        flat
+        class="bg-block"
+        @click.stop="$emit('delete', item.documentId)"
+      />
+      <q-btn round icon="edit" size="xs" flat class="bg-block" @click.stop="$emit('edit', item.documentId)" />
     </div>
   </div>
 </template>
@@ -66,14 +79,20 @@ import { UserType } from 'src/interfaces/enums';
 interface Props {
   item: IPortfolio;
   viewMode?: 'tile' | 'single';
+  editable?: boolean;
+  enableImagePreview?: boolean;
 }
 
 interface Emits {
   (e: 'click', item: IPortfolio): void;
+  (e: 'edit', documentId: string): void;
+  (e: 'delete', documentId: string): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'tile',
+  editable: false,
+  enableImagePreview: false,
 });
 
 const emit = defineEmits<Emits>();

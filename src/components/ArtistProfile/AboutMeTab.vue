@@ -329,6 +329,7 @@ import {
 import useStripe from 'src/composables/useStripe';
 import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
+import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -384,6 +385,9 @@ const hasChanges = computed(
     imagesForUpload.value.length > 0 ||
     imagesForRemove.value.length > 0,
 );
+
+// Setup unsaved changes warning
+useUnsavedChanges(hasChanges);
 
 // Prepare data for mutation
 const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {

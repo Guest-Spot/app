@@ -17,9 +17,17 @@
       />
 
       <!-- Portfolio Grid -->
-      <div class="portfolio-grid" v-else-if="portfolioItems.length">
-        <PortfolioCard v-for="item in portfolioItems" :key="item.documentId" :work="item" />
-      </div>
+      <PortfolioGrid
+        v-else-if="portfolioItems.length"
+        :items="portfolioItems"
+        :has-more="false"
+        :loading="false"
+        class="feed-grid"
+      >
+        <template #default="{ item, selectItem }">
+          <FeedItemCard :item="item" view-mode="tile" @click="selectItem" />
+        </template>
+      </PortfolioGrid>
 
       <!-- Empty State -->
       <NoResult
@@ -35,7 +43,7 @@
 
 <script setup lang="ts">
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import { NoResult, PortfolioCard, LoadingState } from 'src/components';
+import { NoResult, FeedItemCard, LoadingState, PortfolioGrid } from 'src/components';
 
 interface Props {
   portfolioItems: IPortfolio[];
@@ -53,9 +61,4 @@ defineProps<Props>();
   padding: 4px 4px 4px 16px;
 }
 
-.portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
 </style>
