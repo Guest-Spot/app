@@ -22,7 +22,6 @@
         v-for="(item, index) in items"
         :key="`feed-single-${index}`"
         :item="item"
-        enable-image-preview
         view-mode="single"
         :class="{ active: item.documentId === selectedItem?.documentId }"
         @click="selectItem"

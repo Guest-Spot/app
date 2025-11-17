@@ -5,11 +5,27 @@
     @click="handleClick"
   >
     <div class="feed-item-image">
-      <ImageCarousel
-        :pictures="pictures"
-        :height="viewMode === 'single' ? '400px' : '200px'"
-        :enable-image-preview="enableImagePreview"
-      />
+      <template v-if="viewMode === 'single'">
+        <ImageCarousel
+          :pictures="pictures"
+          :height="'400px'"
+          :enable-image-preview="enableImagePreview"
+        />
+      </template>
+      <template v-else>
+        <q-img
+          :src="tileImage"
+          ratio="16/9"
+          class="tile-image"
+          spinner-color="dark"
+          spinner-size="32px"
+        />
+        <NoteStack
+          v-if="pictures?.length > 1"
+          class="absolute-top-right q-ma-sm bg-block border-radius-md q-pa-xs"
+          size="26px"
+        />
+      </template>
     </div>
     <div v-if="viewMode === 'single'" class="feed-item-details">
       <div class="feed-item-info">
@@ -75,6 +91,7 @@ import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import ExpandableText from 'src/components/ExpandableText.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { UserType } from 'src/interfaces/enums';
+import NoteStack from 'src/components/Icons/NoteStack.vue';
 
 interface Props {
   item: IPortfolio;
@@ -98,7 +115,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 const router = useRouter();
 
+const FALLBACK_IMAGE = 'https://via.placeholder.com/400x225';
 const pictures = computed(() => props.item.pictures.map((picture) => picture.url));
+const tileImage = computed(() => props.item.pictures?.[0]?.url || FALLBACK_IMAGE);
 
 const formattedDate = computed(() => {
   if (!props.item.createdAt) return '';
@@ -170,6 +189,38 @@ const navigateToOwner = () => {
   position: relative;
   width: 100%;
   overflow: hidden;
+}
+
+.feed-item-card.tile-view .feed-item-image {
+  height: 200px;
+}
+
+.feed-item-card.single-view .feed-item-image {
+  height: 400px;
+}
+
+.tile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tile-note-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  padding: 6px;
+  color: #fff;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .feed-item-details {
