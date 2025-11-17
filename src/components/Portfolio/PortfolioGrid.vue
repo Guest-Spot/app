@@ -15,14 +15,13 @@
     v-show="selectedItem"
     class="feed-single bg-block"
     :style="singleStyle"
-    @pointerdown="handlePointerDown"
+    v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
     <div class="single-view-container">
       <FeedItemCard
         v-for="(item, index) in items"
         :key="`feed-single-${index}`"
         :item="item"
-        enable-image-preview
         view-mode="single"
         :class="{ active: item.documentId === selectedItem?.documentId }"
         @click="selectItem"
@@ -68,86 +67,82 @@ const selectedItem = ref<IPortfolio | null>(null);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
 const MAX_OPACITY_DISTANCE = 340;
-const isPointerDown = ref(false);
+const OPACITY_START_DISTANCE = 150;
 const isSwiping = ref(false);
-const swipeOffset = ref(0);
-let startX = 0;
-let startY = 0;
+const swipeOffset = ref({ x: 0, y: 0 });
+
+interface TouchPanPayload {
+  evt: Event;
+  offset?: { x?: number; y?: number };
+  isFirst?: boolean;
+  isFinal?: boolean;
+}
+
+const MIN_SCALE = 0.7;
 
 const singleStyle = computed(() => {
-  const opacity =
-    swipeOffset.value > 0
-      ? Math.max(0.05, 1 - swipeOffset.value / MAX_OPACITY_DISTANCE)
-      : 1;
+  const offsetX = swipeOffset.value.x;
+  const offsetY = swipeOffset.value.y;
+  const progression =
+    offsetX <= OPACITY_START_DISTANCE
+      ? 0
+      : Math.min(
+          1,
+          (offsetX - OPACITY_START_DISTANCE) /
+            (MAX_OPACITY_DISTANCE - OPACITY_START_DISTANCE),
+        );
+  const opacity = 1 - progression * 0.95;
+  const scale = 1 - progression * (1 - MIN_SCALE);
 
   return {
-    transform: `translateX(${swipeOffset.value}px)`,
+    transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale})`,
     transition: isSwiping.value ? 'none' : 'transform 0.2s ease',
-    opacity,
+    opacity: Math.max(0.05, opacity),
   };
 });
 
-const handlePointerMove = (event: PointerEvent) => {
-  if (!isPointerDown.value) return;
-  const deltaX = event.clientX - startX;
-  const deltaY = event.clientY - startY;
-
-  if (!isSwiping.value) {
-    if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      isSwiping.value = true;
-    } else {
-      return;
-    }
-  }
-
-  if (deltaX <= 0) {
-    swipeOffset.value = 0;
-    return;
-  }
-
-  swipeOffset.value = deltaX;
-  event.preventDefault();
-};
-
-const removePointerListeners = () => {
-  window.removeEventListener('pointermove', handlePointerMove);
-  window.removeEventListener('pointerup', handlePointerEnd);
-  window.removeEventListener('pointercancel', handlePointerEnd);
-};
-
 const resetSwipeState = () => {
-  isPointerDown.value = false;
   isSwiping.value = false;
-  swipeOffset.value = 0;
-  removePointerListeners();
+  swipeOffset.value = { x: 0, y: 0 };
 };
 
-const handlePointerEnd = () => {
-  if (!isPointerDown.value) return;
-  const shouldClose = swipeOffset.value > SWIPE_CLOSE_THRESHOLD;
-  resetSwipeState();
-  if (shouldClose) {
-    selectedItem.value = null;
-  }
-};
-
-const handlePointerDown = (event: PointerEvent) => {
-  if (!selectedItem.value) return;
-  if (event.pointerType === 'mouse' && event.button !== 0) return;
-
-  const targetElement = event.target instanceof Element ? event.target : null;
-  if (targetElement?.closest('.image-carousel')) {
-    return;
+const handleSwipePan = (payload: TouchPanPayload) => {
+  if (!selectedItem.value) {
+    resetSwipeState();
+    return false;
   }
 
-  startX = event.clientX;
-  startY = event.clientY;
-  isPointerDown.value = true;
-  isSwiping.value = false;
-  swipeOffset.value = 0;
-  window.addEventListener('pointermove', handlePointerMove);
-  window.addEventListener('pointerup', handlePointerEnd);
-  window.addEventListener('pointercancel', handlePointerEnd);
+  const targetElement =
+    payload.evt?.target instanceof Element ? payload.evt.target : null;
+
+  if (payload.isFirst) {
+    if (targetElement?.closest('.image-carousel')) {
+      resetSwipeState();
+      return false;
+    }
+
+    isSwiping.value = true;
+    swipeOffset.value = { x: 0, y: 0 };
+  }
+
+  if (payload.isFinal) {
+    const finalOffset = Math.max(
+      0,
+      payload.offset?.x ?? swipeOffset.value.x,
+    );
+    const shouldClose = finalOffset > SWIPE_CLOSE_THRESHOLD;
+    resetSwipeState();
+    if (shouldClose) {
+      selectedItem.value = null;
+    }
+    return true;
+  }
+
+  swipeOffset.value = {
+    x: Math.max(0, payload.offset?.x ?? 0),
+    y: payload.offset?.y ?? swipeOffset.value.y,
+  };
+  return true;
 };
 
 const selectItem = (item: IPortfolio) => {
