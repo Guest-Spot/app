@@ -68,9 +68,9 @@ const selectedItem = ref<IPortfolio | null>(null);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
 const MAX_OPACITY_DISTANCE = 340;
-const OPACITY_START_DISTANCE = 260;
+const OPACITY_START_DISTANCE = 150;
 const isSwiping = ref(false);
-const swipeOffset = ref(0);
+const swipeOffset = ref({ x: 0, y: 0 });
 
 interface TouchPanPayload {
   evt: Event;
@@ -79,28 +79,32 @@ interface TouchPanPayload {
   isFinal?: boolean;
 }
 
+const MIN_SCALE = 0.7;
+
 const singleStyle = computed(() => {
-  const opacity =
-    swipeOffset.value > OPACITY_START_DISTANCE
-      ? Math.max(
-          0.05,
-          1 -
-            ((swipeOffset.value - OPACITY_START_DISTANCE) /
-              (MAX_OPACITY_DISTANCE - OPACITY_START_DISTANCE)) *
-              0.95,
-        )
-      : 1;
+  const offsetX = swipeOffset.value.x;
+  const offsetY = swipeOffset.value.y;
+  const progression =
+    offsetX <= OPACITY_START_DISTANCE
+      ? 0
+      : Math.min(
+          1,
+          (offsetX - OPACITY_START_DISTANCE) /
+            (MAX_OPACITY_DISTANCE - OPACITY_START_DISTANCE),
+        );
+  const opacity = 1 - progression * 0.95;
+  const scale = 1 - progression * (1 - MIN_SCALE);
 
   return {
-    transform: `translateX(${swipeOffset.value}px)`,
+    transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale})`,
     transition: isSwiping.value ? 'none' : 'transform 0.2s ease',
-    opacity,
+    opacity: Math.max(0.05, opacity),
   };
 });
 
 const resetSwipeState = () => {
   isSwiping.value = false;
-  swipeOffset.value = 0;
+  swipeOffset.value = { x: 0, y: 0 };
 };
 
 const handleSwipePan = (payload: TouchPanPayload) => {
@@ -119,13 +123,13 @@ const handleSwipePan = (payload: TouchPanPayload) => {
     }
 
     isSwiping.value = true;
-    swipeOffset.value = 0;
+    swipeOffset.value = { x: 0, y: 0 };
   }
 
   if (payload.isFinal) {
     const finalOffset = Math.max(
       0,
-      payload.offset?.x ?? swipeOffset.value,
+      payload.offset?.x ?? swipeOffset.value.x,
     );
     const shouldClose = finalOffset > SWIPE_CLOSE_THRESHOLD;
     resetSwipeState();
@@ -135,7 +139,10 @@ const handleSwipePan = (payload: TouchPanPayload) => {
     return true;
   }
 
-  swipeOffset.value = Math.max(0, payload.offset?.x ?? 0);
+  swipeOffset.value = {
+    x: Math.max(0, payload.offset?.x ?? 0),
+    y: payload.offset?.y ?? swipeOffset.value.y,
+  };
   return true;
 };
 
