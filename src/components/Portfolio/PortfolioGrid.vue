@@ -15,7 +15,7 @@
     v-show="selectedItem"
     class="feed-single bg-block"
     :style="singleStyle"
-    @pointerdown="handlePointerDown"
+    v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
     <div class="single-view-container">
       <FeedItemCard
@@ -68,16 +68,27 @@ const selectedItem = ref<IPortfolio | null>(null);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
 const MAX_OPACITY_DISTANCE = 340;
-const isPointerDown = ref(false);
+const OPACITY_START_DISTANCE = 260;
 const isSwiping = ref(false);
 const swipeOffset = ref(0);
-let startX = 0;
-let startY = 0;
+
+interface TouchPanPayload {
+  evt: Event;
+  offset?: { x?: number; y?: number };
+  isFirst?: boolean;
+  isFinal?: boolean;
+}
 
 const singleStyle = computed(() => {
   const opacity =
-    swipeOffset.value > 0
-      ? Math.max(0.05, 1 - swipeOffset.value / MAX_OPACITY_DISTANCE)
+    swipeOffset.value > OPACITY_START_DISTANCE
+      ? Math.max(
+          0.05,
+          1 -
+            ((swipeOffset.value - OPACITY_START_DISTANCE) /
+              (MAX_OPACITY_DISTANCE - OPACITY_START_DISTANCE)) *
+              0.95,
+        )
       : 1;
 
   return {
@@ -87,67 +98,45 @@ const singleStyle = computed(() => {
   };
 });
 
-const handlePointerMove = (event: PointerEvent) => {
-  if (!isPointerDown.value) return;
-  const deltaX = event.clientX - startX;
-  const deltaY = event.clientY - startY;
-
-  if (!isSwiping.value) {
-    if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      isSwiping.value = true;
-    } else {
-      return;
-    }
-  }
-
-  if (deltaX <= 0) {
-    swipeOffset.value = 0;
-    return;
-  }
-
-  swipeOffset.value = deltaX;
-  event.preventDefault();
-};
-
-const removePointerListeners = () => {
-  window.removeEventListener('pointermove', handlePointerMove);
-  window.removeEventListener('pointerup', handlePointerEnd);
-  window.removeEventListener('pointercancel', handlePointerEnd);
-};
-
 const resetSwipeState = () => {
-  isPointerDown.value = false;
   isSwiping.value = false;
   swipeOffset.value = 0;
-  removePointerListeners();
 };
 
-const handlePointerEnd = () => {
-  if (!isPointerDown.value) return;
-  const shouldClose = swipeOffset.value > SWIPE_CLOSE_THRESHOLD;
-  resetSwipeState();
-  if (shouldClose) {
-    selectedItem.value = null;
-  }
-};
-
-const handlePointerDown = (event: PointerEvent) => {
-  if (!selectedItem.value) return;
-  if (event.pointerType === 'mouse' && event.button !== 0) return;
-
-  const targetElement = event.target instanceof Element ? event.target : null;
-  if (targetElement?.closest('.image-carousel')) {
-    return;
+const handleSwipePan = (payload: TouchPanPayload) => {
+  if (!selectedItem.value) {
+    resetSwipeState();
+    return false;
   }
 
-  startX = event.clientX;
-  startY = event.clientY;
-  isPointerDown.value = true;
-  isSwiping.value = false;
-  swipeOffset.value = 0;
-  window.addEventListener('pointermove', handlePointerMove);
-  window.addEventListener('pointerup', handlePointerEnd);
-  window.addEventListener('pointercancel', handlePointerEnd);
+  const targetElement =
+    payload.evt?.target instanceof Element ? payload.evt.target : null;
+
+  if (payload.isFirst) {
+    if (targetElement?.closest('.image-carousel')) {
+      resetSwipeState();
+      return false;
+    }
+
+    isSwiping.value = true;
+    swipeOffset.value = 0;
+  }
+
+  if (payload.isFinal) {
+    const finalOffset = Math.max(
+      0,
+      payload.offset?.x ?? swipeOffset.value,
+    );
+    const shouldClose = finalOffset > SWIPE_CLOSE_THRESHOLD;
+    resetSwipeState();
+    if (shouldClose) {
+      selectedItem.value = null;
+    }
+    return true;
+  }
+
+  swipeOffset.value = Math.max(0, payload.offset?.x ?? 0);
+  return true;
 };
 
 const selectItem = (item: IPortfolio) => {
