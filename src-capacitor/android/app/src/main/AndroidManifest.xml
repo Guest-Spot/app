@@ -22,6 +22,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="api.getguestspot.app"
+                    android:pathPrefix="/confirm" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -33,15 +43,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
-        <intent-filter android:autoVerify="true">
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data
-                android:scheme="https"
-                android:host="api.getguestspot.app"
-                android:pathPrefix="/confirm" />
-        </intent-filter>
     </application>
 
     <!-- Permissions -->
