@@ -1,7 +1,6 @@
 <template>
   <!-- Grid view -->
   <WindowVirtualList
-    v-show="!selectedItem"
     :items="items"
     :loading="loading"
     :hasMore="hasMore"
