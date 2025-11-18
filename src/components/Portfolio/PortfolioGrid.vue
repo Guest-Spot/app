@@ -1,5 +1,7 @@
 <template>
+  <!-- Grid view -->
   <WindowVirtualList
+    v-show="!selectedItem"
     :items="items"
     :loading="loading"
     :hasMore="hasMore"
@@ -15,22 +17,32 @@
     </template>
   </WindowVirtualList>
 
+  <!-- Single view -->
   <div
     v-show="selectedItem"
+    ref="singleViewRef"
     class="feed-single bg-block"
     :style="singleStyle"
     v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
-    <div class="single-view-container">
-      <FeedItemCard
-        v-for="(item, index) in items"
-        :key="`feed-single-${index}`"
-        :item="item"
-        view-mode="single"
-        :class="{ active: item.documentId === selectedItem?.documentId }"
-        @click="selectItem"
-      />
-    </div>
+    <WindowVirtualList
+      :items="items"
+      :loading="false"
+      :hasMore="false"
+      :itemHeight="400"
+      :columns="1"
+      :gap="16"
+      :overscan="2"
+      selector=".feed-single"
+    >
+      <template #default="{ item }">
+        <FeedItemCard
+          :item="asPortfolio(item)"
+          view-mode="single"
+          @click="selectItem(item)"
+        />
+      </template>
+    </WindowVirtualList>
   </div>
 </template>
 
@@ -67,6 +79,7 @@ const emit = defineEmits<{ (event: 'load-more'): void }>();
 const { items } = toRefs(props);
 
 const selectedItem = ref<IPortfolio | null>(null);
+const singleViewRef = ref<HTMLElement | null>(null);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
 const MAX_OPACITY_DISTANCE = 340;
@@ -75,7 +88,7 @@ const isSwiping = ref(false);
 const swipeOffset = ref({ x: 0, y: 0 });
 
 interface TouchPanPayload {
-  evt: Event;
+  evt?: Event;
   offset?: { x?: number; y?: number };
   isFirst?: boolean;
   isFinal?: boolean;
@@ -148,13 +161,31 @@ const handleSwipePan = (payload: TouchPanPayload) => {
   return true;
 };
 
-const selectItem = (item: IPortfolio) => {
-  if (selectedItem.value?.documentId !== item.documentId) {
-    selectedItem.value = item;
+const asPortfolio = (item: unknown): IPortfolio => item as IPortfolio;
+
+const selectItem = (item: unknown) => {
+  const portfolio = asPortfolio(item);
+  if (selectedItem.value?.documentId !== portfolio.documentId) {
+    selectedItem.value = portfolio;
+
+    // Scroll to item position in virtualized list
     setTimeout(() => {
-      const element = document.querySelector('.single-view-container .active');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!singleViewRef.value) return;
+
+      const itemIndex = items.value.findIndex(
+        (i) => i.documentId === portfolio.documentId,
+      );
+
+      if (itemIndex !== -1) {
+        // Calculate approximate scroll position
+        // itemHeight (700) + gap (16)
+        const itemHeight = 700 + 16;
+        const scrollPosition = itemIndex * itemHeight;
+
+        singleViewRef.value.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
       }
     }, 100);
   }
@@ -203,33 +234,18 @@ defineExpose({
   height: 100%;
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
+  padding-top: 16px;
   padding-bottom: 130px;
   padding-left: 16px;
   padding-right: 16px;
   box-sizing: border-box;
   touch-action: pan-y;
+  border-radius: 16px;
   will-change: transform;
-  border-radius: 50px;
   z-index: 2;
-}
 
-.single-view-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  min-height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-padding-block: 40vh;
-  scroll-behavior: smooth;
-
-  .feed-item-card.single-view {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
-  }
-
-  .feed-item-card {
+  // Styles for virtual list items in single view
+  :deep(.feed-item-card) {
     &.active {
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }

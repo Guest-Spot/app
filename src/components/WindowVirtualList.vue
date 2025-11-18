@@ -11,6 +11,7 @@ interface Props {
   loadThreshold?: number
   columns?: number
   gap?: number
+  selector?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   loadThreshold: 200,
   columns: 1,
   gap: 0,
+  selector: '#q-app',
 })
 
 const emit = defineEmits<{
@@ -114,19 +116,11 @@ watch(
  * Get reference to #q-app on mount and setup scroll listener
  */
 onMounted(() => {
-  scrollElement.value = document.querySelector('#q-app')
+  scrollElement.value = document.querySelector(props.selector)
 
   if (scrollElement.value) {
     scrollElement.value.addEventListener('scroll', handleScroll, { passive: true })
   }
-
-  // Debug info
-  console.log('[WindowVirtualList] Mounted:', {
-    itemsCount: props.items.length,
-    rowsCount: rows.value.length,
-    columns: props.columns,
-    itemHeight: props.itemHeight,
-  })
 })
 
 /**
