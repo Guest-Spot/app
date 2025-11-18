@@ -197,14 +197,14 @@ defineExpose({
     <!-- End of list message -->
     <div v-else-if="!hasMore && items.length > 0" class="end-message">
       <slot name="end">
-        No more items
+        <!-- No more items -->
       </slot>
     </div>
 
     <!-- Empty state -->
     <div v-if="!loading && items.length === 0" class="empty-state">
       <slot name="empty">
-        No items found
+        <!-- No items found -->
       </slot>
     </div>
   </div>
@@ -242,7 +242,6 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
   text-align: center;
 }
 
