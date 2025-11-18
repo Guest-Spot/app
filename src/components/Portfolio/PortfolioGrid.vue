@@ -1,15 +1,19 @@
 <template>
-  <InfiniteScrollWrapper
-    class="feed-grid"
-    :offset="offset"
+  <WindowVirtualList
+    :items="items"
     :loading="loading"
-    :stop="computedStop"
+    :hasMore="hasMore"
+    :itemHeight="200"
+    :columns="2"
+    :gap="12"
+    :overscan="3"
+    :loadThreshold="400"
     @load-more="handleLoadMore"
   >
-    <template v-for="(item, index) in items" :key="getItemKey(item, index)">
+    <template #default="{ item, index }">
       <slot :item="item" :index="index" :selectItem="selectItem" />
     </template>
-  </InfiniteScrollWrapper>
+  </WindowVirtualList>
 
   <div
     v-show="selectedItem"
@@ -39,8 +43,8 @@ import {
   toRefs,
 } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
-import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
+import WindowVirtualList from 'src/components/WindowVirtualList.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -60,7 +64,6 @@ const props = withDefaults(
 
 const emit = defineEmits<{ (event: 'load-more'): void }>();
 
-const computedStop = computed(() => props.stop || !props.hasMore);
 const { items } = toRefs(props);
 
 const selectedItem = ref<IPortfolio | null>(null);
@@ -161,9 +164,6 @@ const handleLoadMore = () => {
   if (selectedItem.value) return;
   emit('load-more');
 };
-
-const getItemKey = (item: IPortfolio, index: number) =>
-  item.documentId || `portfolio-item-${index}`;
 
 const forceCloseSingleView = () => {
   resetSwipeState();
