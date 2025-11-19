@@ -44,11 +44,10 @@ onMounted(() => {
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {
     const url = new URL(event.url);
-    if (url.pathname.includes('api/auth/email-confirmation')) {
-      void router.push('/sign-in?emailConfirmation=true');
-      return;
+    const path = url.pathname + url.search;
+    if (path) {
+      void router.push(path);
     }
-    void router.push('/');
   });
 });
 </script>
