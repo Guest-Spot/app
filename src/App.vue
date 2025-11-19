@@ -9,12 +9,15 @@ import useTokens from 'src/modules/useTokens';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 import useSettings from 'src/composables/useSettings';
+import { App } from '@capacitor/app';
+import { useRouter } from 'vue-router';
 
 const { fetchMe, user } = useUser();
 const { getStoredTokens } = useTokens();
 const { fetchInvites } = useInviteCompos();
 const { fetchNotifies } = useNotifyCompos();
 const { fetchSettings } = useSettings();
+const router = useRouter();
 
 const fetchCurrentUser = (): void => {
   const tokens = getStoredTokens();
@@ -37,5 +40,15 @@ watch(
 onMounted(() => {
   void fetchCurrentUser();
   void fetchSettings();
+
+  // Handle deep links when app is already open
+  void App.addListener('appUrlOpen', (event) => {
+    const url = new URL(event.url);
+    if (url.pathname.includes('api/auth/email-confirmation')) {
+      void router.push('/sign-in?email-confirmation=true');
+      return;
+    }
+    void router.push('/');
+  });
 });
 </script>

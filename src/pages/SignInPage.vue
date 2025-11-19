@@ -135,7 +135,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
@@ -150,6 +150,7 @@ import {
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
 const { login, isAuthenticated, fetchMe } = useUser();
+const route = useRoute();
 
 const loading = ref(false);
 const showPassword = ref(false);
@@ -213,6 +214,9 @@ async function signInWithApple() {
 
 onMounted(() => {
   void initializeGoogleAuth();
+  if (route.query.emailConfirmation) {
+    showSuccess('Email confirmation successful');
+  }
 });
 </script>
 
