@@ -45,7 +45,7 @@ onMounted(() => {
   void App.addListener('appUrlOpen', (event) => {
     const url = new URL(event.url);
     if (url.pathname.includes('api/auth/email-confirmation')) {
-      void router.push('/sign-in?email-confirmation=true');
+      void router.push('/sign-in?emailConfirmation=true');
       return;
     }
     void router.push('/');
