@@ -26,14 +26,15 @@
   >
     <VirtualList
       :items="items"
-      :loading="false"
-      :hasMore="false"
+      :loading="loading"
+      :hasMore="hasMore"
       :itemHeight="400"
       dynamic-height
       :columns="1"
       :gap="16"
       :overscan="2"
       selector=".feed-single"
+      @load-more="handleLoadMore"
     >
       <template #default="{ item }">
         <FeedItemCard
@@ -192,7 +193,6 @@ const selectItem = (item: unknown) => {
 };
 
 const handleLoadMore = () => {
-  if (selectedItem.value) return;
   emit('load-more');
 };
 

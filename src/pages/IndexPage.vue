@@ -41,6 +41,7 @@
             v-else-if="shops.length > 0"
             :items="shops"
             :item-height="320"
+            dynamic-height
             :gap="16"
             :loading="isLoadingShops"
             :has-more="hasMoreShops"
