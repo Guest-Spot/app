@@ -1,32 +1,50 @@
 <template>
-  <InfiniteScrollWrapper
-    class="feed-grid"
-    :offset="offset"
+  <!-- Grid view -->
+  <VirtualList
+    :items="items"
     :loading="loading"
-    :stop="computedStop"
+    :hasMore="hasMore"
+    :itemHeight="200"
+    :columns="2"
+    :gap="12"
+    :overscan="3"
+    :loadThreshold="400"
     @load-more="handleLoadMore"
   >
-    <template v-for="(item, index) in items" :key="getItemKey(item, index)">
+    <template #default="{ item, index }">
       <slot :item="item" :index="index" :selectItem="selectItem" />
     </template>
-  </InfiniteScrollWrapper>
+  </VirtualList>
 
+  <!-- Single view -->
   <div
     v-show="selectedItem"
+    ref="singleViewRef"
     class="feed-single bg-block"
+    data-no-pull-refresh
     :style="singleStyle"
     v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
-    <div class="single-view-container">
-      <FeedItemCard
-        v-for="(item, index) in items"
-        :key="`feed-single-${index}`"
-        :item="item"
-        view-mode="single"
-        :class="{ active: item.documentId === selectedItem?.documentId }"
-        @click="selectItem"
-      />
-    </div>
+    <VirtualList
+      :items="items"
+      :loading="loading"
+      :hasMore="hasMore"
+      :itemHeight="400"
+      dynamic-height
+      :columns="1"
+      :gap="16"
+      :overscan="2"
+      selector=".feed-single"
+      @load-more="handleLoadMore"
+    >
+      <template #default="{ item }">
+        <FeedItemCard
+          :item="asPortfolio(item)"
+          view-mode="single"
+          @click="selectItem(item)"
+        />
+      </template>
+    </VirtualList>
   </div>
 </template>
 
@@ -39,8 +57,8 @@ import {
   toRefs,
 } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
-import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
+import VirtualList from 'src/components/VirtualList.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -60,10 +78,10 @@ const props = withDefaults(
 
 const emit = defineEmits<{ (event: 'load-more'): void }>();
 
-const computedStop = computed(() => props.stop || !props.hasMore);
 const { items } = toRefs(props);
 
 const selectedItem = ref<IPortfolio | null>(null);
+const singleViewRef = ref<HTMLElement | null>(null);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
 const MAX_OPACITY_DISTANCE = 340;
@@ -72,7 +90,7 @@ const isSwiping = ref(false);
 const swipeOffset = ref({ x: 0, y: 0 });
 
 interface TouchPanPayload {
-  evt: Event;
+  evt?: Event;
   offset?: { x?: number; y?: number };
   isFirst?: boolean;
   isFinal?: boolean;
@@ -145,25 +163,39 @@ const handleSwipePan = (payload: TouchPanPayload) => {
   return true;
 };
 
-const selectItem = (item: IPortfolio) => {
-  if (selectedItem.value?.documentId !== item.documentId) {
-    selectedItem.value = item;
+const asPortfolio = (item: unknown): IPortfolio => item as IPortfolio;
+
+const selectItem = (item: unknown) => {
+  const portfolio = asPortfolio(item);
+  if (selectedItem.value?.documentId !== portfolio.documentId) {
+    selectedItem.value = portfolio;
+
+    // Scroll to item position in virtualized list
     setTimeout(() => {
-      const element = document.querySelector('.single-view-container .active');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!singleViewRef.value) return;
+
+      const itemIndex = items.value.findIndex(
+        (i) => i.documentId === portfolio.documentId,
+      );
+
+      if (itemIndex !== -1) {
+        // Calculate approximate scroll position
+        // itemHeight (700) + gap (16)
+        const itemHeight = 700 + 16;
+        const scrollPosition = itemIndex * itemHeight;
+
+        singleViewRef.value.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth',
+        });
       }
     }, 100);
   }
 };
 
 const handleLoadMore = () => {
-  if (selectedItem.value) return;
   emit('load-more');
 };
-
-const getItemKey = (item: IPortfolio, index: number) =>
-  item.documentId || `portfolio-item-${index}`;
 
 const forceCloseSingleView = () => {
   resetSwipeState();
@@ -203,33 +235,18 @@ defineExpose({
   height: 100%;
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
+  padding-top: 16px;
   padding-bottom: 130px;
   padding-left: 16px;
   padding-right: 16px;
   box-sizing: border-box;
   touch-action: pan-y;
+  border-radius: 16px;
   will-change: transform;
-  border-radius: 50px;
   z-index: 2;
-}
 
-.single-view-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  min-height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-padding-block: 40vh;
-  scroll-behavior: smooth;
-
-  .feed-item-card.single-view {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
-  }
-
-  .feed-item-card {
+  // Styles for virtual list items in single view
+  :deep(.feed-item-card) {
     &.active {
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
