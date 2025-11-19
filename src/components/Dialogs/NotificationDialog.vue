@@ -23,27 +23,29 @@
           v-close-popup
         />
       </q-card-section>
-      <q-card-section class="dialog-content">
-        <div v-if="isLoading" class="flex justify-center items-center q-h-full q-my-xl full-width">
+      <q-card-section class="dialog-content notification-scroll-container">
+        <div v-if="isLoading && !localNotifies.length" class="flex justify-center items-center q-h-full q-my-xl full-width">
           <q-spinner color="primary" size="32px" />
         </div>
         <div v-else-if="localNotifies.length > 0" class="notification-list">
-          <InfiniteScrollWrapper
-            class="flex column q-gap-md"
-            :offset="150"
+          <WindowVirtualList
+            :items="localNotifies"
+            :item-height="300"
+            :gap="16"
             :loading="isLoading"
-            :stop="!hasMoreNotifies"
+            :has-more="hasMoreNotifies"
+            selector=".notification-scroll-container"
             @load-more="loadMoreNotifies"
           >
-            <component
-              v-for="notify in localNotifies"
-              :key="notify.documentId"
-              :is="resolveNotificationComponent(notify.type)"
-              :notify="notify"
-              :is-viewed="isNotificationViewed(notify.documentId)"
-              v-close-popup
-            />
-          </InfiniteScrollWrapper>
+            <template #default="{ item }">
+              <component
+                :is="resolveNotificationComponent(castNotify(item)?.type)"
+                :notify="castNotify(item)"
+                :is-viewed="isNotificationViewed(castNotify(item)?.documentId)"
+                v-close-popup
+              />
+            </template>
+          </WindowVirtualList>
         </div>
         <div
           v-else
@@ -64,7 +66,7 @@ import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { InviteNotificationItem, NotificationItem } from 'src/components';
 import type { INotify } from 'src/interfaces/notify';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import WindowVirtualList from 'src/components/WindowVirtualList.vue';
 import { InviteType } from 'src/interfaces/enums';
 
 interface Props {
@@ -94,6 +96,8 @@ const localNotifies = ref<INotify[]>([]);
 const currentPage = ref(1);
 const hasMoreNotifies = ref(true);
 const inviteNotificationTypes = new Set<string>(Object.values(InviteType));
+
+const castNotify = (item: unknown): INotify => item as INotify;
 
 let lastRequestWasAppend = false;
 
