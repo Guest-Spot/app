@@ -11,7 +11,8 @@
       "*.yourdomain.com",
       "*.googleapis.com",
       "*.stripe.com",
-      "connect.stripe.com"
+      "connect.stripe.com",
+      "getguestspot.app/*"
     ]
   },
   "plugins": {

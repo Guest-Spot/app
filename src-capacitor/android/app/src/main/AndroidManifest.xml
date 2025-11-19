@@ -26,10 +26,14 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="api.getguestspot.app"
-                    android:pathPrefix="/confirm" />
+                <data android:scheme="https" android:host="getguestspot.app" />
+                <!-- Handle specific paths -->
+                <data android:pathPrefix="/confirm" />
+                <data android:pathPrefix="/connect" />
+                <data android:pathPrefix="/payment" />
+                <data android:pathPrefix="/stripe-onboarding" />
+                <data android:pathPrefix="/artist" />
+                <data android:pathPrefix="/shop" />
             </intent-filter>
 
         </activity>
