@@ -1,32 +1,44 @@
 <template>
-  <q-page class="page q-py-sm flex column items-center justify-center">
-    <div class="container">
-      <div class="email-card bg-block border-radius-lg flex column items-center q-gap-md text-center q-pa-xl">
-        <div class="icon-wrapper">
-          <q-icon name="email" size="48px" color="primary" />
-        </div>
-        <div class="flex column items-center q-gap-sm">
-          <h3 class="text-h5 text-bold q-mb-none">Confirm your email</h3>
-          <p class="text-subtitle2 q-px-md q-mt-sm text-grey-6">
-            We sent you an email with a link to confirm your email address
-            <span class="email text-primary">{{ displayEmail }}</span>.
-          </p>
-          <div v-if="email" class="resend-block flex column items-center q-gap-xs q-mt-md">
-            <p class="text-caption text-grey-6 q-mb-none">Didn't receive the email?</p>
-            <q-btn
-              label="Resend confirmation email"
-              color="primary"
-              dense
-              rounded
-              unelevated
-              class="q-px-md"
-              :disable="isCooldown"
-              @click="handleResend"
-            />
-            <p v-if="isCooldown" class="text-caption text-grey-6 q-mt-xs q-mb-none">
-              {{ cooldownLabel }}
-            </p>
+  <q-page class="page q-py-md flex column items-start q-gap-md">
+    <div class="container flex no-wrap items-center justify-start q-gap-md">
+      <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
+        <q-icon name="arrow_back" />
+      </q-btn>
+      <h2 class="text-h5 q-my-none">Confirm your <span class="text-primary">email</span></h2>
+    </div>
+
+    <div class="q-my-auto full-width">
+      <div class="container">
+        <div class="email-card bg-block border-radius-lg flex column items-center q-gap-md text-center q-pa-md">
+          <div class="flex column items-center q-gap-sm">
+            <div class="bg-block border-radius-md full-width q-pa-md">
+              <div class="icon-wrapper">
+                <q-icon name="inbox" size="48px" color="primary" />
+              </div>
+              <h3 class="text-h5 text-bold q-mb-none q-mt-sm">Check your inbox</h3>
+              <p class="text-subtitle2 q-px-md q-mt-sm text-grey-6">
+                We sent you an email with a link to confirm your email address
+                <span class="email text-primary">{{ displayEmail }}</span>.
+              </p>
+            </div>
           </div>
+        </div>
+        <div v-if="email" class="resend-block flex column items-center q-gap-xs q-my-md">
+          <p class="text-caption text-grey-6 q-mb-none">Didn't receive the email?</p>
+          <q-btn
+            label="Resend confirmation email"
+            color="primary"
+            dense
+            flat
+            rounded
+            unelevated
+            class="q-px-md bg-block"
+            :disable="isCooldown"
+            @click="handleResend"
+          />
+          <p v-if="isCooldown" class="text-caption text-grey-6 q-mt-xs q-mb-none">
+            {{ cooldownLabel }}
+          </p>
         </div>
       </div>
     </div>
@@ -36,10 +48,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { resendConfirmationEmail } from 'src/api';
+import useNotify from 'src/modules/useNotify';
+import type { AxiosError } from 'axios';
 
 const route = useRoute();
+const { showError } = useNotify();
 
-const normalizeValue = (value: string | string[] | undefined) => {
+const normalizeValue = (value: string | null | (string | null)[] | undefined) => {
   if (Array.isArray(value)) {
     return value[0] ?? '';
   }
@@ -80,17 +96,20 @@ const cooldownLabel = computed(() => {
   return `Resend in ${minutes}:${formattedSeconds}`;
 });
 
-const resendConfirmationEmail = () => {
-  // TODO: call actual resend endpoint
-  console.log('Resend confirmation email requested');
-};
-
-const handleResend = () => {
-  if (isCooldown.value) {
+const handleResend = async () => {
+  if (isCooldown.value || !email.value) {
     return;
   }
   startCooldown();
-  void resendConfirmationEmail();
+
+  try {
+    await resendConfirmationEmail(email.value);
+    console.log('Email confirmation resent successfully');
+  } catch (error) {
+    console.error('Error resending email confirmation:', error);
+    // show axios error
+    showError((error as AxiosError<{ error: { message: string } }>).response?.data?.error?.message || 'Failed to resend confirmation email');
+  }
 };
 
 onBeforeUnmount(() => {
