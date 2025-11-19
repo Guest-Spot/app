@@ -28,7 +28,7 @@
           <q-spinner color="primary" size="32px" />
         </div>
         <div v-else-if="localNotifies.length > 0" class="notification-list">
-          <WindowVirtualList
+          <VirtualList
             :items="localNotifies"
             :item-height="300"
             :gap="16"
@@ -45,7 +45,7 @@
                 v-close-popup
               />
             </template>
-          </WindowVirtualList>
+          </VirtualList>
         </div>
         <div
           v-else
@@ -66,7 +66,7 @@ import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { InviteNotificationItem, NotificationItem } from 'src/components';
 import type { INotify } from 'src/interfaces/notify';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-import WindowVirtualList from 'src/components/WindowVirtualList.vue';
+import VirtualList from 'src/components/VirtualList.vue';
 import { InviteType } from 'src/interfaces/enums';
 
 interface Props {

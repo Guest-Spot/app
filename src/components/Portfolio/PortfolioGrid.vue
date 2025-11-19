@@ -1,6 +1,6 @@
 <template>
   <!-- Grid view -->
-  <WindowVirtualList
+  <VirtualList
     :items="items"
     :loading="loading"
     :hasMore="hasMore"
@@ -14,7 +14,7 @@
     <template #default="{ item, index }">
       <slot :item="item" :index="index" :selectItem="selectItem" />
     </template>
-  </WindowVirtualList>
+  </VirtualList>
 
   <!-- Single view -->
   <div
@@ -24,7 +24,7 @@
     :style="singleStyle"
     v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
-    <WindowVirtualList
+    <VirtualList
       :items="items"
       :loading="false"
       :hasMore="false"
@@ -41,7 +41,7 @@
           @click="selectItem(item)"
         />
       </template>
-    </WindowVirtualList>
+    </VirtualList>
   </div>
 </template>
 
@@ -55,7 +55,7 @@ import {
 } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import WindowVirtualList from 'src/components/WindowVirtualList.vue';
+import VirtualList from 'src/components/VirtualList.vue';
 
 const props = withDefaults(
   defineProps<{
