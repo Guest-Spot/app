@@ -120,6 +120,13 @@ const pullVerticalOffset = computed(() => {
 
 const handleTouchStart = (event: TouchEvent) => {
   if (event.touches.length !== 1 || isReloading.value) return;
+
+  // Check if the touch started on an element that should prevent pull-to-refresh
+  const target = event.target as Element;
+  if (target.closest && target.closest('[data-no-pull-refresh]')) {
+    return;
+  }
+
   if (pageHasScroll()) {
     isSwiping.value = false;
     isPulling.value = false;

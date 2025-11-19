@@ -21,6 +21,7 @@
     v-show="selectedItem"
     ref="singleViewRef"
     class="feed-single bg-block"
+    data-no-pull-refresh
     :style="singleStyle"
     v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
