@@ -183,7 +183,7 @@ const selectItem = (item: unknown) => {
 
         singleViewRef.value.scrollTo({
           top: scrollPosition,
-          behavior: 'instant',
+          behavior: 'smooth',
         });
       }
     }, 100);
