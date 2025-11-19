@@ -47,3 +47,19 @@ export async function connect(url: string) {
     userStore.setIsLoading(false);
   }
 }
+
+/**
+ * Resend confirmation email
+ * @param email - User email
+ */
+export async function resendConfirmationEmail(email: string) {
+  try {
+    const response = await api.post('/api/auth/send-email-confirmation', {
+      email,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error resending email confirmation:', error);
+    throw error;
+  }
+}
