@@ -37,21 +37,19 @@
             description="Please wait while we fetch the latest shops"
             spinner-name="dots"
           />
-          <InfiniteScrollWrapper
+          <WindowVirtualList
             v-else-if="shops.length > 0"
-            class="flex column q-gap-md"
-            :offset="250"
+            :items="shops"
+            :item-height="320"
+            :gap="16"
             :loading="isLoadingShops"
-            :stop="!hasMoreShops"
+            :has-more="hasMoreShops"
             @load-more="loadMoreShopsWrapper"
           >
-            <ShopCard
-              v-for="(shop, index) in shops"
-              :key="`shop-${index}`"
-              :shop="shop"
-              @click="selectShop"
-            />
-          </InfiniteScrollWrapper>
+            <template #default="{ item: shop }">
+              <ShopCard :shop="castUser(shop)" @click="selectShop" />
+            </template>
+          </WindowVirtualList>
           <NoResult
             v-else
             icon="search_off"
@@ -70,26 +68,19 @@
             description="Please wait while we fetch the latest artists"
             spinner-name="dots"
           />
-          <InfiniteScrollWrapper
+          <WindowVirtualList
             v-else-if="artists.length > 0"
-            @load-more="loadMoreArtistsWrapper"
-            :offset="250"
+            :items="artists"
+            :item-height="140"
+            :gap="16"
             :loading="isLoadingArtists"
-            :stop="!hasMoreArtists"
-            class="flex column q-gap-md"
+            :has-more="hasMoreArtists"
+            @load-more="loadMoreArtistsWrapper"
           >
-            <ArtistCard
-              v-for="(artist, index) in artists"
-              :key="`artist-${index}`"
-              :artist="artist"
-              @click="selectArtist"
-            />
-            <template v-slot:loading>
-              <div class="row justify-center q-my-md">
-                <q-spinner-dots color="primary" size="40px" />
-              </div>
+            <template #default="{ item: artist }">
+              <ArtistCard :artist="castUser(artist)" @click="selectArtist" />
             </template>
-          </InfiniteScrollWrapper>
+          </WindowVirtualList>
           <NoResult
             v-else
             icon="search_off"
@@ -124,7 +115,7 @@ import { useCitiesStore } from 'src/stores/cities';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
-import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import WindowVirtualList from 'src/components/WindowVirtualList.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import type { UserType } from 'src/interfaces/enums';
 
@@ -160,6 +151,8 @@ const {
   resetArtistsPagination,
   refetchArtistsData,
 } = useArtists();
+
+const castUser = (item: unknown): IUser => item as IUser;
 
 const {
   load: loadCities,
