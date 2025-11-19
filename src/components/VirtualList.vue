@@ -12,6 +12,7 @@ interface Props {
   columns?: number
   gap?: number
   selector?: string
+  dynamicHeight?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
   columns: 1,
   gap: 0,
   selector: '#q-app',
+  dynamicHeight: false,
 })
 
 const emit = defineEmits<{
@@ -61,6 +63,13 @@ const rowVirtualizer = useVirtualizer(
     getScrollElement: () => scrollElement.value,
   })),
 )
+
+/**
+ * Measure element for dynamic height
+ */
+const measureElement = (el: Element) => {
+  rowVirtualizer.value.measureElement(el)
+}
 
 /**
  * Trigger load more
@@ -150,12 +159,15 @@ defineExpose({
       <div
         v-for="virtualRow in rowVirtualizer.getVirtualItems()"
         :key="`virtual-row-${virtualRow.key}`"
+        :data-index="virtualRow.index"
+        :ref="measureElement"
         :style="{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
-          height: `${itemHeight}px`,
+          height: dynamicHeight ? undefined : `${itemHeight}px`,
+          paddingBottom: `${gap}px`,
           transform: `translateY(${virtualRow.start}px)`
         }"
         class="virtual-row"

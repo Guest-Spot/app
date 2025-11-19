@@ -29,6 +29,7 @@
       :loading="false"
       :hasMore="false"
       :itemHeight="400"
+      dynamic-height
       :columns="1"
       :gap="16"
       :overscan="2"

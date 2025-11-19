@@ -71,7 +71,8 @@
           <VirtualList
             v-else-if="artists.length > 0"
             :items="artists"
-            :item-height="140"
+            :item-height="120"
+            dynamic-height
             :gap="16"
             :loading="isLoadingArtists"
             :has-more="hasMoreArtists"

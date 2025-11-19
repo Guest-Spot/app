@@ -30,7 +30,8 @@
         <div v-else-if="localNotifies.length > 0" class="notification-list">
           <VirtualList
             :items="localNotifies"
-            :item-height="300"
+            :item-height="250"
+            dynamic-height
             :gap="16"
             :loading="isLoading"
             :has-more="hasMoreNotifies"
