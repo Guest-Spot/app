@@ -62,7 +62,7 @@
 		<false/>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>applinks:api.getguestspot.app</key>
+			<key>applinks:getguestspot.app</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
@@ -124,7 +124,7 @@
 	<true/>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:api.getguestspot.app</string>
+		<string>applinks:getguestspot.app</string>
 	</array>
 </dict>
 </plist>

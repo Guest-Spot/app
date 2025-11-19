@@ -12,7 +12,7 @@
       "*.googleapis.com",
       "*.stripe.com",
       "connect.stripe.com",
-      "api.getguestspot.app/*"
+      "getguestspot.app/*"
     ]
   },
   "plugins": {

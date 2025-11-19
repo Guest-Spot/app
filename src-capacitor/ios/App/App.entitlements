@@ -10,7 +10,7 @@
 	<string>$(APS_ENVIRONMENT)</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:api.getguestspot.app</string>
+		<string>applinks:getguestspot.app</string>
 	</array>
 </dict>
 </plist>
