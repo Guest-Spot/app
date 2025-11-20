@@ -42,7 +42,10 @@
         <FeedItemCard
           :item="asPortfolio(item)"
           view-mode="single"
+          @edit="$emit('edit', item.documentId)"
+          @delete="$emit('delete', item.documentId)"
           @click="selectItem(item)"
+          :editable="editable"
         />
       </template>
     </VirtualList>
@@ -68,16 +71,18 @@ const props = withDefaults(
     hasMore?: boolean;
     stop?: boolean;
     offset?: number;
+    editable?: boolean;
   }>(),
   {
     loading: false,
     hasMore: true,
     stop: false,
     offset: 250,
+    editable: false,
   },
 );
 
-const emit = defineEmits<{ (event: 'load-more'): void }>();
+const emit = defineEmits<{ (event: 'load-more'): void; (event: 'edit', documentId: string): void; (event: 'delete', documentId: string): void }>();
 
 const { items } = toRefs(props);
 

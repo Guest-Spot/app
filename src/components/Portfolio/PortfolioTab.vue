@@ -21,14 +21,14 @@
       :has-more="false"
       :loading="false"
       class="feed-grid"
+      @edit="editWork"
+      @delete="deleteWork"
+      editable
     >
       <template #default="{ item, selectItem }">
         <FeedItemCard
           :item="item"
           view-mode="tile"
-          editable
-          @edit="editWork(item.documentId)"
-          @delete="deleteWork(item.documentId)"
           @click="selectItem"
         />
       </template>
@@ -137,7 +137,7 @@ const deleteWork = (portfolioId: string) => {
 
   $q.dialog({
     title: 'Confirm Delete',
-    message: `Are you sure you want to delete portfolio item: <strong class="text-primary">${work.title}</strong>?`,
+    message: 'Are you sure you want to delete this portfolio item?',
     persistent: true,
     html: true,
     cancel: {
@@ -172,6 +172,7 @@ const loadPortfoliosData = () => {
           },
         },
       },
+      sort: ['createdAt:desc'],
     }, { fetchPolicy: 'network-only' });
   }
 };

@@ -287,6 +287,7 @@ onBeforeMount(() => {
         },
       },
     },
+    sort: ['createdAt:desc'],
   });
   void loadShopArtists(
     null,

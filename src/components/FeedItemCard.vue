@@ -68,17 +68,34 @@
         />
       </div>
     </div>
-    <div v-if="editable" class="flex justify-between items-start full-width full-height q-z-2 q-pa-sm">
+    <div v-if="editable" class="flex justify-between items-start absolute-top-right q-z-2 q-pa-md">
       <q-btn
         round
-        color="negative"
-        icon="delete"
-        size="xs"
         flat
+        icon="more_horiz"
         class="bg-block"
-        @click.stop="$emit('delete', item.documentId)"
-      />
-      <q-btn round icon="edit" size="xs" flat class="bg-block" @click.stop="$emit('edit', item.documentId)" />
+      >
+        <q-menu>
+          <q-list>
+            <q-item v-ripple clickable @click.stop="$emit('edit')">
+              <q-item-section side>
+                <q-icon name="edit" size="xs" />
+              </q-item-section>
+              <q-item-section>
+                Edit
+              </q-item-section>
+            </q-item>
+            <q-item v-ripple clickable @click.stop="$emit('delete')">
+              <q-item-section side>
+                <q-icon name="delete" color="negative" size="xs" />
+              </q-item-section>
+              <q-item-section>
+                Delete
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </div>
   </div>
 </template>
@@ -102,8 +119,8 @@ interface Props {
 
 interface Emits {
   (e: 'click', item: IPortfolio): void;
-  (e: 'edit', documentId: string): void;
-  (e: 'delete', documentId: string): void;
+  (e: 'edit'): void;
+  (e: 'delete'): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
