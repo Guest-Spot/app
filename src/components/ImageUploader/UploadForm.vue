@@ -22,7 +22,7 @@
     </q-file>
 
     <div v-if="!hasImages" class="upload-form_hint text-grey-7 text-caption text-center q-mt-sm">
-      <b>Max size:</b> {{ MAX_SIZE_MB }}MB, <b>Formats:</b> {{ DISPLAY_ALLOWED_FORMATS.join(', ') }}
+      <b>Formats:</b> {{ DISPLAY_ALLOWED_FORMATS.join(', ') }}
     </div>
 
     <!-- Open camera button (mobile only) -->
@@ -49,7 +49,7 @@ import useNotify from 'src/modules/useNotify';
 
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
 const DISPLAY_ALLOWED_FORMATS = ['JPG', 'PNG', 'WEBP', 'HEIC'];
-const MAX_SIZE = 4096;
+const MAX_SIZE = 10000;
 const MAX_SIZE_MB = Math.round(MAX_SIZE / 1024);
 const ENABLED_FORCE_OPEN_CAMERA = false;
 
@@ -110,7 +110,7 @@ async function compressImage(file: File): Promise<File | null> {
   }
 
   const options = {
-    maxSizeMB: 0.3,
+    maxSizeMB: 0.5,
     maxWidthOrHeight: 1024,
     useWebWorker: true,
   };
