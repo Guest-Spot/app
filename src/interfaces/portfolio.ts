@@ -6,7 +6,7 @@ export interface IPortfolio {
   title: string;
   description: string;
   pictures: IPicture[];
-  tags: ITag[];
+  styles: ITag[];
   owner: IUser;
   createdAt?: string;
   updatedAt?: string;
@@ -17,7 +17,7 @@ export interface IPortfolioForm {
   title: string;
   description: string;
   pictures?: IPicture[];
-  tags: ITag[];
+  styles: ITag[];
   imagesForUpload?: File[];
   imagesForRemove?: string[];
 }
@@ -32,5 +32,5 @@ export interface IGraphQLPortfoliosResult {
 }
 
 export interface IGraphQLPortfolioResult {
-  portfolio: IPortfolio[];
+  portfolio: IPortfolio;
 }

@@ -59,9 +59,9 @@
         :text="item.description"
         class="portfolio-description"
       />
-      <div v-if="viewMode === 'single' && item.tags?.length" class="portfolio-tags">
+      <div v-if="viewMode === 'single' && item.styles?.length" class="portfolio-styles">
         <q-chip
-          v-for="(tag, index) in item.tags"
+          v-for="(tag, index) in item.styles"
           :key="`tag-${index}`"
           :label="tag.name"
           class="portfolio-tag bg-block"
@@ -290,7 +290,7 @@ const navigateToOwner = () => {
   line-height: 1.4;
 }
 
-.portfolio-tags {
+.portfolio-styles {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;

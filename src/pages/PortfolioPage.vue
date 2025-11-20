@@ -61,32 +61,7 @@
             />
           </div>
 
-          <div class="input-group hidden">
-            <label class="input-label">Tags</label>
-            <q-input
-              v-model="newTag"
-              outlined
-              dense
-              rounded
-              placeholder="Enter tag"
-              class="custom-input"
-              @keyup.enter="addTag"
-            >
-              <template v-slot:append>
-                <q-btn round dense icon="add" color="primary" size="sm" @click="addTag" />
-              </template>
-            </q-input>
-            <div class="tags-container">
-              <q-chip
-                v-for="(tag, index) in formData.tags"
-                :key="index"
-                :label="tag.name"
-                removable
-                @remove="removeTag(index)"
-                class="work-tag bg-block"
-              />
-            </div>
-          </div>
+          <StyleSelector v-model="formData.styles" />
         </template>
       </div>
     </div>
@@ -112,6 +87,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
+import StyleSelector from 'src/components/Portfolio/StyleSelector.vue';
 import {
   PORTFOLIO_QUERY,
   CREATE_PORTFOLIO_MUTATION,
@@ -141,10 +117,9 @@ const isLoading = ref(false);
 const formData = reactive<IPortfolioForm>({
   title: '',
   description: '',
-  tags: [],
+  styles: [],
   pictures: [],
 });
-const newTag = ref('');
 
 // Image upload state
 const imagesForUpload = ref<File[]>([]);
@@ -198,7 +173,7 @@ const confirmWork = async () => {
           ?.map((picture) => picture.id)
           .filter((id) => !imagesForRemove.value.includes(id)) || []),
       ],
-      tags: formData.tags.map((tag) => ({ name: tag.name })),
+      styles: formData.styles.map((name) => ({ name })),
     };
 
     if (isEditing.value && workId.value) {
@@ -236,17 +211,6 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
   imagesForUpload.value = files.map((file) => file.file);
 };
 
-const addTag = () => {
-  if (newTag.value.trim() && !formData.tags.map((tag) => tag.name).includes(newTag.value.trim())) {
-    formData.tags = [...formData.tags, { name: newTag.value.trim() }];
-    newTag.value = '';
-  }
-};
-
-const removeTag = (index: number) => {
-  formData.tags = formData.tags.filter((_, i) => i !== index);
-};
-
 // Computed property for title
 const title = computed(() => (isEditing.value ? 'Edit Portfolio Work' : 'Add New Work'));
 
@@ -271,7 +235,7 @@ onPortfolioResult(({ data }) => {
     const work = data.portfolio;
     formData.title = work.title || '';
     formData.description = work.description || '';
-    formData.tags = work.tags || [];
+    formData.styles = work.styles || [];
     formData.pictures = work.pictures?.map((picture, index) => ({
       index,
       url: picture.url,
@@ -331,17 +295,6 @@ onPortfolioResult(({ data }) => {
 
     .custom-input {
       width: 100%;
-    }
-  }
-
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-
-    .work-tag {
-      font-size: 12px;
     }
   }
 }
