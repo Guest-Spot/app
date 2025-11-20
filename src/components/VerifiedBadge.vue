@@ -9,7 +9,7 @@
     :class="{ 'verified-badge--icon-only': iconOnly }"
   >
     <q-icon name="verified" size="16px" />
-    <span v-if="!iconOnly">Verified</span>
+    <span v-if="!iconOnly" class="verified-badge_text">Verified</span>
   </q-chip>
 </template>
 
@@ -46,5 +46,9 @@ defineProps({
   .q-icon {
     color: var(--q-primary);
   }
+}
+
+.verified-badge_text {
+  opacity: 0.8;
 }
 </style>

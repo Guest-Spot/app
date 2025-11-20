@@ -13,7 +13,7 @@
       :rules="rules"
       @update:model-value="onChangeImage"
       :multiple="multiple"
-      accept="image/*"
+      :accept="ALLOWED_FORMATS.join(', ')"
     >
       <div class="upload-form_placeholder">
         <q-icon :name="placeholderIcon" size="42px" color="grey-6" />
@@ -21,9 +21,13 @@
       </div>
     </q-file>
 
+    <div v-if="!hasImages" class="upload-form_hint text-grey-7 text-caption text-center q-mt-sm">
+      <b>Formats:</b> {{ DISPLAY_ALLOWED_FORMATS.join(', ') }}
+    </div>
+
     <!-- Open camera button (mobile only) -->
     <q-btn
-      v-if="isMobile && isNative && ENABLED"
+      v-if="isMobile && isNative && ENABLED_FORCE_OPEN_CAMERA"
       round
       size="sm"
       icon="camera_alt"
@@ -41,9 +45,13 @@ import { type ValidationRule, useQuasar } from 'quasar';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
+import useNotify from 'src/modules/useNotify';
 
-const MAX_SIZE = 4096;
-const ENABLED = false;
+const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+const DISPLAY_ALLOWED_FORMATS = ['JPG', 'PNG', 'WEBP', 'HEIC'];
+const MAX_SIZE = 10000;
+const MAX_SIZE_MB = Math.round(MAX_SIZE / 1024);
+const ENABLED_FORCE_OPEN_CAMERA = false;
 
 defineOptions({
   name: 'UploadForm',
@@ -88,23 +96,25 @@ const props = defineProps({
 const emit = defineEmits(['on-change', 'loading']);
 
 const $q = useQuasar();
+const { showError } = useNotify();
 
 const isMobile = $q.platform.is.mobile;
 const isNative = Capacitor.isNativePlatform();
 const uploadedFiles = ref<File[]>([]);
 
 async function compressImage(file: File): Promise<File | null> {
+  const fileSize = file.size / 1024;
+  if (fileSize >= MAX_SIZE) {
+    showError(`File size is too large. Max ${MAX_SIZE_MB}MB`);
+    return null;
+  }
+
   const options = {
-    maxSizeMB: 0.3,
+    maxSizeMB: 0.5,
     maxWidthOrHeight: 1024,
     useWebWorker: true,
   };
   const compressedImage = await imageCompression(file, options);
-  const fileSize = compressedImage.size / 1000;
-  if (fileSize >= MAX_SIZE) {
-    console.error('File size is too large');
-    return null;
-  }
   return compressedImage;
 }
 
@@ -119,6 +129,7 @@ async function onChangeImage(input: File | File[]) {
     emit('on-change', uploadedFiles.value);
   } catch (error) {
     console.error(error);
+    showError('Failed to upload image');
   } finally {
     emit('loading', false);
   }
@@ -155,6 +166,7 @@ async function openCamera() {
     }
   } catch (error) {
     console.error('Camera error:', error);
+    showError('Failed to capture photo');
   }
 }
 </script>
@@ -190,6 +202,10 @@ async function openCamera() {
 
   &--round {
     border-radius: 100%;
+  }
+
+  &_hint {
+    font-size: 10px;
   }
 }
 

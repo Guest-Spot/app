@@ -26,6 +26,7 @@
     v-touch-pan.right.prevent.mouse="handleSwipePan"
   >
     <VirtualList
+      ref="singleListRef"
       :items="items"
       :loading="loading"
       :hasMore="hasMore"
@@ -41,7 +42,10 @@
         <FeedItemCard
           :item="asPortfolio(item)"
           view-mode="single"
+          @edit="$emit('edit', item.documentId)"
+          @delete="$emit('delete', item.documentId)"
           @click="selectItem(item)"
+          :editable="editable"
         />
       </template>
     </VirtualList>
@@ -67,20 +71,23 @@ const props = withDefaults(
     hasMore?: boolean;
     stop?: boolean;
     offset?: number;
+    editable?: boolean;
   }>(),
   {
     loading: false,
     hasMore: true,
     stop: false,
     offset: 250,
+    editable: false,
   },
 );
 
-const emit = defineEmits<{ (event: 'load-more'): void }>();
+const emit = defineEmits<{ (event: 'load-more'): void; (event: 'edit', documentId: string): void; (event: 'delete', documentId: string): void }>();
 
 const { items } = toRefs(props);
 
 const selectedItem = ref<IPortfolio | null>(null);
+const singleListRef = ref<InstanceType<typeof VirtualList> | null>(null);
 const singleViewRef = ref<HTMLElement | null>(null);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
@@ -172,22 +179,14 @@ const selectItem = (item: unknown) => {
 
     // Scroll to item position in virtualized list
     setTimeout(() => {
-      if (!singleViewRef.value) return;
+      if (!singleListRef.value) return;
 
       const itemIndex = items.value.findIndex(
         (i) => i.documentId === portfolio.documentId,
       );
 
       if (itemIndex !== -1) {
-        // Calculate approximate scroll position
-        // itemHeight (700) + gap (16)
-        const itemHeight = 700 + 16;
-        const scrollPosition = itemIndex * itemHeight;
-
-        singleViewRef.value.scrollTo({
-          top: scrollPosition,
-          behavior: 'smooth',
-        });
+        singleListRef.value.scrollToIndex(itemIndex, { align: 'start' });
       }
     }, 100);
   }

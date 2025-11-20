@@ -282,6 +282,7 @@ const loadPortfolioData = () => {
           },
         },
       },
+      sort: ['createdAt:desc'],
     });
   }
 };

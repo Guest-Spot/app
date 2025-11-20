@@ -141,8 +141,17 @@ onUnmounted(() => {
   }
 })
 
+
+/**
+ * Scroll to specific index
+ */
+const scrollToIndex = (index: number, options?: { align?: 'start' | 'center' | 'end' | 'auto'; behavior?: 'auto' | 'smooth' }) => {
+  rowVirtualizer.value.scrollToIndex(index, options)
+}
+
 defineExpose({
   triggerLoadMore,
+  scrollToIndex,
 })
 </script>
 

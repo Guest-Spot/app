@@ -61,7 +61,7 @@
             />
           </div>
 
-          <div class="input-group">
+          <div class="input-group hidden">
             <label class="input-label">Tags</label>
             <q-input
               v-model="newTag"
@@ -94,7 +94,7 @@
     <div class="dialog-actions bg-block full-width">
       <q-btn label="Cancel" rounded unelevated class="bg-block" @click="closePage" />
       <q-btn
-        :label="isEditing ? 'Save' : 'Add'"
+        :label="isEditing ? 'Save' : 'Create'"
         rounded
         color="primary"
         unelevated
