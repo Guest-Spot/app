@@ -27,7 +27,7 @@
           <p class="text-caption text-grey-6 q-mb-none">Didn't receive the email?</p>
           <q-btn
             label="Resend confirmation email"
-            color="primary"
+            color="grey-6"
             dense
             flat
             rounded
