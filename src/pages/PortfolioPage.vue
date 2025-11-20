@@ -61,7 +61,7 @@
             />
           </div>
 
-          <div class="input-group">
+          <div class="input-group hidden">
             <label class="input-label">Tags</label>
             <q-input
               v-model="newTag"
