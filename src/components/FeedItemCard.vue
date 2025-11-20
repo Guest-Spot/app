@@ -68,14 +68,14 @@
         />
       </div>
     </div>
-    <div v-if="editable" class="flex justify-between items-start absolute-top-right q-z-2 q-pa-md">
+    <div v-if="editable" class="flex justify-between items-start absolute-bottom-right q-z-2 q-pa-sm">
       <q-btn
         round
-        flat
+        dense
         icon="more_horiz"
         class="bg-block"
       >
-        <q-menu>
+        <q-menu anchor="top right" self="bottom right">
           <q-list>
             <q-item v-ripple clickable @click.stop="$emit('edit')">
               <q-item-section side>
@@ -89,7 +89,7 @@
               <q-item-section side>
                 <q-icon name="delete" color="negative" size="xs" />
               </q-item-section>
-              <q-item-section>
+              <q-item-section class="text-negative">
                 Delete
               </q-item-section>
             </q-item>
@@ -193,7 +193,7 @@ const navigateToOwner = () => {
     flex-direction: column;
 
     .feed-item-details {
-      padding: 16px;
+      padding: 16px 48px 16px 16px;
     }
 
     .feed-item-info {
