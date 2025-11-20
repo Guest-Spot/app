@@ -27,7 +27,7 @@
 
     <!-- Open camera button (mobile only) -->
     <q-btn
-      v-if="isMobile && isNative && ENABLED"
+      v-if="isMobile && isNative && ENABLED_FORCE_OPEN_CAMERA"
       round
       size="sm"
       icon="camera_alt"
@@ -49,9 +49,9 @@ import useNotify from 'src/modules/useNotify';
 
 const ALLOWED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'];
 const DISPLAY_ALLOWED_FORMATS = ['JPG', 'PNG', 'WEBP'];
-const MAX_SIZE = 4096;
+const MAX_SIZE = 2000;
 const MAX_SIZE_MB = Math.round(MAX_SIZE / 1024);
-const ENABLED = false;
+const ENABLED_FORCE_OPEN_CAMERA = false;
 
 defineOptions({
   name: 'UploadForm',
@@ -103,17 +103,18 @@ const isNative = Capacitor.isNativePlatform();
 const uploadedFiles = ref<File[]>([]);
 
 async function compressImage(file: File): Promise<File | null> {
+  const fileSize = file.size / 1024;
+  if (fileSize >= MAX_SIZE) {
+    showError(`File size is too large. Max ${MAX_SIZE_MB}MB`);
+    return null;
+  }
+
   const options = {
     maxSizeMB: 0.3,
     maxWidthOrHeight: 1024,
     useWebWorker: true,
   };
   const compressedImage = await imageCompression(file, options);
-  const fileSize = compressedImage.size / 1024;
-  if (fileSize >= MAX_SIZE) {
-    showError(`File size is too large. Max ${MAX_SIZE_MB}MB`);
-    return null;
-  }
   return compressedImage;
 }
 
