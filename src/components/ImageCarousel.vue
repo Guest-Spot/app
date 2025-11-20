@@ -68,7 +68,7 @@ const carouselConfig = computed(() => ({
   itemsToShow: 1,
   wrapAround: true,
   snapAlign: 'center' as const,
-  transition: 500,
+  transition: 200,
 }));
 
 const dialog = ref(false);
