@@ -47,9 +47,9 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import imageCompression from 'browser-image-compression';
 import useNotify from 'src/modules/useNotify';
 
-const ALLOWED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'];
-const DISPLAY_ALLOWED_FORMATS = ['JPG', 'PNG', 'WEBP'];
-const MAX_SIZE = 2000;
+const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+const DISPLAY_ALLOWED_FORMATS = ['JPG', 'PNG', 'WEBP', 'HEIC'];
+const MAX_SIZE = 4096;
 const MAX_SIZE_MB = Math.round(MAX_SIZE / 1024);
 const ENABLED_FORCE_OPEN_CAMERA = false;
 
