@@ -44,9 +44,8 @@ onMounted(() => {
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {
     const url = new URL(event.url);
-    const path = url.pathname + url.search;
-    if (path) {
-      void router.push(path);
+    if (url.hash) {
+      void router.replace(url.hash.substring(1));
     }
   });
 });
