@@ -56,6 +56,8 @@ export default function usePortfolios() {
     const filters: any = {};
 
     if (searchQuery) {
+      // TODO: Filter by styles is not supported by backend schema yet (Field "styles" is not defined by type "PortfolioFiltersInput")
+      // Reverting to title search for now
       filters.title = { containsi: searchQuery };
     }
 
@@ -101,7 +103,7 @@ export default function usePortfolios() {
     const filters: any = {};
 
     if (searchQuery) {
-      filters.title = { containsi: searchQuery };
+      filters.styles = { containsi: searchQuery };
     }
 
     if (activeFilters?.city) {

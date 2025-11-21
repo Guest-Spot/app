@@ -4,16 +4,21 @@
       <!-- Search Header -->
       <SearchHeader
         v-model="searchQuery"
-        :title="feedTitle"
+        title="Feed"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
         @toggle-search="showSearchDialog = true"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
+        class="feed-header"
       />
 
       <!-- Dialogs -->
-      <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" />
+      <SearchDialog
+        v-model="showSearchDialog"
+        v-model:query="searchQuery"
+        placeholder="Search by style"
+      />
       <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" />
       <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" />
 
@@ -57,14 +62,13 @@
 import { onBeforeMount, onBeforeUnmount, ref, computed, watch } from 'vue';
 import type { EventBus } from 'quasar';
 import { inject } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import { NoResult, LoadingState, PortfolioGrid } from 'src/components';
 import usePortfolios from 'src/composables/usePortfolios';
 import { SearchHeader } from 'src/components/SearchPage';
 import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
-import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 
 // Sort settings
 interface SortSettings {
@@ -74,11 +78,9 @@ interface SortSettings {
 
 const bus = inject('bus') as EventBus;
 const route = useRoute();
-const router = useRouter();
 
 const {
   portfolios,
-  totalPortfolios,
   isLoadingPortfolios,
   hasMorePortfolios,
   fetchPortfolios,
@@ -109,16 +111,6 @@ const hasActiveFilters = computed(() =>
 );
 
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
-
-const feedTitle = computed(() => {
-  if (totalPortfolios.value === 0) {
-    return `Feed`;
-  }
-  if (totalPortfolios.value <= PAGINATION_PAGE_SIZE) {
-    return `Feed (${portfolios.value.length})`;
-  }
-  return `Feed (${portfolios.value.length}/${totalPortfolios.value})`;
-});
 
 const loadMorePortfolios = () => {
   fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
@@ -156,14 +148,10 @@ onBeforeMount(() => {
 
 <style scoped lang="scss">
 .feed-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.feed-title {
-  font-size: 20px;
-  font-weight: 700;
+  max-width: 250px;
+  position: sticky;
+  margin: 0 auto;
+  top: env(safe-area-inset-top);
+  z-index: 10;
 }
 </style>

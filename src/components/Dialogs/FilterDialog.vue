@@ -9,7 +9,6 @@
           text-color="primary"
           round
           dense
-          size="sm"
           @click="closeDialog"
         />
       </q-card-section>
