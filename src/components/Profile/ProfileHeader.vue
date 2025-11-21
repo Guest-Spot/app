@@ -1,9 +1,9 @@
 <template>
   <div class="flex justify-between items-center q-gap-md no-wrap">
     <div class="profile-welcome-row text-h6 flex items-center q-gap-sm">
-      <span class="text-primary">
+      <span>
         {{ name }}
-        <VerifiedBadge v-if="isVerified" :verified="isVerified" />
+        <VerifiedBadge v-if="isVerified" :verified="isVerified" icon-only />
       </span>
     </div>
     <div class="flex items-center no-wrap q-gap-sm">

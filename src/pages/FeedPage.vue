@@ -1,26 +1,12 @@
 <template>
   <q-page class="page feed-page q-pb-xl q-pt-lg flex column items-center">
     <div class="container full-width">
-      <!-- Search Header -->
-      <SearchHeader
-        v-model="searchQuery"
-        title="Feed"
-        :has-filters="hasActiveFilters"
-        :has-sort="hasActiveSort"
-        @toggle-search="showSearchDialog = true"
-        @toggle-filters="showFilterDialog = true"
-        @toggle-sort="showSortDialog = true"
-        class="feed-header"
-      />
-
       <!-- Dialogs -->
       <SearchDialog
         v-model="showSearchDialog"
         v-model:query="searchQuery"
         placeholder="Search by style"
       />
-      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" />
-      <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" />
 
       <!-- Loading State -->
       <LoadingState
@@ -54,20 +40,29 @@
         description="Start exploring artists and shops to see their work here"
         no-btn
       />
+
+      <q-btn
+        :icon="searchQuery?.length && searchQuery.length > 0 ? 'search_off' : 'search'"
+        class="bg-block search-button"
+        round
+        flat
+        :color="searchQuery?.length && searchQuery.length > 0 ? 'primary' : 'grey-6'"
+        size="lg"
+        @click="showSearchDialog = true"
+      />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, ref, computed, watch } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
 import type { EventBus } from 'quasar';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import { NoResult, LoadingState, PortfolioGrid } from 'src/components';
 import usePortfolios from 'src/composables/usePortfolios';
-import { SearchHeader } from 'src/components/SearchPage';
-import { FilterDialog, SortDialog, SearchDialog } from 'src/components/Dialogs';
+import { SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
 
 // Sort settings
@@ -92,8 +87,6 @@ const portfoliosGridRef = ref<InstanceType<typeof PortfolioGrid> | null>(null);
 
 // Search, Filter, Sort State
 const showSearchDialog = ref(false);
-const showFilterDialog = ref(false);
-const showSortDialog = ref(false);
 const searchQuery = ref(route.query.search as string | null);
 
 const activeFilters = ref<IFilters>({
@@ -105,12 +98,6 @@ const sortSettings = ref<SortSettings>({
   sortBy: route.query.sort?.toString().split(':')[0] as string | null,
   sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc',
 });
-
-const hasActiveFilters = computed(() =>
-  Object.values(activeFilters.value).some((filter) => !!filter),
-);
-
-const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 
 const loadMorePortfolios = () => {
   fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
@@ -152,6 +139,13 @@ onBeforeMount(() => {
   position: sticky;
   margin: 0 auto;
   top: env(safe-area-inset-top);
+  z-index: 10;
+}
+
+.search-button {
+  position: fixed;
+  bottom: 100px;
+  right: 16px;
   z-index: 10;
 }
 </style>
