@@ -131,10 +131,8 @@ export default function usePortfolios() {
     const result = await createPortfolioMutation({
       data: {
         ...data,
-        styles: data.styles.map((name) => ({
-          __typename: 'ComponentTattooStyles',
-          __component: 'tattoo.styles',
-          name,
+        styles: data.styles.map((id) => ({
+          documentId: id,
         })),
       },
     });
@@ -146,10 +144,8 @@ export default function usePortfolios() {
       documentId,
       data: {
         ...data,
-        styles: data.styles.map((name) => ({
-          __typename: 'ComponentTattooStyles',
-          __component: 'tattoo.styles',
-          name,
+        styles: data.styles.map((id) => ({
+          documentId: id,
         })),
       },
     });

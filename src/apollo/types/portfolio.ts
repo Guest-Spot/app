@@ -16,9 +16,8 @@ export const PORTFOLIOS_QUERY = gql`
         id
       }
       styles {
-        ... on ComponentTattooStyles {
-          name
-        }
+        documentId
+        name
       }
       owner {
         documentId
@@ -54,9 +53,8 @@ export const PORTFOLIO_QUERY = gql`
         id
       }
       styles {
-        ... on ComponentTattooStyles {
-          name
-        }
+        documentId
+        name
       }
       owner {
         documentId
@@ -83,9 +81,8 @@ export const CREATE_PORTFOLIO_MUTATION = gql`
         id
       }
       styles {
-        ... on ComponentTattooStyles {
-          name
-        }
+        documentId
+        name
       }
       owner {
         documentId
@@ -112,9 +109,8 @@ export const UPDATE_PORTFOLIO_MUTATION = gql`
         id
       }
       styles {
-        ... on ComponentTattooStyles {
-          name
-        }
+        documentId
+        name
       }
       owner {
         documentId

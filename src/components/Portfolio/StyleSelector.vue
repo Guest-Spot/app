@@ -26,7 +26,7 @@
           text-color="white"
           class="style-chip"
         >
-          {{ style }}
+          {{ getStyleName(style) }}
         </q-chip>
       </template>
       <div v-else class="flex items-center q-gap-sm">
@@ -79,7 +79,7 @@
               v-ripple
             >
               <q-item-section avatar>
-                <q-checkbox v-model="internalSelected" :val="style.name" />
+                <q-checkbox v-model="internalSelected" :val="style.documentId" />
               </q-item-section>
               <q-item-section>
                 <q-item-label>{{ style.name }}</q-item-label>
@@ -147,6 +147,11 @@ const filteredOptions = computed(() => {
 const removeStyle = (style: string) => {
   const newValue = props.modelValue.filter((s) => s !== style);
   emit('update:modelValue', newValue);
+};
+
+const getStyleName = (id: string) => {
+  const found = options.value.find((s) => s.documentId === id);
+  return found ? found.name : id;
 };
 </script>
 
