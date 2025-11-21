@@ -79,9 +79,9 @@
         icon="more_horiz"
         class="bg-block"
       >
-        <q-menu anchor="top right" self="bottom right">
+        <q-menu anchor="top right" self="bottom right" style="width: 150px;">
           <q-list>
-            <q-item v-ripple clickable @click.stop="$emit('edit')">
+            <q-item v-ripple clickable @click.stop="$emit('edit')" class="relative-position">
               <q-item-section side>
                 <q-icon name="edit" size="xs" />
               </q-item-section>
@@ -89,7 +89,7 @@
                 Edit
               </q-item-section>
             </q-item>
-            <q-item v-ripple clickable @click.stop="$emit('delete')">
+            <q-item v-ripple clickable @click.stop="$emit('delete')" class="relative-position">
               <q-item-section side>
                 <q-icon name="delete" color="negative" size="xs" />
               </q-item-section>

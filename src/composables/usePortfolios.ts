@@ -79,7 +79,7 @@ export default function usePortfolios() {
     const sort =
       sortSettings?.sortBy && sortSettings?.sortDirection
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : ['createdAt:desc'];
+        : ['updatedAt:desc'];
 
     void loadPortfolios(
       null,
@@ -138,7 +138,7 @@ export default function usePortfolios() {
     const sort =
       sortSettings?.sortBy && sortSettings?.sortDirection
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : ['createdAt:desc'];
+        : ['updatedAt:desc'];
 
     void refetchPortfolios({
       filters,

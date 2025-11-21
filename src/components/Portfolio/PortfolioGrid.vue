@@ -234,7 +234,6 @@ defineExpose({
   height: 100%;
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
-  padding-top: 16px;
   padding-bottom: 130px;
   padding-left: 16px;
   padding-right: 16px;
