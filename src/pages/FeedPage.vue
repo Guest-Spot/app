@@ -167,6 +167,7 @@ onBeforeUnmount(() => {
 
 onBeforeMount(() => {
   bus.on('opened-feed-page', forceCloseSingleView);
+  resetPortfoliosPagination();
   fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
 });
 </script>
