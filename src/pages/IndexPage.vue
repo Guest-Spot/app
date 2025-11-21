@@ -14,6 +14,7 @@
         :title="activeTab === TAB_SHOPS ? shopsTitle : artistsTitle"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
+        no-styles
         @toggle-search="showSearchDialog = true"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"

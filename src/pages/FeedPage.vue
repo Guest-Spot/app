@@ -1,12 +1,24 @@
 <template>
   <q-page class="page feed-page q-pb-xl q-pt-lg flex column items-center">
     <div class="container full-width">
+      <!-- Search Header -->
+      <SearchHeader
+        v-model="searchQuery"
+        title="Feed"
+        no-sort
+        :has-filters="hasActiveFilters"
+        @toggle-search="showSearchDialog = true"
+        @toggle-filters="showFilterDialog = true"
+        class="feed-header"
+      />
+
       <!-- Dialogs -->
       <SearchDialog
         v-model="showSearchDialog"
         v-model:query="searchQuery"
         placeholder="Search by style"
       />
+      <FilterDialog no-city v-model="showFilterDialog" v-model:filterValue="activeFilters" />
 
       <!-- Loading State -->
       <LoadingState
@@ -40,29 +52,20 @@
         description="Start exploring artists and shops to see their work here"
         no-btn
       />
-
-      <q-btn
-        :icon="searchQuery?.length && searchQuery.length > 0 ? 'search_off' : 'search'"
-        class="bg-block search-button"
-        round
-        flat
-        :color="searchQuery?.length && searchQuery.length > 0 ? 'primary' : 'grey-6'"
-        size="lg"
-        @click="showSearchDialog = true"
-      />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref, watch, computed } from 'vue';
 import type { EventBus } from 'quasar';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import { NoResult, LoadingState, PortfolioGrid } from 'src/components';
 import usePortfolios from 'src/composables/usePortfolios';
-import { SearchDialog } from 'src/components/Dialogs';
+import { SearchHeader } from 'src/components/SearchPage';
+import { FilterDialog, SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
 
 // Sort settings
@@ -85,8 +88,15 @@ const {
 
 const portfoliosGridRef = ref<InstanceType<typeof PortfolioGrid> | null>(null);
 
+const hasActiveFilters = computed(() =>
+  Object.values(activeFilters.value).some((filter) =>
+    Array.isArray(filter) ? filter.length > 0 : !!filter
+  )
+);
+
 // Search, Filter, Sort State
 const showSearchDialog = ref(false);
+const showFilterDialog = ref(false);
 const searchQuery = ref(route.query.search as string | null);
 
 const activeFilters = ref<IFilters>({

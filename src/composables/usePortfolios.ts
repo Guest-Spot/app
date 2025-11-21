@@ -10,6 +10,7 @@ import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { usePortfoliosStore } from 'src/stores/portfolios';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import type { IFilters } from 'src/interfaces/filters';
+import type { IGraphQLFilters } from 'src/interfaces/filters';
 
 interface PortfolioInput {
   owner: string;
@@ -55,7 +56,7 @@ export default function usePortfolios() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filters: any = {};
 
-    const styleConditions: any[] = [];
+    const styleConditions: IGraphQLFilters[] = [];
 
     if (searchQuery) {
       styleConditions.push({ name: { containsi: searchQuery } });
@@ -114,7 +115,7 @@ export default function usePortfolios() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filters: any = {};
 
-    const styleConditions: any[] = [];
+    const styleConditions: IGraphQLFilters[] = [];
 
     if (searchQuery) {
       styleConditions.push({ name: { containsi: searchQuery } });

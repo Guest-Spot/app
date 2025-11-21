@@ -186,7 +186,7 @@ const selectItem = (item: unknown) => {
       );
 
       if (itemIndex !== -1) {
-        singleListRef.value.scrollToIndex(itemIndex, { align: 'start' });
+        singleListRef.value.scrollToIndex(itemIndex, { align: 'center' });
       }
     }, 100);
   }
