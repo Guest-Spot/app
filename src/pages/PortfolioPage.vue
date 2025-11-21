@@ -88,15 +88,12 @@ import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import StyleSelector from 'src/components/Portfolio/StyleSelector.vue';
-import {
-  PORTFOLIO_QUERY,
-  CREATE_PORTFOLIO_MUTATION,
-  UPDATE_PORTFOLIO_MUTATION,
-} from 'src/apollo/types/portfolio';
+import { PORTFOLIO_QUERY } from 'src/apollo/types/portfolio';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import type { IGraphQLPortfolioResult } from 'src/interfaces/portfolio';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
+import usePortfolios from 'src/composables/usePortfolios';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 
 defineOptions({
@@ -107,6 +104,7 @@ const route = useRoute();
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
 const { user } = useUser();
+const { createPortfolio, updatePortfolio } = usePortfolios();
 
 const isEditing = computed(() => route.query.mode === 'edit');
 const workId = computed(() => route.query.workId as string | undefined);
@@ -128,8 +126,6 @@ const imagesForRemove = ref<string[]>([]);
 
 // Apollo queries and mutations
 const { load: loadPortfolio, onResult: onPortfolioResult } = useLazyQuery<IGraphQLPortfolioResult>(PORTFOLIO_QUERY);
-const { mutate: createPortfolio } = useMutation(CREATE_PORTFOLIO_MUTATION);
-const { mutate: updatePortfolio } = useMutation(UPDATE_PORTFOLIO_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 const closePage = () => {
@@ -174,27 +170,22 @@ const confirmWork = async () => {
           ?.map((picture) => picture.id)
           .filter((id) => !imagesForRemove.value.includes(id)) || []),
       ],
-      styles: formData.styles.map((name) => ({ name })),
+      styles: formData.styles,
     };
 
     if (isEditing.value && workId.value) {
       // Update existing portfolio
-      const result = await updatePortfolio({
-        documentId: workId.value,
-        data: portfolioData,
-      });
+      const result = await updatePortfolio(workId.value, portfolioData);
 
-      if (result?.data?.updatePortfolio) {
+      if (result) {
         showSuccess('Portfolio updated successfully');
         closePage();
       }
     } else {
       // Create new portfolio
-      const result = await createPortfolio({
-        data: portfolioData,
-      });
+      const result = await createPortfolio(portfolioData);
 
-      if (result?.data?.createPortfolio) {
+      if (result) {
         showSuccess('Portfolio created successfully');
         closePage();
       }

@@ -1,9 +1,22 @@
 import { computed } from 'vue';
-import { useLazyQuery } from '@vue/apollo-composable';
-import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
+import { useLazyQuery, useMutation } from '@vue/apollo-composable';
+import {
+  PORTFOLIOS_QUERY,
+  CREATE_PORTFOLIO_MUTATION,
+  UPDATE_PORTFOLIO_MUTATION,
+  DELETE_PORTFOLIO_MUTATION,
+} from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { usePortfoliosStore } from 'src/stores/portfolios';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+
+interface PortfolioInput {
+  owner: string;
+  title: string;
+  description: string;
+  pictures: (string | number)[];
+  styles: string[];
+}
 
 export default function usePortfolios() {
   const portfoliosStore = usePortfoliosStore();
@@ -15,6 +28,10 @@ export default function usePortfolios() {
     onResult: onResultPortfolios,
     onError: onErrorPortfolios,
   } = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
+
+  const { mutate: createPortfolioMutation } = useMutation(CREATE_PORTFOLIO_MUTATION);
+  const { mutate: updatePortfolioMutation } = useMutation(UPDATE_PORTFOLIO_MUTATION);
+  const { mutate: deletePortfolioMutation } = useMutation(DELETE_PORTFOLIO_MUTATION);
 
   const portfolios = computed(() => portfoliosStore.getPortfolios);
   const totalPortfolios = computed(() => portfoliosStore.getTotal);
@@ -56,6 +73,40 @@ export default function usePortfolios() {
     });
   };
 
+  const createPortfolio = async (data: PortfolioInput) => {
+    const result = await createPortfolioMutation({
+      data: {
+        ...data,
+        styles: data.styles.map((name) => ({
+          __typename: 'ComponentTattooStyles',
+          __component: 'tattoo.styles',
+          name,
+        })),
+      },
+    });
+    return result?.data?.createPortfolio;
+  };
+
+  const updatePortfolio = async (documentId: string, data: PortfolioInput) => {
+    const result = await updatePortfolioMutation({
+      documentId,
+      data: {
+        ...data,
+        styles: data.styles.map((name) => ({
+          __typename: 'ComponentTattooStyles',
+          __component: 'tattoo.styles',
+          name,
+        })),
+      },
+    });
+    return result?.data?.updatePortfolio;
+  };
+
+  const deletePortfolio = async (documentId: string) => {
+    const result = await deletePortfolioMutation({ documentId });
+    return result?.data?.deletePortfolio;
+  };
+
   // Result handlers
   onResultPortfolios(({ data, loading }) => {
     if (!loading && data?.portfolios) {
@@ -85,6 +136,9 @@ export default function usePortfolios() {
     resetPortfoliosPagination,
     fetchPortfolios,
     refetchPortfoliosData,
+    createPortfolio,
+    updatePortfolio,
+    deletePortfolio,
   };
 }
 

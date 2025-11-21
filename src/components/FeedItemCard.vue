@@ -64,7 +64,7 @@
           v-for="(tag, index) in item.styles"
           :key="`tag-${index}`"
           :label="tag.name"
-          class="portfolio-tag bg-block"
+          class="portfolio-tag text-primary bg-block"
         />
       </div>
     </div>
@@ -72,6 +72,8 @@
       <q-btn
         round
         dense
+        flat
+        color="primary"
         icon="more_horiz"
         class="bg-block"
       >
@@ -293,7 +295,6 @@ const navigateToOwner = () => {
 .portfolio-styles {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
   margin-top: 4px;
 }
 
