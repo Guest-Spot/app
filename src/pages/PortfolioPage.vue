@@ -41,6 +41,7 @@
               outlined
               dense
               rounded
+              clearable
               type="textarea"
               placeholder="Enter work description"
               class="custom-input"
@@ -74,7 +75,7 @@
         color="primary"
         unelevated
         :loading="isSubmitting"
-        :disable="isSubmitting || !canCreate"
+        :disable="isSubmitting || !formData.description"
         @click="confirmWork"
       />
     </div>
@@ -108,7 +109,6 @@ const { createPortfolio, updatePortfolio } = usePortfolios();
 
 const isEditing = computed(() => route.query.mode === 'edit');
 const workId = computed(() => route.query.workId as string | undefined);
-const canCreate = computed(() => !isEditing.value ? formData.description.length > 0 && formData.pictures?.length && formData.pictures.length > 0 && formData.styles.length > 0 : true);
 
 const isSubmitting = ref(false);
 const isLoading = ref(false);

@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <q-dialog v-model="dialogOpen" position="bottom" class="style-selector-dialog">
+    <q-dialog v-model="dialogOpen" position="bottom" maximized class="style-selector-dialog">
       <q-card class="style-dialog">
         <q-card-section class="dialog-header">
           <div class="text-subtitle1 text-bold">Select Styles</div>
