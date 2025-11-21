@@ -22,7 +22,7 @@
       <!-- Dialogs -->
       <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" />
 
-      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" />
+      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" no-styles />
 
       <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" />
 
@@ -172,6 +172,11 @@ const searchQuery = ref(route.query.search as string | null);
 const activeFilters = ref<IFilters>({
   type: route.query.type as UserType | null,
   city: route.query.city as string | null,
+  styles: route.query.styles
+    ? ((Array.isArray(route.query.styles)
+        ? route.query.styles
+        : [route.query.styles]) as string[])
+    : null,
 });
 
 const sortSettings = ref<SortSettings>({
@@ -180,7 +185,9 @@ const sortSettings = ref<SortSettings>({
 });
 
 const hasActiveFilters = computed(() =>
-  Object.values(activeFilters.value).some((filter) => !!filter),
+  Object.values(activeFilters.value).some((filter) =>
+    Array.isArray(filter) ? filter.length > 0 : !!filter
+  )
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 const shopsTitle = computed(() => {

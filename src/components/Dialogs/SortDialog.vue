@@ -9,7 +9,6 @@
           text-color="primary"
           round
           dense
-          size="sm"
           @click="closeDialog"
         />
       </q-card-section>
@@ -55,7 +54,7 @@
         />
         <q-btn rounded color="primary" class="min-width" @click="applySort">
           <div class="q-px-md">
-            <span class="text-body2">Apply</span>
+            <span class="text-body2">Done</span>
           </div>
         </q-btn>
       </q-card-actions>

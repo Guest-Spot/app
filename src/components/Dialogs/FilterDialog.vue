@@ -9,7 +9,6 @@
           text-color="primary"
           round
           dense
-          size="sm"
           @click="closeDialog"
         />
       </q-card-section>
@@ -17,7 +16,7 @@
       <q-card-section class="dialog-content">
         <div class="flex column q-gap-md">
           <!-- Location Filter -->
-          <div class="filter-group">
+          <div v-if="!noCity" class="filter-group">
             <label class="filter-label">City</label>
             <q-select
               v-model="filters.city"
@@ -28,7 +27,7 @@
               menu-anchor="top left"
               menu-self="bottom left"
               :use-input="!filters.city"
-              @filter="filterFn"
+              @filter="filterCities"
               placeholder="Select city"
               class="filter-select"
               clearable
@@ -36,6 +35,31 @@
             >
               <template v-slot:prepend>
                 <q-icon name="location_on" />
+              </template>
+            </q-select>
+          </div>
+
+          <!-- Styles Filter -->
+          <div v-if="!noStyles" class="filter-group">
+            <label class="filter-label">Styles</label>
+            <q-select
+              v-model="filters.styles"
+              :options="styleOptions"
+              multiple
+              use-chips
+              outlined
+              dense
+              rounded
+              menu-anchor="top left"
+              menu-self="bottom left"
+              @filter="filterStyles"
+              placeholder="Select styles"
+              class="filter-select"
+              clearable
+              @update:model-value="onChangeFilters"
+            >
+              <template v-slot:prepend>
+                <q-icon name="palette" />
               </template>
             </q-select>
           </div>
@@ -53,7 +77,7 @@
         />
         <q-btn rounded unelevated color="primary" @click="applyFilters">
           <div class="q-px-md">
-            <span class="text-body2">Apply</span>
+            <span class="text-body2">Done</span>
           </div>
         </q-btn>
       </q-card-actions>
@@ -62,10 +86,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, type PropType } from 'vue';
+import { ref, watch, onMounted, type PropType } from 'vue';
 import type { IFilters } from 'src/interfaces/filters';
 import { useRouter, useRoute } from 'vue-router';
 import { useCitiesStore } from 'src/stores/cities';
+import useTattooStyles from 'src/modules/useTattooStyles';
 
 const props = defineProps({
   modelValue: {
@@ -76,6 +101,14 @@ const props = defineProps({
     type: Object as PropType<IFilters>,
     required: true,
   },
+  noCity: {
+    type: Boolean,
+    default: false,
+  },
+  noStyles: {
+    type: Boolean,
+    default: false,
+  },
   noRouteReplace: {
     type: Boolean,
     default: false,
@@ -85,16 +118,33 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'update:filterValue', 'clearFilters']);
 
 const citiesStore = useCitiesStore();
+const { styles: tattooStyles, fetchStyles } = useTattooStyles();
 const router = useRouter();
 const route = useRoute();
 
 const cities = ref(citiesStore.getCities);
+const styleOptions = ref<string[]>([]);
+const allStyleNames = ref<string[]>([]);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
 
 // Filters state
 const filters = ref<IFilters>({ ...props.filterValue });
+
+onMounted(() => {
+  void fetchStyles();
+});
+
+watch(
+  tattooStyles,
+  (newStyles) => {
+    const names = newStyles.map((s) => s.name);
+    allStyleNames.value = names;
+    styleOptions.value = names;
+  },
+  { immediate: true }
+);
 
 // Watch for props changes
 watch(
@@ -117,10 +167,19 @@ watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
 
-const filterFn = (val: string, update: (value: () => void) => void) => {
+const filterCities = (val: string, update: (value: () => void) => void) => {
   update(() => {
     const needle = val.toLocaleLowerCase();
     cities.value = citiesStore.getCities.filter((v) => v.toLocaleLowerCase().indexOf(needle) > -1);
+  });
+};
+
+const filterStyles = (val: string, update: (value: () => void) => void) => {
+  update(() => {
+    const needle = val.toLocaleLowerCase();
+    styleOptions.value = allStyleNames.value.filter(
+      (v) => v.toLocaleLowerCase().indexOf(needle) > -1
+    );
   });
 };
 
@@ -137,12 +196,15 @@ const applyFilters = () => {
 
 const clearFilters = () => {
   filters.value = {
+    ...filters.value,
     city: null,
+    styles: null,
   };
   if (!props.noRouteReplace) {
     void router.replace({ query: { ...route.query, ...filters.value } });
   }
   emit('update:filterValue', filters.value);
+  closeDialog();
 };
 
 const closeDialog = () => {

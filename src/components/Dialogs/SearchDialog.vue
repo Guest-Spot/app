@@ -2,21 +2,20 @@
   <q-dialog
     v-model="isVisible"
     position="top"
-    full-width
-    full-height
     seamless
     no-route-dismiss
     transition-show="slide-down"
     transition-hide="slide-up"
+    class="bg-block__inner"
   >
-    <q-card class="search-dialog bg-block">
+    <q-card class="search-dialog">
       <q-card-section class="row items-center q-pb-none">
         <div class="col search-input-container">
           <q-input
             v-model="searchQuery"
             outlined
             dense
-            placeholder="Search by name"
+            :placeholder="props.placeholder || 'Search by name'"
             class="full-width"
             autofocus
             debounce="500"
@@ -29,7 +28,15 @@
             </template>
           </q-input>
         </div>
-        <q-btn icon="close" flat round dense class="q-ml-sm bg-block" @click="closeSearch" />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          class="q-ml-sm bg-block"
+          text-color="primary"
+          @click="closeSearch"
+        />
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -43,6 +50,7 @@ interface Props {
   modelValue: boolean;
   query: string | null;
   noRouteReplace?: boolean;
+  placeholder?: string;
 }
 
 interface Emits {
@@ -98,6 +106,7 @@ function closeSearch() {
   background-color: var(--q-primary-lighten);
   height: auto;
   border-radius: 0 0 16px 16px;
+  box-shadow: none;
 
   .search-input-container {
     padding: 8px 0;

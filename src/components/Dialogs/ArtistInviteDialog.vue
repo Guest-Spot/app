@@ -5,6 +5,7 @@
     v-model="showFilterDialog"
     v-model:filterValue="activeFilters"
     no-route-replace
+    no-styles
     unelevated
   />
   <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
@@ -197,7 +198,9 @@ const title = computed(() => {
 });
 
 const hasActiveFilters = computed(() =>
-  Object.values(activeFilters.value).some((filter) => !!filter),
+  Object.values(activeFilters.value).some((filter) =>
+    Array.isArray(filter) ? filter.length > 0 : !!filter
+  )
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 

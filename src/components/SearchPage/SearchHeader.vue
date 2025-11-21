@@ -3,6 +3,7 @@
     <ListHeader :title="title" class="q-mb-md">
       <div class="flex q-gap-sm">
         <q-btn
+          v-if="!noSearch"
           icon="search"
           class="bg-block"
           :text-color="modelValue ? 'primary' : ''"
@@ -11,6 +12,7 @@
           @click="$emit('toggle-search')"
         />
         <q-btn
+          v-if="!noFilters"
           icon="filter_list"
           class="bg-block"
           :text-color="hasFilters ? 'primary' : ''"
@@ -19,6 +21,7 @@
           @click="$emit('toggle-filters')"
         />
         <q-btn
+          v-if="!noSort"
           icon="sort"
           class="bg-block"
           :text-color="hasSort ? 'primary' : ''"
@@ -37,8 +40,11 @@ import { ListHeader } from 'src/components';
 interface Props {
   modelValue: string | null;
   title: string;
-  hasFilters: boolean;
-  hasSort: boolean;
+  hasFilters?: boolean;
+  hasSort?: boolean;
+  noSearch?: boolean;
+  noFilters?: boolean;
+  noSort?: boolean;
 }
 
 interface Emits {

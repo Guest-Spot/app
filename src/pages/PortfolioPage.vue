@@ -41,6 +41,7 @@
               outlined
               dense
               rounded
+              clearable
               type="textarea"
               placeholder="Enter work description"
               class="custom-input"
@@ -61,32 +62,7 @@
             />
           </div>
 
-          <div class="input-group hidden">
-            <label class="input-label">Tags</label>
-            <q-input
-              v-model="newTag"
-              outlined
-              dense
-              rounded
-              placeholder="Enter tag"
-              class="custom-input"
-              @keyup.enter="addTag"
-            >
-              <template v-slot:append>
-                <q-btn round dense icon="add" color="primary" size="sm" @click="addTag" />
-              </template>
-            </q-input>
-            <div class="tags-container">
-              <q-chip
-                v-for="(tag, index) in formData.tags"
-                :key="index"
-                :label="tag.name"
-                removable
-                @remove="removeTag(index)"
-                class="work-tag bg-block"
-              />
-            </div>
-          </div>
+          <StyleSelector v-model="formData.styles" />
         </template>
       </div>
     </div>
@@ -99,7 +75,7 @@
         color="primary"
         unelevated
         :loading="isSubmitting"
-        :disable="isSubmitting"
+        :disable="isSubmitting || !formData.description"
         @click="confirmWork"
       />
     </div>
@@ -112,15 +88,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import type { IPortfolioForm } from 'src/interfaces/portfolio';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
-import {
-  PORTFOLIO_QUERY,
-  CREATE_PORTFOLIO_MUTATION,
-  UPDATE_PORTFOLIO_MUTATION,
-} from 'src/apollo/types/portfolio';
+import StyleSelector from 'src/components/Portfolio/StyleSelector.vue';
+import { PORTFOLIO_QUERY } from 'src/apollo/types/portfolio';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import type { IGraphQLPortfolioResult } from 'src/interfaces/portfolio';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
+import usePortfolios from 'src/composables/usePortfolios';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 
 defineOptions({
@@ -131,6 +105,7 @@ const route = useRoute();
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
 const { user } = useUser();
+const { createPortfolio, updatePortfolio } = usePortfolios();
 
 const isEditing = computed(() => route.query.mode === 'edit');
 const workId = computed(() => route.query.workId as string | undefined);
@@ -141,10 +116,9 @@ const isLoading = ref(false);
 const formData = reactive<IPortfolioForm>({
   title: '',
   description: '',
-  tags: [],
+  styles: [],
   pictures: [],
 });
-const newTag = ref('');
 
 // Image upload state
 const imagesForUpload = ref<File[]>([]);
@@ -152,8 +126,6 @@ const imagesForRemove = ref<string[]>([]);
 
 // Apollo queries and mutations
 const { load: loadPortfolio, onResult: onPortfolioResult } = useLazyQuery<IGraphQLPortfolioResult>(PORTFOLIO_QUERY);
-const { mutate: createPortfolio } = useMutation(CREATE_PORTFOLIO_MUTATION);
-const { mutate: updatePortfolio } = useMutation(UPDATE_PORTFOLIO_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
 const closePage = () => {
@@ -198,27 +170,22 @@ const confirmWork = async () => {
           ?.map((picture) => picture.id)
           .filter((id) => !imagesForRemove.value.includes(id)) || []),
       ],
-      tags: formData.tags.map((tag) => ({ name: tag.name })),
+      styles: formData.styles,
     };
 
     if (isEditing.value && workId.value) {
       // Update existing portfolio
-      const result = await updatePortfolio({
-        documentId: workId.value,
-        data: portfolioData,
-      });
+      const result = await updatePortfolio(workId.value, portfolioData);
 
-      if (result?.data?.updatePortfolio) {
+      if (result) {
         showSuccess('Portfolio updated successfully');
         closePage();
       }
     } else {
       // Create new portfolio
-      const result = await createPortfolio({
-        data: portfolioData,
-      });
+      const result = await createPortfolio(portfolioData);
 
-      if (result?.data?.createPortfolio) {
+      if (result) {
         showSuccess('Portfolio created successfully');
         closePage();
       }
@@ -234,17 +201,6 @@ const confirmWork = async () => {
 const onUpdateImages = (files: { id: string; file: File }[]) => {
   imagesForRemove.value = files.map((file) => file.id);
   imagesForUpload.value = files.map((file) => file.file);
-};
-
-const addTag = () => {
-  if (newTag.value.trim() && !formData.tags.map((tag) => tag.name).includes(newTag.value.trim())) {
-    formData.tags = [...formData.tags, { name: newTag.value.trim() }];
-    newTag.value = '';
-  }
-};
-
-const removeTag = (index: number) => {
-  formData.tags = formData.tags.filter((_, i) => i !== index);
 };
 
 // Computed property for title
@@ -271,7 +227,7 @@ onPortfolioResult(({ data }) => {
     const work = data.portfolio;
     formData.title = work.title || '';
     formData.description = work.description || '';
-    formData.tags = work.tags || [];
+    formData.styles = work.styles?.map((s) => s.documentId) || [];
     formData.pictures = work.pictures?.map((picture, index) => ({
       index,
       url: picture.url,
@@ -331,17 +287,6 @@ onPortfolioResult(({ data }) => {
 
     .custom-input {
       width: 100%;
-    }
-  }
-
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-
-    .work-tag {
-      font-size: 12px;
     }
   }
 }

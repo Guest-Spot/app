@@ -86,12 +86,6 @@ defineProps<Props>();
   font-size: 14px;
 }
 
-.work-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .work-tag {
   font-size: 12px;
   font-weight: 600;

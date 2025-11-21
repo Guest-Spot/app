@@ -204,13 +204,8 @@ defineExpose({
       </div>
     </div>
 
-    <!-- Loading indicator -->
-    <div v-if="loading" class="loading-indicator">
-      <q-spinner color="primary" size="40px" />
-    </div>
-
     <!-- End of list message -->
-    <div v-else-if="!hasMore && items.length > 0" class="end-message">
+    <div v-if="!hasMore && items.length > 0" class="end-message">
       <slot name="end">
         <!-- No more items -->
       </slot>
