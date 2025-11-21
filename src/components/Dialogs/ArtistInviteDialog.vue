@@ -5,6 +5,7 @@
     v-model="showFilterDialog"
     v-model:filterValue="activeFilters"
     no-route-replace
+    no-styles
     unelevated
   />
   <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" no-route-replace />
@@ -32,7 +33,6 @@
             :title="title"
             :has-filters="hasActiveFilters"
             :has-sort="hasActiveSort"
-            no-styles
             @toggle-search="showSearchDialog = true"
             @toggle-filters="showFilterDialog = true"
             @toggle-sort="showSortDialog = true"

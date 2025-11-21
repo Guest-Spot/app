@@ -6,7 +6,6 @@
         :title="artistListTitle"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
-        no-styles
         @toggle-search="emit('openSearch')"
         @toggle-filters="emit('openFilter')"
         @toggle-sort="emit('openSort')"

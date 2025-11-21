@@ -154,13 +154,6 @@ onBeforeMount(() => {
   position: sticky;
   margin: 0 auto;
   top: env(safe-area-inset-top);
-  z-index: 10;
-}
-
-.search-button {
-  position: fixed;
-  bottom: 100px;
-  right: 16px;
-  z-index: 10;
+  z-index: 1;
 }
 </style>

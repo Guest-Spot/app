@@ -14,7 +14,6 @@
         :title="activeTab === TAB_SHOPS ? shopsTitle : artistsTitle"
         :has-filters="hasActiveFilters"
         :has-sort="hasActiveSort"
-        no-styles
         @toggle-search="showSearchDialog = true"
         @toggle-filters="showFilterDialog = true"
         @toggle-sort="showSortDialog = true"
@@ -23,7 +22,7 @@
       <!-- Dialogs -->
       <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" />
 
-      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" />
+      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" no-styles />
 
       <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" />
 

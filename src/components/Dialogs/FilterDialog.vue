@@ -16,7 +16,7 @@
       <q-card-section class="dialog-content">
         <div class="flex column q-gap-md">
           <!-- Location Filter -->
-          <div v-if="!props.noCity" class="filter-group">
+          <div v-if="!noCity" class="filter-group">
             <label class="filter-label">City</label>
             <q-select
               v-model="filters.city"
@@ -40,7 +40,7 @@
           </div>
 
           <!-- Styles Filter -->
-          <div v-if="!props.noStyles" class="filter-group">
+          <div v-if="!noStyles" class="filter-group">
             <label class="filter-label">Styles</label>
             <q-select
               v-model="filters.styles"
