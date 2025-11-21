@@ -111,10 +111,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useQuery } from '@vue/apollo-composable';
-import { TATTOO_STYLES_QUERY } from 'src/apollo/types/tattoo';
-import type { ITattooData, ITattooStyle } from 'src/interfaces/tattoo';
+import { ref, computed } from 'vue';
+import useTattooStyles from 'src/modules/useTattooStyles';
 
 defineOptions({
   name: 'StyleSelector',
@@ -130,19 +128,12 @@ const emit = defineEmits<{
 
 const dialogOpen = ref(false);
 const searchQuery = ref('');
-const options = ref<ITattooStyle[]>([]);
+
+const { styles: options, isLoading: loading } = useTattooStyles();
 
 const internalSelected = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val),
-});
-
-const { result, loading } = useQuery<ITattooData>(TATTOO_STYLES_QUERY);
-
-watch(result, (val) => {
-  if (val?.tattoo?.styles) {
-    options.value = val.tattoo.styles;
-  }
 });
 
 const filteredOptions = computed(() => {

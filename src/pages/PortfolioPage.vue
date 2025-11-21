@@ -74,7 +74,7 @@
         color="primary"
         unelevated
         :loading="isSubmitting"
-        :disable="isSubmitting"
+        :disable="isSubmitting || !canCreate"
         @click="confirmWork"
       />
     </div>
@@ -110,6 +110,7 @@ const { user } = useUser();
 
 const isEditing = computed(() => route.query.mode === 'edit');
 const workId = computed(() => route.query.workId as string | undefined);
+const canCreate = computed(() => !isEditing.value ? formData.description.length > 0 && formData.pictures?.length && formData.pictures.length > 0 && formData.styles.length > 0 : true);
 
 const isSubmitting = ref(false);
 const isLoading = ref(false);
