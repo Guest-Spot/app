@@ -235,7 +235,7 @@ onPortfolioResult(({ data }) => {
     const work = data.portfolio;
     formData.title = work.title || '';
     formData.description = work.description || '';
-    formData.styles = work.styles || [];
+    formData.styles = work.styles?.map((s) => s.name) || [];
     formData.pictures = work.pictures?.map((picture, index) => ({
       index,
       url: picture.url,
