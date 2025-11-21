@@ -1,11 +1,11 @@
 export interface ITattooStyle {
+  documentId: string;
   name: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 export interface ITattooData {
-  tattoo: {
-    documentId: string;
-    styles: ITattooStyle[];
-  };
+  styles: ITattooStyle[];
 }
-

@@ -32,8 +32,8 @@ const useTattooStyles = () => {
 
       await load();
 
-      if (result.value?.tattoo?.styles) {
-        store.setStyles(result.value.tattoo.styles);
+      if (result.value?.styles) {
+        store.setStyles(result.value.styles);
       }
     } catch (e) {
       console.error('Error fetching tattoo styles:', e);
