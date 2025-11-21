@@ -197,7 +197,9 @@ const title = computed(() => {
 });
 
 const hasActiveFilters = computed(() =>
-  Object.values(activeFilters.value).some((filter) => !!filter),
+  Object.values(activeFilters.value).some((filter) =>
+    Array.isArray(filter) ? filter.length > 0 : !!filter
+  )
 );
 const hasActiveSort = computed(() => !!sortSettings.value.sortBy);
 

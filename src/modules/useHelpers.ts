@@ -13,6 +13,14 @@ const useHelpers = () => {
           containsi: filters.city || null,
         },
       }),
+      ...(filters.styles &&
+        filters.styles.length > 0 && {
+          styles: {
+            name: {
+              in: filters.styles,
+            },
+          },
+        }),
     };
   };
 

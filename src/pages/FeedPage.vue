@@ -92,6 +92,11 @@ const searchQuery = ref(route.query.search as string | null);
 const activeFilters = ref<IFilters>({
   type: null,
   city: route.query.city as string | null,
+  styles: route.query.styles
+    ? ((Array.isArray(route.query.styles)
+        ? route.query.styles
+        : [route.query.styles]) as string[])
+    : null,
 });
 
 const sortSettings = ref<SortSettings>({

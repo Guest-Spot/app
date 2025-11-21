@@ -55,8 +55,22 @@ export default function usePortfolios() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filters: any = {};
 
+    const styleConditions: any[] = [];
+
     if (searchQuery) {
-      filters.styles = { name: { containsi: searchQuery } };
+      styleConditions.push({ name: { containsi: searchQuery } });
+    }
+
+    if (activeFilters?.styles?.length) {
+      styleConditions.push({ name: { in: activeFilters.styles } });
+    }
+
+    if (styleConditions.length > 0) {
+      if (styleConditions.length === 1) {
+        filters.styles = styleConditions[0];
+      } else {
+        filters.and = styleConditions.map((cond) => ({ styles: cond }));
+      }
     }
 
     if (activeFilters?.city) {
@@ -100,8 +114,22 @@ export default function usePortfolios() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filters: any = {};
 
+    const styleConditions: any[] = [];
+
     if (searchQuery) {
-      filters.styles = { name: { containsi: searchQuery } };
+      styleConditions.push({ name: { containsi: searchQuery } });
+    }
+
+    if (activeFilters?.styles?.length) {
+      styleConditions.push({ name: { in: activeFilters.styles } });
+    }
+
+    if (styleConditions.length > 0) {
+      if (styleConditions.length === 1) {
+        filters.styles = styleConditions[0];
+      } else {
+        filters.and = styleConditions.map((cond) => ({ styles: cond }));
+      }
     }
 
     if (activeFilters?.city) {

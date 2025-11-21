@@ -27,7 +27,7 @@
               menu-anchor="top left"
               menu-self="bottom left"
               :use-input="!filters.city"
-              @filter="filterFn"
+              @filter="filterCities"
               placeholder="Select city"
               class="filter-select"
               clearable
@@ -35,6 +35,32 @@
             >
               <template v-slot:prepend>
                 <q-icon name="location_on" />
+              </template>
+            </q-select>
+          </div>
+
+          <!-- Styles Filter -->
+          <div class="filter-group">
+            <label class="filter-label">Styles</label>
+            <q-select
+              v-model="filters.styles"
+              :options="styleOptions"
+              multiple
+              use-chips
+              outlined
+              dense
+              rounded
+              menu-anchor="top left"
+              menu-self="bottom left"
+              use-input
+              @filter="filterStyles"
+              placeholder="Select styles"
+              class="filter-select"
+              clearable
+              @update:model-value="onChangeFilters"
+            >
+              <template v-slot:prepend>
+                <q-icon name="palette" />
               </template>
             </q-select>
           </div>
@@ -61,10 +87,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, type PropType } from 'vue';
+import { ref, watch, onMounted, type PropType } from 'vue';
 import type { IFilters } from 'src/interfaces/filters';
 import { useRouter, useRoute } from 'vue-router';
 import { useCitiesStore } from 'src/stores/cities';
+import useTattooStyles from 'src/modules/useTattooStyles';
 
 const props = defineProps({
   modelValue: {
@@ -84,16 +111,33 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'update:filterValue', 'clearFilters']);
 
 const citiesStore = useCitiesStore();
+const { styles: tattooStyles, fetchStyles } = useTattooStyles();
 const router = useRouter();
 const route = useRoute();
 
 const cities = ref(citiesStore.getCities);
+const styleOptions = ref<string[]>([]);
+const allStyleNames = ref<string[]>([]);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
 
 // Filters state
 const filters = ref<IFilters>({ ...props.filterValue });
+
+onMounted(() => {
+  void fetchStyles();
+});
+
+watch(
+  tattooStyles,
+  (newStyles) => {
+    const names = newStyles.map((s) => s.name);
+    allStyleNames.value = names;
+    styleOptions.value = names;
+  },
+  { immediate: true }
+);
 
 // Watch for props changes
 watch(
@@ -116,10 +160,19 @@ watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
 
-const filterFn = (val: string, update: (value: () => void) => void) => {
+const filterCities = (val: string, update: (value: () => void) => void) => {
   update(() => {
     const needle = val.toLocaleLowerCase();
     cities.value = citiesStore.getCities.filter((v) => v.toLocaleLowerCase().indexOf(needle) > -1);
+  });
+};
+
+const filterStyles = (val: string, update: (value: () => void) => void) => {
+  update(() => {
+    const needle = val.toLocaleLowerCase();
+    styleOptions.value = allStyleNames.value.filter(
+      (v) => v.toLocaleLowerCase().indexOf(needle) > -1
+    );
   });
 };
 
@@ -136,7 +189,9 @@ const applyFilters = () => {
 
 const clearFilters = () => {
   filters.value = {
+    ...filters.value,
     city: null,
+    styles: null,
   };
   if (!props.noRouteReplace) {
     void router.replace({ query: { ...route.query, ...filters.value } });
