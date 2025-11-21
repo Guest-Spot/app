@@ -49,10 +49,6 @@ export default function usePortfolios() {
     searchQuery?: string | null,
     sortSettings?: SortSettings,
   ) => {
-    if (!portfoliosStore.getHasMore) {
-      return;
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filters: any = {};
 

@@ -21,13 +21,16 @@
       <FilterDialog no-city v-model="showFilterDialog" v-model:filterValue="activeFilters" />
 
       <!-- Loading State -->
-      <LoadingState
-        v-if="isLoadingPortfolios && !portfolios.length"
-        :is-loading="isLoadingPortfolios"
-        title="Loading feed..."
-        description="Please wait while we fetch the latest portfolio items"
-        spinner-name="dots"
-      />
+      <div v-if="isLoadingPortfolios && !portfolios.length" class="flex column q-gap-md">
+        <div class="flex no-wrap q-gap-md">
+          <q-skeleton width="100%" height="200px" class="border-radius-lg" />
+          <q-skeleton width="100%" height="200px" class="border-radius-lg" />
+        </div>
+        <div class="flex no-wrap q-gap-md">
+          <q-skeleton width="100%" height="200px" class="border-radius-lg" />
+          <q-skeleton width="100%" height="200px" class="border-radius-lg" />
+        </div>
+      </div>
 
       <!-- Feed Content - Tile View -->
       <PortfolioGrid
@@ -62,7 +65,7 @@ import type { EventBus } from 'quasar';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
-import { NoResult, LoadingState, PortfolioGrid } from 'src/components';
+import { NoResult, PortfolioGrid } from 'src/components';
 import usePortfolios from 'src/composables/usePortfolios';
 import { SearchHeader } from 'src/components/SearchPage';
 import { FilterDialog, SearchDialog } from 'src/components/Dialogs';
@@ -118,12 +121,6 @@ const loadMorePortfolios = () => {
   fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
 };
 
-const initializeFeed = () => {
-  if (!portfolios.value.length) {
-    fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
-  }
-};
-
 const forceCloseSingleView = () => {
   portfoliosGridRef.value?.forceCloseSingleView();
 };
@@ -170,7 +167,7 @@ onBeforeUnmount(() => {
 
 onBeforeMount(() => {
   bus.on('opened-feed-page', forceCloseSingleView);
-  initializeFeed();
+  fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
 });
 </script>
 

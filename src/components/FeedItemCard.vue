@@ -5,7 +5,7 @@
     @click="handleClick"
   >
     <div class="feed-item-image">
-      <template v-if="viewMode === 'single'">
+      <template v-if="viewMode === 'single' && pictures?.length > 0">
         <ImageCarousel
           :pictures="pictures"
           :height="'400px'"

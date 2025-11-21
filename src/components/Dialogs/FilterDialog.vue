@@ -204,6 +204,7 @@ const clearFilters = () => {
     void router.replace({ query: { ...route.query, ...filters.value } });
   }
   emit('update:filterValue', filters.value);
+  closeDialog();
 };
 
 const closeDialog = () => {
