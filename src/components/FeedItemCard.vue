@@ -65,6 +65,8 @@
           :key="`tag-${index}`"
           :label="tag.name"
           class="portfolio-tag text-primary bg-block"
+          clickable
+          @click.stop="navigateToStyle(tag.name)"
         />
       </div>
     </div>
@@ -104,7 +106,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import ExpandableText from 'src/components/ExpandableText.vue';
@@ -133,6 +135,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 const router = useRouter();
+const route = useRoute();
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/400x225';
 const pictures = computed(() => props.item.pictures.map((picture) => picture.url));
@@ -166,6 +169,11 @@ const navigateToOwner = () => {
     : `/shop/${props.item.owner.documentId}`;
 
   void router.push(path);
+};
+
+const navigateToStyle = (styleName: string) => {
+  const query = { ...route.query, styles: styleName };
+  void router.push({ path: '/feed', query });
 };
 </script>
 

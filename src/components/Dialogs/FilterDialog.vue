@@ -77,7 +77,7 @@
         />
         <q-btn rounded unelevated color="primary" @click="applyFilters">
           <div class="q-px-md">
-            <span class="text-body2">Apply</span>
+            <span class="text-body2">Done</span>
           </div>
         </q-btn>
       </q-card-actions>

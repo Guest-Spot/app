@@ -138,6 +138,32 @@ watch(
   { deep: true },
 );
 
+watch(
+  () => route.query,
+  (newQuery) => {
+    const newStyles = newQuery.styles
+      ? ((Array.isArray(newQuery.styles)
+          ? newQuery.styles
+          : [newQuery.styles]) as string[])
+      : null;
+
+    const newCity = newQuery.city as string | null;
+
+    const currentStyles = activeFilters.value.styles;
+    const stylesChanged = JSON.stringify(currentStyles) !== JSON.stringify(newStyles);
+    const cityChanged = activeFilters.value.city !== newCity;
+
+    if (stylesChanged || cityChanged) {
+      activeFilters.value = {
+        ...activeFilters.value,
+        city: newCity,
+        styles: newStyles,
+      };
+      forceCloseSingleView();
+    }
+  },
+);
+
 onBeforeUnmount(() => {
   bus.off('opened-feed-page', forceCloseSingleView);
 });
