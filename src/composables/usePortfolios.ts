@@ -9,6 +9,7 @@ import {
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { usePortfoliosStore } from 'src/stores/portfolios';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+import type { IFilters } from 'src/interfaces/filters';
 
 interface PortfolioInput {
   owner: string;
@@ -16,6 +17,11 @@ interface PortfolioInput {
   description: string;
   pictures: (string | number)[];
   styles: string[];
+}
+
+interface SortSettings {
+  sortBy: string | null;
+  sortDirection: 'asc' | 'desc';
 }
 
 export default function usePortfolios() {
@@ -37,15 +43,38 @@ export default function usePortfolios() {
   const totalPortfolios = computed(() => portfoliosStore.getTotal);
   const hasMorePortfolios = computed(() => portfoliosStore.getHasMore);
 
-  const fetchPortfolios = () => {
+  const fetchPortfolios = (
+    activeFilters?: IFilters,
+    searchQuery?: string | null,
+    sortSettings?: SortSettings,
+  ) => {
     if (!portfoliosStore.getHasMore) {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filters: any = {};
+
+    if (searchQuery) {
+      filters.title = { containsi: searchQuery };
+    }
+
+    if (activeFilters?.city) {
+      filters.owner = {
+        city: { containsi: activeFilters.city },
+      };
+    }
+
+    const sort =
+      sortSettings?.sortBy && sortSettings?.sortDirection
+        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
+        : ['createdAt:desc'];
+
     void loadPortfolios(
       null,
       {
-        sort: ['createdAt:desc'],
+        filters,
+        sort,
         pagination: {
           page: portfoliosStore.getPage,
           pageSize: PAGINATION_PAGE_SIZE,
@@ -63,11 +92,34 @@ export default function usePortfolios() {
     portfoliosStore.clearPortfolios();
   };
 
-  const refetchPortfoliosData = () => {
+  const refetchPortfoliosData = (
+    activeFilters?: IFilters,
+    searchQuery?: string | null,
+    sortSettings?: SortSettings,
+  ) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filters: any = {};
+
+    if (searchQuery) {
+      filters.title = { containsi: searchQuery };
+    }
+
+    if (activeFilters?.city) {
+      filters.owner = {
+        city: { containsi: activeFilters.city },
+      };
+    }
+
+    const sort =
+      sortSettings?.sortBy && sortSettings?.sortDirection
+        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
+        : ['createdAt:desc'];
+
     void refetchPortfolios({
-      sort: ['createdAt:desc'],
+      filters,
+      sort,
       pagination: {
-        page: portfoliosStore.getPage,
+        page: 1, // Reset to page 1 on refetch
         pageSize: PAGINATION_PAGE_SIZE,
       },
     });
