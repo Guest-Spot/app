@@ -129,12 +129,7 @@ export default function usePortfolios() {
 
   const createPortfolio = async (data: PortfolioInput) => {
     const result = await createPortfolioMutation({
-      data: {
-        ...data,
-        styles: data.styles.map((id) => ({
-          documentId: id,
-        })),
-      },
+      data,
     });
     return result?.data?.createPortfolio;
   };
@@ -142,12 +137,7 @@ export default function usePortfolios() {
   const updatePortfolio = async (documentId: string, data: PortfolioInput) => {
     const result = await updatePortfolioMutation({
       documentId,
-      data: {
-        ...data,
-        styles: data.styles.map((id) => ({
-          documentId: id,
-        })),
-      },
+      data,
     });
     return result?.data?.updatePortfolio;
   };
