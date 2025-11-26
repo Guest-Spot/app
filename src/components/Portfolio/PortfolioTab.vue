@@ -172,7 +172,7 @@ const loadPortfoliosData = () => {
           },
         },
       },
-      sort: ['createdAt:desc'],
+      sort: ['updatedAt:desc'],
     }, { fetchPolicy: 'network-only' });
   }
 };

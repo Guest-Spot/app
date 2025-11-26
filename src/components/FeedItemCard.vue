@@ -5,7 +5,7 @@
     @click="handleClick"
   >
     <div class="feed-item-image">
-      <template v-if="viewMode === 'single'">
+      <template v-if="viewMode === 'single' && pictures?.length > 0">
         <ImageCarousel
           :pictures="pictures"
           :height="'400px'"
@@ -59,12 +59,14 @@
         :text="item.description"
         class="portfolio-description"
       />
-      <div v-if="viewMode === 'single' && item.tags?.length" class="portfolio-tags">
+      <div v-if="viewMode === 'single' && item.styles?.length" class="portfolio-styles">
         <q-chip
-          v-for="(tag, index) in item.tags"
+          v-for="(tag, index) in item.styles"
           :key="`tag-${index}`"
           :label="tag.name"
-          class="portfolio-tag bg-block"
+          class="portfolio-tag text-primary bg-block"
+          clickable
+          @click.stop="navigateToStyle(tag.name)"
         />
       </div>
     </div>
@@ -72,12 +74,14 @@
       <q-btn
         round
         dense
+        flat
+        color="primary"
         icon="more_horiz"
         class="bg-block"
       >
-        <q-menu anchor="top right" self="bottom right">
+        <q-menu anchor="top right" self="bottom right" style="width: 150px;">
           <q-list>
-            <q-item v-ripple clickable @click.stop="$emit('edit')">
+            <q-item v-ripple clickable @click.stop="$emit('edit')" class="relative-position">
               <q-item-section side>
                 <q-icon name="edit" size="xs" />
               </q-item-section>
@@ -85,7 +89,7 @@
                 Edit
               </q-item-section>
             </q-item>
-            <q-item v-ripple clickable @click.stop="$emit('delete')">
+            <q-item v-ripple clickable @click.stop="$emit('delete')" class="relative-position">
               <q-item-section side>
                 <q-icon name="delete" color="negative" size="xs" />
               </q-item-section>
@@ -102,7 +106,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import ImageCarousel from 'src/components/ImageCarousel.vue';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import ExpandableText from 'src/components/ExpandableText.vue';
@@ -131,6 +135,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 const router = useRouter();
+const route = useRoute();
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/400x225';
 const pictures = computed(() => props.item.pictures.map((picture) => picture.url));
@@ -164,6 +169,11 @@ const navigateToOwner = () => {
     : `/shop/${props.item.owner.documentId}`;
 
   void router.push(path);
+};
+
+const navigateToStyle = (styleName: string) => {
+  const query = { ...route.query, styles: styleName };
+  void router.push({ path: '/feed', query });
 };
 </script>
 
@@ -290,10 +300,9 @@ const navigateToOwner = () => {
   line-height: 1.4;
 }
 
-.portfolio-tags {
+.portfolio-styles {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
   margin-top: 4px;
 }
 

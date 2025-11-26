@@ -186,7 +186,7 @@ const selectItem = (item: unknown) => {
       );
 
       if (itemIndex !== -1) {
-        singleListRef.value.scrollToIndex(itemIndex, { align: 'start' });
+        singleListRef.value.scrollToIndex(itemIndex, { align: 'center' });
       }
     }, 100);
   }
@@ -234,7 +234,6 @@ defineExpose({
   height: 100%;
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
-  padding-top: 16px;
   padding-bottom: 130px;
   padding-left: 16px;
   padding-right: 16px;

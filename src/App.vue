@@ -9,6 +9,7 @@ import useTokens from 'src/modules/useTokens';
 import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 import useSettings from 'src/composables/useSettings';
+import useTattooStyles from 'src/modules/useTattooStyles';
 import { App } from '@capacitor/app';
 import { useRouter } from 'vue-router';
 
@@ -17,6 +18,7 @@ const { getStoredTokens } = useTokens();
 const { fetchInvites } = useInviteCompos();
 const { fetchNotifies } = useNotifyCompos();
 const { fetchSettings } = useSettings();
+const { fetchStyles } = useTattooStyles();
 const router = useRouter();
 
 const fetchCurrentUser = (): void => {
@@ -40,6 +42,7 @@ watch(
 onMounted(() => {
   void fetchCurrentUser();
   void fetchSettings();
+  void fetchStyles();
 
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {

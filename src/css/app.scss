@@ -171,6 +171,14 @@ a {
   backdrop-filter: blur(10px);
 }
 
+.q-dialog.bg-block__inner {
+  .q-dialog__inner {
+    background: rgba(var(--bg-block-rgb), 0.6);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--box-shadow);
+  }
+}
+
 .q-menu,
 .q-time,
 .q-date,
