@@ -1,3 +1,4 @@
+import { computed, type ComputedRef } from 'vue';
 import { useMutation, useQuery } from '@vue/apollo-composable';
 import {
   CREATE_OPENING_HOUR_MUTATION,
@@ -14,9 +15,40 @@ export default function useOpeningHours() {
 
   /**
    * Fetch opening hours using separate query
+   * @param userId - Optional user ID (string, computed, or function) to filter opening hours by user
    */
-  function fetchOpeningHours() {
-    return useQuery<{ openingHours: IOpeningHours[] }>(OPENING_HOURS_QUERY);
+  function fetchOpeningHours(userId?: string | ComputedRef<string | undefined> | (() => string | undefined)) {
+    const getUserId = () => {
+      if (typeof userId === 'function') {
+        return userId();
+      }
+      if (typeof userId === 'object' && 'value' in userId) {
+        return userId.value;
+      }
+      return userId;
+    };
+
+    return useQuery<{ openingHours: IOpeningHours[] }>(
+      OPENING_HOURS_QUERY,
+      () => {
+        const id = getUserId();
+        if (!id) {
+          return {};
+        }
+        return {
+          filters: {
+            user: {
+              documentId: {
+                eq: id,
+              },
+            },
+          },
+        };
+      },
+      {
+        enabled: computed(() => Boolean(getUserId())),
+      },
+    );
   }
 
   /**

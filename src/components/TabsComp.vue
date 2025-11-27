@@ -6,9 +6,10 @@
         :key="`tab-${t.tab}-${t.label}`"
         class="tab-btn"
         unelevated
+        flat
         rounded
         :class="{
-          'bg-primary text-white': currentActiveTab.tab === t.tab,
+          'text-primary bg-block': currentActiveTab.tab === t.tab,
         }"
         @click="handleTabClick(t)"
         v-bind="$attrs"

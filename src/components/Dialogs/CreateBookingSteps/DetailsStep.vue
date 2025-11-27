@@ -1,6 +1,10 @@
 <template>
   <div class="step-content">
-    <q-form ref="formRef" class="details-form flex column">
+    <q-form
+      ref="formRef"
+      class="details-form flex column"
+      @validation-error="onValidationError"
+    >
       <!-- Reference Pictures Section -->
       <div class="input-group">
         <label class="input-label">Reference Pictures</label>
@@ -213,6 +217,11 @@ const resetForm = () => {
   uploaderKey.value += 1;
   emit('update:referenceFiles', []);
 };
+
+function onValidationError(ref: QForm) {
+  const el = ref.$el
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+}
 
 defineExpose({
   validateForm,

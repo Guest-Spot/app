@@ -188,8 +188,9 @@ const { fetchOpeningHours, handleOpeningHoursChanges } = useOpeningHours();
 const { mutate: updateShop, onDone: onDoneUpdateShop } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
 
-// Fetch opening hours separately
-const { refetch: refetchOpeningHours, onResult: onResultOpeningHours } = fetchOpeningHours();
+// Fetch opening hours separately - filter by current user
+const userDocumentId = computed(() => user.value?.documentId);
+const { refetch: refetchOpeningHours, onResult: onResultOpeningHours } = fetchOpeningHours(userDocumentId);
 
 // Form data
 const shopData = reactive<IShopFormData>({

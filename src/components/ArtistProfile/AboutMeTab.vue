@@ -117,7 +117,17 @@
       </div>
     </q-expansion-item>
 
-    <!-- Contacts Section -->
+    <!-- Working Hours -->
+    <q-expansion-item
+      icon="schedule"
+      label="Working Hours"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg full-width"
+    >
+      <WorkingHoursEditor v-model="artistData.openingHours" />
+    </q-expansion-item>
+
+    <!-- Additional Information Section -->
     <q-expansion-item
       icon="info"
       label="Additional Information"
@@ -313,7 +323,9 @@ import { copyToClipboard } from 'quasar';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
+import WorkingHoursEditor from 'src/components/ShopProfile/WorkingHoursEditor.vue';
 import type { IArtistFormData } from 'src/interfaces/artist';
+import type { IOpeningHours } from 'src/interfaces/common';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
@@ -321,6 +333,7 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
+import useOpeningHours from 'src/modules/useOpeningHours';
 import {
   GET_STRIPE_DASHBOARD_URL_MUTATION,
   CHECK_STRIPE_ACCOUNT_STATUS_MUTATION,
@@ -332,12 +345,17 @@ import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
+const { fetchOpeningHours, handleOpeningHoursChanges } = useOpeningHours();
 const { openStripeUrl, addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 const settingsStore = useSettingsStore();
 
 // Setup mutation
 const { mutate: updateArtist, onDone: onDoneUpdateArtist } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
+
+// Fetch opening hours separately - filter by current user
+const userDocumentId = computed(() => user.value?.documentId);
+const { refetch: refetchOpeningHours, onResult: onResultOpeningHours } = fetchOpeningHours(userDocumentId);
 
 // Stripe mutations
 const {
@@ -363,9 +381,10 @@ const artistData = reactive<IArtistFormData>({
   avatar: null,
   experience: null,
   depositAmount: null,
+  openingHours: [],
 });
 // NOTE: This variable is used to compare the original data with the new data
-const artistDataOriginal = { ...artistData };
+const artistDataOriginal = reactive<IArtistFormData>({ ...artistData });
 // ------------------------------------------------------------------------//
 
 const imagesForRemove = ref<string[]>([]);
@@ -377,12 +396,67 @@ const stripeSetupLoading = ref(false);
 const stripeDashboardLoading = ref(false);
 const stripeStatusLoading = ref(false);
 
-const hasChanges = computed(
-  () =>
-    Object.keys(compareAndReturnDifferences(artistDataOriginal, artistData)).length > 0 ||
+// Helper function to build hours map (defined outside computed for better performance)
+const buildHoursMap = (
+  hours: IOpeningHours[] = [],
+): Record<string, { start: string | null; end: string | null }> => {
+  return hours.reduce<Record<string, { start: string | null; end: string | null }>>((acc, hour) => {
+    if (!hour) return acc;
+
+    const hasStart = hour.start !== null && hour.start !== '';
+    const hasEnd = hour.end !== null && hour.end !== '';
+
+    if (hasStart || hasEnd) {
+      acc[hour.day] = { start: hour.start, end: hour.end };
+    }
+
+    return acc;
+  }, {});
+};
+
+const openingHoursChanges = computed(() => {
+  const currentHours = buildHoursMap(artistData.openingHours);
+  const originalHours = buildHoursMap(artistDataOriginal.openingHours);
+
+  // Check all days from both current and original hours
+  const currentDays = Object.keys(currentHours);
+  const originalDays = Object.keys(originalHours);
+
+  // Early return: if length differs, there are changes
+  if (currentDays.length !== originalDays.length) return true;
+
+  // Check each day for changes
+  for (const day of currentDays) {
+    const current = currentHours[day];
+    const original = originalHours[day];
+
+    if (!current || !original || current.start !== original.start || current.end !== original.end) {
+      return true;
+    }
+  }
+
+  // Check for removed days
+  for (const day of originalDays) {
+    if (!currentHours[day]) return true;
+  }
+
+  return false;
+});
+
+const hasChanges = computed(() => {
+  // Exclude openingHours from comparison as it's handled separately
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { openingHours: _originalHours, ...originalWithoutHours } = artistDataOriginal;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { openingHours: _currentHours, ...currentWithoutHours } = artistData;
+
+  return (
+    Object.keys(compareAndReturnDifferences(originalWithoutHours, currentWithoutHours)).length > 0 ||
     imagesForUpload.value.length > 0 ||
-    imagesForRemove.value.length > 0,
-);
+    imagesForRemove.value.length > 0 ||
+    openingHoursChanges.value
+  );
+});
 
 // Setup unsaved changes warning
 useUnsavedChanges(hasChanges);
@@ -404,6 +478,8 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
   }
 
   const differences = compareAndReturnDifferences(artistDataOriginal, preparedData);
+  // Exclude openingHours from the main mutation as it's handled separately
+  delete differences.openingHours;
   return differences;
 };
 
@@ -444,12 +520,29 @@ const saveChanges = async () => {
     await deleteImages();
     const uploadedFiles: UploadFileResponse[] = await upload();
 
+    // Handle opening hours separately
+    await handleOpeningHoursChanges(
+      artistDataOriginal.openingHours || [],
+      artistData.openingHours || [],
+      user.value.id,
+    );
+
     const data = prepareDataForMutation(uploadedFiles);
 
-    await updateArtist({
-      id: user.value.id,
-      data,
-    });
+    // Only update main data if there are changes
+    if (Object.keys(data).length > 0) {
+      await updateArtist({
+        id: user.value.id,
+        data,
+      });
+    } else {
+      // If only opening hours changed, still trigger success
+      await Promise.all([fetchMe(), refetchOpeningHours()]);
+      // After refetch, data will be synced via onResultOpeningHours
+      imagesForUpload.value = [];
+      imagesForRemove.value = [];
+      showSuccess('Your profile successfully updated');
+    }
   } catch (error) {
     console.error('Error updating data:', error);
     showError('Error updating data');
@@ -466,33 +559,57 @@ onDoneUpdateArtist((result) => {
   }
 
   if (result.data?.updateUsersPermissionsUser) {
-    void fetchMe();
-    Object.assign(artistDataOriginal, { ...artistData });
-    imagesForUpload.value = [];
-    imagesForRemove.value = [];
-    showSuccess('Your profile successfully updated');
+    // Trigger refetch - data will be synced via watchers and onResultOpeningHours
+    void Promise.all([fetchMe(), refetchOpeningHours()]).then(() => {
+      imagesForUpload.value = [];
+      imagesForRemove.value = [];
+      showSuccess('Your profile successfully updated');
+    });
   }
 });
 
 watch(
   user,
   (profile) => {
-    Object.assign(artistData, {
-      ...profile,
-      // Convert cents to dollars for display
-      depositAmount: centsToDollars(profile?.depositAmount),
-      avatar: profile?.avatar
-        ? {
-            url: profile?.avatar?.url,
-            id: profile?.avatar?.id,
-            index: profile?.avatar?.index || 0,
-          }
-        : null,
-    });
-    Object.assign(artistDataOriginal, { ...artistData });
+    if (profile) {
+      // Preserve existing openingHours as they are managed separately
+      const currentOpeningHours = artistData.openingHours;
+      const originalOpeningHours = artistDataOriginal.openingHours;
+
+      const userData = {
+        ...profile,
+        // Convert cents to dollars for display
+        depositAmount: centsToDollars(profile?.depositAmount),
+        avatar: profile?.avatar
+          ? {
+              url: profile?.avatar?.url,
+              id: profile?.avatar?.id,
+              index: profile?.avatar?.index || 0,
+            }
+          : null,
+        // Don't include openingHours from user profile, use separate query
+        openingHours: currentOpeningHours,
+      };
+
+      Object.assign(artistData, userData);
+      // Preserve original openingHours separately
+      Object.assign(artistDataOriginal, {
+        ...userData,
+        openingHours: originalOpeningHours,
+      });
+    }
   },
   { immediate: true },
 );
+
+onResultOpeningHours((result) => {
+  if (result.data?.openingHours) {
+    const hours = [...result.data.openingHours];
+    artistData.openingHours = hours;
+    // Create a deep copy for original to ensure proper change detection reset
+    artistDataOriginal.openingHours = JSON.parse(JSON.stringify(hours));
+  }
+});
 
 // Stripe functions
 const setupStripeAccount = async () => {
@@ -669,5 +786,11 @@ defineExpose({
 
 .artist-avatar {
   min-height: 300px;
+}
+
+:deep(.working-hours) {
+  .days-row {
+    padding: 16px;
+  }
 }
 </style>
