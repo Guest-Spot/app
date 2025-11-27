@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-5xl': isGuest }">
+  <q-page class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
     <div class="container">
       <!-- Back Button -->
       <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
@@ -86,7 +86,6 @@
 
     <!-- Booking Button -->
     <div
-      v-if="isGuest && artistData?.parent"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
@@ -192,7 +191,7 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
-const isGuest = computed(() => userStore.getIsGuest);
+const isAuthenticated = computed(() => userStore.isAuthenticated);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -254,13 +253,13 @@ const openShopDialog = () => {
 };
 
 const goToBookingPage = () => {
+  if (!isAuthenticated.value) {
+    return router.push({
+      path: '/sign-in',
+    });
+  }
   if (!artistData.value.documentId) return;
-  void router.push({
-    name: 'CreateBooking',
-    query: {
-      artistId: artistData.value.documentId,
-    },
-  });
+  void router.push({ name: 'CreateBooking', query: { artistId: artistData.value.documentId } });
 };
 
 // Function to load artist data

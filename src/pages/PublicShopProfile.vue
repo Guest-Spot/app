@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-5xl': isGuest }">
+  <q-page class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -90,7 +90,6 @@
     </div>
     <!-- Booking Button -->
     <div
-      v-if="isGuest"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
@@ -192,7 +191,7 @@ const portfolioItems = ref<IPortfolio[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
-const isGuest = computed(() => userStore.getIsGuest);
+const isAuthenticated = computed(() => userStore.isAuthenticated);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -224,6 +223,11 @@ const setActiveTab = (tab: ITab) => {
 
 // Booking dialog state
 const goToBookingPage = () => {
+  if (!isAuthenticated.value) {
+    return router.push({
+      path: '/sign-in',
+    });
+  }
   if (!shopData.value.documentId) return;
   void router.push({
     name: 'CreateBooking',
