@@ -4,7 +4,7 @@
       <q-btn round unelevated text-color="grey-6" @click="goBack" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
-      <h2 class="text-h5 q-my-none">Create your <span class="text-primary">account</span></h2>
+      <h2 class="text-h5 q-my-none">Create your <span class="text-primary">{{ isShop ? 'Shop' : 'Artist' }} account</span></h2>
     </div>
 
     <div class="q-my-auto full-width">
