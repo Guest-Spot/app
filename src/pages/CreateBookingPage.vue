@@ -399,15 +399,7 @@ const {
 } = useLazyQuery<IGraphQLCitiesResult>(CITIES_QUERY);
 
 const {
-  load: loadArtistById,
-  onResult: onArtistResult,
-  onError: onArtistError,
-} = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
-
-const {
-  load: loadShopById,
-  onResult: onShopResult,
-  onError: onShopError,
+  load: loadUser
 } = useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
 const { load: loadArtistBookings, stop: stopArtistBookings } = useLazyQuery<IBookingsQueryResponse>(BOOKINGS_QUERY);
@@ -732,6 +724,19 @@ const closePage = () => {
   void router.push('/');
 };
 
+const fetchUser = async () => {
+  const documentId = routeShopDocumentId.value || routeArtistDocumentId.value;
+  if (!documentId) return;
+  const result = await loadUser(null, { documentId });
+  if (!result) return;
+  if (result?.usersPermissionsUser) {
+    selectedArtist.value = result?.usersPermissionsUser;
+  }
+  if (result?.usersPermissionsUser?.openingHours) {
+    shopOpeningHours.value = result?.usersPermissionsUser.openingHours;
+  }
+};
+
 watch(currentStep, (newStep, oldStep) => {
   if (newStep > oldStep && newStep === 2) {
     stepperHeaderRef.value?.scrollTo({
@@ -758,12 +763,6 @@ watch(
       startTime: '',
     });
     scheduleStepRef.value?.resetForm();
-
-    if (newArtist?.parent?.openingHours) {
-      shopOpeningHours.value = newArtist.parent.openingHours;
-    } else if (!routeShopDocumentId.value) {
-      shopOpeningHours.value = [];
-    }
   },
   {
     immediate: true,
@@ -792,34 +791,11 @@ watch(
   { deep: true },
 );
 
-watch(
-  () => routeArtistDocumentId.value,
-  (id) => {
-    if (id) {
-      void loadArtistById(null, { documentId: id });
-    } else {
-      selectedArtist.value = null;
-    }
-  },
-  { immediate: true },
-);
-
-watch(
-  () => routeShopDocumentId.value,
-  (id) => {
-    if (id) {
-      void loadShopById(null, { documentId: id });
-    } else {
-      shopOpeningHours.value = [];
-    }
-  },
-  { immediate: true },
-);
-
 let initialized = false;
 
 const initializePage = async () => {
   await resetFormState();
+  await fetchUser();
   if (isArtistSelectionRequired.value) {
     loadArtistsList(true);
     void loadCities();
@@ -863,25 +839,6 @@ onResultCities(({ data }) => {
 
 onErrorCities((error) => {
   console.error('Error loading cities:', error);
-});
-
-onArtistResult(({ data }) => {
-  if (data?.usersPermissionsUser) {
-    selectedArtist.value = data.usersPermissionsUser;
-  }
-});
-
-onArtistError((error) => {
-  console.error('Error loading artist:', error);
-  showError('Failed to load artist information.');
-});
-
-onShopResult(({ data }) => {
-  shopOpeningHours.value = data?.usersPermissionsUser?.openingHours || [];
-});
-
-onShopError((error) => {
-  console.error('Error loading shop:', error);
 });
 
 const handleBrowserFinished = () => {
