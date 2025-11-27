@@ -199,7 +199,7 @@ const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
-const { user } = useUser();
+const { user, isArtist } = useUser();
 const {
   initiatePayment: initiateBookingPayment,
   isProcessing: isPaymentProcessing,
@@ -230,7 +230,7 @@ const shouldShowPaymentStep = computed(() => {
   if (
     settingsStore.getStripeEnabled !== true ||
     !isSelectedArtistVerified.value ||
-    !selectedArtist.value?.depositAmount
+    !selectedArtist.value?.chargeDeposit
   ) {
     return false;
   }
@@ -668,7 +668,7 @@ const onSubmit = async () => {
     } else {
       showSuccess('Booking request sent!');
       await resetFormState();
-      void router.push('/my-bookings');
+      void router.push(isArtist.value ? '/events?tab=bookings' : '/my-bookings');
     }
   } catch (error) {
     console.error('Failed to submit booking:', error);

@@ -228,7 +228,7 @@
         <div v-else class="payment-configured">
           <div class="flex items-center q-mb-md">
             <q-icon name="check_circle" color="positive" size="24px" class="q-mr-sm" />
-            <span class="text-body1 text-weight-medium">Payment settings configured</span>
+            <span class="text-body1 text-weight-medium">Payment configured</span>
           </div>
 
           <div v-if="user?.stripeAccountID" class="q-mb-md text-body2 text-grey-7">
@@ -259,7 +259,13 @@
           </div>
 
           <div class="input-group q-mt-md bg-block border-radius-lg q-pa-md">
-            <label class="input-label">Deposit Amount</label>
+            <div class="flex items-center justify-between full-width q-mb-sm">
+              <label class="input-label q-mb-none">Charge a deposit?</label>
+              <q-toggle
+                v-model="artistData.chargeDeposit"
+                color="primary"
+              />
+            </div>
             <q-input
               outlined
               dense
@@ -269,7 +275,9 @@
               placeholder="Enter deposit amount"
               prefix="$"
               :min="0"
+              :disable="!artistData.chargeDeposit"
               v-model.number="artistData.depositAmount"
+              hint="Guests will be charged this amount upfront when booking."
               :rules="[
                 (val) =>
                   val === null ||
@@ -278,9 +286,6 @@
                   'Deposit amount must be zero or greater',
               ]"
             />
-            <div class="text-caption text-grey-7 q-mt-xs">
-              Guests will be charged this amount upfront when booking.
-            </div>
           </div>
         </div>
       </div>

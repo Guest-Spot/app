@@ -42,7 +42,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       const hasSession = userStore.getIsAuthenticated || isAuthenticated();
 
       if (!hasSession) {
-        next({ path: '/sign-in', query: { redirect: to.fullPath } });
+        next({ path: '/auth', query: { redirect: to.fullPath } });
         return;
       }
     }

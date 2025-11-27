@@ -11,4 +11,5 @@ export interface IArtistFormData {
   experience?: number | null;
   depositAmount?: number | null;
   openingHours?: IOpeningHours[];
+  chargeDeposit?: boolean;
 }

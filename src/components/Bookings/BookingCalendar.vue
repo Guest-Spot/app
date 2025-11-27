@@ -606,6 +606,7 @@ const shouldShowDeposit = (booking: IBooking): boolean => {
   const depositAmount = centsToDollars(booking.artist?.depositAmount);
   const paymentStatus = booking.paymentStatus;
   return depositAmount !== null &&
+         booking.artist?.chargeDeposit === true &&
          (paymentStatus === EBookingPaymentStatus.Paid ||
           paymentStatus === EBookingPaymentStatus.Authorized);
 };

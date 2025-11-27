@@ -226,7 +226,7 @@ const setActiveTab = (tab: ITab) => {
 const goToBookingPage = () => {
   if (!isAuthenticated.value) {
     return router.push({
-      path: '/sign-in',
+      path: '/auth',
     });
   }
   if (!shopData.value.documentId) return;

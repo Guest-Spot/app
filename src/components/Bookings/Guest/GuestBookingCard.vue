@@ -56,7 +56,7 @@
 
       <!-- Deposit Info -->
       <div
-        v-if="settingsStore.getStripeEnabled && showDeposit && depositAmount && booking.artist?.verified"
+        v-if="showDeposit && depositAmount"
         class="deposit-info q-mb-xs text-warning"
       >
         <q-icon name="payment" size="16px" />
@@ -126,7 +126,8 @@ const statusInfo = computed(() =>
     props.booking,
     settingsStore.getStripeEnabled &&
       props.booking.artist?.payoutsEnabled === true &&
-      props.booking.artist?.verified === true,
+      props.booking.artist?.verified === true &&
+      props.booking.artist?.chargeDeposit === true,
   ),
 );
 
@@ -136,8 +137,11 @@ const depositAmount = computed(() => centsToDollars(props.booking.artist?.deposi
 const showDeposit = computed(() => {
   const paymentStatus = props.booking?.paymentStatus;
   return depositAmount.value !== null &&
-         (paymentStatus === EBookingPaymentStatus.Paid ||
-          paymentStatus === EBookingPaymentStatus.Authorized);
+    settingsStore.getStripeEnabled === true &&
+    props.booking.artist?.chargeDeposit === true &&
+    props.booking.artist?.verified === true &&
+      (paymentStatus === EBookingPaymentStatus.Paid ||
+      paymentStatus === EBookingPaymentStatus.Authorized);
 });
 
 const handleClick = () => {

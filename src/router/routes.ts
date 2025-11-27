@@ -2,15 +2,19 @@ import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/sign-in',
+    path: '/auth',
     component: () => import('layouts/SimpleLayout.vue'),
     meta: { title: 'Sign In' },
-    children: [{ path: '', component: () => import('pages/SignInPage.vue') }],
+    children: [{ path: '', component: () => import('pages/AuthPage.vue') }],
+  },
+  {
+    path: '/sign-in',
+    redirect: '/auth',
   },
   {
     path: '/sign-up',
     component: () => import('layouts/SimpleLayout.vue'),
-    meta: { title: 'Sign Up' },
+    meta: { title: 'Create Account' },
     children: [{ path: '', component: () => import('pages/SignUpPage.vue') }],
   },
   {
