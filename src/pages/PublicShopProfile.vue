@@ -388,7 +388,7 @@ onBeforeMount(() => {
   position: fixed;
   bottom: 0;
   right: 0;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
 }
 </style>

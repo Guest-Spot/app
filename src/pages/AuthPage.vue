@@ -1,5 +1,5 @@
 <template>
-  <q-page class="auth-page q-py-lg flex column items-center q-gap-md">
+  <q-page class="page q-py-lg flex column items-center q-gap-md">
     <div class="container flex no-wrap items-start justify-start q-gap-md">
       <q-btn round unelevated text-color="grey-6" @click="goBack" class="bg-block">
         <q-icon name="arrow_back" />
@@ -282,11 +282,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.auth-page {
-  min-height: 100vh;
-  position: relative;
-}
-
 .auth-header {
   margin-top: 24px;
 }
