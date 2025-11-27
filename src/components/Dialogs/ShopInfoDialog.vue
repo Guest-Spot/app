@@ -73,10 +73,10 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import type { IUser } from 'src/interfaces/user';
 import { OpeningHoursIndexDays } from 'src/interfaces/enums';
 import useDate from 'src/modules/useDate';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 interface Props {
   modelValue: boolean;
@@ -92,8 +92,8 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const router = useRouter();
 const { formatTime } = useDate();
+const { openShopProfile } = useProfileOverlay();
 
 const isVisible = ref(props.modelValue);
 
@@ -115,8 +115,8 @@ const closeDialog = () => {
 
 const goToShop = () => {
   if (props.shopData?.documentId) {
-    void router.push(`/shop/${props.shopData.documentId}`);
     closeDialog();
+    openShopProfile(props.shopData.documentId);
   }
 };
 

@@ -39,22 +39,22 @@
 
 <script setup lang="ts">
 import { ArtistCard } from '../SearchPage/index';
-import { useRouter } from 'vue-router';
 import type { IUser } from 'src/interfaces/user';
 import LoadingState from 'src/components/LoadingState.vue';
 import NoResult from 'src/components/NoResult.vue';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 interface Props {
   artists: IUser[];
   loading: boolean;
 }
 
-const router = useRouter();
+const { openArtistProfile } = useProfileOverlay();
 
 defineProps<Props>();
 
 const handleArtistClick = (artist: IUser) => {
-  void router.push(`/artist/${artist.documentId}`);
+  openArtistProfile(artist.documentId);
 };
 
 const handleFavorite = (artistDocumentId: string) => {

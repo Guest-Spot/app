@@ -89,9 +89,9 @@
         v-else
         label="View Shop"
         rounded
-        :to="`/shop/${shop?.documentId}`"
         flat
         class="bg-block full-width"
+        @click="viewShop"
       />
     </div>
   </div>
@@ -100,6 +100,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
+
+const { openShopProfile } = useProfileOverlay();
 
 interface Props {
   booking: IBooking;
@@ -139,6 +142,12 @@ const getStatusLabel = (status: IBooking['status']) => {
     completed: 'Completed',
   };
   return statusMap[status];
+};
+
+const viewShop = () => {
+  if (shop?.documentId) {
+    openShopProfile(shop.documentId);
+  }
 };
 </script>
 

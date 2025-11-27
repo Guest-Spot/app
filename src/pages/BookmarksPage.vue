@@ -64,9 +64,9 @@
 import { ref } from 'vue';
 import { SearchTabs, ShopCard, ArtistCard, TAB_SHOPS, TAB_ARTISTS } from '../components/SearchPage';
 import { useFavorites } from '../modules/useFavorites';
-import { useRouter } from 'vue-router';
 import type { IUser } from '../interfaces/user';
 import NoResult from 'src/components/NoResult.vue';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 // Tab management
 const activeTab = ref(TAB_SHOPS);
@@ -74,15 +74,15 @@ const activeTab = ref(TAB_SHOPS);
 // Use favorites composable
 const { favoriteShops, favoriteArtists } = useFavorites();
 
-const router = useRouter();
+const { openArtistProfile, openShopProfile } = useProfileOverlay();
 
 // Methods
 const selectShop = (shop: IUser) => {
-  void router.push(`/shop/${shop.documentId}`);
+  openShopProfile(shop.documentId);
 };
 
 const selectArtist = (artist: IUser) => {
-  void router.push(`/artist/${artist.documentId}`);
+  openArtistProfile(artist.documentId);
 };
 
 const toggleFavorite = (shopDocumentId: string) => {

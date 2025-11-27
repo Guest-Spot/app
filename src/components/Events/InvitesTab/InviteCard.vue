@@ -61,9 +61,9 @@
         v-else-if="isArtist"
         label="View Shop"
         rounded
-        :to="`/shop/${invite.sender.documentId}`"
         flat
         class="bg-block full-width"
+        @click="viewShop"
       />
     </div>
   </div>
@@ -75,6 +75,7 @@ import type { IInvite } from 'src/interfaces/invite';
 import { EReactions } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import useDate from 'src/modules/useDate';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 interface Props {
   invite: IInvite;
@@ -95,6 +96,7 @@ defineEmits<Emits>();
 // Computed properties
 const userStore = useUserStore();
 const { formatTimeAgo } = useDate();
+const { openShopProfile } = useProfileOverlay();
 
 const isArtist = computed(() => userStore.getIsArtist);
 const isSent = computed(() => props.invite.sender.documentId === userStore.getUser?.documentId);
@@ -108,6 +110,12 @@ const getStatusLabel = (status: IInvite['reaction']) => {
     [EReactions.Rejected]: 'Rejected',
   };
   return statusMap[status as keyof typeof statusMap];
+};
+
+const viewShop = () => {
+  if (props.invite.sender.documentId) {
+    openShopProfile(props.invite.sender.documentId);
+  }
 };
 </script>
 

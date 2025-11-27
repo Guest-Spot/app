@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onBeforeMount, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import {
   SearchTabs,
   ShopCard,
@@ -120,6 +120,7 @@ import useArtists from 'src/composables/useArtists';
 import VirtualList from 'src/components/VirtualList.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import type { UserType } from 'src/interfaces/enums';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 // Sort settings
 interface SortSettings {
@@ -129,9 +130,9 @@ interface SortSettings {
 
 // Router
 const route = useRoute();
-const router = useRouter();
 
 const citiesStore = useCitiesStore();
+const { openArtistProfile, openShopProfile } = useProfileOverlay();
 
 // Use composables
 const {
@@ -210,11 +211,11 @@ const artistsTitle = computed(() => {
 });
 
 const selectShop = (shop: IUser) => {
-  void router.push(`/shop/${shop.documentId}`);
+  openShopProfile(shop.documentId);
 };
 
 const selectArtist = (artist: IUser) => {
-  void router.push(`/artist/${artist.documentId}`);
+  openArtistProfile(artist.documentId);
 };
 
 // Load more functions for infinite scroll

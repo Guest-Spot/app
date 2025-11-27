@@ -7,3 +7,5 @@ export { default as ShopInfoDialog } from './ShopInfoDialog.vue';
 export { default as SortDialog } from './SortDialog.vue';
 export { default as TimePickerDialog } from './TimePickerDialog.vue';
 export { default as TripDialog } from './TripDialog.vue';
+export { default as PublicArtistProfileOverlay } from './PublicArtistProfileOverlay.vue';
+export { default as PublicShopProfileOverlay } from './PublicShopProfileOverlay.vue';

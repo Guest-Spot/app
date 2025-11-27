@@ -113,6 +113,7 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { UserType } from 'src/interfaces/enums';
 import NoteStack from 'src/components/Icons/NoteStack.vue';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 interface Props {
   item: IPortfolio;
@@ -136,6 +137,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 const router = useRouter();
 const route = useRoute();
+const { openArtistProfile, openShopProfile } = useProfileOverlay();
 
 const FALLBACK_IMAGE = 'https://via.placeholder.com/400x225';
 const pictures = computed(() => props.item.pictures.map((picture) => picture.url));
@@ -164,11 +166,11 @@ const navigateToOwner = () => {
   if (!props.item.owner) return;
 
   const ownerType = props.item.owner.type;
-  const path = ownerType === UserType.Artist
-    ? `/artist/${props.item.owner.documentId}`
-    : `/shop/${props.item.owner.documentId}`;
-
-  void router.push(path);
+  if (ownerType === UserType.Artist) {
+    openArtistProfile(props.item.owner.documentId);
+  } else {
+    openShopProfile(props.item.owner.documentId);
+  }
 };
 
 const navigateToStyle = (styleName: string) => {

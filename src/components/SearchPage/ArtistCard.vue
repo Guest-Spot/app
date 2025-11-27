@@ -56,10 +56,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useFavorites } from 'src/modules/useFavorites';
 import type { IUser } from 'src/interfaces/user';
 import { VerifiedBadge } from 'src/components';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 interface Props {
   artist: IUser;
@@ -72,9 +72,9 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
-const router = useRouter();
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
+const { openArtistProfile } = useProfileOverlay();
 
 const isFavorite = computed(() => isArtistFavorite(props.artist.documentId));
 
@@ -84,7 +84,7 @@ const toggleFavorite = () => {
 };
 
 const navigateToProfile = () => {
-  void router.push(`/artist/${props.artist.documentId}`);
+  openArtistProfile(props.artist.documentId);
   emit('click', props.artist);
 };
 </script>

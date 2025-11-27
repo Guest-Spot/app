@@ -89,9 +89,9 @@
         v-else
         label="View Artist"
         rounded
-        :to="`/artist/${artist?.documentId}`"
         flat
         class="bg-block full-width"
+        @click="viewArtist"
       />
     </div>
   </div>
@@ -100,10 +100,13 @@
 <script setup lang="ts">
 import { computed, defineComponent } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
+import { useProfileOverlay } from 'src/composables/useProfileOverlay';
 
 defineComponent({
   name: 'BookingCard',
 });
+
+const { openArtistProfile } = useProfileOverlay();
 
 interface Props {
   booking: IBooking;
@@ -144,6 +147,12 @@ const getStatusLabel = (status: IBooking['status']) => {
     completed: 'Completed',
   };
   return statusMap[status];
+};
+
+const viewArtist = () => {
+  if (artist?.documentId) {
+    openArtistProfile(artist.documentId);
+  }
 };
 </script>
 
