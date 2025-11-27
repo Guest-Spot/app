@@ -1,6 +1,13 @@
 <template>
   <div class="public-about-me-tab flex column q-gap-md full-width">
     <InfoCard
+      v-if="workingHours?.length"
+      title="Working Hours"
+      icon="schedule"
+      :data="workingHours"
+      class="opening-times-card"
+    />
+    <InfoCard
       v-if="basicInformation.length"
       title="Basic Information"
       icon="person"
@@ -15,14 +22,17 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
-import { InfoItemType } from 'src/interfaces/enums';
+import { InfoItemType, OpeningHoursDays } from 'src/interfaces/enums';
 import type { IUser } from 'src/interfaces/user';
+import useDate from 'src/modules/useDate';
 
 interface Props {
   artistData: IUser;
 }
 
 const props = defineProps<Props>();
+
+const { formatTime } = useDate();
 
 const basicInformation = computed(() =>
   [
@@ -65,12 +75,62 @@ const contacts = computed(() =>
   ].filter((item) => item.value),
 );
 
-const links = computed(() => [
-  {
-    label: 'Portfolio',
-    value: props.artistData.link || '',
-    type: InfoItemType.Link,
-  },
-].filter((item) => item.value),
+const links = computed(() =>
+  [
+    {
+      label: 'Portfolio',
+      value: props.artistData.link || '',
+      type: InfoItemType.Link,
+    },
+  ].filter((item) => item.value),
 );
+
+const workingHours = computed(() => {
+  const times = [...(props.artistData.openingHours || [])];
+  times.sort((a, b) => {
+    const dayA = a.day;
+    const dayB = b.day;
+    const orderA = Object.keys(OpeningHoursDays).indexOf(dayA);
+    const orderB = Object.keys(OpeningHoursDays).indexOf(dayB);
+    return orderA - orderB;
+  });
+
+  return times.map((time) => ({
+    label: OpeningHoursDays[time.day],
+    value:
+      time.start && time.end ? `${formatTime(time.start)} - ${formatTime(time.end)}` : 'Closed',
+    className: time.start && time.end ? '' : 'opening-times--closed',
+  }));
+});
 </script>
+
+<style scoped lang="scss">
+.opening-times-card {
+  :deep(.info-row) {
+    align-items: center;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--q-primary);
+      opacity: 0.6;
+    }
+
+    &:nth-child(6),
+    &:nth-child(7) {
+      .info-label {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  :deep(.opening-times--closed) {
+    &::before {
+      background-color: var(--text-secondary);
+    }
+  }
+}
+</style>
