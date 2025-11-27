@@ -86,6 +86,7 @@
 
     <!-- Booking Button -->
     <div
+      v-if="artistData?.openingHours?.length"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
