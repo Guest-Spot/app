@@ -29,6 +29,7 @@ export const ME_QUERY = gql`
       stripeAccountID
       payoutsEnabled
       depositAmount
+      chargeDeposit
       verified
       parent {
         documentId
@@ -85,6 +86,7 @@ export const USERS_QUERY = gql`
       stripeAccountID
       payoutsEnabled
       depositAmount
+      chargeDeposit
       verified
       openingHours {
         day
@@ -139,6 +141,7 @@ export const USER_QUERY = gql`
       stripeAccountID
       payoutsEnabled
       depositAmount
+      chargeDeposit
       verified
       openingHours {
         day
@@ -195,6 +198,7 @@ export const UPDATE_USER_MUTATION = gql`
         stripeAccountID
         payoutsEnabled
         depositAmount
+        chargeDeposit
         verified
         openingHours {
           day

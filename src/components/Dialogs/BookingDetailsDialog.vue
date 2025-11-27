@@ -243,6 +243,7 @@ const isArtistEligibleForPayments = computed(() => {
   return (
     settingsStore.getStripeEnabled &&
     artist.value?.payoutsEnabled === true &&
+    artist.value?.chargeDeposit === true &&
     isArtistVerified.value
   );
 });
@@ -273,6 +274,7 @@ const showDeposit = computed(() => {
   return (
     isArtistVerified.value &&
     depositAmount.value !== null &&
+    artist.value?.chargeDeposit === true &&
     (paymentStatus === EBookingPaymentStatus.Paid ||
       paymentStatus === EBookingPaymentStatus.Authorized)
   );
@@ -389,6 +391,7 @@ const canInitiatePayment = computed(() => {
     settingsStore.getStripeEnabled &&
     isArtistVerified.value &&
     artist.value?.payoutsEnabled === true &&
+    artist.value?.chargeDeposit === true &&
     artist.value?.depositAmount !== null
   );
 });

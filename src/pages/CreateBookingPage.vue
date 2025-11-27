@@ -230,7 +230,7 @@ const shouldShowPaymentStep = computed(() => {
   if (
     settingsStore.getStripeEnabled !== true ||
     !isSelectedArtistVerified.value ||
-    !selectedArtist.value?.depositAmount
+    !selectedArtist.value?.chargeDeposit
   ) {
     return false;
   }

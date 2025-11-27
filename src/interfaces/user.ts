@@ -73,6 +73,7 @@ export interface IUser {
   stripeAccountID?: string;
   payoutsEnabled?: boolean;
   depositAmount?: number | null;
+  chargeDeposit?: boolean;
   verified?: boolean;
 }
 
