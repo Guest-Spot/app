@@ -16,7 +16,7 @@
         <q-card-section v-else>
           <div class="flex items-start column q-gap-xs">
             <p>{{ error }}</p>
-            <q-btn push color="primary" label="Try again later" rounded to="/sign-in" />
+            <q-btn push color="primary" label="Try again later" rounded to="/auth" />
           </div>
         </q-card-section>
       </q-card>

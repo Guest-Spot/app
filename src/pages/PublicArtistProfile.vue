@@ -256,7 +256,7 @@ const openShopDialog = () => {
 const goToBookingPage = () => {
   if (!isAuthenticated.value) {
     return router.push({
-      path: '/sign-in',
+      path: '/auth',
     });
   }
   if (!artistData.value.documentId) return;

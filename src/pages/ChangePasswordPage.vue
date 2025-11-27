@@ -195,7 +195,7 @@ const handleChangePassword = async () => {
       form.value.password = '';
       form.value.confirmPassword = '';
       form.value.currentPassword = '';
-      void router.push('/sign-in');
+      void router.push('/auth');
     } else {
       showError(getMutationErrorMessage(result.errors, fallbackMessage));
     }
