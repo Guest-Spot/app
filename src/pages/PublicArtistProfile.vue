@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-4xl': artistData.parent }">
+  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-5xl': isGuest }">
     <div class="container">
       <!-- Back Button -->
       <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
@@ -82,11 +82,19 @@
           <PublicTripsTab :trips="trips" :loading="isLoadingTrips" />
         </div>
       </div>
+    </div>
 
-      <!-- Booking Button -->
-      <div v-if="isGuest && artistData?.parent" class="action-buttons flex justify-center q-mt-lg q-gap-sm">
-        <q-btn round class="bg-block" size="lg" text-color="primary" @click="goToBookingPage">
-          <q-icon name="event" color="primary" />
+    <!-- Booking Button -->
+    <div
+      v-if="isGuest && artistData?.parent"
+      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
+    >
+      <div class="container">
+        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" @click="goToBookingPage">
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="event" />
+            <span class="text-h6">Book</span>
+          </div>
         </q-btn>
       </div>
     </div>
@@ -408,7 +416,9 @@ onBeforeMount(() => {
 
 .action-buttons {
   position: fixed;
-  bottom: 98px;
-  right: 16px;
+  bottom: 0;
+  right: 0;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 </style>

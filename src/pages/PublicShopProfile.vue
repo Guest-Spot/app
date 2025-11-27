@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-4xl': isGuest }">
+  <q-page class="page q-pb-lg flex column items-start q-gap-md" :class="{ 'q-pb-5xl': isGuest }">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -87,18 +87,18 @@
           <PublicShopPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
         </div>
       </div>
-
-      <!-- Action Buttons -->
-      <div v-if="isGuest" class="action-buttons flex justify-center q-gap-sm no-wrap q-mt-lg">
-        <q-btn
-          class="bg-block"
-          text-color="primary"
-          round
-          size="lg"
-          :disable="!shopData.documentId"
-          @click="goToBookingPage"
-        >
-          <q-icon name="event" color="primary" />
+    </div>
+    <!-- Booking Button -->
+    <div
+      v-if="isGuest"
+      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
+    >
+      <div class="container">
+        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" :disable="!shopData.documentId" @click="goToBookingPage">
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="event" />
+            <span class="text-h6">Book</span>
+          </div>
         </q-btn>
       </div>
     </div>
@@ -381,7 +381,9 @@ onBeforeMount(() => {
 
 .action-buttons {
   position: fixed;
-  right: 16px;
-  bottom: 98px;
+  bottom: 0;
+  right: 0;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 </style>

@@ -126,7 +126,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/artist/:documentId',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [
       {
         path: '',
@@ -137,7 +137,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/shop/:documentId',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [
       {
         path: '',
