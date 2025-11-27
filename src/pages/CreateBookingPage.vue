@@ -820,7 +820,6 @@ let initialized = false;
 
 const initializePage = async () => {
   await resetFormState();
-
   if (isArtistSelectionRequired.value) {
     loadArtistsList(true);
     void loadCities();
@@ -938,7 +937,7 @@ onBeforeUnmount(async () => {
 
 .stepper-header {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   padding: 20px 0 16px;
   flex-shrink: 0;
   overflow-x: auto;
