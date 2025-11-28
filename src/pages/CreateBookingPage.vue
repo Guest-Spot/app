@@ -736,8 +736,10 @@ const fetchUser = async () => {
   if (result?.usersPermissionsUser) {
     selectedArtist.value = result?.usersPermissionsUser;
   }
-  if (result?.usersPermissionsUser?.openingHours) {
+  if (result?.usersPermissionsUser?.openingHours?.length) {
     shopOpeningHours.value = result?.usersPermissionsUser.openingHours;
+  } else if (result?.usersPermissionsUser.parent?.openingHours?.length) {
+    shopOpeningHours.value = result?.usersPermissionsUser.parent.openingHours;
   }
 };
 

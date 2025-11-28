@@ -78,7 +78,6 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .tabs-comp {
-  overflow-x: auto;
   padding-top: 8px;
   margin-top: -8px;
 }
