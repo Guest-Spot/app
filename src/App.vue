@@ -10,6 +10,7 @@ import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 import useSettings from 'src/composables/useSettings';
 import useTattooStyles from 'src/modules/useTattooStyles';
+import useNavigationBar from 'src/modules/useNavigationBar';
 import { App } from '@capacitor/app';
 import { useRouter } from 'vue-router';
 
@@ -19,6 +20,7 @@ const { fetchInvites } = useInviteCompos();
 const { fetchNotifies } = useNotifyCompos();
 const { fetchSettings } = useSettings();
 const { fetchStyles } = useTattooStyles();
+const { initNavigationBar } = useNavigationBar();
 const router = useRouter();
 
 const fetchCurrentUser = (): void => {
@@ -43,6 +45,7 @@ onMounted(() => {
   void fetchCurrentUser();
   void fetchSettings();
   void fetchStyles();
+  initNavigationBar();
 
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {

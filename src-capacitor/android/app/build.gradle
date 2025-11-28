@@ -22,6 +22,14 @@ android {
         versionCode 1
         versionName "0.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Google Web Client ID from environment variables or local.properties
+        // Set GOOGLE_WEB_CLIENT_ID in .env file or local.properties
+        def googleWebClientId = localProperties.getProperty('GOOGLE_WEB_CLIENT_ID') ?: 
+                               project.findProperty('GOOGLE_WEB_CLIENT_ID') ?: 
+                               System.getenv('GOOGLE_WEB_CLIENT_ID') ?: 
+                               ''
+        resValue "string", "server_client_id", googleWebClientId
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
@@ -75,11 +83,13 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
+// Apply google-services plugin at the end (required by Firebase)
+// This must be after capacitor.build.gradle to process all dependencies
 try {
     def servicesJSON = file('google-services.json')
-    if (servicesJSON.text) {
+    if (servicesJSON.exists() && servicesJSON.text) {
         apply plugin: 'com.google.gms.google-services'
     }
 } catch(Exception e) {
-    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+    logger.warn("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
