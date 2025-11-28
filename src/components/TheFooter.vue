@@ -107,7 +107,7 @@ const handleClick = (path: string, event: string) => {
 
 <style scoped lang="scss">
 .footer-toolbar {
-  padding: 0 0 24px 0 !important;
+  padding: 0 0 var(safe-area-inset-bottom) 0 !important;
   min-height: auto !important;
 }
 

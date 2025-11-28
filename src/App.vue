@@ -4,6 +4,8 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
+import { useQuasar } from 'quasar';
+import { NavigationBar } from '@capgo/capacitor-navigation-bar';
 import useUser from 'src/modules/useUser';
 import useTokens from 'src/modules/useTokens';
 import useInviteCompos from 'src/composables/useInviteCompos';
@@ -20,6 +22,29 @@ const { fetchNotifies } = useNotifyCompos();
 const { fetchSettings } = useSettings();
 const { fetchStyles } = useTattooStyles();
 const router = useRouter();
+const $q = useQuasar();
+
+const setNavColor = async (isDark: boolean) => {
+  if (!$q.platform.is.capacitor || !$q.platform.is.android) return;
+
+  const color = isDark ? '#1d1d1d' : '#ffffff';
+
+  try {
+    await NavigationBar.setNavigationBarColor({
+      color: color,
+      darkButtons: !isDark,
+    });
+  } catch (e) {
+    console.error('Error setting NavigationBar color', e);
+  }
+};
+
+watch(
+  () => $q.dark.isActive,
+  (val) => {
+    void setNavColor(val);
+  },
+);
 
 const fetchCurrentUser = (): void => {
   const tokens = getStoredTokens();
@@ -43,6 +68,7 @@ onMounted(() => {
   void fetchCurrentUser();
   void fetchSettings();
   void fetchStyles();
+  void setNavColor($q.dark.isActive);
 
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {

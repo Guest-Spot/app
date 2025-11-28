@@ -70,6 +70,11 @@
   resolved "https://registry.npmjs.org/@capacitor/push-notifications/-/push-notifications-7.0.3.tgz"
   integrity sha512-4qt5dRVBkHzq202NEoj3JC+S+zQCrZ1FJh7sjkICy/i1iEos+VaoB3bie8eWDQ2LTARktB4+k2xkdpu8pcVo/g==
 
+"@capgo/capacitor-navigation-bar@^7.3.14":
+  version "7.3.14"
+  resolved "https://registry.npmjs.org/@capgo/capacitor-navigation-bar/-/capacitor-navigation-bar-7.3.14.tgz"
+  integrity sha512-XnfLBEJ400rwz8/FTg+6AhoX/y04UqBY3viT69/1MH4mMGfZ1+6ZG5mhnRpHuaes29lCEbKooc87QJfIgfCzTQ==
+
 "@capgo/capacitor-social-login@^7.14.11":
   version "7.14.11"
   resolved "https://registry.npmjs.org/@capgo/capacitor-social-login/-/capacitor-social-login-7.14.11.tgz"

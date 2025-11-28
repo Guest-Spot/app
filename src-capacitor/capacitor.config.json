@@ -13,7 +13,9 @@
       "*.stripe.com",
       "connect.stripe.com",
       "getguestspot.app/*"
-    ]
+    ],
+    "url": "http://192.168.20.43:9500",
+    "cleartext": true
   },
   "plugins": {
     "App": {
