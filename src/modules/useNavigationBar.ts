@@ -1,6 +1,4 @@
 import { useQuasar } from 'quasar';
-import { NavigationBar } from '@capgo/capacitor-navigation-bar';
-import { StatusBar, Style } from '@capacitor/status-bar';
 import { watch } from 'vue';
 
 export default function useNavigationBar() {
@@ -9,32 +7,29 @@ export default function useNavigationBar() {
   const setColors = async (isDark: boolean) => {
     if (!$q.platform.is.capacitor) return;
 
-    // Navigation Bar (Android only)
+    // Navigation Bar и Status Bar (Android only) - динамический импорт только для Android
     if ($q.platform.is.android) {
-      const navColor = isDark ? '#1d1d1d' : '#ffffff';
       try {
+        const { NavigationBar } = await import('@capgo/capacitor-navigation-bar');
+        const { StatusBar, Style } = await import('@capacitor/status-bar');
+
+        const navColor = isDark ? '#1d1d1d' : '#ffffff';
+        const statusColor = isDark ? '#000000' : '#ffffff';
+
+        // Navigation Bar
         await NavigationBar.setNavigationBarColor({
           color: navColor,
           darkButtons: !isDark,
         });
-      } catch (e) {
-        console.error('Error setting NavigationBar color', e);
-      }
-    }
 
-    // Status Bar (Android & iOS)
-    try {
-      const statusColor = isDark ? '#000000' : '#ffffff';
-
-      if ($q.platform.is.android) {
+        // Status Bar
         await StatusBar.setBackgroundColor({ color: statusColor });
+        await StatusBar.setStyle({
+          style: isDark ? Style.Dark : Style.Light
+        });
+      } catch (e) {
+        console.error('Error setting NavigationBar/StatusBar color', e);
       }
-
-      await StatusBar.setStyle({
-        style: isDark ? Style.Dark : Style.Light
-      });
-    } catch (e) {
-      console.error('Error setting StatusBar color', e);
     }
   };
 
