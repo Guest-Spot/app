@@ -2,7 +2,7 @@
   <div class="shop-card bg-block border-radius-md" @click="$emit('click', shop)">
     <div class="shop-image">
       <ImageCarousel v-if="shopPictures.length" :pictures="shopPictures" />
-      <div v-else class="bg-block border-radius-md shop-image-placeholder">
+      <div v-else class="border-radius-md shop-image-placeholder">
         <q-icon name="no_photography" size="48px" color="grey-9" class="absolute-center" />
       </div>
     </div>
