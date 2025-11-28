@@ -175,8 +175,6 @@ defineExpose({
           top: 0,
           left: 0,
           width: '100%',
-          height: dynamicHeight ? undefined : `${itemHeight}px`,
-          paddingBottom: `${gap}px`,
           transform: `translateY(${virtualRow.start}px)`
         }"
         class="virtual-row"
@@ -187,7 +185,8 @@ defineExpose({
             display: 'grid',
             gridTemplateColumns: `repeat(${columns}, 1fr)`,
             gap: `${gap}px`,
-            height: '100%'
+            height: dynamicHeight ? 'auto' : `${itemHeight}px`,
+            marginBottom: `${gap}px`
           }"
         >
           <div
@@ -228,13 +227,12 @@ defineExpose({
 
 .virtual-row-content {
   width: 100%;
-  height: 100%;
   align-items: start;
 }
 
 .grid-item {
   width: 100%;
-  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
