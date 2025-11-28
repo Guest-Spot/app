@@ -304,7 +304,7 @@ For detailed configuration, see [quasar.config.ts](quasar.config.ts), [Mobile Co
 
 ```bash
 npx @quasar/icongenie generate -m capacitor \
-  -i ./public/logo-white.png \
+  -i ./public/logo-primary.png \
   --png-color 000 \
   --splashscreen-color 000 \
   --splashscreen-icon-ratio 35 \

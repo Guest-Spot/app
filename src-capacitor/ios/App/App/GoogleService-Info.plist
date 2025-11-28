@@ -2,18 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>693188820206-q4giq3bhub2snsh592auiiqbgcm2ov63.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.693188820206-q4giq3bhub2snsh592auiiqbgcm2ov63</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>693188820206-80eoeedvf38kcne0tmfaci442ofotuoa.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBcfxggW0ygrbs3lKlufNlETwGW4JKzzCw</string>
+	<string>AIzaSyDpJCEolerAeb17GzvaWt5dd1p-zjfD3iw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>307874671350</string>
+	<string>693188820206</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.guestspot.app</string>
 	<key>PROJECT_ID</key>
-	<string>guestspot-1eea9</string>
+	<string>comguestspotapp</string>
 	<key>STORAGE_BUCKET</key>
-	<string>guestspot-1eea9.firebasestorage.app</string>
+	<string>comguestspotapp.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:307874671350:ios:ffc36a90a23e2c3c99dad7</string>
+	<string>1:693188820206:ios:23dc5d1d3d9b81d88c47ff</string>
 </dict>
 </plist>

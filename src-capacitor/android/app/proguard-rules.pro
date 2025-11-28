@@ -68,3 +68,8 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
+
+# Keep Firebase Messaging classes
+-keep class com.google.firebase.messaging.** { *; }
+-keep class com.google.firebase.iid.** { *; }
+-dontwarn com.google.firebase.messaging.**
