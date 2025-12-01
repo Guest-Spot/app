@@ -1,369 +1,255 @@
-# 🚀 Mobile Development Setup Guide
+# Mobile Development Setup
 
-This guide will help you set up your Quasar project for mobile development on iOS and Android platforms.
+Complete guide for setting up iOS and Android development with Capacitor.
 
-## 📋 Prerequisites
+---
 
-### System Requirements
+## Prerequisites
 
-#### For Android Development:
-- **macOS** 10.15+ (Catalina or later) or **Windows** 10+ or **Linux** (Ubuntu 18.04+)
-- **Node.js** 18+ and npm/yarn
-- **Java Development Kit (JDK)** 11 or 17
-- **Android Studio** (latest version)
-- **Android SDK** (API level 30+)
+### For Android Development
 
-#### For iOS Development (macOS only):
-- **macOS** 10.15+ (Catalina or later)
-- **Xcode** 14+ from App Store
-- **Xcode Command Line Tools**
-- **iOS Simulator** (included with Xcode)
+- [ ] macOS / Windows / Linux
+- [ ] Node.js 18+
+- [ ] JDK 11 or 17
+- [ ] Android Studio
+- [ ] Android SDK (API 30+)
 
-## 🔧 Step-by-Step Setup
+### For iOS Development (macOS only)
 
-### 1. Install Global Dependencies
+- [ ] macOS 10.15+
+- [ ] Xcode 14+
+- [ ] Command Line Tools
 
-```bash
-# Install Quasar CLI globally
-npm install -g @quasar/cli
+---
 
-# Install Cordova globally (for Cordova approach)
-npm install -g cordova
-
-# Install Capacitor globally (for Capacitor approach)
-npm install -g @capacitor/cli
-```
-
-### 2. Add Mobile Mode to Your Project
-
-#### Option A: Cordova (Recommended for beginners)
-```bash
-# Add Cordova mode to your Quasar project
-yarn mobile:add
-# or
-npm run mobile:add
-```
-
-#### Option B: Capacitor (Modern approach)
-```bash
-# Add Capacitor mode to your Quasar project
-yarn capacitor:add
-# or
-npm run capacitor:add
-```
-
-### 3. Install Platform Dependencies
-
-#### For Android:
-
-1. **Install Android Studio:**
-   - Download from [developer.android.com](https://developer.android.com/studio)
-   - Install and launch Android Studio
-   - Complete the setup wizard
-
-2. **Install Android SDK:**
-   - Open Android Studio → Preferences → Appearance & Behavior → System Settings → Android SDK
-   - Install Android SDK Platform 34 (API level 34)
-   - Install Android SDK Build-Tools 34.0.0
-   - Install Android SDK Platform-Tools
-
-3. **Set Environment Variables:**
-   ```bash
-   # Add to your ~/.zshrc or ~/.bash_profile
-   export ANDROID_HOME=$HOME/Library/Android/sdk
-   export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-   export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
-   
-   # Reload shell configuration
-   source ~/.zshrc
-   ```
-
-4. **Add Android Platform:**
-   ```bash
-   cd src-cordova
-   cordova platform add android
-   cd ..
-   ```
-
-#### For iOS (macOS only):
-
-1. **Install Xcode:**
-   - Download from App Store
-   - Launch Xcode and accept license agreement
-
-2. **Install Command Line Tools:**
-   ```bash
-   xcode-select --install
-   ```
-
-3. **Add iOS Platform:**
-   ```bash
-   cd src-cordova
-   cordova platform add ios
-   cd ..
-   ```
-
-### 4. Verify Installation
+## Step 1: Install Global Tools
 
 ```bash
-# Check Quasar CLI version
-quasar info
-
-# Check Cordova version
-cordova --version
-
-# Check Capacitor version
-npx cap --version
-
-# List available platforms
-cd src-cordova && cordova platform list
-cd src-capacitor && npx cap ls
-```
-
-## 🚀 Development Workflow
-
-### Development Mode
-
-```bash
-# Start development server with mobile mode
-yarn mobile:dev          # Cordova
-yarn capacitor:dev       # Capacitor
-```
-
-### Testing on Device/Emulator
-
-```bash
-# Run on Android
-yarn mobile:run:android      # Cordova
-yarn capacitor:run:android   # Capacitor
-
-# Run on iOS
-yarn mobile:run:ios          # Cordova
-yarn capacitor:run:ios       # Capacitor
-
-# Run on emulator
-yarn mobile:emulate:android  # Android emulator
-yarn mobile:emulate:ios      # iOS simulator
-```
-
-### Building for Production
-
-```bash
-# Build for all platforms
-yarn mobile:build            # Cordova
-yarn capacitor:build         # Capacitor
-
-# Build for specific platform
-yarn mobile:build:android    # Android APK
-yarn mobile:build:ios        # iOS project
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues and Solutions
-
-#### Android Issues:
-
-1. **SDK not found:**
-   ```bash
-   echo $ANDROID_HOME
-   # Should show path to Android SDK
-   # If empty, set environment variable
-   export ANDROID_HOME=$HOME/Library/Android/sdk
-   ```
-
-2. **Build failed with JDK error:**
-   ```bash
-   java -version
-   # Should show Java 11 or 17
-   # Install JDK if needed
-   brew install openjdk@17
-   ```
-
-3. **Emulator not starting:**
-   - Open Android Studio → AVD Manager
-   - Create new virtual device
-   - Start emulator from command line:
-   ```bash
-   $ANDROID_HOME/emulator/emulator -avd YOUR_AVD_NAME
-   ```
-
-#### iOS Issues:
-
-1. **Build failed:**
-   ```bash
-   # Check Xcode installation
-   xcode-select --print-path
-   # Should show /Applications/Xcode.app/Contents/Developer
-   ```
-
-2. **Signing issues:**
-   - Open project in Xcode
-   - Set development team in project settings
-   - Check provisioning profiles
-
-3. **Simulator not working:**
-   - Reset simulator: Xcode → Device → Erase All Content
-   - Check simulator is running before building
-
-#### General Issues:
-
-1. **Mode not found:**
-   ```bash
-   # Re-add mobile mode
-   yarn mobile:add
-   # or
-   yarn capacitor:add
-   ```
-
-2. **Platform not found:**
-   ```bash
-   cd src-cordova
-   cordova platform add android
-   cordova platform add ios
-   cd ..
-   ```
-
-3. **Build errors:**
-   ```bash
-   # Clean and rebuild
-   yarn mobile:clean
-   yarn mobile:build
-   ```
-
-## 📱 Platform-Specific Configuration
-
-### Android Configuration
-
-#### Gradle Configuration:
-```gradle
-// android/app/build.gradle
-android {
-    compileSdkVersion 34
-    buildToolsVersion "34.0.0"
-    
-    defaultConfig {
-        minSdkVersion 22
-        targetSdkVersion 34
-        applicationId "com.yourcompany.guestspot"
-        versionCode 1
-        versionName "1.0.0"
-    }
-}
-```
-
-#### Permissions (android/app/src/main/AndroidManifest.xml):
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-```
-
-### iOS Configuration
-
-#### Info.plist Configuration:
-```xml
-<!-- ios/GuestSpot/Info.plist -->
-<key>NSCameraUsageDescription</key>
-<string>This app needs camera access to take photos</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>This app needs photo library access to select images</string>
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>This app needs location access to show nearby places</string>
-```
-
-#### Build Settings:
-- Deployment Target: iOS 12.0+
-- Development Team: Your Apple Developer Team ID
-- Bundle Identifier: com.yourcompany.guestspot
-
-## 🚀 Publishing to App Stores
-
-### Android (Google Play Store)
-
-1. **Build Release APK:**
-   ```bash
-   yarn mobile:build:android
-   ```
-
-2. **Sign the APK:**
-   ```bash
-   cd src-cordova/platforms/android
-   ./gradlew assembleRelease
-   ```
-
-3. **Upload to Google Play Console:**
-   - Create app in Google Play Console
-   - Upload signed APK or AAB
-   - Complete store listing
-   - Submit for review
-
-### iOS (App Store)
-
-1. **Build iOS Project:**
-   ```bash
-   yarn mobile:build:ios
-   ```
-
-2. **Open in Xcode:**
-   ```bash
-   open src-cordova/platforms/ios/GuestSpot.xcworkspace
-   ```
-
-3. **Archive and Upload:**
-   - Select "Any iOS Device" as target
-   - Product → Archive
-   - Distribute App through App Store Connect
-
-## 📚 Additional Resources
-
-- [Quasar Mobile Development Guide](https://quasar.dev/quasar-cli-vite/developing-mobile-apps/introduction)
-- [Cordova Documentation](https://cordova.apache.org/docs/en/latest/)
-- [Capacitor Documentation](https://capacitorjs.com/docs)
-- [Android Developer Guide](https://developer.android.com/guide)
-- [iOS Developer Guide](https://developer.apple.com/ios/)
-- [Google Play Console](https://play.google.com/console)
-- [App Store Connect](https://appstoreconnect.apple.com/)
-
-## 🧹 Maintenance
-
-### Regular Updates:
-```bash
-# Update Quasar CLI
-npm update -g @quasar/cli
-
-# Update Cordova
-npm update -g cordova
-
-# Update Capacitor
-npm update -g @capacitor/cli
-
-# Update project dependencies
-yarn upgrade
-```
-
-### Clean up:
-```bash
-# Remove mobile mode
-yarn mobile:remove
-# or
-yarn capacitor:remove
-
-# Clean build artifacts
-yarn mobile:clean
+npm install -g @quasar/cli @capacitor/cli
 ```
 
 ---
 
-## 🎯 Next Steps
+## Step 2: Setup Android
 
-1. **Choose your approach**: Cordova or Capacitor
-2. **Follow the setup guide** step by step
-3. **Test on device/emulator** before building
-4. **Configure platform-specific settings**
-5. **Build and test thoroughly**
-6. **Prepare for app store submission**
+### 2.1 Install Android Studio
 
-For any issues, check the troubleshooting section or refer to the official documentation.
+Download from [developer.android.com/studio](https://developer.android.com/studio)
+
+### 2.2 Install SDK Components
+
+Open Android Studio → **Preferences** → **Android SDK**:
+
+- [ ] Android SDK Platform 34
+- [ ] Android SDK Build-Tools 34.0.0
+- [ ] Android SDK Platform-Tools
+
+### 2.3 Set Environment Variables
+
+Add to your `~/.zshrc` or `~/.bash_profile`:
+
+```bash
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+```
+
+Then reload:
+
+```bash
+source ~/.zshrc
+```
+
+### 2.4 Add Android Platform
+
+```bash
+cd src-capacitor
+npx cap add android
+```
+
+---
+
+## Step 3: Setup iOS (macOS only)
+
+### 3.1 Install Xcode
+
+Download from App Store
+
+### 3.2 Install Command Line Tools
+
+```bash
+xcode-select --install
+```
+
+### 3.3 Add iOS Platform
+
+```bash
+cd src-capacitor
+npx cap add ios
+```
+
+---
+
+## Step 4: Verify Installation
+
+```bash
+# Check versions
+quasar info
+npx cap --version
+
+# Check platforms
+cd src-capacitor
+npx cap ls
+```
+
+---
+
+## Development Commands
+
+| Action | Command |
+|--------|---------|
+| Dev mode | `npm run capacitor:dev` |
+| Run on Android | `npm run capacitor:run:android` |
+| Run on iOS | `npm run capacitor:run:ios` |
+| Build | `npm run capacitor:build` |
+| Sync | `npx cap sync` |
+| Open Android Studio | `npx cap open android` |
+| Open Xcode | `npx cap open ios` |
+
+---
+
+## Project Configuration
+
+### capacitor.config.json
+
+Located at `src-capacitor/capacitor.config.json`:
+
+```json
+{
+  "appId": "com.guestspot.app",
+  "appName": "GuestSpot",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "backgroundColor": "#ffffff"
+    },
+    "StatusBar": {
+      "style": "dark"
+    }
+  }
+}
+```
+
+### quasar.config.ts
+
+Mobile config is minimal in Quasar v2:
+
+```typescript
+capacitor: {
+  hideSplashscreen: true,
+}
+```
+
+> **Note:** Detailed settings are in `src-capacitor/capacitor.config.json`
+
+---
+
+## Adding Plugins
+
+```bash
+# Install plugin
+npm install @capacitor/camera
+
+# Sync with native projects
+npx cap sync
+```
+
+### Common Plugins
+
+```bash
+npm install @capacitor/app
+npm install @capacitor/camera
+npm install @capacitor/device
+npm install @capacitor/filesystem
+npm install @capacitor/geolocation
+npm install @capacitor/haptics
+npm install @capacitor/keyboard
+npm install @capacitor/push-notifications
+npm install @capacitor/splash-screen
+npm install @capacitor/status-bar
+```
+
+---
+
+## Troubleshooting
+
+### "Platform not found"
+
+```bash
+cd src-capacitor
+npx cap add android  # or ios
+```
+
+### "Plugin not found"
+
+```bash
+npm install @capacitor/[plugin-name]
+npx cap sync
+```
+
+### Android: SDK not found
+
+```bash
+echo $ANDROID_HOME
+# Should show: /Users/[you]/Library/Android/sdk
+# If empty, set environment variable
+```
+
+### Android: Build failed with JDK error
+
+```bash
+java -version
+# Should show Java 11 or 17
+brew install openjdk@17
+```
+
+### iOS: Signing issues
+
+1. Open project in Xcode: `npx cap open ios`
+2. Set development team in project settings
+3. Check provisioning profiles
+
+### General: Sync issues
+
+```bash
+# Full rebuild
+npx cap sync
+npx cap copy
+```
+
+---
+
+## Debug Commands
+
+```bash
+# Check health
+npx cap doctor
+
+# List platforms
+npx cap ls
+
+# Sync project
+npx cap sync
+
+# Copy web assets only
+npx cap copy
+```
+
+---
+
+## Next Steps
+
+- [Android Build Guide](./ANDROID_BUILD.md) - Build APK/AAB for release
+- [Google Auth Setup](./GOOGLE_AUTH_SETUP.md) - Configure Google Sign-In
+- [Push Notifications](./FIREBASE_PUSH_NOTIFICATIONS_SETUP.md) - Setup Firebase FCM
