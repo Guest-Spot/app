@@ -16,16 +16,17 @@ export default function useNavigationBar() {
         const navColor = isDark ? '#1d1d1d' : '#ffffff';
         const statusColor = isDark ? '#000000' : '#ffffff';
 
+        // Status Bar
+        await StatusBar.setOverlaysWebView({ overlay: false });
+        await StatusBar.setBackgroundColor({ color: statusColor });
+        await StatusBar.setStyle({
+          style: isDark ? Style.Dark : Style.Light
+        });
+
         // Navigation Bar
         await NavigationBar.setNavigationBarColor({
           color: navColor,
           darkButtons: !isDark,
-        });
-
-        // Status Bar
-        await StatusBar.setBackgroundColor({ color: statusColor });
-        await StatusBar.setStyle({
-          style: isDark ? Style.Dark : Style.Light
         });
       } catch (e) {
         console.error('Error setting NavigationBar/StatusBar color', e);

@@ -126,7 +126,5 @@
 	<array>
 		<string>applinks:getguestspot.app</string>
 	</array>
-	<key>UIStatusBarHidden</key>
-	<true/>
 </dict>
 </plist>
