@@ -174,7 +174,14 @@ const statusIcon = computed(() => {
 });
 
 const handleClick = () => {
-  void router.push({ path: '/events', query: { tab: 'invites' } });
+  const inviteId = inviteBody.value.documentId;
+  const query: Record<string, string> = { tab: 'invites' };
+
+  if (typeof inviteId === 'string') {
+    query.inviteId = inviteId;
+  }
+
+  void router.push({ path: '/events', query });
 };
 </script>
 

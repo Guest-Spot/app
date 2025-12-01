@@ -30,6 +30,7 @@
           <InviteCard
             v-for="invite in sentInvites"
             :key="`sent-${invite.documentId}`"
+            :id="`invite-${invite.documentId}`"
             :invite="invite"
             @cancel="cancelInvite"
           />
@@ -50,6 +51,7 @@
           <InviteCard
             v-for="invite in receivedInvites"
             :key="`received-${invite.documentId}`"
+            :id="`invite-${invite.documentId}`"
             :invite="invite"
             :loading-accept="loadingAccept && invite.documentId === updatingInviteDocumentId"
             :loading-reject="loadingReject && invite.documentId === updatingInviteDocumentId"
@@ -64,7 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount, watch, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { IInvite } from 'src/interfaces/invite';
 import InviteCard from 'src/components/Events/InvitesTab/InviteCard.vue';
@@ -84,6 +87,7 @@ defineOptions({
 });
 
 const $q = useQuasar();
+const route = useRoute();
 const { showSuccess, showError } = useNotify();
 const invitesStore = useInvitesStore();
 const userStore = useUserStore();
@@ -242,6 +246,26 @@ onUpdateInviteError((error) => {
 onBeforeMount(() => {
   void fetchInvites();
 });
+
+watch(
+  () => invitesStore.getInvites,
+  () => {
+    const inviteId = route.query.inviteId as string | undefined;
+    if (inviteId) {
+      void nextTick(() => {
+        const el = document.getElementById(`invite-${inviteId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('highlight-invite');
+          setTimeout(() => {
+            el.classList.remove('highlight-invite');
+          }, 2000);
+        }
+      });
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped lang="scss">
@@ -282,6 +306,19 @@ onBeforeMount(() => {
     .invites-grid {
       display: grid;
       gap: 16px;
+    }
+
+    .highlight-invite {
+      animation: highlight 2s ease-out;
+    }
+
+    @keyframes highlight {
+      0% {
+        box-shadow: 0 0 0 2px var(--q-primary);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+      }
     }
   }
 }

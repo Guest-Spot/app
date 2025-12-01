@@ -1,159 +1,104 @@
-# 🔔 Настройка Push-уведомлений в Firebase Console
+# Push Notifications Setup
 
-Пошаговая инструкция по настройке Firebase Cloud Messaging (FCM) для Android и iOS.
+Guide for setting up Firebase Cloud Messaging (FCM) for push notifications.
 
-## 📋 Текущая конфигурация проекта
+---
 
-- **Firebase Project ID**: `comguestspotapp`
-- **Project Number**: `693188820206`
-- **Android Package**: `com.guestspot.app`
-- **iOS Bundle ID**: `com.guestspot.app`
+## Project Info
 
-## 🔧 Шаг 1: Проверка регистрации приложений
+- **Firebase Project ID:** `comguestspotapp`
+- **Package/Bundle ID:** `com.guestspot.app`
 
-### 1.1 Откройте Firebase Console
-1. Перейдите на https://console.firebase.google.com/
-2. Выберите проект **comguestspotapp**
+---
 
-### 1.2 Проверьте Android приложение
-1. Перейдите в **⚙️ Project settings** (шестеренка вверху)
-2. Прокрутите до раздела **Your apps**
-3. Убедитесь, что Android приложение зарегистрировано:
-   - **Package name**: `com.guestspot.app`
-   - **App ID**: `1:693188820206:android:a73ac7c9b39f05ec8c47ff`
-4. Если приложения нет — добавьте его:
-   - Нажмите **Add app** → **Android**
-   - Введите Package name: `com.guestspot.app`
-   - Скачайте `google-services.json` и замените файл в `src-capacitor/android/app/`
+## Step 1: Register Apps in Firebase
 
-### 1.3 Проверьте iOS приложение
-1. В том же разделе **Your apps** проверьте iOS приложение:
-   - **Bundle ID**: `com.guestspot.app`
-   - **App ID**: `1:693188820206:ios:23dc5d1d3d9b81d88c47ff`
-2. Если приложения нет — добавьте его:
-   - Нажмите **Add app** → **iOS**
-   - Введите Bundle ID: `com.guestspot.app`
-   - Скачайте `GoogleService-Info.plist` и замените файл в `src-capacitor/ios/App/App/`
+### 1.1 Open Firebase Console
 
-## 🔔 Шаг 2: Настройка Cloud Messaging
+Go to [Firebase Console](https://console.firebase.google.com) → Select project `comguestspotapp`
 
-### 2.1 Включите Cloud Messaging API
-1. Перейдите в **⚙️ Project settings** → **Cloud Messaging**
-2. Убедитесь, что Cloud Messaging включен
-3. Если не включен — нажмите **Enable**
+### 1.2 Add Android App
 
-### 2.2 Получите Server Key (для отправки с бэкенда)
-1. В разделе **Cloud Messaging** найдите:
-   - **Cloud Messaging API (Legacy)** — Server key
-   - Или создайте **Service Account** (рекомендуется)
+1. Click **⚙️ Project settings** → **Your apps** → **Add app** → **Android**
+2. Package name: `com.guestspot.app`
+3. Download `google-services.json`
+4. Place at `src-capacitor/android/app/google-services.json`
 
-#### Вариант A: Server Key (Legacy)
-1. Найдите **Server key** в разделе Cloud Messaging
-2. Скопируйте ключ (начинается с `AAAA...`)
-3. Сохраните его на бэкенде для отправки уведомлений
+### 1.3 Add iOS App
 
-#### Вариант B: Service Account (рекомендуется)
-1. Перейдите в **⚙️ Project settings** → **Service accounts**
-2. Нажмите **Generate new private key**
-3. Скачайте JSON-файл с ключами
-4. Используйте этот файл на бэкенде (например, с `firebase-admin` SDK)
+1. Click **Add app** → **iOS**
+2. Bundle ID: `com.guestspot.app`
+3. Download `GoogleService-Info.plist`
+4. Place at `src-capacitor/ios/App/App/GoogleService-Info.plist`
 
-## 📱 Шаг 3: Настройка iOS (APNs)
+---
 
-### 3.1 Загрузите APNs сертификат/ключ
-Для iOS нужен APNs (Apple Push Notification service) сертификат:
+## Step 2: Enable Cloud Messaging
 
-1. **В Firebase Console**:
-   - Перейдите в **⚙️ Project settings** → **Cloud Messaging** → **Apple app configuration**
-   - Найдите раздел **APNs Authentication Key** или **APNs Certificates**
+1. **⚙️ Project settings** → **Cloud Messaging**
+2. Ensure Cloud Messaging API is enabled
 
-2. **Создайте APNs Key в Apple Developer**:
-   - Перейдите на https://developer.apple.com/account/resources/authkeys/list
-   - Нажмите **+** для создания нового ключа
-   - Выберите **Apple Push Notifications service (APNs)**
-   - Скачайте `.p8` файл (сохраните Key ID)
-   - Загрузите ключ в Firebase Console:
-     - **APNs Authentication Key**: загрузите `.p8` файл
-     - **Key ID**: введите ID ключа
-     - **Team ID**: введите ваш Apple Team ID
+---
 
-### 3.2 Альтернатива: APNs Certificate
-Если используете сертификат вместо ключа:
-1. Создайте сертификат в Apple Developer Portal
-2. Экспортируйте как `.p12` файл
-3. Загрузите в Firebase Console
+## Step 3: Setup iOS APNs
 
-## ✅ Шаг 4: Проверка конфигурации
+Apple Push Notifications require additional setup for iOS.
 
-### 4.1 Проверьте файлы конфигурации
+### 3.1 Create APNs Key
 
-**Android** (`src-capacitor/android/app/google-services.json`):
-```json
-{
-  "project_info": {
-    "project_id": "comguestspotapp",
-    "project_number": "693188820206"
-  },
-  "client": [{
-    "client_info": {
-      "android_client_info": {
-        "package_name": "com.guestspot.app"
-      }
-    }
-  }]
-}
-```
+1. Go to [Apple Developer Portal](https://developer.apple.com/account/resources/authkeys/list)
+2. Click **+** to create new key
+3. Select **Apple Push Notifications service (APNs)**
+4. Download `.p8` file
+5. Note the **Key ID**
 
-**iOS** (`src-capacitor/ios/App/App/GoogleService-Info.plist`):
-- `PROJECT_ID`: `comguestspotapp`
-- `BUNDLE_ID`: `com.guestspot.app`
-- `GCM_SENDER_ID`: `693188820206`
+### 3.2 Upload to Firebase
 
-### 4.2 Проверьте разрешения в AndroidManifest.xml
-Убедитесь, что есть разрешение:
+1. **⚙️ Project settings** → **Cloud Messaging** → **Apple app configuration**
+2. Upload `.p8` file
+3. Enter **Key ID**
+4. Enter **Team ID** (from Apple Developer account)
+
+---
+
+## Step 4: Add Android Permission
+
+In `src-capacitor/android/app/src/main/AndroidManifest.xml`:
+
 ```xml
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 ```
 
-## 🧪 Шаг 5: Тестирование
+---
 
-### 5.1 Тестовая отправка через Firebase Console
-1. Перейдите в **Cloud Messaging** → **Send your first message**
-2. Введите:
-   - **Notification title**: "Test Notification"
-   - **Notification text**: "This is a test"
-3. Нажмите **Send test message**
-4. Введите **FCM registration token** вашего устройства
-5. Нажмите **Test**
+## Step 5: Sync and Test
 
-### 5.2 Как получить FCM token
-1. Запустите приложение на устройстве
-2. Проверьте логи в консоли разработчика:
-   - Должно быть сообщение: `Push notification token registered`
-   - Токен будет отправлен на бэкенд через `/api/device-tokens`
-3. Или добавьте временный лог в `usePushNotifications.ts`:
-   ```typescript
-   PushNotifications.addListener('registration', (token: Token) => {
-     console.log('FCM Token:', token.value);
-   });
-   ```
+```bash
+npx cap sync
+```
 
-### 5.3 Проверка работы на устройстве
-1. **Android**:
-   - Убедитесь, что разрешение на уведомления предоставлено
-   - Проверьте, что канал `guestspot-default` создан
-   - Отправьте тестовое уведомление
+### Send Test Notification
 
-2. **iOS**:
-   - Убедитесь, что разрешение на уведомления предоставлено
-   - Проверьте, что APNs настроен
-   - Отправьте тестовое уведомление
+1. Firebase Console → **Cloud Messaging** → **Send your first message**
+2. Enter title and text
+3. Click **Send test message**
+4. Enter device FCM token
+5. Click **Test**
 
-## 🔐 Шаг 6: Настройка бэкенда
+### Get FCM Token
 
-### 6.1 Использование Server Key
+Check console logs after app starts. Look for:
+```
+Push notification token registered: [token]
+```
+
+---
+
+## Backend Integration
+
+### Option A: Legacy Server Key
+
 ```javascript
-// Пример отправки через HTTP API
 const response = await fetch('https://fcm.googleapis.com/fcm/send', {
   method: 'POST',
   headers: {
@@ -163,69 +108,61 @@ const response = await fetch('https://fcm.googleapis.com/fcm/send', {
   body: JSON.stringify({
     to: 'DEVICE_FCM_TOKEN',
     notification: {
-      title: 'Notification Title',
-      body: 'Notification Body'
+      title: 'Hello',
+      body: 'World'
     }
   })
 });
 ```
 
-### 6.2 Использование Service Account (рекомендуется)
+### Option B: Firebase Admin SDK (Recommended)
+
 ```javascript
-// Node.js с firebase-admin
 const admin = require('firebase-admin');
-const serviceAccount = require('./path/to/serviceAccountKey.json');
+const serviceAccount = require('./serviceAccountKey.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-const message = {
-  notification: {
-    title: 'Notification Title',
-    body: 'Notification Body'
-  },
+admin.messaging().send({
+  notification: { title: 'Hello', body: 'World' },
   token: 'DEVICE_FCM_TOKEN'
-};
-
-admin.messaging().send(message);
+});
 ```
 
-## 📝 Чеклист настройки
+Get service account key: **⚙️ Project settings** → **Service accounts** → **Generate new private key**
 
-- [ ] Android приложение зарегистрировано в Firebase
-- [ ] iOS приложение зарегистрировано в Firebase
-- [ ] Cloud Messaging API включен
-- [ ] Server Key или Service Account получен
-- [ ] APNs ключ/сертификат загружен для iOS
-- [ ] `google-services.json` обновлен для Android
-- [ ] `GoogleService-Info.plist` обновлен для iOS
-- [ ] Разрешение `POST_NOTIFICATIONS` добавлено в AndroidManifest.xml
-- [ ] Тестовое уведомление отправлено успешно
+---
 
-## 🚨 Частые проблемы
+## Troubleshooting
 
-### Проблема: Уведомления не приходят на Android
-**Решение**:
-1. Проверьте, что разрешение предоставлено (Android 13+)
-2. Убедитесь, что канал уведомлений создан
-3. Проверьте логи: `adb logcat | grep -i firebase`
+### Notifications not received on Android
 
-### Проблема: Уведомления не приходят на iOS
-**Решение**:
-1. Проверьте, что APNs настроен в Firebase Console
-2. Убедитесь, что используется правильный Bundle ID
-3. Проверьте, что разрешение на уведомления предоставлено
-4. Для production нужен production APNs сертификат/ключ
+1. Check notification permission is granted (Android 13+)
+2. Verify `google-services.json` is in place
+3. Check logs: `adb logcat | grep -i firebase`
 
-### Проблема: Token не регистрируется
-**Решение**:
-1. Проверьте, что Firebase инициализирован в `MainActivity` (Android)
-2. Проверьте, что Firebase настроен в `AppDelegate` (iOS)
-3. Убедитесь, что `google-services.json` / `GoogleService-Info.plist` актуальны
+### Notifications not received on iOS
 
-## 📚 Дополнительные ресурсы
+1. Verify APNs key is uploaded to Firebase
+2. Check Bundle ID matches
+3. Ensure notification permission is granted
 
-- [Firebase Cloud Messaging Documentation](https://firebase.google.com/docs/cloud-messaging)
-- [Capacitor Push Notifications Plugin](https://capacitorjs.com/docs/apis/push-notifications)
-- [Android Notification Channels](https://developer.android.com/develop/ui/views/notifications/channels)
+### Token not registered
+
+1. Verify Firebase is initialized
+2. Check config files are in correct locations
+3. Run `npx cap sync`
+
+---
+
+## Checklist
+
+- [ ] Android app registered in Firebase
+- [ ] iOS app registered in Firebase  
+- [ ] `google-services.json` in `android/app/`
+- [ ] `GoogleService-Info.plist` in `ios/App/App/`
+- [ ] APNs key uploaded for iOS
+- [ ] `POST_NOTIFICATIONS` permission added
+- [ ] Test notification sent successfully

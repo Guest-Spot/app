@@ -138,6 +138,8 @@ watch(
 watch(
   () => route.query,
   (newQuery) => {
+    if (route.name !== 'Feed') return;
+
     const newStyles = newQuery.styles
       ? ((Array.isArray(newQuery.styles)
           ? newQuery.styles
