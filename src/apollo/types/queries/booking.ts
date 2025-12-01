@@ -32,6 +32,7 @@ export const BOOKINGS_QUERY = gql`
         chargeDeposit
         payoutsEnabled
         verified
+        email
         avatar {
           url
         }
@@ -43,6 +44,7 @@ export const BOOKINGS_QUERY = gql`
       owner {
         documentId
         name
+        email
         avatar {
           url
         }

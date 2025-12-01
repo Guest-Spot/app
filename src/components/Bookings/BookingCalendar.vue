@@ -88,7 +88,7 @@
                   <!-- Event Info -->
                   <div class="event-info flex-1">
                     <div class="event-meta">
-                      <div class="flex items-center q-gap-xs q-mb-xs">
+                      <div class="event-name flex items-center no-wrap q-gap-xs q-mb-xs">
                         <q-icon name="person" size="14px" />
                         <span class="text-bold">{{ getDisplayName(booking) }}</span>
                       </div>
@@ -557,10 +557,10 @@ const getDisplayAvatarUrl = (booking: IBooking): string | null => {
 
 const getDisplayName = (booking: IBooking): string => {
   if (isArtist.value) {
-    return booking.owner?.name || 'Owner';
+    return booking.owner?.name || booking.owner?.email || 'Owner';
   }
 
-  return booking.artist?.name || 'Artist';
+  return booking.artist?.name || booking.artist?.email || 'Artist';
 };
 
 const getReactionLabel = (reaction?: EReactions | null): string => {
@@ -730,6 +730,14 @@ onMounted(() => {
               margin-top: 4px;
             }
           }
+        }
+
+        .event-name {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 120px;
+          white-space: nowrap;
         }
 
         .events-list {
