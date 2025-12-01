@@ -212,6 +212,23 @@ watch(
         selectedBooking.value = { ...updatedSelected };
       }
     }
+
+    // Check for bookingId in query params and open details if found
+    const bookingId = route.query.bookingId as string | undefined;
+    if (bookingId && !showDetailsDialog.value) {
+      const booking = internalBookings.value.find((b) => b.documentId === bookingId);
+      if (booking) {
+        openBookingDetails(booking);
+        // Also move calendar to that date if possible
+        if (booking.day) {
+          const bookingDate = new Date(booking.day);
+          if (!Number.isNaN(bookingDate.getTime())) {
+             currentDate.value = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), 1);
+             hasInitializedDate.value = true;
+          }
+        }
+      }
+    }
   },
   { immediate: true, deep: true },
 );
@@ -276,7 +293,7 @@ const previousAvailableMonth = computed<Date | null>(() => {
   );
 
   if (currentIndex > 0) {
-    return availableMonths.value[currentIndex - 1];
+    return availableMonths.value[currentIndex - 1] ?? null;
   }
 
   if (currentIndex === -1) {
@@ -285,7 +302,7 @@ const previousAvailableMonth = computed<Date | null>(() => {
     );
 
     if (candidates.length) {
-      return candidates[candidates.length - 1];
+      return candidates[candidates.length - 1] ?? null;
     }
   }
 
@@ -303,7 +320,7 @@ const nextAvailableMonth = computed<Date | null>(() => {
   );
 
   if (currentIndex >= 0 && currentIndex < availableMonths.value.length - 1) {
-    return availableMonths.value[currentIndex + 1];
+    return availableMonths.value[currentIndex + 1] ?? null;
   }
 
   if (currentIndex === -1) {

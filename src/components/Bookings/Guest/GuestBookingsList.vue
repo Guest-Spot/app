@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
+import { useRoute } from 'vue-router';
 import type { IBooking, IBookingsQueryResponse } from 'src/interfaces/booking';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 import GuestBookingCard from './GuestBookingCard.vue';
@@ -62,6 +63,7 @@ import { EReactions } from 'src/interfaces/enums';
 import useStripe from 'src/composables/useStripe';
 
 const userStore = useUserStore();
+const route = useRoute();
 const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 
 const { result, loading, refetch } = useQuery<IBookingsQueryResponse>(
@@ -200,6 +202,17 @@ watch(
   (newBookings) => {
     if (newBookings) {
       bookings.value = newBookings;
+
+      // Check for bookingId in query params and open details if found
+      const bookingId = route.query.bookingId;
+      if (typeof bookingId === 'string' && bookingId && !showDetailsDialog.value) {
+        const booking = bookings.value.find((b) => b.documentId === bookingId);
+        if (booking) {
+          openBookingDetails(booking);
+          // Optional: clear query param after opening
+          // void router.replace({ query: { ...route.query, bookingId: undefined } });
+        }
+      }
     }
   },
   { immediate: true },
