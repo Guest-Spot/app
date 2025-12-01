@@ -176,7 +176,7 @@ const statusIcon = computed(() => {
 const handleClick = () => {
   const inviteId = inviteBody.value.documentId;
   const query: Record<string, string> = { tab: 'invites' };
-  
+
   if (typeof inviteId === 'string') {
     query.inviteId = inviteId;
   }
