@@ -8,11 +8,11 @@
       :style="overlayStyle"
       v-touch-pan.right.prevent.mouse="handleSwipePan"
     >
-      <div class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
+      <div class="page q-pb-lg flex column items-start q-gap-md">
         <div class="container">
           <!-- Close Button -->
           <q-btn round flat @click="closeOverlay" class="bg-block absolute-top-left q-z-2 back-btn">
-            <q-icon name="close" size="24px" />
+            <q-icon name="chevron_left" size="24px" />
           </q-btn>
 
           <!-- Action Buttons -->
@@ -92,29 +92,27 @@
             </div>
           </div>
         </div>
-
-        <!-- Booking Button -->
-        <div
-          v-if="artistData?.openingHours?.length"
-          class="action-buttons full-width bg-block flex justify-center q-gap-sm"
-        >
-          <div class="container">
-            <q-btn
-              rounded
-              class="full-width q-py-sm q-mb-lg q-mt-md"
-              color="primary"
-              @click="goToBookingPage"
-            >
-              <div class="flex items-center justify-center q-gap-sm">
-                <q-icon name="event" />
-                <span class="text-h6">Book</span>
-              </div>
-            </q-btn>
-          </div>
-        </div>
-
         <!-- Shop Info Dialog -->
         <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
+      </div>
+      <!-- Booking Button -->
+      <div
+        v-if="artistData?.openingHours?.length"
+        class="action-buttons full-width bg-block flex justify-center q-gap-sm"
+      >
+        <div class="container">
+          <q-btn
+            rounded
+            class="full-width q-py-sm q-mb-lg q-mt-md"
+            color="primary"
+            @click="goToBookingPage"
+          >
+            <div class="flex items-center justify-center q-gap-sm">
+              <q-icon name="event" />
+              <span class="text-h6">Book</span>
+            </div>
+          </q-btn>
+        </div>
       </div>
     </div>
   </Teleport>
@@ -515,12 +513,11 @@ onBeforeUnmount(() => {
   height: 100%;
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
-  padding-bottom: 130px;
   box-sizing: border-box;
   touch-action: pan-y;
-  border-radius: 16px;
   will-change: transform;
   z-index: 9999;
+  background: var(--q-dark-page);
 }
 
 .back-btn {
@@ -587,7 +584,7 @@ onBeforeUnmount(() => {
 }
 
 .action-buttons {
-  position: fixed;
+  position: sticky;
   bottom: 0;
   right: 0;
   border-top-left-radius: 32px;
