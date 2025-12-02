@@ -152,6 +152,11 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/store-redirect',
+    component: () => import('layouts/SimpleLayout.vue'),
+    children: [{ path: '', component: () => import('pages/StoreRedirect.vue') }],
+  },
 
   // Always leave this as last one,
   // but you can also remove it
