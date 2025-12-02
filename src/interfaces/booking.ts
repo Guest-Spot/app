@@ -28,13 +28,13 @@ export interface IBooking {
   shopDocumentId?: string | null;
   references: IPicture[];
   artist?:
-    | (Pick<IUser, 'documentId' | 'name' | 'city' | 'experience' | 'payoutsEnabled' | 'depositAmount' | 'verified' | 'chargeDeposit'> & {
+    | (Pick<IUser, 'documentId' | 'name' | 'email' | 'city' | 'experience' | 'payoutsEnabled' | 'depositAmount' | 'verified' | 'chargeDeposit'> & {
         avatar?: IPicture | null;
         parent?: Pick<IUser, 'documentId' | 'name'> | null;
       })
     | null;
   owner?:
-    | (Pick<IUser, 'documentId' | 'name'> & {
+    | (Pick<IUser, 'documentId' | 'name' | 'email'> & {
         avatar?: IPicture | null;
       })
     | null;

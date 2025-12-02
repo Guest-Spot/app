@@ -185,6 +185,22 @@ else
     print_warning "This may indicate that obfuscation was not applied properly"
 fi
 
+# Check for native debug symbols
+NATIVE_DEBUG_SYMBOLS_PATH="src-capacitor/android/app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip"
+if [ -f "$NATIVE_DEBUG_SYMBOLS_PATH" ]; then
+    print_status "✅ Native debug symbols created successfully!"
+    print_status "📁 Location: $NATIVE_DEBUG_SYMBOLS_PATH"
+    
+    # Copy to temp directory for easy access
+    cp "$NATIVE_DEBUG_SYMBOLS_PATH" "temp/native-debug-symbols.zip"
+    print_status "📋 Native debug symbols copied to: temp/native-debug-symbols.zip"
+    print_status "💡 Native debug symbols are automatically included in AAB bundle"
+    print_status "💡 If needed, you can also upload native-debug-symbols.zip to Google Play Console"
+else
+    print_status "ℹ️  Native debug symbols are included in AAB bundle automatically"
+    print_status "ℹ️  The AAB file contains native debug symbols for crash analysis"
+fi
+
 print_status "🎉 Build process completed successfully!"
 print_status "The AAB file is ready for Google Play Store upload"
 print_status "The APK file is ready for local testing"

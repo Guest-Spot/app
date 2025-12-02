@@ -76,6 +76,7 @@
               </q-btn>
 
               <q-btn
+                v-if="isIos"
                 class="social-btn full-width"
                 unelevated
                 rounded
@@ -190,7 +191,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
@@ -205,6 +207,7 @@ import {
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
 const route = useRoute();
+const $q = useQuasar();
 const { login, isAuthenticated, fetchMe } = useUser();
 
 const loading = ref(false);
@@ -220,6 +223,8 @@ const form = ref({
 const { initializeGoogleAuth, handleGoogleSignIn } = useGoogleAuth({
   loadingRef: googleLoading,
 });
+
+const isIos = computed(() => $q.platform.is.ios);
 
 const goBack = () => {
   void router.push('/');

@@ -121,7 +121,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+	<false/>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:getguestspot.app</string>

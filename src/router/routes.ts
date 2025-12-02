@@ -83,13 +83,15 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
+        name: 'Index',
         component: () => import('pages/IndexPage.vue'),
         meta: { title: 'Search Page', saveScrollPosition: true },
       },
       {
         path: 'feed',
+        name: 'Feed',
         component: () => import('pages/FeedPage.vue'),
-        meta: { title: 'Feed', saveScrollPosition: true },
+        meta: { title: 'Feed', saveScrollPosition: true, keepAlive: true },
       },
       {
         path: 'bookmarks',

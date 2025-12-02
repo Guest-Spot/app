@@ -1,89 +1,90 @@
-# 🚀 Quick Start - Mobile Development
+# Quick Start
 
-## ⚡ Fast Setup (5 minutes)
-
-### 1. Install Global Tools
-```bash
-npm install -g @quasar/cli cordova @capacitor/cli
-```
-
-### 2. Add Mobile Mode
-```bash
-# Choose one approach:
-
-# Option A: Cordova (easier for beginners)
-yarn mobile:add
-
-# Option B: Capacitor (modern approach)
-yarn capacitor:add
-```
-
-### 3. Add Platforms
-```bash
-# For Cordova:
-cd src-cordova
-cordova platform add android
-cordova platform add ios
-cd ..
-
-# For Capacitor:
-npx cap add android
-npx cap add ios
-```
-
-### 4. Start Development
-```bash
-# Cordova:
-yarn mobile:dev
-
-# Capacitor:
-yarn capacitor:dev
-```
-
-## 📱 Essential Commands
-
-| Action | Cordova | Capacitor |
-|--------|---------|-----------|
-| **Dev Mode** | `yarn mobile:dev` | `yarn capacitor:dev` |
-| **Run Android** | `yarn mobile:run:android` | `yarn capacitor:run:android` |
-| **Run iOS** | `yarn mobile:run:ios` | `yarn capacitor:run:ios` |
-| **Build** | `yarn mobile:build` | `yarn capacitor:build` |
-| **Clean** | `yarn mobile:clean` | `yarn capacitor:clean` |
-
-## 🔧 Requirements Checklist
-
-### Android
-- [ ] Android Studio installed
-- [ ] Android SDK (API 30+)
-- [ ] JDK 11 or 17
-- [ ] Environment variables set
-
-### iOS (macOS only)
-- [ ] Xcode installed
-- [ ] Command Line Tools
-- [ ] iOS Simulator
-
-## 🚨 Common Issues
-
-1. **"Mode not found"** → Run `yarn mobile:add` or `yarn capacitor:add`
-2. **"Platform not found"** → Add platform in respective directory
-3. **"Build failed"** → Check requirements and run `yarn mobile:clean`
-
-## 📚 Full Documentation
-
-- **Setup Guide**: [MOBILE_SETUP.md](./MOBILE_SETUP.md)
-- **Cordova Examples**: [CORDOVA_CONFIG_EXAMPLES.md](./CORDOVA_CONFIG_EXAMPLES.md)
-- **Capacitor Examples**: [CAPACITOR_CONFIG_EXAMPLES.md](./CAPACITOR_CONFIG_EXAMPLES.md)
-- **Main README**: [README.md](./README.md)
-
-## 🎯 Next Steps
-
-1. **Choose approach**: Cordova (easier) or Capacitor (modern)
-2. **Follow setup guide** step by step
-3. **Test on device/emulator**
-4. **Configure app settings**
-5. **Build and deploy**
+Get the mobile app running in 5 minutes.
 
 ---
 
-**Need help?** Check the troubleshooting section in the main README or setup guides.
+## 1. Install Tools
+
+```bash
+npm install -g @quasar/cli @capacitor/cli
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 3. Add Mobile Platform
+
+```bash
+cd src-capacitor
+
+# Android
+npx cap add android
+
+# iOS (macOS only)
+npx cap add ios
+```
+
+---
+
+## 4. Run App
+
+```bash
+# Android
+npm run capacitor:run:android
+
+# iOS
+npm run capacitor:run:ios
+```
+
+---
+
+## Commands Reference
+
+| What | Command |
+|------|---------|
+| Development | `npm run capacitor:dev` |
+| Run Android | `npm run capacitor:run:android` |
+| Run iOS | `npm run capacitor:run:ios` |
+| Build | `npm run capacitor:build` |
+| Sync | `npx cap sync` |
+
+---
+
+## Requirements
+
+### Android
+- Android Studio
+- Android SDK 30+
+- JDK 11 or 17
+
+### iOS (macOS only)
+- Xcode 14+
+- Command Line Tools: `xcode-select --install`
+
+---
+
+## Common Issues
+
+| Problem | Solution |
+|---------|----------|
+| Mode not found | `npx cap add android` or `npx cap add ios` |
+| Build failed | `npx cap sync` then retry |
+| Plugin error | `npm install @capacitor/[plugin]` + `npx cap sync` |
+
+---
+
+## Next Steps
+
+- **Full Setup** → [MOBILE_SETUP.md](./MOBILE_SETUP.md)
+- **Build for Release** → [ANDROID_BUILD.md](./ANDROID_BUILD.md)
+- **Google Sign-In** → [GOOGLE_AUTH_SETUP.md](./GOOGLE_AUTH_SETUP.md)
+- **Push Notifications** → [FIREBASE_PUSH_NOTIFICATIONS_SETUP.md](./FIREBASE_PUSH_NOTIFICATIONS_SETUP.md)
+- **Error Tracking** → [SENTRY_SETUP.md](./SENTRY_SETUP.md)

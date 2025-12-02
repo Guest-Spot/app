@@ -1,83 +1,265 @@
-# Настройка нативной авторизации Google в GuestSpot
+# Google Auth Setup
 
-Ниже собраны шаги для повторного развёртывания проекта с нативным входом Google через Capacitor. План рассчитан на тех, кто поднимает мобильные сборки iOS/Android с нуля или переносит проект на новую машину.
+Guide for setting up Google Sign-In on iOS and Android with Capacitor.
 
-## 1. Подготовка окружения
-- Убедитесь, что установлены Node.js (>=20.19), npm и глобально доступен `npx`.
-- В корне проекта (`/app`) выполните установку зависимостей:
-  ```bash
-  npm install
-  ```
-- Добавьте платформы Capacitor, работая из папки `src-capacitor`:
-  ```bash
-  cd src-capacitor
-  npm install @capacitor/ios @capacitor/android
-  npx cap add ios
-  npx cap add android
-  ```
+---
 
-## 2. Конфигурация окружения
-Заполните файл `.env` (либо `.env.local`) значениями, полученными в Google Cloud Console:
-```
-API_URL=...
-API_KEY=...
-GOOGLE_WEB_CLIENT_ID=...
-GOOGLE_IOS_CLIENT_ID=...
-GOOGLE_ANDROID_CLIENT_ID=...
-GOOGLE_SERVER_CLIENT_ID=... # опционально, нужен для offline access
+## Prerequisites
+
+- [ ] Google Cloud Console account
+- [ ] Firebase project (optional, for analytics)
+- [ ] Mobile platforms added (`npx cap add ios/android`)
+
+---
+
+## Step 1: Setup Environment Variables
+
+Create or update `.env` file:
+
+```env
+GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+GOOGLE_IOS_CLIENT_ID=your-ios-client-id.apps.googleusercontent.com
+GOOGLE_ANDROID_CLIENT_ID=your-android-client-id.apps.googleusercontent.com
 ```
 
-Эти переменные автоматически прокидываются в фронтенд: см. `quasar.config.ts` и `src/config/constants.ts`.
+> **Important:** `GOOGLE_WEB_CLIENT_ID` is required for both Android and iOS!
 
-## 3. Google Cloud Console
-1. Создайте проект или используйте существующий.
-2. Перейдите в **APIs & Services → OAuth consent screen**:
-   - Тип: External.
-   - Заполните сведения о приложении.
-   - Добавьте тестовых пользователей, пока приложение не опубликовано.
-3. В **Credentials → Create credentials → OAuth client ID** создайте три клиента:
-   - **Web application** — сохраните `client_id` и `client_secret`, значение идёт в `GOOGLE_WEB_CLIENT_ID`. Если на бэкенде будете обменивать `serverAuthCode`, используйте этот ID в `GOOGLE_SERVER_CLIENT_ID`.
-   - **iOS** — укажите Bundle ID `com.guestspot.app`. Скачайте `GoogleService-Info.plist`.
-   - **Android** — добавьте пакет `com.guestspot.app` и SHA-1/SHA-256 подписи (для debug можно взять `~/.android/debug.keystore`, для release — ключ из CI). Скачайте `google-services.json`.
+---
 
-## 4. Капаситорная конфигурация
-1. Отредактируйте блок `plugins.GoogleAuth` в `src-capacitor/capacitor.config.json`, заполнив clientId/iosClientId/androidClientId/serverClientId.
-2. Выполните синхронизацию (всё так же из `src-capacitor`):
-   ```bash
-  npx cap sync ios
-  npx cap sync android
-   ```
+## Step 2: Google Cloud Console Setup
 
-## 5. iOS
-1. Поместите файл, который приходит из Google (обычно он называется `client_<...>.apps.googleusercontent.com.plist`), в `src-capacitor/ios/App/App` и переименуйте в `GoogleService-Info.plist` — именно это имя ожидает Xcode/Google SDK.
-2. Запустите `npx cap open ios`, затем в Xcode:
-   - В Project Navigator перетащите `GoogleService-Info.plist` в группу `App → App`. В диалоге добавления включите `Copy items if needed` и отметьте таргет `App`. Это гарантирует появление файла в Build Phases → Copy Bundle Resources.
-   - В **Info → URL Types** добавьте `REVERSED_CLIENT_ID` из plist как схему (для обратных редиректов).
-   - При необходимости добавьте `LSApplicationQueriesSchemes` с `com.googleusercontent.apps.<id>` (для совместимости со старыми SDK).
-3. Соберите проект на устройстве/симуляторе, проверьте вход.
+### 2.1 Create OAuth Consent Screen
 
-## 6. Android
-1. Поместите `google-services.json` в `src-capacitor/android/app`.
-2. Убедитесь, что в Google Play Console зарегистрированы SHA-1 релизного ключа и подпись от Google Play (если используете App Signing).
-3. Запустите `npx cap open android` и убедитесь, что Google Play Services подключаются без ошибок.
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. **APIs & Services** → **OAuth consent screen**
+3. Choose **External** type
+4. Fill app information
+5. Add test users (while app is not published)
 
-## 7. Проверка работы
-1. В веб-версии (quasar dev) кнопка Google ведёт по старой схеме: редирект на `${API_URL}/api/connect/google`.
-2. В нативных сборках плагин `@codetrix-studio/capacitor-google-auth` выполняет вход:
-   - При успешном signIn возвращается `accessToken`, который отправляется на бэкенд через `connect`.
-   - Пользователь сохраняется в Pinia, выполняется переход на `/profile`.
-3. В консоли Xcode/Android Studio убедитесь, что нет ошибок `Missing Google access token`.
+### 2.2 Create OAuth Credentials
 
-## 8. Troubleshooting
-- **Missing appId for new platform:** команда `npx cap add` должна выполняться из папки `src-capacitor`, где расположен `capacitor.config.json`.
-- **ENOTFOUND npm при установке плагинов:** в песочнице требуется флаг `with_escalated_permissions` или offline зеркало. На реальной машине нужно восстановить доступ к npm registry.
-- **App-Bound Domains (iOS 17+):** Capacitor конфиг содержит `ios.limitsNavigationsToAppBoundDomains = true`. Благодаря нативному плагину авторизация не уходит в браузер и работает корректно.
-- **Не приходит refresh token:** включите `grantOfflineAccess` в модуле и задайте `GOOGLE_SERVER_CLIENT_ID`, затем реализуйте обработку `serverAuthCode` на бэкенде.
+Go to **Credentials** → **Create credentials** → **OAuth client ID**
 
-## 9. Полезные команды
-- `npm run lint` — проверка линтером.
-- `npm run build` или `quasar build -m capacitor -T ios` — полноценная сборка.
-- `quasar dev -m capacitor -T ios` — запуск dev-режима с hot reload в симуляторе.
-- `npx cap sync` — подтягивает все изменения Capacitor/плагинов в нативные проекты.
+#### Web Application (Required!)
 
-Храните этот файл в репозитории (`docs/GOOGLE_AUTH_SETUP.md`) и обновляйте при появлении новых провайдеров авторизации (Apple, Facebook и т.д.), следуя той же структуре.
+1. Type: **Web application**
+2. Name: `GuestSpot Web`
+3. Save and copy **Client ID** → use as `GOOGLE_WEB_CLIENT_ID`
+
+> This ID is used by the plugin for token exchange on both platforms.
+
+#### iOS Application
+
+1. Type: **iOS**
+2. Bundle ID: `com.guestspot.app`
+3. Download the plist file (named `client_xxx.apps.googleusercontent.com.plist`)
+
+#### Android Application
+
+1. Type: **Android**
+2. Package name: `com.guestspot.app`
+3. Add SHA-1 fingerprints (see Step 3)
+
+---
+
+## Step 3: Get SHA-1 Fingerprints (Android)
+
+### For Debug builds
+
+```bash
+cd src-capacitor/android
+./gradlew signingReport
+```
+
+Or:
+
+```bash
+keytool -list -v \
+  -keystore ~/.android/debug.keystore \
+  -alias androiddebugkey \
+  -storepass android
+```
+
+### For Release builds
+
+```bash
+keytool -list -v \
+  -keystore src-capacitor/android/guest-spot-key.jks \
+  -alias guest-spot-alias
+```
+
+### For Play Store (if Play App Signing enabled)
+
+1. Go to [Google Play Console](https://play.google.com/console)
+2. Your app → **Setup** → **App Integrity**
+3. Copy SHA-1 from **App signing key certificate**
+
+> **Important:** Add ALL SHA-1s to Google Cloud Console!
+
+### Add SHA-1 to Google Cloud Console
+
+1. **APIs & Services** → **Credentials**
+2. Edit **Android** OAuth client
+3. Add each SHA-1 fingerprint
+4. Save
+
+---
+
+## Step 4: iOS Configuration
+
+### 4.1 Add Config File
+
+1. Rename downloaded plist to `GoogleService-Info.plist`
+2. Place at `src-capacitor/ios/App/App/GoogleService-Info.plist`
+
+### 4.2 Configure Xcode
+
+```bash
+npx cap open ios
+```
+
+In Xcode:
+
+1. Drag `GoogleService-Info.plist` to **App → App** group
+2. Check **Copy items if needed**
+3. Check target **App**
+
+### 4.3 Add URL Scheme
+
+In **Info** → **URL Types**, add:
+
+- URL Schemes: `REVERSED_CLIENT_ID` value from plist
+
+---
+
+## Step 5: Android Configuration
+
+### 5.1 Add Config File
+
+Place `google-services.json` at:
+- `src-capacitor/android/app/google-services.json`
+
+### 5.2 Verify Package Name
+
+Check that package name matches everywhere:
+
+```bash
+# capacitor.config.json
+"appId": "com.guestspot.app"
+
+# android/app/build.gradle
+applicationId "com.guestspot.app"
+
+# google-services.json
+"package_name": "com.guestspot.app"
+```
+
+---
+
+## Step 6: Update Capacitor Config
+
+In `src-capacitor/capacitor.config.json`:
+
+```json
+{
+  "plugins": {
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "serverClientId": "your-web-client-id.apps.googleusercontent.com",
+      "forceCodeForRefreshToken": true
+    }
+  }
+}
+```
+
+---
+
+## Step 7: Sync and Test
+
+```bash
+npx cap sync
+npx cap run android  # or ios
+```
+
+---
+
+## Troubleshooting
+
+### Error [16] Account reauth failed
+
+**Cause:** SHA-1 fingerprint not added or wrong Client ID.
+
+**Fix:**
+1. Get SHA-1: `./gradlew signingReport`
+2. Add to Google Cloud Console → Android OAuth Client
+3. Wait 5-10 minutes
+4. Clear cache on device: Settings → Apps → Google Play Services → Clear cache
+
+### Error [10] DEVELOPER_ERROR
+
+**Cause:** Wrong OAuth Client ID or SHA-1.
+
+**Fix:**
+1. Verify `GOOGLE_WEB_CLIENT_ID` is Web Client ID (not Android)
+2. Check all SHA-1s are added (debug, release, Play Store)
+3. Verify package name matches everywhere
+
+### Error [7] NETWORK_ERROR
+
+**Cause:** Network or Google Play Services issue.
+
+**Fix:**
+1. Check internet connection
+2. Update Google Play Services on device
+
+### Token not received
+
+**Cause:** Missing or wrong Web Client ID.
+
+**Fix:**
+1. Ensure `GOOGLE_WEB_CLIENT_ID` is set
+2. Verify it's the Web Application client ID
+3. Check `google-services.json` has `oauth_client` with `client_type: 3`
+
+### iOS: Sign-in doesn't open
+
+**Fix:**
+1. Check `GoogleService-Info.plist` is in Xcode project
+2. Verify URL scheme is added (REVERSED_CLIENT_ID)
+3. Run `npx cap sync ios`
+
+---
+
+## Quick Checklist
+
+- [ ] Web Client ID created and saved to `.env`
+- [ ] iOS Client ID created, plist file placed
+- [ ] Android Client ID created with all SHA-1s
+- [ ] `google-services.json` in android/app/
+- [ ] `GoogleService-Info.plist` in ios/App/App/
+- [ ] Package name matches everywhere: `com.guestspot.app`
+- [ ] Capacitor config updated
+- [ ] Test user added to OAuth consent screen
+- [ ] `npx cap sync` executed
+
+---
+
+## Debug
+
+### Check initialization
+
+Add to your code:
+
+```typescript
+console.log('Web Client ID:', process.env.GOOGLE_WEB_CLIENT_ID);
+```
+
+### Check Android logs
+
+```bash
+adb logcat | grep -i "google\|oauth\|signin"
+```
+
+### Check iOS logs
+
+Open Xcode → Debug area → Console

@@ -4,4 +4,5 @@
     <string name="title_activity_main">GuestSpot</string>
     <string name="package_name">com.guestspot.app</string>
     <string name="custom_url_scheme">com.guestspot.app</string>
+    <!-- server_client_id is set via build.gradle from environment variables -->
 </resources>

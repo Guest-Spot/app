@@ -250,11 +250,13 @@ const notificationLink = computed(() => {
     }
 
     const formattedDate = formatDateForCalendar(dateToUse);
-    return `/events?date=${formattedDate}`;
+    const bookingId = (props.notify.body as Record<string, unknown>)?.documentId;
+    return `/events?date=${formattedDate}${bookingId && typeof bookingId === 'string' ? `&bookingId=${bookingId}` : ''}&tab=bookings`;
   }
 
   if (isGuest.value) {
-    return '/my-bookings';
+    const bookingId = (props.notify.body as Record<string, unknown>)?.documentId;
+    return bookingId && typeof bookingId === 'string' ? `/my-bookings?bookingId=${bookingId}` : '/my-bookings';
   }
 
   return null;

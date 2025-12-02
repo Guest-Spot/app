@@ -88,7 +88,7 @@
                   <!-- Event Info -->
                   <div class="event-info flex-1">
                     <div class="event-meta">
-                      <div class="flex items-center q-gap-xs q-mb-xs">
+                      <div class="event-name flex items-center no-wrap q-gap-xs q-mb-xs">
                         <q-icon name="person" size="14px" />
                         <span class="text-bold">{{ getDisplayName(booking) }}</span>
                       </div>
@@ -212,6 +212,23 @@ watch(
         selectedBooking.value = { ...updatedSelected };
       }
     }
+
+    // Check for bookingId in query params and open details if found
+    const bookingId = route.query.bookingId as string | undefined;
+    if (bookingId && !showDetailsDialog.value) {
+      const booking = internalBookings.value.find((b) => b.documentId === bookingId);
+      if (booking) {
+        openBookingDetails(booking);
+        // Also move calendar to that date if possible
+        if (booking.day) {
+          const bookingDate = new Date(booking.day);
+          if (!Number.isNaN(bookingDate.getTime())) {
+             currentDate.value = new Date(bookingDate.getFullYear(), bookingDate.getMonth(), 1);
+             hasInitializedDate.value = true;
+          }
+        }
+      }
+    }
   },
   { immediate: true, deep: true },
 );
@@ -276,7 +293,7 @@ const previousAvailableMonth = computed<Date | null>(() => {
   );
 
   if (currentIndex > 0) {
-    return availableMonths.value[currentIndex - 1];
+    return availableMonths.value[currentIndex - 1] ?? null;
   }
 
   if (currentIndex === -1) {
@@ -285,7 +302,7 @@ const previousAvailableMonth = computed<Date | null>(() => {
     );
 
     if (candidates.length) {
-      return candidates[candidates.length - 1];
+      return candidates[candidates.length - 1] ?? null;
     }
   }
 
@@ -303,7 +320,7 @@ const nextAvailableMonth = computed<Date | null>(() => {
   );
 
   if (currentIndex >= 0 && currentIndex < availableMonths.value.length - 1) {
-    return availableMonths.value[currentIndex + 1];
+    return availableMonths.value[currentIndex + 1] ?? null;
   }
 
   if (currentIndex === -1) {
@@ -540,10 +557,10 @@ const getDisplayAvatarUrl = (booking: IBooking): string | null => {
 
 const getDisplayName = (booking: IBooking): string => {
   if (isArtist.value) {
-    return booking.owner?.name || 'Owner';
+    return booking.owner?.name || booking.owner?.email || 'Owner';
   }
 
-  return booking.artist?.name || 'Artist';
+  return booking.artist?.name || booking.artist?.email || 'Artist';
 };
 
 const getReactionLabel = (reaction?: EReactions | null): string => {
@@ -713,6 +730,14 @@ onMounted(() => {
               margin-top: 4px;
             }
           }
+        }
+
+        .event-name {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 120px;
+          white-space: nowrap;
         }
 
         .events-list {
