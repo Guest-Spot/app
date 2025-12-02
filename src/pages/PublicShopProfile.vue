@@ -2,7 +2,6 @@
   <q-page>
     <PublicShopProfileContent
       :document-id="documentId"
-      :is-fixed-button="true"
     />
   </q-page>
 </template>

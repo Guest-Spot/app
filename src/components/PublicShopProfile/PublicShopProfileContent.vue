@@ -1,5 +1,5 @@
 <template>
-  <div class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
+  <div class="page q-pb-lg flex column items-start q-gap-md">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -88,20 +88,19 @@
         </div>
       </div>
     </div>
-    <!-- Booking Button -->
-    <div
-      v-if="shopData?.openingHours?.length && artists?.length"
-      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
-      :class="{ 'action-buttons-fixed': isFixedButton, 'action-buttons-sticky': !isFixedButton }"
-    >
-      <div class="container">
-        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" :disable="!shopData.documentId" @click="goToBookingPage">
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="event" />
-            <span class="text-h6">Book</span>
-          </div>
-        </q-btn>
-      </div>
+  </div>
+  <!-- Booking Button -->
+  <div
+    v-if="shopData?.openingHours?.length && artists?.length"
+    class="action-buttons full-width bg-block flex justify-center q-gap-sm"
+  >
+    <div class="container">
+      <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" :disable="!shopData.documentId" @click="goToBookingPage">
+        <div class="flex items-center justify-center q-gap-sm">
+          <q-icon name="event" />
+          <span class="text-h6">Book</span>
+        </div>
+      </q-btn>
     </div>
   </div>
 </template>
@@ -130,12 +129,9 @@ import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 interface Props {
   documentId: string;
   onBack?: () => void;
-  isFixedButton?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  isFixedButton: false,
-});
+const props = defineProps<Props>();
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const router = useRouter();
@@ -456,19 +452,10 @@ onBeforeMount(() => {
 }
 
 .action-buttons {
-  border-top-left-radius: 32px;
-  border-top-right-radius: 32px;
-}
-
-.action-buttons-fixed {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-}
-
-.action-buttons-sticky {
   position: sticky;
   bottom: 0;
   right: 0;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
 }
 </style>

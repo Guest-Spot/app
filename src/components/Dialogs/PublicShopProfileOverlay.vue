@@ -12,7 +12,6 @@
         v-if="documentId"
         :document-id="documentId"
         :on-back="closeOverlay"
-        :is-fixed-button="false"
       />
     </div>
   </Teleport>
