@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { useMutation } from '@vue/apollo-composable';
-import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
+import { SEND_CLAIM_PROFILE_EMAIL_MUTATION } from 'src/apollo/types/user';
 
 interface Props {
   modelValue: boolean;
@@ -84,7 +84,7 @@ const timeLeft = ref(0);
 let timerInterval: ReturnType<typeof setInterval> | null = null;
 const COOLDOWN_DURATION = 60 * 60 * 1000; // 1 hour
 
-const { mutate: sendForgotPassword, loading: mutationLoading, onDone, onError } = useMutation(FORGOT_PASSWORD_MUTATION);
+const { mutate: sendClaimProfileEmail, loading: mutationLoading, onDone, onError } = useMutation(SEND_CLAIM_PROFILE_EMAIL_MUTATION);
 const isSuccess = ref(false);
 
 const loading = computed(() => props.loading || mutationLoading.value);
@@ -137,7 +137,7 @@ onUnmounted(() => {
 });
 
 const onConfirm = () => {
-  void sendForgotPassword({ email: props.email });
+  void sendClaimProfileEmail({ email: props.email });
   emit('confirm');
 };
 

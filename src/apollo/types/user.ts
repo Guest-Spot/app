@@ -315,3 +315,8 @@ export const RESET_PASSWORD_MUTATION = gql`
   }
 `;
 
+export const SEND_CLAIM_PROFILE_EMAIL_MUTATION = gql`
+  mutation SendClaimProfileEmail($email: String!) {
+    sendClaimProfileEmail(email: $email)
+  }
+`;
