@@ -14,6 +14,12 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/ResetPasswordPage.vue') }],
   },
   {
+    path: '/forgot-password',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Forgot Password' },
+    children: [{ path: '', component: () => import('pages/ForgotPasswordPage.vue') }],
+  },
+  {
     path: '/sign-in',
     component: () => import('layouts/SimpleLayout.vue'),
     meta: { title: 'Sign In' },

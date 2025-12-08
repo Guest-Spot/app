@@ -21,7 +21,6 @@
               <q-input
                 v-model="form.login"
                 type="email"
-                ref="emailInput"
                 placeholder="Email"
                 outlined
                 rounded
@@ -90,19 +89,10 @@
                 rounded
                 icon="lock_reset"
                 color="grey-6"
-                :label="cooldownTime > 0 ? `Forgot password? (Next try in ${formattedCooldown})` : 'Forgot password?'"
+                label="Forgot password?"
                 class="text-caption"
-                :loading="forgotPasswordLoading"
-                :disable="forgotPasswordLoading || cooldownTime > 0"
-                @click="handleForgotPassword"
-              >
-                <template v-slot:loading>
-                  <div class="flex items-center q-gap-sm">
-                    <q-spinner color="grey-6" size="16px" />
-                    <span class="text-caption">Sending...</span>
-                  </div>
-                </template>
-              </q-btn>
+                :to="{ path: '/forgot-password', query: form.login ? { email: form.login } : {} }"
+              />
             </div>
           </q-form>
         </div>
@@ -112,13 +102,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useMutation } from '@vue/apollo-composable';
-import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
-import { QInput } from 'quasar';
 
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
@@ -126,86 +113,14 @@ const route = useRoute();
 const { login, isAuthenticated, fetchMe } = useUser();
 
 const loading = ref(false);
-const forgotPasswordLoading = ref(false);
 const showPassword = ref(false);
-const emailInput = ref<QInput | null>(null);
 const form = ref({
   login: '',
   password: '',
 });
 
-const cooldownTime = ref(0);
-let timerInterval: ReturnType<typeof setInterval> | null = null;
-const COOLDOWN_KEY = 'forgot_password_block_until';
-
-const formattedCooldown = computed(() => {
-  const m = Math.floor((cooldownTime.value % 3600) / 60);
-  const s = cooldownTime.value % 60;
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-});
-
-const startTimer = (seconds: number) => {
-  cooldownTime.value = seconds;
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    cooldownTime.value--;
-    if (cooldownTime.value <= 0) {
-      if (timerInterval) clearInterval(timerInterval);
-      localStorage.removeItem(COOLDOWN_KEY);
-    }
-  }, 1000);
-};
-
-const checkCooldown = () => {
-  const blockUntil = localStorage.getItem(COOLDOWN_KEY);
-  if (blockUntil) {
-    const remaining = Math.ceil((parseInt(blockUntil) - Date.now()) / 1000);
-    if (remaining > 0) {
-      startTimer(remaining);
-    } else {
-      localStorage.removeItem(COOLDOWN_KEY);
-    }
-  }
-};
-
-onMounted(() => {
-  checkCooldown();
-});
-
-onUnmounted(() => {
-  if (timerInterval) clearInterval(timerInterval);
-});
-
-const { mutate: forgotPassword } = useMutation(FORGOT_PASSWORD_MUTATION);
-
 const goBack = () => {
   void router.back();
-};
-
-const handleForgotPassword = async () => {
-  if (!form.value.login) {
-    showError('Please enter your email address first');
-    void emailInput.value?.validate();
-    return;
-  }
-
-  forgotPasswordLoading.value = true;
-  try {
-    const res = await forgotPassword({ email: form.value.login });
-    if (res?.data?.forgotPassword?.ok) {
-      showSuccess('Password reset link sent to your email');
-      const blockUntil = Date.now() + 3600 * 1000;
-      localStorage.setItem(COOLDOWN_KEY, blockUntil.toString());
-      startTimer(3600);
-    } else {
-      showError('Failed to send reset link');
-    }
-  } catch (error) {
-    console.error(error);
-    showError('Failed to send reset link');
-  } finally {
-    forgotPasswordLoading.value = false;
-  }
 };
 
 const handleLogin = async () => {
