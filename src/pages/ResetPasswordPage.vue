@@ -156,7 +156,7 @@ const handleResetPassword = async () => {
       await fetchMe();
 
       showSuccess('Password reset successful');
-      void router.push('/profile');
+      void router.push('/sign-in');
     } else {
        showError('Failed to reset password');
     }

@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/auth',
     component: () => import('layouts/SimpleLayout.vue'),
-    meta: { title: 'Sign In' },
+    meta: { title: 'Welcome to GuestSpot' },
     children: [{ path: '', component: () => import('pages/AuthPage.vue') }],
   },
   {
@@ -15,7 +15,9 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/sign-in',
-    redirect: '/auth',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Sign In' },
+    children: [{ path: '', component: () => import('pages/SignInPage.vue') }],
   },
   {
     path: '/sign-up',

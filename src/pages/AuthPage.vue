@@ -16,188 +16,97 @@
       <div class="container flex column items-center q-gap-lg">
         <!-- Main auth card -->
         <div class="auth-card full-width bg-block border-radius-lg q-pa-lg flex column q-gap-md">
-          <template v-if="!showEmailForm">
-            <!-- Artist and Shop cards -->
-            <div class="business-cards flex column q-gap-md">
-              <q-card
-                class="business-card"
-                flat
-                clickable
-                @click="goToSignUp('artist')"
-              >
-                <div class="flex no-wrap items-center q-gap-md">
-                  <div class="business-icon">
-                    <q-icon name="brush" color="primary" size="md" />
-                  </div>
-                  <div class="flex-grow">
-                    <div class="text-subtitle1 text-weight-medium">Become an Artist</div>
-                    <div class="text-caption text-grey-5">
-                      Showcase your work and accept appointments
-                    </div>
-                  </div>
-                  <q-icon name="chevron_right" color="grey-9" size="sm" />
+          <!-- Artist and Shop cards -->
+          <div class="business-cards flex column q-gap-md">
+            <q-card
+              class="business-card"
+              flat
+              clickable
+              @click="goToSignUp('artist')"
+            >
+              <div class="flex no-wrap items-center q-gap-md">
+                <div class="business-icon">
+                  <q-icon name="brush" color="primary" size="md" />
                 </div>
-              </q-card>
-
-              <q-card
-                class="business-card"
-                flat
-                clickable
-                @click="goToSignUp('shop')"
-              >
-                <div class="flex no-wrap items-center q-gap-md">
-                  <div class="business-icon">
-                    <q-icon name="storefront" color="primary" size="md" />
+                <div class="flex-grow">
+                  <div class="text-subtitle1 text-weight-medium">Become an Artist</div>
+                  <div class="text-caption text-grey-5">
+                    Showcase your work and accept appointments
                   </div>
-                  <div class="flex-grow">
-                    <div class="text-subtitle1 text-weight-medium">Open a Shop</div>
-                    <div class="text-caption text-grey-5">
-                      Promote your shop and manage bookings
-                    </div>
-                  </div>
-                  <q-icon name="chevron_right" color="grey-9" size="sm" />
                 </div>
-              </q-card>
-            </div>
-
-            <!-- Social login buttons -->
-            <div class="social-login flex column items-center q-gap-md">
-              <q-btn
-                class="social-btn full-width"
-                unelevated
-                rounded
-                :loading="googleLoading"
-                @click="handleGoogleSignIn"
-              >
-                <div class="flex items-center justify-center q-gap-sm">
-                  <GoogleIcon width="20px" height="20px" />
-                  <span>Continue with Google</span>
-                </div>
-              </q-btn>
-
-              <q-btn
-                v-if="isIos"
-                class="social-btn full-width"
-                unelevated
-                rounded
-                :loading="appleLoading"
-                @click="signInWithApple"
-              >
-                <div class="flex items-center justify-center q-gap-sm">
-                  <AppleIcon width="20px" height="20px" />
-                  <span>Continue with Apple</span>
-                </div>
-              </q-btn>
-            </div>
-
-            <!-- Divider -->
-            <div class="divider flex items-center q-gap-md">
-              <div class="divider-line"></div>
-              <span class="text-grey-6 text-caption">or</span>
-              <div class="divider-line"></div>
-            </div>
-
-            <!-- Email login toggle -->
-            <div v-if="!showEmailForm" class="text-center">
-              <q-btn
-                flat
-                class="bg-block"
-                rounded
-                color="primary"
-                label="Sign in with email"
-                @click="showEmailForm = true"
-              />
-            </div>
-          </template>
-          <!-- Email login form -->
-          <q-form v-else @submit="handleLogin" class="email-form flex column q-gap-sm">
-            <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">Enter your login</label>
-                <q-input
-                  v-model="form.login"
-                  type="email"
-                  placeholder="Email"
-                  outlined
-                  rounded
-                  size="lg"
-                  :rules="[(val) => !!val || 'Email is required']"
-                  class="full-width"
-                  bg-color="transparent"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="email" color="grey-6" />
-                  </template>
-                </q-input>
+                <q-icon name="chevron_right" color="grey-9" size="sm" />
               </div>
+            </q-card>
 
-              <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">Enter your password</label>
-                <q-input
-                  v-model="form.password"
-                  :type="showPassword ? 'text' : 'password'"
-                  placeholder="Password"
-                  outlined
-                  rounded
-                  size="lg"
-                  :rules="[
-                    (val) => !!val || 'Password is required',
-                    (val) => val.length >= 3 || 'Password must be at least 3 characters',
-                  ]"
-                  class="full-width"
-                  bg-color="transparent"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="lock" color="grey-6" />
-                  </template>
-                  <template v-slot:append>
-                    <q-btn
-                      round
-                      flat
-                      dense
-                      :icon="showPassword ? 'visibility_off' : 'visibility'"
-                      @click="showPassword = !showPassword"
-                      color="grey-6"
-                    />
-                  </template>
-                </q-input>
+            <q-card
+              class="business-card"
+              flat
+              clickable
+              @click="goToSignUp('shop')"
+            >
+              <div class="flex no-wrap items-center q-gap-md">
+                <div class="business-icon">
+                  <q-icon name="storefront" color="primary" size="md" />
+                </div>
+                <div class="flex-grow">
+                  <div class="text-subtitle1 text-weight-medium">Open a Shop</div>
+                  <div class="text-caption text-grey-5">
+                    Promote your shop and manage bookings
+                  </div>
+                </div>
+                <q-icon name="chevron_right" color="grey-9" size="sm" />
               </div>
-              <div class="button-group full-width q-mt-sm">
-                <q-btn
-                  type="submit"
-                  class="login-btn bg-block full-width"
-                  :loading="loading"
-                  rounded
-                  unelevated
-                  flat
-                  color="primary"
-                >
-                  Sign in
-                </q-btn>
-              </div>
-            <div class="flex justify-between items-center full-width q-mt-md">
-              <q-btn
-                label="Hide email form"
-                rounded
-                flat
-                no-caps
-                class="bg-block"
-                @click="showEmailForm = false"
-              />
+            </q-card>
+          </div>
 
-              <q-btn
-                flat
-                dense
-                no-caps
-                rounded
-                icon="lock_reset"
-                color="grey-6"
-                label="Forgot password?"
-                class="text-caption"
-                :loading="forgotPasswordLoading"
-                @click="handleForgotPassword"
-              />
-            </div>
-          </q-form>
+          <!-- Social login buttons -->
+          <div class="social-login flex column items-center q-gap-md">
+            <q-btn
+              class="social-btn full-width"
+              unelevated
+              rounded
+              :loading="googleLoading"
+              @click="handleGoogleSignIn"
+            >
+              <div class="flex items-center justify-center q-gap-sm">
+                <GoogleIcon width="20px" height="20px" />
+                <span>Continue with Google</span>
+              </div>
+            </q-btn>
+
+            <q-btn
+              v-if="isIos"
+              class="social-btn full-width"
+              unelevated
+              rounded
+              :loading="appleLoading"
+              @click="signInWithApple"
+            >
+              <div class="flex items-center justify-center q-gap-sm">
+                <AppleIcon width="20px" height="20px" />
+                <span>Continue with Apple</span>
+              </div>
+            </q-btn>
+          </div>
+
+          <!-- Divider -->
+          <div class="divider flex items-center q-gap-md">
+            <div class="divider-line"></div>
+            <span class="text-grey-6 text-caption">or</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- Email login toggle -->
+          <div class="text-center">
+            <q-btn
+              flat
+              class="bg-block"
+              rounded
+              color="primary"
+              label="Sign in with email"
+              to="/sign-in"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -208,9 +117,6 @@
 import { useQuasar } from 'quasar';
 import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useMutation } from '@vue/apollo-composable';
-import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
-import useUser from 'src/modules/useUser';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
 import useNotify from 'src/modules/useNotify';
@@ -220,24 +126,13 @@ import {
   type SignInWithAppleOptions,
 } from '@capacitor-community/apple-sign-in';
 
-const { showError, showSuccess } = useNotify();
+const { showSuccess, showError } = useNotify();
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
-const { login, isAuthenticated, fetchMe } = useUser();
 
-const loading = ref(false);
 const googleLoading = ref(false);
 const appleLoading = ref(false);
-const forgotPasswordLoading = ref(false);
-const showPassword = ref(false);
-const showEmailForm = ref(false);
-const form = ref({
-  login: '',
-  password: '',
-});
-
-const { mutate: forgotPassword } = useMutation(FORGOT_PASSWORD_MUTATION);
 
 const { initializeGoogleAuth, handleGoogleSignIn } = useGoogleAuth({
   loadingRef: googleLoading,
@@ -251,51 +146,6 @@ const goBack = () => {
 
 const goToSignUp = (type: 'artist' | 'shop') => {
   void router.push({ path: '/sign-up', query: { type } });
-};
-
-const handleForgotPassword = async () => {
-  if (!form.value.login) {
-    showError('Please enter your email address first');
-    return;
-  }
-
-  forgotPasswordLoading.value = true;
-  try {
-    const res = await forgotPassword({ email: form.value.login });
-    if (res?.data?.forgotPassword?.ok) {
-      showSuccess('Password reset link sent to your email');
-    } else {
-      showError('Failed to send reset link');
-    }
-  } catch (error) {
-    console.error(error);
-    showError('Failed to send reset link');
-  } finally {
-    forgotPasswordLoading.value = false;
-  }
-};
-
-const handleLogin = async () => {
-  loading.value = true;
-
-  try {
-    const result = await login(form.value.login, form.value.password);
-
-    if (result.success && isAuthenticated.value) {
-      void fetchMe();
-      showSuccess('Login successful');
-      setTimeout(() => {
-        void router.push('/profile');
-      }, 500);
-    } else {
-      showError(result?.error || 'Invalid login credentials');
-    }
-  } catch (error) {
-    console.log(error);
-    showError('Invalid login credentials');
-  } finally {
-    loading.value = false;
-  }
 };
 
 async function signInWithApple() {
@@ -422,4 +272,3 @@ onMounted(() => {
   right: 16px;
 }
 </style>
-
