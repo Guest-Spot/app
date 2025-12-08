@@ -26,7 +26,7 @@
         >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="verified" size="18px" />
-            <span class="text-caption text-weight-bold">Claim</span>
+            <span class="text-weight-bold">Claim</span>
           </div>
         </q-btn>
 
@@ -127,13 +127,14 @@
       v-model="showClaimDialog"
       :email="artistData.email || ''"
       :loading="isClaiming"
+      :success="claimSuccess"
       @confirm="onConfirmClaim"
     />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp, VerifiedBadge } from 'src/components';
@@ -225,6 +226,7 @@ const isAuthenticated = computed(() => userStore.isAuthenticated);
 const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);
 const isClaiming = ref(false);
 const showClaimDialog = ref(false);
+const claimSuccess = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -289,7 +291,7 @@ const onConfirmClaim = async () => {
   try {
     await resendConfirmationEmail(artistData.value.email);
     showSuccess('Confirmation email sent successfully');
-    showClaimDialog.value = false;
+    claimSuccess.value = true;
   } catch (error) {
     console.error(error);
     showError('Failed to send confirmation email');
@@ -297,6 +299,12 @@ const onConfirmClaim = async () => {
     isClaiming.value = false;
   }
 };
+
+watch(showClaimDialog, (val) => {
+  if (!val) {
+    claimSuccess.value = false;
+  }
+});
 
 // Dialog state
 const showShopDialog = ref(false);

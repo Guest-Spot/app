@@ -2,7 +2,7 @@
   <q-dialog v-model="isVisible" position="bottom" no-route-dismiss>
     <q-card class="claim-profile-dialog">
       <q-card-section class="dialog-header">
-        <div class="text-subtitle1 text-bold">Verify Ownership</div>
+        <div class="text-subtitle1 text-bold">{{ success ? 'Check your email' : 'Verify Ownership' }}</div>
         <q-btn
           icon="close"
           class="bg-block"
@@ -14,20 +14,27 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
-        <p class="text-body1 q-mb-md">
-          We'll send a confirmation link to <span class="text-primary text-weight-bold">{{ email }}</span>.
-        </p>
-        <p class="text-grey-6">
-          Please check your inbox (and spam folder) to verify that you own this profile.
-        </p>
-        <p v-if="timeLeft > 0" class="text-caption text-negative q-mt-sm">
-          You can request another email in {{ formattedTime }}.
-        </p>
+        <template v-if="success">
+          <p class="text-body1 q-mb-md">
+            Email sent. Check email and confirm it's you.
+          </p>
+        </template>
+        <template v-else>
+          <p class="text-body1 q-mb-md">
+            We'll send a confirmation link to <span class="text-primary text-weight-bold">{{ email }}</span>.
+          </p>
+          <p class="text-grey-6">
+            Please check your inbox (and spam folder) to verify that you own this profile.
+          </p>
+          <p v-if="timeLeft > 0" class="text-caption text-negative q-mt-sm">
+            You can request another email in {{ formattedTime }}.
+          </p>
+        </template>
       </q-card-section>
 
       <q-card-actions class="dialog-actions bg-block">
         <q-btn
-          label="Cancel"
+          :label="success ? 'Close' : 'Cancel'"
           color="grey-9"
           rounded
           unelevated
@@ -35,6 +42,7 @@
           v-close-popup
         />
         <q-btn
+          v-if="!success"
           color="primary"
           rounded
           unelevated
@@ -58,6 +66,7 @@ interface Props {
   modelValue: boolean;
   email: string;
   loading?: boolean;
+  success?: boolean;
 }
 
 interface Emits {
@@ -130,13 +139,19 @@ watch(
     if (newValue) {
       // Dialog opened
       startTimer();
-    } else if (props.loading) {
-      // Dialog closed while loading -> Success
-      localStorage.setItem(getStorageKey(), Date.now().toString());
-      startTimer();
     }
     isVisible.value = newValue;
   },
+);
+
+watch(
+  () => props.success,
+  (newValue) => {
+    if (newValue) {
+      localStorage.setItem(getStorageKey(), Date.now().toString());
+      startTimer();
+    }
+  }
 );
 
 watch(isVisible, (newValue) => {
