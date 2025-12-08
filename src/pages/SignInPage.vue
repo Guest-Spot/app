@@ -15,7 +15,7 @@
     <div class="q-my-auto full-width">
       <div class="container flex column items-center q-gap-lg">
         <div class="auth-card full-width bg-block border-radius-lg q-pa-lg flex column q-gap-md">
-          <q-form @submit="handleLogin" class="email-form flex column q-gap-sm">
+          <q-form @submit="handleLogin" class="email-form flex column q-gap-md">
             <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Enter your email</label>
               <q-input
@@ -68,6 +68,7 @@
                 </template>
               </q-input>
             </div>
+
             <div class="button-group full-width q-mt-sm">
               <q-btn
                 type="submit"
@@ -89,9 +90,10 @@
                 rounded
                 icon="lock_reset"
                 color="grey-6"
-                label="Forgot password?"
+                :label="cooldownTime > 0 ? `Next try in ${formattedCooldown}` : 'Forgot password?'"
                 class="text-caption"
                 :loading="forgotPasswordLoading"
+                :disable="forgotPasswordLoading || cooldownTime > 0"
                 @click="handleForgotPassword"
               />
             </div>
@@ -103,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
 import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
@@ -120,6 +122,48 @@ const showPassword = ref(false);
 const form = ref({
   login: '',
   password: '',
+});
+
+const cooldownTime = ref(0);
+let timerInterval: ReturnType<typeof setInterval> | null = null;
+const COOLDOWN_KEY = 'forgot_password_block_until';
+
+const formattedCooldown = computed(() => {
+  const m = Math.floor((cooldownTime.value % 3600) / 60);
+  const s = cooldownTime.value % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+});
+
+const startTimer = (seconds: number) => {
+  cooldownTime.value = seconds;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    cooldownTime.value--;
+    if (cooldownTime.value <= 0) {
+      if (timerInterval) clearInterval(timerInterval);
+      localStorage.removeItem(COOLDOWN_KEY);
+    }
+  }, 1000);
+};
+
+const checkCooldown = () => {
+  const blockUntil = localStorage.getItem(COOLDOWN_KEY);
+  if (blockUntil) {
+    const remaining = Math.ceil((parseInt(blockUntil) - Date.now()) / 1000);
+    if (remaining > 0) {
+      startTimer(remaining);
+    } else {
+      localStorage.removeItem(COOLDOWN_KEY);
+    }
+  }
+};
+
+onMounted(() => {
+  checkCooldown();
+});
+
+onUnmounted(() => {
+  if (timerInterval) clearInterval(timerInterval);
 });
 
 const { mutate: forgotPassword } = useMutation(FORGOT_PASSWORD_MUTATION);
@@ -139,6 +183,9 @@ const handleForgotPassword = async () => {
     const res = await forgotPassword({ email: form.value.login });
     if (res?.data?.forgotPassword?.ok) {
       showSuccess('Password reset link sent to your email');
+      const blockUntil = Date.now() + 3600 * 1000;
+      localStorage.setItem(COOLDOWN_KEY, blockUntil.toString());
+      startTimer(3600);
     } else {
       showError('Failed to send reset link');
     }
