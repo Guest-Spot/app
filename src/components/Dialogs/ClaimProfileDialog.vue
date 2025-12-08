@@ -26,9 +26,6 @@
           <p class="text-grey-6">
             Please check your inbox (and spam folder) to verify that you own this profile.
           </p>
-          <p v-if="timeLeft > 0" class="text-caption text-negative q-mt-sm">
-            You can request another email in {{ formattedTime }}.
-          </p>
         </template>
       </q-card-section>
 
@@ -42,7 +39,6 @@
           v-close-popup
         />
         <q-btn
-          v-if="!success"
           color="primary"
           rounded
           unelevated
@@ -148,6 +144,16 @@ watch(
   () => props.success,
   (newValue) => {
     if (newValue) {
+      localStorage.setItem(getStorageKey(), Date.now().toString());
+      startTimer();
+    }
+  }
+);
+
+watch(
+  () => props.loading,
+  (isLoading) => {
+    if (!isLoading && props.success) {
       localStorage.setItem(getStorageKey(), Date.now().toString());
       startTimer();
     }
