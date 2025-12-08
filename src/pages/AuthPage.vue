@@ -116,7 +116,7 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import { onMounted, ref, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
 import useNotify from 'src/modules/useNotify';
@@ -126,9 +126,8 @@ import {
   type SignInWithAppleOptions,
 } from '@capacitor-community/apple-sign-in';
 
-const { showSuccess, showError } = useNotify();
+const { showError } = useNotify();
 const router = useRouter();
-const route = useRoute();
 const $q = useQuasar();
 
 const googleLoading = ref(false);
@@ -171,9 +170,6 @@ async function signInWithApple() {
 
 onMounted(() => {
   void initializeGoogleAuth();
-  if (route.query.emailConfirmation) {
-    showSuccess('Email confirmation successful');
-  }
 });
 </script>
 

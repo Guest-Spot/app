@@ -112,7 +112,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
 import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
 import useUser from 'src/modules/useUser';
@@ -120,6 +120,7 @@ import useNotify from 'src/modules/useNotify';
 
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
+const route = useRoute();
 const { login, isAuthenticated, fetchMe } = useUser();
 
 const loading = ref(false);
@@ -225,6 +226,12 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  if (route.query.emailConfirmation) {
+    showSuccess('Email confirmation successful');
+  }
+});
 </script>
 
 <style scoped lang="scss">
