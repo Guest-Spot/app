@@ -8,6 +8,12 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/AuthPage.vue') }],
   },
   {
+    path: '/reset-password',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Reset Password' },
+    children: [{ path: '', component: () => import('pages/ResetPasswordPage.vue') }],
+  },
+  {
     path: '/sign-in',
     redirect: '/auth',
   },

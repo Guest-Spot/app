@@ -101,7 +101,8 @@
             <div v-if="!showEmailForm" class="text-center">
               <q-btn
                 flat
-                dense
+                class="bg-block"
+                rounded
                 color="primary"
                 label="Sign in with email"
                 @click="showEmailForm = true"
@@ -160,7 +161,6 @@
                   </template>
                 </q-input>
               </div>
-
               <div class="button-group full-width q-mt-sm">
                 <q-btn
                   type="submit"
@@ -174,15 +174,29 @@
                   Sign in
                 </q-btn>
               </div>
+            <div class="flex justify-between items-center full-width q-mt-md">
+              <q-btn
+                label="Hide email form"
+                rounded
+                flat
+                no-caps
+                class="bg-block"
+                @click="showEmailForm = false"
+              />
 
-            <q-btn
-              flat
-              dense
-              color="grey-6"
-              label="Hide email form"
-              class="q-mt-xs"
-              @click="showEmailForm = false"
-            />
+              <q-btn
+                flat
+                dense
+                no-caps
+                rounded
+                icon="lock_reset"
+                color="grey-6"
+                label="Forgot password?"
+                class="text-caption"
+                :loading="forgotPasswordLoading"
+                @click="handleForgotPassword"
+              />
+            </div>
           </q-form>
         </div>
       </div>
@@ -194,6 +208,8 @@
 import { useQuasar } from 'quasar';
 import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useMutation } from '@vue/apollo-composable';
+import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
 import useUser from 'src/modules/useUser';
 import GoogleIcon from 'src/components/Icons/GoogleIcon.vue';
 import AppleIcon from 'src/components/Icons/AppleIcon.vue';
@@ -213,12 +229,15 @@ const { login, isAuthenticated, fetchMe } = useUser();
 const loading = ref(false);
 const googleLoading = ref(false);
 const appleLoading = ref(false);
+const forgotPasswordLoading = ref(false);
 const showPassword = ref(false);
 const showEmailForm = ref(false);
 const form = ref({
   login: '',
   password: '',
 });
+
+const { mutate: forgotPassword } = useMutation(FORGOT_PASSWORD_MUTATION);
 
 const { initializeGoogleAuth, handleGoogleSignIn } = useGoogleAuth({
   loadingRef: googleLoading,
@@ -232,6 +251,28 @@ const goBack = () => {
 
 const goToSignUp = (type: 'artist' | 'shop') => {
   void router.push({ path: '/sign-up', query: { type } });
+};
+
+const handleForgotPassword = async () => {
+  if (!form.value.login) {
+    showError('Please enter your email address first');
+    return;
+  }
+
+  forgotPasswordLoading.value = true;
+  try {
+    const res = await forgotPassword({ email: form.value.login });
+    if (res?.data?.forgotPassword?.ok) {
+      showSuccess('Password reset link sent to your email');
+    } else {
+      showError('Failed to send reset link');
+    }
+  } catch (error) {
+    console.error(error);
+    showError('Failed to send reset link');
+  } finally {
+    forgotPasswordLoading.value = false;
+  }
 };
 
 const handleLogin = async () => {

@@ -60,6 +60,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { useMutation } from '@vue/apollo-composable';
+import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
 
 interface Props {
   modelValue: boolean;
@@ -81,6 +83,12 @@ const isVisible = ref(props.modelValue);
 const timeLeft = ref(0);
 let timerInterval: ReturnType<typeof setInterval> | null = null;
 const COOLDOWN_DURATION = 60 * 60 * 1000; // 1 hour
+
+const { mutate: sendForgotPassword, loading: mutationLoading, onDone, onError } = useMutation(FORGOT_PASSWORD_MUTATION);
+const isSuccess = ref(false);
+
+const loading = computed(() => props.loading || mutationLoading.value);
+const success = computed(() => props.success || isSuccess.value);
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(timeLeft.value / 60000);
@@ -129,8 +137,17 @@ onUnmounted(() => {
 });
 
 const onConfirm = () => {
+  void sendForgotPassword({ email: props.email });
   emit('confirm');
 };
+
+onDone(() => {
+  isSuccess.value = true;
+});
+
+onError((error) => {
+  console.error(error);
+});
 
 watch(
   () => props.modelValue,
@@ -144,19 +161,9 @@ watch(
 );
 
 watch(
-  () => props.success,
+  () => success.value,
   (newValue) => {
     if (newValue) {
-      localStorage.setItem(getStorageKey(), Date.now().toString());
-      startTimer();
-    }
-  }
-);
-
-watch(
-  () => props.loading,
-  (isLoading) => {
-    if (!isLoading && props.success) {
       localStorage.setItem(getStorageKey(), Date.now().toString());
       startTimer();
     }
