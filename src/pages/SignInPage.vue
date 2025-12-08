@@ -95,7 +95,14 @@
                 :loading="forgotPasswordLoading"
                 :disable="forgotPasswordLoading || cooldownTime > 0"
                 @click="handleForgotPassword"
-              />
+              >
+                <template v-slot:loading>
+                  <div class="flex items-center q-gap-sm">
+                    <q-spinner color="grey-6" size="16px" />
+                    <span class="text-caption">Sending...</span>
+                  </div>
+                </template>
+              </q-btn>
             </div>
           </q-form>
         </div>
