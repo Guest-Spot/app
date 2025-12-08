@@ -100,7 +100,7 @@
         >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="verified" />
-            <span class="text-h6">Claim</span>
+            <span class="text-h6">Get access</span>
           </div>
         </q-btn>
         <q-btn
