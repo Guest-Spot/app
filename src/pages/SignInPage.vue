@@ -98,14 +98,20 @@
         </div>
       </div>
     </div>
+
+    <EmailConfirmationDialog
+      v-model="showEmailConfirmationDialog"
+      :email="emailConfirmationEmail"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
+import { EmailConfirmationDialog } from 'src/components/Dialogs';
 
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
@@ -114,9 +120,15 @@ const { login, isAuthenticated, fetchMe } = useUser();
 
 const loading = ref(false);
 const showPassword = ref(false);
+const showEmailConfirmationDialog = ref(false);
 const form = ref({
   login: '',
   password: '',
+});
+
+const emailConfirmationEmail = computed(() => {
+  const emailFromQuery = route.query.email as string | undefined;
+  return emailFromQuery || form.value.login || '';
 });
 
 const goBack = () => {
@@ -148,7 +160,11 @@ const handleLogin = async () => {
 
 onMounted(() => {
   if (route.query.emailConfirmation) {
-    showSuccess('Email confirmation successful');
+    showEmailConfirmationDialog.value = true;
+    // Set email from query if available
+    if (route.query.email && typeof route.query.email === 'string') {
+      form.value.login = route.query.email;
+    }
   }
 });
 </script>
