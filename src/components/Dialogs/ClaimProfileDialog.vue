@@ -16,7 +16,7 @@
       <q-card-section class="dialog-content">
         <template v-if="timeLeft > 0">
           <p class="text-body1 q-mb-md">
-            <span class="text-primary text-weight-bold">Email already sent.</span> Check your email and confirm it's you.
+            <span class="text-primary text-weight-bold">Email successfully sent.</span> Check your email and confirm it's you.
           </p>
           <p class="text-grey-6">
             Please check your inbox (and spam folder) or wait until the timer expires to send again.
