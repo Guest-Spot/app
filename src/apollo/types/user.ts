@@ -88,6 +88,7 @@ export const USERS_QUERY = gql`
       depositAmount
       chargeDeposit
       verified
+      confirmed
       openingHours {
         day
         start
@@ -143,6 +144,7 @@ export const USER_QUERY = gql`
       depositAmount
       chargeDeposit
       verified
+      confirmed
       openingHours {
         day
         start

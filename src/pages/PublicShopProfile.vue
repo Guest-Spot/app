@@ -90,11 +90,30 @@
     </div>
     <!-- Booking Button -->
     <div
-      v-if="shopData?.openingHours?.length && artists?.length"
+      v-if="canClaim || (shopData?.openingHours?.length && artists?.length)"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
-        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" :disable="!shopData.documentId" @click="goToBookingPage">
+        <q-btn
+          v-if="canClaim"
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          @click="onClaim"
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" />
+            <span class="text-h6">Claim</span>
+          </div>
+        </q-btn>
+        <q-btn
+          v-else
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          :disable="!shopData.documentId"
+          @click="goToBookingPage"
+        >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="event" />
             <span class="text-h6">Book</span>
@@ -102,6 +121,12 @@
         </q-btn>
       </div>
     </div>
+    <ClaimProfileDialog
+      v-model="showClaimDialog"
+      :email="shopData.email || ''"
+      :loading="isClaiming"
+      @confirm="onConfirmClaim"
+    />
   </q-page>
 </template>
 
@@ -125,12 +150,15 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
+import { resendConfirmationEmail } from 'src/api';
+import useNotify from 'src/modules/useNotify';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
 const router = useRouter();
 const shopsStore = useShopsStore();
 const userStore = useUserStore();
+const { showSuccess, showError } = useNotify();
 
 // Apollo queries
 const {
@@ -193,6 +221,9 @@ const portfolioItems = ref<IPortfolio[]>([]);
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
+const canClaim = computed(() => !!shopData.value.email && !shopData.value.confirmed && shopData.value.type !== UserType.Guest);
+const isClaiming = ref(false);
+const showClaimDialog = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -216,6 +247,26 @@ const activeTab = ref<ITab>(TABS.value[0]!);
 // Methods
 const toggleFavorite = () => {
   toggleShopFavorite(shopData.value);
+};
+
+const onClaim = () => {
+  if (!shopData.value.email) return;
+  showClaimDialog.value = true;
+};
+
+const onConfirmClaim = async () => {
+  if (!shopData.value.email) return;
+  isClaiming.value = true;
+  try {
+    await resendConfirmationEmail(shopData.value.email);
+    showSuccess('Confirmation email sent successfully');
+    showClaimDialog.value = false;
+  } catch (error) {
+    console.error(error);
+    showError('Failed to send confirmation email');
+  } finally {
+    isClaiming.value = false;
+  }
 };
 
 const setActiveTab = (tab: ITab) => {

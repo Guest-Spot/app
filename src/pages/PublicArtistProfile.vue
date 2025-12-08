@@ -86,11 +86,30 @@
 
     <!-- Booking Button -->
     <div
-      v-if="artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length)"
+      v-if="canClaim || artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length)"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
-        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" @click="goToBookingPage">
+        <q-btn
+          v-if="canClaim"
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          :loading="isClaiming"
+          @click="onClaim"
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" />
+            <span class="text-h6">Claim</span>
+          </div>
+        </q-btn>
+        <q-btn
+          v-else
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          @click="goToBookingPage"
+        >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="event" />
             <span class="text-h6">Book</span>
@@ -101,6 +120,12 @@
 
     <!-- Shop Info Dialog -->
     <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
+    <ClaimProfileDialog
+      v-model="showClaimDialog"
+      :email="artistData.email || ''"
+      :loading="isClaiming"
+      @confirm="onConfirmClaim"
+    />
   </q-page>
 </template>
 
@@ -113,7 +138,7 @@ import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
-import { ShopInfoDialog } from 'src/components/Dialogs';
+import { ShopInfoDialog, ClaimProfileDialog } from 'src/components/Dialogs';
 import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
 import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -126,6 +151,7 @@ import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
+import { resendConfirmationEmail } from 'src/api';
 
 const {
   load: loadArtist,
@@ -193,6 +219,9 @@ const trips = ref<ITrip[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
+const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);
+const isClaiming = ref(false);
+const showClaimDialog = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -244,6 +273,26 @@ const toggleFavorite = () => {
     id: artistData.value.id || '',
     device_tokens: artistData.value.device_tokens || [],
   });
+};
+
+const onClaim = () => {
+  if (!artistData.value.email) return;
+  showClaimDialog.value = true;
+};
+
+const onConfirmClaim = async () => {
+  if (!artistData.value.email) return;
+  isClaiming.value = true;
+  try {
+    await resendConfirmationEmail(artistData.value.email);
+    showSuccess('Confirmation email sent successfully');
+    showClaimDialog.value = false;
+  } catch (error) {
+    console.error(error);
+    showError('Failed to send confirmation email');
+  } finally {
+    isClaiming.value = false;
+  }
 };
 
 // Dialog state
