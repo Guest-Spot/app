@@ -2,7 +2,7 @@
   <q-dialog v-model="isVisible" position="bottom" no-route-dismiss>
     <q-card class="claim-profile-dialog">
       <q-card-section class="dialog-header">
-        <div class="text-subtitle1 text-bold">{{ success ? 'Check your email' : 'Verify Ownership' }}</div>
+        <div class="text-subtitle1 text-bold">{{ (success || timeLeft > 0) ? 'Check your email' : 'Verify Ownership' }}</div>
         <q-btn
           icon="close"
           class="bg-block"
@@ -14,9 +14,12 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
-        <template v-if="success">
+        <template v-if="timeLeft > 0">
           <p class="text-body1 q-mb-md">
-            Email sent. Check email and confirm it's you.
+            Email already sent. Check your email and confirm it's you.
+          </p>
+          <p class="text-grey-6">
+            Please check your inbox (and spam folder) or wait until the timer expires to send again.
           </p>
         </template>
         <template v-else>
@@ -31,7 +34,7 @@
 
       <q-card-actions class="dialog-actions bg-block">
         <q-btn
-          :label="success ? 'Close' : 'Cancel'"
+          :label="(success || timeLeft > 0) ? 'Close' : 'Cancel'"
           color="grey-9"
           rounded
           unelevated
