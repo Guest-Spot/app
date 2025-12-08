@@ -45,10 +45,9 @@
                 outlined
                 rounded
                 size="lg"
-                hint="Required and must be at least 3 characters"
+                hint="Required field"
                 :rules="[
                   (val) => !!val || 'Password is required',
-                  (val) => val.length >= 3 || 'Password must be at least 3 characters',
                 ]"
                 class="full-width"
                 bg-color="transparent"
