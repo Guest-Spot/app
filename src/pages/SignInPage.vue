@@ -90,7 +90,7 @@
                 rounded
                 icon="lock_reset"
                 color="grey-6"
-                :label="cooldownTime > 0 ? `Next try in ${formattedCooldown}` : 'Forgot password?'"
+                :label="cooldownTime > 0 ? `Forgot password? (Next try in ${formattedCooldown})` : 'Forgot password?'"
                 class="text-caption"
                 :loading="forgotPasswordLoading"
                 :disable="forgotPasswordLoading || cooldownTime > 0"
