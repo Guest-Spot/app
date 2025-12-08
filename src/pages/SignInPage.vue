@@ -21,6 +21,7 @@
               <q-input
                 v-model="form.login"
                 type="email"
+                ref="emailInput"
                 placeholder="Email"
                 outlined
                 rounded
@@ -117,6 +118,7 @@ import { useMutation } from '@vue/apollo-composable';
 import { FORGOT_PASSWORD_MUTATION } from 'src/apollo/types/user';
 import useUser from 'src/modules/useUser';
 import useNotify from 'src/modules/useNotify';
+import { QInput } from 'quasar';
 
 const { showError, showSuccess } = useNotify();
 const router = useRouter();
@@ -126,6 +128,7 @@ const { login, isAuthenticated, fetchMe } = useUser();
 const loading = ref(false);
 const forgotPasswordLoading = ref(false);
 const showPassword = ref(false);
+const emailInput = ref<QInput | null>(null);
 const form = ref({
   login: '',
   password: '',
@@ -182,6 +185,7 @@ const goBack = () => {
 const handleForgotPassword = async () => {
   if (!form.value.login) {
     showError('Please enter your email address first');
+    void emailInput.value?.validate();
     return;
   }
 
