@@ -7,10 +7,27 @@
       </q-btn>
 
       <!-- Action Buttons -->
-      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs">
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
         <!-- Shop Info Button -->
         <q-btn v-if="artistData.parent" round flat @click="openShopDialog" class="bg-block">
           <q-icon name="store" size="22px" color="primary" />
+        </q-btn>
+
+        <!-- Claim Button -->
+        <q-btn
+          v-if="canClaim"
+          rounded
+          color="primary"
+          :loading="isClaiming"
+          @click="onClaim"
+          class="q-px-md"
+          dense
+          unelevated
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" size="18px" />
+            <span class="text-caption text-weight-bold">Claim</span>
+          </div>
         </q-btn>
 
         <!-- Favorite Button -->
@@ -86,25 +103,11 @@
 
     <!-- Booking Button -->
     <div
-      v-if="canClaim || artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length)"
+      v-if="!canClaim && (artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
         <q-btn
-          v-if="canClaim"
-          rounded
-          class="full-width q-py-sm q-mb-lg q-mt-md"
-          color="primary"
-          :loading="isClaiming"
-          @click="onClaim"
-        >
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="verified" />
-            <span class="text-h6">Get access</span>
-          </div>
-        </q-btn>
-        <q-btn
-          v-else
           rounded
           class="full-width q-py-sm q-mb-lg q-mt-md"
           color="primary"

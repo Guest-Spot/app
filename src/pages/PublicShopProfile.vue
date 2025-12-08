@@ -7,17 +7,37 @@
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
-      <!-- Favorite Button -->
-      <q-btn
-        round
-        flat
-        :color="isFavorite ? 'red' : 'grey-6'"
-        @click="toggleFavorite"
-        class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
-      >
-        <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
-        <q-icon v-else name="bookmark_border" size="24px" color="red" />
-      </q-btn>
+      <!-- Action Buttons -->
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
+        <!-- Favorite Button -->
+        <q-btn
+          round
+          flat
+          :color="isFavorite ? 'red' : 'grey-6'"
+          @click="toggleFavorite"
+          class="bg-block"
+        >
+          <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
+          <q-icon v-else name="bookmark_border" size="24px" color="red" />
+        </q-btn>
+
+        <!-- Claim Button -->
+        <q-btn
+          v-if="canClaim"
+          rounded
+          color="primary"
+          :loading="isClaiming"
+          @click="onClaim"
+          class="q-px-md"
+          dense
+          unelevated
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" size="18px" />
+            <span class="text-caption text-weight-bold">Claim</span>
+          </div>
+        </q-btn>
+      </div>
 
       <div class="profile-info-container flex column">
         <!-- Pictures Carousel or Avatar -->
@@ -90,24 +110,11 @@
     </div>
     <!-- Booking Button -->
     <div
-      v-if="canClaim || (shopData?.openingHours?.length && artists?.length)"
+      v-if="!canClaim && (shopData?.openingHours?.length && artists?.length)"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
         <q-btn
-          v-if="canClaim"
-          rounded
-          class="full-width q-py-sm q-mb-lg q-mt-md"
-          color="primary"
-          @click="onClaim"
-        >
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="verified" />
-            <span class="text-h6">Get access</span>
-          </div>
-        </q-btn>
-        <q-btn
-          v-else
           rounded
           class="full-width q-py-sm q-mb-lg q-mt-md"
           color="primary"
@@ -367,7 +374,7 @@ onBeforeMount(() => {
   left: 16px;
 }
 
-.favorite-btn {
+.action-buttons-header {
   top: 16px;
   right: 16px;
 }
@@ -383,7 +390,7 @@ onBeforeMount(() => {
     top: 70px;
   }
 
-  .favorite-btn {
+  .action-buttons-header {
     top: 70px;
   }
 }
