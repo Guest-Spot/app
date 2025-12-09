@@ -7,17 +7,20 @@
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
-      <!-- Favorite Button -->
-      <q-btn
-        round
-        flat
-        :color="isFavorite ? 'red' : 'grey-6'"
-        @click="toggleFavorite"
-        class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
-      >
-        <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
-        <q-icon v-else name="bookmark_border" size="24px" color="red" />
-      </q-btn>
+      <!-- Action Buttons -->
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
+        <!-- Favorite Button -->
+        <q-btn
+          round
+          flat
+          :color="isFavorite ? 'red' : 'grey-6'"
+          @click="toggleFavorite"
+          class="bg-block"
+        >
+          <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
+          <q-icon v-else name="bookmark_border" size="24px" color="red" />
+        </q-btn>
+      </div>
 
       <div class="profile-info-container flex column">
         <!-- Pictures Carousel or Avatar -->
@@ -78,7 +81,12 @@
       <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
+          <PublicAboutShopTab
+            :shop-data="shopData"
+            :loading="isLoadingShop"
+            :can-claim="canClaim"
+            @claim="onClaim"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
           <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
@@ -90,11 +98,17 @@
     </div>
     <!-- Booking Button -->
     <div
-      v-if="shopData?.openingHours?.length && artists?.length"
+      v-if="!canClaim && (shopData?.openingHours?.length && artists?.length)"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
-        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" :disable="!shopData.documentId" @click="goToBookingPage">
+        <q-btn
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          :disable="!shopData.documentId"
+          @click="goToBookingPage"
+        >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="event" />
             <span class="text-h6">Book</span>
@@ -102,6 +116,14 @@
         </q-btn>
       </div>
     </div>
+    <ClaimProfileDialog
+      v-model="showClaimDialog"
+      :email="shopData.email || ''"
+      :name="shopData.name || ''"
+      :phone="shopData.phone || ''"
+      :link="shopData.link || ''"
+      :document-id="shopData.documentId || ''"
+    />
   </q-page>
 </template>
 
@@ -125,6 +147,7 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
+import { ClaimProfileDialog } from 'src/components/Dialogs';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -193,6 +216,8 @@ const portfolioItems = ref<IPortfolio[]>([]);
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
+const canClaim = computed(() => !!shopData.value.email && !shopData.value.confirmed && shopData.value.type !== UserType.Guest);
+const showClaimDialog = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -216,6 +241,10 @@ const activeTab = ref<ITab>(TABS.value[0]!);
 // Methods
 const toggleFavorite = () => {
   toggleShopFavorite(shopData.value);
+};
+
+const onClaim = () => {
+  showClaimDialog.value = true;
 };
 
 const setActiveTab = (tab: ITab) => {
@@ -316,7 +345,7 @@ onBeforeMount(() => {
   left: 16px;
 }
 
-.favorite-btn {
+.action-buttons-header {
   top: 16px;
   right: 16px;
 }
@@ -332,7 +361,7 @@ onBeforeMount(() => {
     top: 70px;
   }
 
-  .favorite-btn {
+  .action-buttons-header {
     top: 70px;
   }
 }

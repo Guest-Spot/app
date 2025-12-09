@@ -26,19 +26,20 @@
         <div v-if="email" class="resend-block flex column items-center q-gap-xs q-my-md">
           <p class="text-caption text-grey-6 q-mb-none">Didn't receive the email?</p>
           <q-btn
-            label="Resend confirmation email"
             color="grey-6"
             dense
             flat
             rounded
             unelevated
             class="q-px-md bg-block"
-            :disable="isCooldown"
+            :loading="mutationLoading"
+            :disable="isCooldown || mutationLoading"
             @click="handleResend"
-          />
-          <p v-if="isCooldown" class="text-caption text-grey-6 q-mt-xs q-mb-none">
-            {{ cooldownLabel }}
-          </p>
+          >
+            <span class="text-body2">
+              {{ isCooldown ?  cooldownLabel : 'Resend confirmation email' }}
+            </span>
+          </q-btn>
         </div>
       </div>
     </div>
@@ -46,14 +47,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { resendConfirmationEmail } from 'src/api';
+import { EMAIL_CONFIRMATION_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
-import type { AxiosError } from 'axios';
+import { useMutation } from '@vue/apollo-composable';
 
+const { mutate: sendEmailConfirmation, loading: mutationLoading, onDone, onError } = useMutation(EMAIL_CONFIRMATION_MUTATION);
 const route = useRoute();
-const { showError } = useNotify();
+const { showSuccess } = useNotify();
 
 const normalizeValue = (value: string | null | (string | null)[] | undefined) => {
   if (Array.isArray(value)) {
@@ -69,6 +71,8 @@ const isCooldown = ref(false);
 const cooldownSeconds = ref(0);
 let cooldownTimer: number | undefined;
 
+const getStorageKey = () => `confirm_email_last_resend_${email.value}`;
+
 const clearCooldownTimer = () => {
   if (cooldownTimer !== undefined) {
     window.clearInterval(cooldownTimer);
@@ -76,41 +80,64 @@ const clearCooldownTimer = () => {
   }
 };
 
-const startCooldown = () => {
-  clearCooldownTimer();
-  isCooldown.value = true;
-  cooldownSeconds.value = 60;
-  cooldownTimer = window.setInterval(() => {
-    cooldownSeconds.value -= 1;
-    if (cooldownSeconds.value <= 0) {
-      clearCooldownTimer();
-      isCooldown.value = false;
-    }
-  }, 1000);
+const updateTimer = () => {
+  const lastSubmit = localStorage.getItem(getStorageKey());
+  if (!lastSubmit) {
+    cooldownSeconds.value = 0;
+    isCooldown.value = false;
+    clearCooldownTimer();
+    return;
+  }
+
+  const elapsed = Date.now() - parseInt(lastSubmit, 10);
+  const remaining = 60000 - elapsed;
+
+  if (remaining > 0) {
+    cooldownSeconds.value = Math.ceil(remaining / 1000);
+    isCooldown.value = true;
+  } else {
+    cooldownSeconds.value = 0;
+    isCooldown.value = false;
+    clearCooldownTimer();
+  }
 };
+
+const startCooldown = () => {
+  updateTimer();
+  if (isCooldown.value && !cooldownTimer) {
+    cooldownTimer = window.setInterval(updateTimer, 1000);
+  }
+};
+
+onMounted(() => {
+  if (email.value) {
+    startCooldown();
+  }
+});
 
 const cooldownLabel = computed(() => {
   const minutes = Math.floor(cooldownSeconds.value / 60);
   const seconds = cooldownSeconds.value % 60;
   const formattedSeconds = String(seconds).padStart(2, '0');
-  return `Resend in ${minutes}:${formattedSeconds}`;
+  return `Try again in ${minutes}:${formattedSeconds}`;
 });
 
-const handleResend = async () => {
+const handleResend = () => {
   if (isCooldown.value || !email.value) {
     return;
   }
+  localStorage.setItem(getStorageKey(), Date.now().toString());
   startCooldown();
-
-  try {
-    await resendConfirmationEmail(email.value);
-    console.log('Email confirmation resent successfully');
-  } catch (error) {
-    console.error('Error resending email confirmation:', error);
-    // show axios error
-    showError((error as AxiosError<{ error: { message: string } }>).response?.data?.error?.message || 'Failed to resend confirmation email');
-  }
+  void sendEmailConfirmation({ confirmation: email.value });
 };
+
+onDone(() => {
+  showSuccess('Email confirmation resent successfully');
+});
+
+onError((error) => {
+  console.error(error);
+});
 
 onBeforeUnmount(() => {
   clearCooldownTimer();

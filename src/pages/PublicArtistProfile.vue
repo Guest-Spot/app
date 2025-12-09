@@ -7,7 +7,7 @@
       </q-btn>
 
       <!-- Action Buttons -->
-      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs">
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
         <!-- Shop Info Button -->
         <q-btn v-if="artistData.parent" round flat @click="openShopDialog" class="bg-block">
           <q-icon name="store" size="22px" color="primary" />
@@ -73,7 +73,11 @@
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutMeTab :artist-data="artistData" />
+          <PublicAboutMeTab
+            :artist-data="artistData"
+            :can-claim="canClaim"
+            @claim="onClaim"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
@@ -86,11 +90,16 @@
 
     <!-- Booking Button -->
     <div
-      v-if="artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length)"
+      v-if="!canClaim && (artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
-        <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" @click="goToBookingPage">
+        <q-btn
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          @click="goToBookingPage"
+        >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="event" />
             <span class="text-h6">Book</span>
@@ -101,6 +110,14 @@
 
     <!-- Shop Info Dialog -->
     <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
+    <ClaimProfileDialog
+      v-model="showClaimDialog"
+      :email="artistData.email || ''"
+      :name="artistData.name || ''"
+      :phone="artistData.phone || ''"
+      :link="artistData.link || ''"
+      :document-id="artistData.documentId || ''"
+    />
   </q-page>
 </template>
 
@@ -113,7 +130,7 @@ import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
-import { ShopInfoDialog } from 'src/components/Dialogs';
+import { ShopInfoDialog, ClaimProfileDialog } from 'src/components/Dialogs';
 import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
 import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -193,6 +210,8 @@ const trips = ref<ITrip[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
+const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);
+const showClaimDialog = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -244,6 +263,10 @@ const toggleFavorite = () => {
     id: artistData.value.id || '',
     device_tokens: artistData.value.device_tokens || [],
   });
+};
+
+const onClaim = () => {
+  showClaimDialog.value = true;
 };
 
 // Dialog state
