@@ -1,6 +1,33 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
     <InfoCard
+      v-if="basicInformation.length || canClaim"
+      title="About me"
+      icon="description"
+      :data="basicInformation"
+    >
+      <template #footer v-if="canClaim">
+        <!-- Claim Button -->
+        <p v-if="!basicInformation.length" class="text-grey-6">
+          This shop has not yet claimed their profile. Please contact Guest Spot support to claim it.
+        </p>
+        <q-btn
+          rounded
+          color="primary"
+          @click="$emit('claim')"
+          class="full-width bg-block q-px-md"
+          dense
+          flat
+          unelevated
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" size="18px" />
+            <span class="text-weight-bold">Claim</span>
+          </div>
+        </q-btn>
+      </template>
+    </InfoCard>
+    <InfoCard
       v-if="workingHours?.length"
       title="Opening Times"
       icon="schedule"
@@ -23,11 +50,25 @@ import useDate from 'src/modules/useDate';
 interface Props {
   shopData: IUser;
   loading: boolean;
+  canClaim: boolean;
 }
+
+defineEmits<{
+  (e: 'claim'): void;
+}>();
 
 const props = defineProps<Props>();
 
 const { formatTime } = useDate();
+
+const basicInformation = computed(() =>
+  [
+    {
+      label: '',
+      value: props.shopData.description || '',
+    },
+  ].filter((item) => item.value),
+);
 
 const contacts = computed(() =>
   [

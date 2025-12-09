@@ -265,7 +265,6 @@ const toggleFavorite = () => {
 };
 
 const onClaim = () => {
-  if (!artistData.value.email) return;
   showClaimDialog.value = true;
 };
 

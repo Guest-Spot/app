@@ -20,22 +20,6 @@
           <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
           <q-icon v-else name="bookmark_border" size="24px" color="red" />
         </q-btn>
-
-        <!-- Claim Button -->
-        <q-btn
-          v-if="canClaim"
-          rounded
-          color="primary"
-          @click="onClaim"
-          class="q-px-md"
-          dense
-          unelevated
-        >
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="verified" size="18px" />
-            <span class="text-weight-bold">Claim</span>
-          </div>
-        </q-btn>
       </div>
 
       <div class="profile-info-container flex column">
@@ -97,7 +81,12 @@
       <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
+          <PublicAboutShopTab
+            :shop-data="shopData"
+            :loading="isLoadingShop"
+            :can-claim="canClaim"
+            @claim="onClaim"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
           <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
@@ -157,6 +146,7 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
+import { ClaimProfileDialog } from 'src/components/Dialogs';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -253,7 +243,6 @@ const toggleFavorite = () => {
 };
 
 const onClaim = () => {
-  if (!shopData.value.email) return;
   showClaimDialog.value = true;
 };
 

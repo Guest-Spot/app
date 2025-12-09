@@ -1,15 +1,17 @@
 <template>
   <div class="public-about-me-tab flex column q-gap-md full-width">
     <InfoCard
-      v-if="basicInformation.length"
+      v-if="basicInformation.length || canClaim"
       title="About me"
       icon="description"
       :data="basicInformation"
     >
-      <template #footer>
+      <template #footer v-if="canClaim">
         <!-- Claim Button -->
+        <p v-if="!basicInformation.length" class="text-grey-6">
+          This artist has not yet claimed their profile. Please contact Guest Spot support to claim it.
+        </p>
         <q-btn
-          v-if="canClaim"
           rounded
           color="primary"
           @click="$emit('claim')"
@@ -25,21 +27,6 @@
         </q-btn>
       </template>
     </InfoCard>
-    <q-btn
-      v-if="canClaim && !basicInformation.length"
-      rounded
-      color="primary"
-      @click="$emit('claim')"
-      class="full-width bg-block q-px-md"
-      dense
-      flat
-      unelevated
-    >
-      <div class="flex items-center justify-center q-gap-sm">
-        <q-icon name="verified" size="18px" />
-        <span class="text-weight-bold">Claim</span>
-      </div>
-    </q-btn>
     <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"
