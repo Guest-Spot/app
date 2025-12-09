@@ -46,9 +46,9 @@
                 rounded
                 unelevated
                 flat
-                color="primary"
+                :color="cooldownTime > 0 ? 'grey-6' : 'primary'"
               >
-                {{ cooldownTime > 0 ? `Send Reset Link (Next try in ${formattedCooldown})` : 'Send Reset Link' }}
+                {{ cooldownTime > 0 ? `Next try in ${formattedCooldown}` : 'Send reset link' }}
                 <template v-slot:loading>
                   <div class="flex items-center q-gap-sm">
                     <q-spinner color="white" size="16px" />
