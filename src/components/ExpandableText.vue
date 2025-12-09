@@ -77,7 +77,7 @@ const formatText = (text: string): string => {
 
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const placeholders: string[] = [];
-  
+
   let processed = text.replace(urlRegex, (url) => {
     placeholders.push(url);
     return `__URL_${placeholders.length - 1}__`;
@@ -96,15 +96,15 @@ const formatText = (text: string): string => {
   return processed.replace(/__URL_(\d+)__/g, (_, idx) => {
     const url = placeholders[Number(idx)];
     if (!url) return '';
-    
+
     const displayUrl = url
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
-      
-    return `<a href="${displayUrl}" target="_blank" rel="noopener noreferrer" class="text-primary" style="text-decoration: underline;">${displayUrl}</a>`;
+
+    return `<a href="${displayUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">${displayUrl}</a>`;
   });
 };
 
@@ -138,6 +138,10 @@ watch(
     min-height: auto;
     margin-left: 4px;
     font-weight: 600;
+  }
+
+  :deep(a) {
+    color: inherit;
   }
 }
 </style>

@@ -13,23 +13,6 @@
           <q-icon name="store" size="22px" color="primary" />
         </q-btn>
 
-        <!-- Claim Button -->
-        <q-btn
-          v-if="canClaim"
-          rounded
-          color="primary"
-          :loading="isClaiming"
-          @click="onClaim"
-          class="q-px-md"
-          dense
-          unelevated
-        >
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="verified" size="18px" />
-            <span class="text-weight-bold">Claim</span>
-          </div>
-        </q-btn>
-
         <!-- Favorite Button -->
         <q-btn
           round
@@ -90,7 +73,12 @@
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutMeTab :artist-data="artistData" />
+          <PublicAboutMeTab
+            :artist-data="artistData"
+            :claim-loading="isClaiming"
+            :can-claim="canClaim"
+            @claim="onClaim"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />

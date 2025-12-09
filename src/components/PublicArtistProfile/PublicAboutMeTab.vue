@@ -1,17 +1,37 @@
 <template>
   <div class="public-about-me-tab flex column q-gap-md full-width">
     <InfoCard
+      v-if="basicInformation.length"
+      title="About me"
+      icon="description"
+      :data="basicInformation"
+    >
+      <template #footer>
+        <!-- Claim Button -->
+        <q-btn
+          v-if="canClaim"
+          rounded
+          color="primary"
+          :loading="claimLoading"
+          @click="$emit('claim')"
+          class="full-width bg-block q-px-md"
+          dense
+          flat
+          unelevated
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" size="18px" />
+            <span class="text-weight-bold">Claim</span>
+          </div>
+        </q-btn>
+      </template>
+    </InfoCard>
+    <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"
       icon="schedule"
       :data="workingHours"
       class="opening-times-card"
-    />
-    <InfoCard
-      v-if="basicInformation.length"
-      title="Basic Information"
-      icon="person"
-      :data="basicInformation"
     />
     <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
     <InfoCard v-if="location.length" title="Location" icon="location_on" :data="location" />
@@ -28,7 +48,13 @@ import useDate from 'src/modules/useDate';
 
 interface Props {
   artistData: IUser;
+  claimLoading: boolean;
+  canClaim: boolean;
 }
+
+defineEmits<{
+  (e: 'claim'): void;
+}>();
 
 const props = defineProps<Props>();
 
@@ -37,11 +63,7 @@ const { formatTime } = useDate();
 const basicInformation = computed(() =>
   [
     {
-      label: 'Name',
-      value: props.artistData.name || '',
-    },
-    {
-      label: 'Bio',
+      label: '',
       value: props.artistData.description || '',
     },
   ].filter((item) => item.value),

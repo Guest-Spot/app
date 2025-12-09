@@ -26,7 +26,13 @@
         <a v-else-if="item.type === InfoItemType.Link" target="_blank" :href="item.value">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
-        <ExpandableText v-else :text="item.value" collapsible :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']" />
+        <ExpandableText
+          v-else
+          :text="item.value"
+          collapsible
+          :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']"
+          formatted
+        />
         <q-btn
           v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
           :icon="whatsappIcon"
@@ -52,6 +58,7 @@
 
         <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
       </div>
+      <slot name="footer" />
     </div>
   </div>
 </template>
@@ -152,7 +159,6 @@ const copyLink = (value: string) => {
 .info-value {
   color: var(--primary);
   text-decoration: none;
-  word-break: break-all;
 }
 
 .text-ellipsis {
