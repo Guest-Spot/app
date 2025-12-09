@@ -329,3 +329,11 @@ export const CREATE_MEMBERSHIP_REQUEST_MUTATION = gql`
     }
   }
 `;
+
+export const MEMBERSHIP_REQUESTS_QUERY = gql`
+  query MembershipRequests {
+    membershipRequests {
+      email
+    }
+  }
+`;
