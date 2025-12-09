@@ -320,3 +320,12 @@ export const SEND_CLAIM_PROFILE_EMAIL_MUTATION = gql`
     sendClaimProfileEmail(email: $email)
   }
 `;
+
+export const CREATE_MEMBERSHIP_REQUEST_MUTATION = gql`
+  mutation CreateMembershipRequest($data: MembershipRequestInput!) {
+    createMembershipRequest(data: $data) {
+      documentId
+      email
+    }
+  }
+`;

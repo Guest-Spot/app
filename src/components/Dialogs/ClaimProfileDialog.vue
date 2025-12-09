@@ -2,7 +2,7 @@
   <q-dialog v-model="isVisible" position="bottom" no-route-dismiss>
     <q-card class="claim-profile-dialog">
       <q-card-section class="dialog-header">
-        <div class="text-subtitle1 text-bold">{{ (success || timeLeft > 0) ? 'Check your email' : 'Verify Ownership' }}</div>
+        <div class="text-subtitle1 text-bold">{{ (success || timeLeft > 0) ? 'Request Sent' : 'Verify Ownership' }}</div>
         <q-btn
           icon="close"
           class="bg-block"
@@ -16,18 +16,12 @@
       <q-card-section class="dialog-content">
         <template v-if="timeLeft > 0">
           <p class="text-body1 q-mb-md">
-            <span class="text-primary text-weight-bold">Email successfully sent.</span> Check your email and confirm it's you.
-          </p>
-          <p class="text-grey-6">
-            Please check your inbox (and spam folder) or wait until the timer expires to send again.
+            <span class="text-primary text-weight-bold">Thank you, your request has been sent.</span> Our support team will contact you shortly.
           </p>
         </template>
         <template v-else>
-          <p class="text-body1 q-mb-md">
-            We'll send a confirmation link to <span class="text-primary text-weight-bold">{{ email }}</span>.
-          </p>
-          <p class="text-grey-6">
-            Please check your inbox (and spam folder) to verify that you own this profile.
+          <p class="q-mb-md">
+            If you want to verify that this is <span class="text-primary text-weight-bold">your account</span>, please send a request. Our support team will contact you shortly to verify your account.
           </p>
         </template>
       </q-card-section>
@@ -61,7 +55,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { useMutation } from '@vue/apollo-composable';
-import { SEND_CLAIM_PROFILE_EMAIL_MUTATION } from 'src/apollo/types/user';
+import { CREATE_MEMBERSHIP_REQUEST_MUTATION } from 'src/apollo/types/user';
 
 interface Props {
   modelValue: boolean;
@@ -84,7 +78,7 @@ const timeLeft = ref(0);
 let timerInterval: ReturnType<typeof setInterval> | null = null;
 const COOLDOWN_DURATION = 60 * 60 * 1000; // 1 hour
 
-const { mutate: sendClaimProfileEmail, loading: mutationLoading, onDone, onError } = useMutation(SEND_CLAIM_PROFILE_EMAIL_MUTATION);
+const { mutate: createMembershipRequest, loading: mutationLoading, onDone, onError } = useMutation(CREATE_MEMBERSHIP_REQUEST_MUTATION);
 const isSuccess = ref(false);
 
 const loading = computed(() => props.loading || mutationLoading.value);
@@ -137,8 +131,7 @@ onUnmounted(() => {
 });
 
 const onConfirm = () => {
-  void sendClaimProfileEmail({ email: props.email });
-  emit('confirm');
+  void createMembershipRequest({ data: { email: props.email } });
 };
 
 onDone(() => {
