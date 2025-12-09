@@ -12,7 +12,6 @@
           v-if="canClaim"
           rounded
           color="primary"
-          :loading="claimLoading"
           @click="$emit('claim')"
           class="full-width bg-block q-px-md"
           dense
@@ -48,7 +47,6 @@ import useDate from 'src/modules/useDate';
 
 interface Props {
   artistData: IUser;
-  claimLoading: boolean;
   canClaim: boolean;
 }
 

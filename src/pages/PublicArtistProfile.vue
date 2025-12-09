@@ -75,7 +75,6 @@
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
           <PublicAboutMeTab
             :artist-data="artistData"
-            :claim-loading="isClaiming"
             :can-claim="canClaim"
             @claim="onClaim"
           />
@@ -114,15 +113,12 @@
     <ClaimProfileDialog
       v-model="showClaimDialog"
       :email="artistData.email || ''"
-      :loading="isClaiming"
-      :success="claimSuccess"
-      @confirm="onConfirmClaim"
     />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp, VerifiedBadge } from 'src/components';
@@ -143,7 +139,6 @@ import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
-import { resendConfirmationEmail } from 'src/api';
 
 const {
   load: loadArtist,
@@ -212,9 +207,7 @@ const trips = ref<ITrip[]>([]);
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
 const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);
-const isClaiming = ref(false);
 const showClaimDialog = ref(false);
-const claimSuccess = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -272,27 +265,6 @@ const onClaim = () => {
   if (!artistData.value.email) return;
   showClaimDialog.value = true;
 };
-
-const onConfirmClaim = async () => {
-  if (!artistData.value.email) return;
-  isClaiming.value = true;
-  try {
-    await resendConfirmationEmail(artistData.value.email);
-    showSuccess('Confirmation email sent successfully');
-    claimSuccess.value = true;
-  } catch (error) {
-    console.error(error);
-    showError('Failed to send confirmation email');
-  } finally {
-    isClaiming.value = false;
-  }
-};
-
-watch(showClaimDialog, (val) => {
-  if (!val) {
-    claimSuccess.value = false;
-  }
-});
 
 // Dialog state
 const showShopDialog = ref(false);
