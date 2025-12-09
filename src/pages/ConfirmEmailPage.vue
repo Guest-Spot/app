@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { EMAIL_CONFIRMATION_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
@@ -71,6 +71,8 @@ const isCooldown = ref(false);
 const cooldownSeconds = ref(0);
 let cooldownTimer: number | undefined;
 
+const getStorageKey = () => `confirm_email_last_resend_${email.value}`;
+
 const clearCooldownTimer = () => {
   if (cooldownTimer !== undefined) {
     window.clearInterval(cooldownTimer);
@@ -78,18 +80,40 @@ const clearCooldownTimer = () => {
   }
 };
 
-const startCooldown = () => {
-  clearCooldownTimer();
-  isCooldown.value = true;
-  cooldownSeconds.value = 60;
-  cooldownTimer = window.setInterval(() => {
-    cooldownSeconds.value -= 1;
-    if (cooldownSeconds.value <= 0) {
-      clearCooldownTimer();
-      isCooldown.value = false;
-    }
-  }, 1000);
+const updateTimer = () => {
+  const lastSubmit = localStorage.getItem(getStorageKey());
+  if (!lastSubmit) {
+    cooldownSeconds.value = 0;
+    isCooldown.value = false;
+    clearCooldownTimer();
+    return;
+  }
+
+  const elapsed = Date.now() - parseInt(lastSubmit, 10);
+  const remaining = 60000 - elapsed;
+
+  if (remaining > 0) {
+    cooldownSeconds.value = Math.ceil(remaining / 1000);
+    isCooldown.value = true;
+  } else {
+    cooldownSeconds.value = 0;
+    isCooldown.value = false;
+    clearCooldownTimer();
+  }
 };
+
+const startCooldown = () => {
+  updateTimer();
+  if (isCooldown.value && !cooldownTimer) {
+    cooldownTimer = window.setInterval(updateTimer, 1000);
+  }
+};
+
+onMounted(() => {
+  if (email.value) {
+    startCooldown();
+  }
+});
 
 const cooldownLabel = computed(() => {
   const minutes = Math.floor(cooldownSeconds.value / 60);
@@ -102,6 +126,7 @@ const handleResend = () => {
   if (isCooldown.value || !email.value) {
     return;
   }
+  localStorage.setItem(getStorageKey(), Date.now().toString());
   startCooldown();
   void sendEmailConfirmation({ confirmation: email.value });
 };
