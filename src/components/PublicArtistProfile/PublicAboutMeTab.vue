@@ -1,17 +1,38 @@
 <template>
   <div class="public-about-me-tab flex column q-gap-md full-width">
     <InfoCard
+      v-if="basicInformation.length || canClaim"
+      title="About me"
+      icon="description"
+      :data="basicInformation"
+    >
+      <template #footer v-if="canClaim">
+        <!-- Claim Button -->
+        <p v-if="!basicInformation.length" class="text-grey-6">
+          This artist has not yet claimed their profile. Please contact Guest Spot support to claim it.
+        </p>
+        <q-btn
+          rounded
+          color="primary"
+          @click="$emit('claim')"
+          class="full-width bg-block q-px-md"
+          dense
+          flat
+          unelevated
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="verified" size="18px" />
+            <span class="text-weight-bold">Claim</span>
+          </div>
+        </q-btn>
+      </template>
+    </InfoCard>
+    <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"
       icon="schedule"
       :data="workingHours"
       class="opening-times-card"
-    />
-    <InfoCard
-      v-if="basicInformation.length"
-      title="Basic Information"
-      icon="person"
-      :data="basicInformation"
     />
     <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
     <InfoCard v-if="location.length" title="Location" icon="location_on" :data="location" />
@@ -28,7 +49,12 @@ import useDate from 'src/modules/useDate';
 
 interface Props {
   artistData: IUser;
+  canClaim: boolean;
 }
+
+defineEmits<{
+  (e: 'claim'): void;
+}>();
 
 const props = defineProps<Props>();
 
@@ -37,11 +63,7 @@ const { formatTime } = useDate();
 const basicInformation = computed(() =>
   [
     {
-      label: 'Name',
-      value: props.artistData.name || '',
-    },
-    {
-      label: 'Bio',
+      label: '',
       value: props.artistData.description || '',
     },
   ].filter((item) => item.value),

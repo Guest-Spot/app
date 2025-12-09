@@ -4,12 +4,26 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/auth',
     component: () => import('layouts/SimpleLayout.vue'),
-    meta: { title: 'Sign In' },
+    meta: { title: 'Welcome to GuestSpot' },
     children: [{ path: '', component: () => import('pages/AuthPage.vue') }],
   },
   {
+    path: '/reset-password',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Reset Password' },
+    children: [{ path: '', component: () => import('pages/ResetPasswordPage.vue') }],
+  },
+  {
+    path: '/forgot-password',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Forgot Password' },
+    children: [{ path: '', component: () => import('pages/ForgotPasswordPage.vue') }],
+  },
+  {
     path: '/sign-in',
-    redirect: '/auth',
+    component: () => import('layouts/SimpleLayout.vue'),
+    meta: { title: 'Sign In' },
+    children: [{ path: '', component: () => import('pages/SignInPage.vue') }],
   },
   {
     path: '/sign-up',

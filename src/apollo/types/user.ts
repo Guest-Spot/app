@@ -88,6 +88,7 @@ export const USERS_QUERY = gql`
       depositAmount
       chargeDeposit
       verified
+      confirmed
       openingHours {
         day
         start
@@ -143,6 +144,7 @@ export const USER_QUERY = gql`
       depositAmount
       chargeDeposit
       verified
+      confirmed
       openingHours {
         day
         start
@@ -290,6 +292,48 @@ export const DELETE_USER_MUTATION = gql`
       data {
         documentId
       }
+    }
+  }
+`;
+
+export const FORGOT_PASSWORD_MUTATION = gql`
+  mutation ForgotPassword($email: String!) {
+    forgotPassword(email: $email) {
+      ok
+    }
+  }
+`;
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($password: String!, $passwordConfirmation: String!, $code: String!) {
+    resetPassword(password: $password, passwordConfirmation: $passwordConfirmation, code: $code) {
+      jwt
+      user {
+        documentId
+      }
+    }
+  }
+`;
+
+export const SEND_CLAIM_PROFILE_EMAIL_MUTATION = gql`
+  mutation SendClaimProfileEmail($email: String!) {
+    sendClaimProfileEmail(email: $email)
+  }
+`;
+
+export const CREATE_MEMBERSHIP_REQUEST_MUTATION = gql`
+  mutation CreateMembershipRequest($data: MembershipRequestInput!) {
+    createMembershipRequest(data: $data) {
+      documentId
+      email
+    }
+  }
+`;
+
+export const MEMBERSHIP_REQUESTS_QUERY = gql`
+  query MembershipRequests {
+    membershipRequests {
+      email
     }
   }
 `;

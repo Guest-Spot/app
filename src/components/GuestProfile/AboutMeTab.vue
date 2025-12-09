@@ -108,6 +108,9 @@
     <!-- Delete Account Section -->
     <DeleteAccountSection />
 
+    <!-- Feedback & Logout Section -->
+    <FeedbackLogout />
+
     <!-- Save Button -->
     <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
       <q-btn
@@ -147,6 +150,7 @@ import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
+import FeedbackLogout from 'src/components/FeedbackLogout.vue';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
