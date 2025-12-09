@@ -54,10 +54,10 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
-import { useApolloClient } from '@vue/apollo-composable';
-import { MEMBERSHIP_REQUESTS_QUERY } from 'src/apollo/types/user';
 import { createMembershipRequest } from 'src/api/membershipRequest';
 import useNotify from 'src/modules/useNotify';
+import { useLazyQuery } from '@vue/apollo-composable';
+import { MEMBERSHIP_REQUESTS_QUERY } from 'src/apollo/types/user';
 
 interface Props {
   modelValue: boolean;
@@ -65,6 +65,7 @@ interface Props {
   name: string;
   phone: string;
   link: string;
+  documentId: string;
 }
 
 interface Emits {
@@ -72,10 +73,11 @@ interface Emits {
   (e: 'confirm'): void;
 }
 
+
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const { showSuccess } = useNotify();
-const { resolveClient } = useApolloClient();
+const { load: loadMembershipRequests } = useLazyQuery(MEMBERSHIP_REQUESTS_QUERY);
 
 const isVisible = ref(props.modelValue);
 const isLoading = ref(false);
@@ -133,29 +135,22 @@ onUnmounted(() => {
 const onConfirm = async () => {
   try {
     isLoading.value = true;
+    const result = await loadMembershipRequests(null, {
+      filters: {
+        email: {
+          eq: props.email,
+        },
+      },
+    }, { fetchPolicy: 'network-only' });
 
-    const client = resolveClient();
-    const { data } = await client.query({
-      query: MEMBERSHIP_REQUESTS_QUERY,
-      fetchPolicy: 'network-only',
-    });
-
-    const exists = data?.membershipRequests?.some((req: { email: string }) => req.email === props.email);
-
-    if (exists) {
-      localStorage.setItem(getStorageKey(), Date.now().toString());
-      startTimer();
-      showSuccess('Request sent successfully');
-      isLoading.value = false;
-      return;
+    if (!result?.membershipRequests?.length) {
+      await createMembershipRequest({
+        email: props.email,
+        name: props.name,
+        phone: props.phone,
+        link: props.link,
+      });
     }
-
-    await createMembershipRequest({
-      email: props.email,
-      name: props.name,
-      phone: props.phone,
-      link: props.link,
-    });
     localStorage.setItem(getStorageKey(), Date.now().toString());
     startTimer();
     showSuccess('Request sent successfully');

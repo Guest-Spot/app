@@ -122,6 +122,7 @@
       :name="shopData.name || ''"
       :phone="shopData.phone || ''"
       :link="shopData.link || ''"
+      :document-id="shopData.documentId || ''"
     />
   </q-page>
 </template>

@@ -116,6 +116,7 @@
       :name="artistData.name || ''"
       :phone="artistData.phone || ''"
       :link="artistData.link || ''"
+      :document-id="artistData.documentId || ''"
     />
   </q-page>
 </template>
