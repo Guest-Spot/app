@@ -56,8 +56,6 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { createMembershipRequest } from 'src/api/membershipRequest';
 import useNotify from 'src/modules/useNotify';
-import { useLazyQuery } from '@vue/apollo-composable';
-import { MEMBERSHIP_REQUESTS_QUERY } from 'src/apollo/types/user';
 
 interface Props {
   modelValue: boolean;
@@ -77,7 +75,6 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const { showSuccess } = useNotify();
-const { load: loadMembershipRequests } = useLazyQuery(MEMBERSHIP_REQUESTS_QUERY);
 
 const isVisible = ref(props.modelValue);
 const isLoading = ref(false);
@@ -135,22 +132,12 @@ onUnmounted(() => {
 const onConfirm = async () => {
   try {
     isLoading.value = true;
-    const result = await loadMembershipRequests(null, {
-      filters: {
-        email: {
-          eq: props.email,
-        },
-      },
-    }, { fetchPolicy: 'network-only' });
-
-    if (!result?.membershipRequests?.length) {
-      await createMembershipRequest({
-        email: props.email,
-        name: props.name,
-        phone: props.phone,
-        link: props.link,
-      });
-    }
+    await createMembershipRequest({
+      email: props.email,
+      name: props.name,
+      phone: props.phone,
+      link: props.link,
+    });
     localStorage.setItem(getStorageKey(), Date.now().toString());
     startTimer();
     showSuccess('Request sent successfully');
