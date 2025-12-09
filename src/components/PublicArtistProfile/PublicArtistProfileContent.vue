@@ -1,13 +1,13 @@
 <template>
-  <div class="page q-pb-lg flex column items-start q-gap-md">
+  <div class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
     <div class="container">
       <!-- Back Button -->
-      <q-btn round flat @click="handleBack" class="bg-block absolute-top-left q-z-2 back-btn">
+      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
       <!-- Action Buttons -->
-      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs">
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
         <!-- Shop Info Button -->
         <q-btn v-if="artistData.parent" round flat @click="openShopDialog" class="bg-block">
           <q-icon name="store" size="22px" color="primary" />
@@ -62,7 +62,7 @@
         <TabsComp
           :tabs="TABS"
           :activeTab="activeTab"
-          :use-query="useQuery"
+          use-query
           send-initial-tab
           @setActiveTab="setActiveTab"
           :disable="!artistData.documentId"
@@ -73,7 +73,11 @@
       <div class="main-content flex column q-gap-md">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutMeTab :artist-data="artistData" />
+          <PublicAboutMeTab
+            :artist-data="artistData"
+            :can-claim="canClaim"
+            @claim="onClaim"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_PORTFOLIO" class="tab-content">
           <PublicPortfolioTab :portfolio-items="portfolioItems" :loading="isLoadingPortfolio" />
@@ -83,35 +87,50 @@
         </div>
       </div>
     </div>
+
+    <!-- Booking Button -->
+    <div
+      v-if="!canClaim && (artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
+      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
+    >
+      <div class="container">
+        <q-btn
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          @click="goToBookingPage"
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="event" />
+            <span class="text-h6">Book</span>
+          </div>
+        </q-btn>
+      </div>
+    </div>
+
     <!-- Shop Info Dialog -->
     <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
-  </div>
-  <!-- Booking Button -->
-  <div
-    v-if="shouldShowBookingButton"
-    class="action-buttons full-width bg-block flex justify-center q-gap-sm"
-  >
-    <div class="container">
-      <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" @click="goToBookingPage">
-        <div class="flex items-center justify-center q-gap-sm">
-          <q-icon name="event" />
-          <span class="text-h6">Book</span>
-        </div>
-      </q-btn>
-    </div>
+    <ClaimProfileDialog
+      v-model="showClaimDialog"
+      :email="artistData.email || ''"
+      :name="artistData.name || ''"
+      :phone="artistData.phone || ''"
+      :link="artistData.link || ''"
+      :document-id="artistData.documentId || ''"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeMount } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onBeforeMount } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp, VerifiedBadge } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
-import { ShopInfoDialog } from 'src/components/Dialogs';
+import { ShopInfoDialog, ClaimProfileDialog } from 'src/components/Dialogs';
 import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
 import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -120,20 +139,10 @@ import { TRIPS_QUERY } from 'src/apollo/types/trip';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import type { IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import { useArtistsStore } from 'src/stores/artists';
+import useInviteCompos from 'src/composables/useInviteCompos';
+import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
-
-interface Props {
-  documentId: string;
-  onBack?: () => void;
-  useQuery?: boolean;
-  checkParentOpeningHours?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  useQuery: false,
-  checkParentOpeningHours: false,
-});
 
 const {
   load: loadArtist,
@@ -155,8 +164,11 @@ const {
 } = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
+const route = useRoute();
 const router = useRouter();
 const artistsStore = useArtistsStore();
+const { onInviteSuccess, onInviteError } = useInviteCompos();
+const { showError, showSuccess } = useNotify();
 const userStore = useUserStore();
 
 const TAB_ABOUT = 'about';
@@ -198,6 +210,8 @@ const trips = ref<ITrip[]>([]);
 // Computed properties for favorites
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
+const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);
+const showClaimDialog = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -251,12 +265,8 @@ const toggleFavorite = () => {
   });
 };
 
-const handleBack = () => {
-  if (props.onBack) {
-    props.onBack();
-  } else {
-    router.back();
-  }
+const onClaim = () => {
+  showClaimDialog.value = true;
 };
 
 // Dialog state
@@ -268,32 +278,17 @@ const openShopDialog = () => {
 
 const goToBookingPage = () => {
   if (!isAuthenticated.value) {
-    if (props.onBack) {
-      props.onBack();
-    }
     return router.push({
       path: '/auth',
     });
   }
   if (!artistData.value.documentId) return;
-  if (props.onBack) {
-    props.onBack();
-  }
   void router.push({ name: 'CreateBooking', query: { artistId: artistData.value.documentId } });
 };
 
-const shouldShowBookingButton = computed(() => {
-  if (artistData.value?.openingHours?.length) {
-    return true;
-  }
-  if (props.checkParentOpeningHours && artistData.value?.parent?.openingHours?.length) {
-    return true;
-  }
-  return false;
-});
-
 // Function to load artist data
-const loadArtistData = (documentId: string) => {
+const loadArtistData = () => {
+  const documentId = route.params.documentId as string;
   if (documentId) {
     const artistInStore = artistsStore.getArtists.find(
       (artist) => artist.documentId === documentId,
@@ -301,13 +296,14 @@ const loadArtistData = (documentId: string) => {
     if (artistInStore) {
       artistData.value = artistInStore;
     } else {
-      void loadArtist(null, { documentId }, { fetchPolicy: 'network-only' });
+      void loadArtist(null, { documentId });
     }
   }
 };
 
 // Function to load portfolio data
-const loadPortfolioData = (documentId: string) => {
+const loadPortfolioData = () => {
+  const documentId = route.params.documentId as string;
   if (documentId) {
     void loadPortfolio(null, {
       filters: {
@@ -323,41 +319,11 @@ const loadPortfolioData = (documentId: string) => {
 };
 
 // Function to load trips data
-const loadTripsData = (documentId: string) => {
+const loadTripsData = () => {
+  const documentId = route.params.documentId as string;
   if (documentId) {
     void loadTrips(null, { documentId });
   }
-};
-
-const resetData = () => {
-  artistData.value = {
-    documentId: '',
-    createdAt: '',
-    updatedAt: '',
-    name: '',
-    description: '',
-    avatar: {
-      url: '',
-      id: '',
-    },
-    phone: '',
-    email: '',
-    link: '',
-    city: '',
-    address: '',
-    experience: 0,
-    openingHours: [],
-    pictures: [],
-    confirmed: false,
-    blocked: false,
-    type: UserType.Artist,
-    id: '',
-    device_tokens: [],
-    verified: false,
-  };
-  portfolioItems.value = [];
-  trips.value = [];
-  activeTab.value = TABS.value[0]!;
 };
 
 onResultArtist((result) => {
@@ -390,28 +356,20 @@ onErrorPortfolio((error) => {
   console.error('Error fetching portfolio:', error);
 });
 
-const loadData = (documentId: string) => {
-  resetData();
-  loadArtistData(documentId);
-  loadPortfolioData(documentId);
-  loadTripsData(documentId);
-};
+onInviteSuccess(() => {
+  showSuccess(`Invitation sent to ${artistData.value?.name}!`);
+});
 
-// Watch for documentId changes
-watch(
-  () => props.documentId,
-  (newDocumentId) => {
-    if (newDocumentId) {
-      loadData(newDocumentId);
-    }
-  },
-  { immediate: true },
-);
+onInviteError((error) => {
+  console.error('Error sending invitation:', error);
+  showError('Failed to send invitation. Please try again.');
+});
 
+// Load all data on component mount
 onBeforeMount(() => {
-  if (props.documentId) {
-    loadData(props.documentId);
-  }
+  void loadArtistData();
+  void loadPortfolioData();
+  void loadTripsData();
 });
 </script>
 
@@ -480,7 +438,7 @@ onBeforeMount(() => {
 }
 
 .action-buttons {
-  position: sticky;
+  position: fixed;
   bottom: 0;
   right: 0;
   border-top-left-radius: 32px;

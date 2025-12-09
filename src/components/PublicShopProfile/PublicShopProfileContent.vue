@@ -1,23 +1,26 @@
 <template>
-  <div class="page q-pb-lg flex column items-start q-gap-md">
+  <div class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
-      <q-btn round flat @click="handleBack" class="bg-block absolute-top-left q-z-2 back-btn">
+      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
         <q-icon name="chevron_left" size="24px" />
       </q-btn>
 
-      <!-- Favorite Button -->
-      <q-btn
-        round
-        flat
-        :color="isFavorite ? 'red' : 'grey-6'"
-        @click="toggleFavorite"
-        class="favorite-btn bg-block absolute-top-right q-z-2 favorite-btn"
-      >
-        <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
-        <q-icon v-else name="bookmark_border" size="24px" color="red" />
-      </q-btn>
+      <!-- Action Buttons -->
+      <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
+        <!-- Favorite Button -->
+        <q-btn
+          round
+          flat
+          :color="isFavorite ? 'red' : 'grey-6'"
+          @click="toggleFavorite"
+          class="bg-block"
+        >
+          <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
+          <q-icon v-else name="bookmark_border" size="24px" color="red" />
+        </q-btn>
+      </div>
 
       <div class="profile-info-container flex column">
         <!-- Pictures Carousel or Avatar -->
@@ -78,7 +81,12 @@
       <div class="main-content flex column q-gap-md q-mt-lg">
         <!-- Tab Content -->
         <div v-if="activeTab.tab === TAB_ABOUT" class="tab-content">
-          <PublicAboutShopTab :shop-data="shopData" :loading="isLoadingShop" />
+          <PublicAboutShopTab
+            :shop-data="shopData"
+            :loading="isLoadingShop"
+            :can-claim="canClaim"
+            @claim="onClaim"
+          />
         </div>
         <div v-else-if="activeTab.tab === TAB_ARTISTS" class="tab-content">
           <PublicShopArtistsTab :artists="artists" :loading="isLoadingShopArtists" />
@@ -88,26 +96,40 @@
         </div>
       </div>
     </div>
-  </div>
-  <!-- Booking Button -->
-  <div
-    v-if="shopData?.openingHours?.length && artists?.length"
-    class="action-buttons full-width bg-block flex justify-center q-gap-sm"
-  >
-    <div class="container">
-      <q-btn rounded class="full-width q-py-sm q-mb-lg q-mt-md" color="primary" :disable="!shopData.documentId" @click="goToBookingPage">
-        <div class="flex items-center justify-center q-gap-sm">
-          <q-icon name="event" />
-          <span class="text-h6">Book</span>
-        </div>
-      </q-btn>
+    <!-- Booking Button -->
+    <div
+      v-if="!canClaim && (shopData?.openingHours?.length && artists?.length)"
+      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
+    >
+      <div class="container">
+        <q-btn
+          rounded
+          class="full-width q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          :disable="!shopData.documentId"
+          @click="goToBookingPage"
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="event" />
+            <span class="text-h6">Book</span>
+          </div>
+        </q-btn>
+      </div>
     </div>
+    <ClaimProfileDialog
+      v-model="showClaimDialog"
+      :email="shopData.email || ''"
+      :name="shopData.name || ''"
+      :phone="shopData.phone || ''"
+      :link="shopData.link || ''"
+      :document-id="shopData.documentId || ''"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeMount } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onBeforeMount } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import type { IGraphQLUserResult, IGraphQLUsersResult, IUser } from 'src/interfaces/user';
 import type { IPortfolio, IGraphQLPortfoliosResult } from 'src/interfaces/portfolio';
 import PublicAboutShopTab from 'src/components/PublicShopProfile/PublicAboutShopTab.vue';
@@ -125,15 +147,10 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
-
-interface Props {
-  documentId: string;
-  onBack?: () => void;
-}
-
-const props = defineProps<Props>();
+import { ClaimProfileDialog } from 'src/components/Dialogs';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
+const route = useRoute();
 const router = useRouter();
 const shopsStore = useShopsStore();
 const userStore = useUserStore();
@@ -199,6 +216,8 @@ const portfolioItems = ref<IPortfolio[]>([]);
 const isFavorite = computed(() => isShopFavorite(shopData.value.documentId));
 const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => picture.url));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
+const canClaim = computed(() => !!shopData.value.email && !shopData.value.confirmed && shopData.value.type !== UserType.Guest);
+const showClaimDialog = ref(false);
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -224,32 +243,22 @@ const toggleFavorite = () => {
   toggleShopFavorite(shopData.value);
 };
 
-const setActiveTab = (tab: ITab) => {
-  activeTab.value = tab;
+const onClaim = () => {
+  showClaimDialog.value = true;
 };
 
-const handleBack = () => {
-  if (props.onBack) {
-    props.onBack();
-  } else {
-    router.back();
-  }
+const setActiveTab = (tab: ITab) => {
+  activeTab.value = tab;
 };
 
 // Booking dialog state
 const goToBookingPage = () => {
   if (!isAuthenticated.value) {
-    if (props.onBack) {
-      props.onBack();
-    }
     return router.push({
       path: '/auth',
     });
   }
   if (!shopData.value.documentId) return;
-  if (props.onBack) {
-    props.onBack();
-  }
   void router.push({
     name: 'CreateBooking',
     query: {
@@ -259,7 +268,8 @@ const goToBookingPage = () => {
 };
 
 // Fetch shop data from store or via Apollo
-const loadShopData = (documentId: string) => {
+const loadShopData = () => {
+  const documentId = route.params.documentId as string;
   if (documentId) {
     const shopInStore = shopsStore.getShops.find((shop) => shop.documentId === documentId);
     if (shopInStore) {
@@ -267,36 +277,6 @@ const loadShopData = (documentId: string) => {
     }
     void loadShop(null, { documentId }, { fetchPolicy: 'network-only' });
   }
-};
-
-const resetData = () => {
-  shopData.value = {
-    documentId: '',
-    createdAt: '',
-    updatedAt: '',
-    city: '',
-    address: '',
-    link: '',
-    description: '',
-    name: '',
-    phone: '',
-    email: '',
-    openingHours: [],
-    pictures: [],
-    avatar: {
-      url: '',
-      id: '',
-    },
-    confirmed: false,
-    blocked: false,
-    type: UserType.Shop,
-    id: '',
-    device_tokens: [],
-    verified: false,
-  };
-  artists.value = [];
-  portfolioItems.value = [];
-  activeTab.value = TABS.value[0]!;
 };
 
 // Handle shop query result
@@ -331,14 +311,13 @@ onErrorPortfolio((error) => {
   console.error('Error fetching portfolio:', error);
 });
 
-const loadData = (documentId: string) => {
-  resetData();
-  loadShopData(documentId);
+onBeforeMount(() => {
+  void loadShopData();
   void loadPortfolio(null, {
     filters: {
       owner: {
         documentId: {
-          eq: documentId,
+          eq: route.params.documentId as string,
         },
       },
     },
@@ -350,30 +329,13 @@ const loadData = (documentId: string) => {
       filters: {
         parent: {
           documentId: {
-            eq: documentId,
+            eq: route.params.documentId as string,
           },
         },
       },
     },
     { fetchPolicy: 'network-only' },
   );
-};
-
-// Watch for documentId changes
-watch(
-  () => props.documentId,
-  (newDocumentId) => {
-    if (newDocumentId) {
-      loadData(newDocumentId);
-    }
-  },
-  { immediate: true },
-);
-
-onBeforeMount(() => {
-  if (props.documentId) {
-    loadData(props.documentId);
-  }
 });
 </script>
 
@@ -383,7 +345,7 @@ onBeforeMount(() => {
   left: 16px;
 }
 
-.favorite-btn {
+.action-buttons-header {
   top: 16px;
   right: 16px;
 }
@@ -399,7 +361,7 @@ onBeforeMount(() => {
     top: 70px;
   }
 
-  .favorite-btn {
+  .action-buttons-header {
     top: 70px;
   }
 }
@@ -452,7 +414,7 @@ onBeforeMount(() => {
 }
 
 .action-buttons {
-  position: sticky;
+  position: fixed;
   bottom: 0;
   right: 0;
   border-top-left-radius: 32px;
