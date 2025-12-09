@@ -25,6 +25,21 @@
         </q-btn>
       </template>
     </InfoCard>
+    <q-btn
+      v-if="canClaim && !basicInformation.length"
+      rounded
+      color="primary"
+      @click="$emit('claim')"
+      class="full-width bg-block q-px-md"
+      dense
+      flat
+      unelevated
+    >
+      <div class="flex items-center justify-center q-gap-sm">
+        <q-icon name="verified" size="18px" />
+        <span class="text-weight-bold">Claim</span>
+      </div>
+    </q-btn>
     <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"

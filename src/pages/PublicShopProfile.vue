@@ -130,6 +130,9 @@
     <ClaimProfileDialog
       v-model="showClaimDialog"
       :email="shopData.email || ''"
+      :name="shopData.name || ''"
+      :phone="shopData.phone || ''"
+      :link="shopData.link || ''"
     />
   </q-page>
 </template>

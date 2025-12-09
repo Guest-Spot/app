@@ -127,7 +127,12 @@ onUnmounted(() => {
 const onConfirm = async () => {
   try {
     isLoading.value = true;
-    await createMembershipRequest({ email: props.email });
+    await createMembershipRequest({
+      email: props.email,
+      name: props.name,
+      phone: props.phone,
+      link: props.link,
+    });
     localStorage.setItem(getStorageKey(), Date.now().toString());
     startTimer();
     showSuccess('Request sent successfully');

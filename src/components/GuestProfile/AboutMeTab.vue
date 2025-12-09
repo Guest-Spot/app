@@ -108,6 +108,26 @@
     <!-- Delete Account Section -->
     <DeleteAccountSection />
 
+    <!-- Feedback & Logout Section -->
+    <div class="flex q-gap-sm no-wrap">
+      <q-btn
+        label="Feedback"
+        rounded
+        unelevated
+        to="/feedback"
+        class="full-width bg-block"
+      />
+      <q-btn
+        label="Logout"
+        color="primary"
+        rounded
+        flat
+        unelevated
+        class="full-width bg-block"
+        @click="handleLogout"
+      />
+    </div>
+
     <!-- Save Button -->
     <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
       <q-btn
@@ -147,10 +167,15 @@ import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+import { useNotifiesStore } from 'src/stores/notifies';
 
 const { showSuccess, showError } = useNotify();
-const { fetchMe, user } = useUser();
-
+const { fetchMe, user, logout } = useUser();
+const $q = useQuasar();
+const router = useRouter();
+const notifiesStore = useNotifiesStore();
 // Setup mutation
 const { mutate: updateGuest, onDone: onDoneUpdateGuest } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
@@ -244,6 +269,30 @@ const saveChanges = async () => {
   } finally {
     saveLoading.value = false;
   }
+};
+
+const handleLogout = () => {
+  $q.dialog({
+    title: 'Logout',
+    message: 'Are you sure you want to logout?',
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Cancel',
+    },
+    ok: {
+      color: 'primary',
+      rounded: true,
+      label: 'Logout',
+    },
+  }).onOk(() => {
+    void logout();
+    showSuccess('Logout successful');
+    notifiesStore.setNotifies([]);
+    notifiesStore.setHasNewNotifies(0);
+    void router.push('/');
+    window.location.reload();
+  });
 };
 
 onDoneUpdateGuest((result) => {

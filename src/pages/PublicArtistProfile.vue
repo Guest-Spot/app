@@ -113,6 +113,9 @@
     <ClaimProfileDialog
       v-model="showClaimDialog"
       :email="artistData.email || ''"
+      :name="artistData.name || ''"
+      :phone="artistData.phone || ''"
+      :link="artistData.link || ''"
     />
   </q-page>
 </template>
