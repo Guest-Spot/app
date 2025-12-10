@@ -1,55 +1,58 @@
 <template>
   <!-- Grid view -->
-  <VirtualList
-    :items="items"
-    :loading="loading"
-    :hasMore="hasMore"
-    :itemHeight="200"
-    :columns="2"
+  <VirtualListV2
+    :items="gridRows"
+    key-field="key"
+    :min-item-size="220"
     :gap="12"
-    :overscan="3"
-    :loadThreshold="400"
+    :loading="loading"
+    :has-more="hasMore"
+    :buffer="300"
+    :load-offset="400"
     @load-more="handleLoadMore"
   >
-    <template #default="{ item, index }">
-      <slot :item="item" :index="index" :selectItem="selectItem" />
+    <template #default="{ item: row, index }">
+      <div class="feed-grid-row">
+        <slot
+          v-for="portfolio in row.items"
+          :key="portfolio.documentId"
+          :item="portfolio"
+          :index="index"
+          :selectItem="selectItem"
+        />
+      </div>
     </template>
-  </VirtualList>
+  </VirtualListV2>
 
   <!-- Single view -->
-  <div
+  <VirtualListV2
     v-show="selectedItem"
-    ref="singleViewRef"
     class="feed-single bg-block"
     data-no-pull-refresh
     :style="singleStyle"
     v-touch-pan.right.prevent.mouse="handleSwipePan"
+    ref="singleListRef"
+    :items="items"
+    :loading="loading"
+    :hasMore="hasMore"
+    :min-item-size="400"
+    :gap="16"
+    :buffer="200"
+    :load-offset="400"
+    :page-mode="false"
+    @load-more="handleLoadMore"
   >
-    <VirtualList
-      ref="singleListRef"
-      :items="items"
-      :loading="loading"
-      :hasMore="hasMore"
-      :itemHeight="400"
-      dynamic-height
-      :columns="1"
-      :gap="16"
-      :overscan="2"
-      selector=".feed-single"
-      @load-more="handleLoadMore"
-    >
-      <template #default="{ item }">
-        <FeedItemCard
-          :item="asPortfolio(item)"
-          view-mode="single"
-          @edit="$emit('edit', item.documentId)"
-          @delete="$emit('delete', item.documentId)"
-          @click="selectItem(item)"
-          :editable="editable"
-        />
-      </template>
-    </VirtualList>
-  </div>
+    <template #default="{ item }">
+      <FeedItemCard
+        :item="asPortfolio(item)"
+        view-mode="single"
+        @edit="$emit('edit', item.documentId)"
+        @delete="$emit('delete', item.documentId)"
+        @click="selectItem(item)"
+        :editable="editable"
+      />
+    </template>
+  </VirtualListV2>
 </template>
 
 <script setup lang="ts">
@@ -62,7 +65,7 @@ import {
 } from 'vue';
 import FeedItemCard from 'src/components/FeedItemCard.vue';
 import type { IPortfolio } from 'src/interfaces/portfolio';
-import VirtualList from 'src/components/VirtualList.vue';
+import VirtualListV2 from 'src/components/VirtualListV2.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -87,8 +90,20 @@ const emit = defineEmits<{ (event: 'load-more'): void; (event: 'edit', documentI
 const { items } = toRefs(props);
 
 const selectedItem = ref<IPortfolio | null>(null);
-const singleListRef = ref<InstanceType<typeof VirtualList> | null>(null);
-const singleViewRef = ref<HTMLElement | null>(null);
+const singleListRef = ref<InstanceType<typeof VirtualListV2> | null>(null);
+const gridRows = computed(() =>
+  items.value.reduce<{ key: string; items: IPortfolio[] }[]>((rows, item, index) => {
+    if (index % 2 === 0) {
+      rows.push({
+        key: item?.documentId ?? `row-${index}`,
+        items: [item],
+      });
+    } else {
+      rows[rows.length - 1]?.items.push(item);
+    }
+    return rows;
+  }, []),
+);
 
 const SWIPE_CLOSE_THRESHOLD = 120;
 const MAX_OPACITY_DISTANCE = 340;
@@ -186,7 +201,7 @@ const selectItem = (item: unknown) => {
       );
 
       if (itemIndex !== -1) {
-        singleListRef.value.scrollToIndex(itemIndex, { align: 'center' });
+        singleListRef.value.scrollToIndex(itemIndex);
       }
     }, 100);
   }
@@ -224,6 +239,14 @@ defineExpose({
   width: 100%;
   align-items: start;
   grid-auto-rows: auto;
+}
+
+.feed-grid-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  align-items: start;
 }
 
 .feed-single {

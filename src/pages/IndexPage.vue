@@ -69,11 +69,10 @@
             description="Please wait while we fetch the latest artists"
             spinner-name="dots"
           />
-          <VirtualList
+          <VirtualListV2
             v-else-if="artists.length > 0"
             :items="artists"
-            :item-height="120"
-            dynamic-height
+            :min-item-size="120"
             :gap="16"
             :loading="isLoadingArtists"
             :has-more="hasMoreArtists"
@@ -82,7 +81,7 @@
             <template #default="{ item: artist }">
               <ArtistCard :artist="castUser(artist)" @click="selectArtist" />
             </template>
-          </VirtualList>
+          </VirtualListV2>
           <NoResult
             v-else
             icon="search_off"
@@ -118,6 +117,7 @@ import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
 import VirtualList from 'src/components/VirtualList.vue';
+import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import type { UserType } from 'src/interfaces/enums';
 
