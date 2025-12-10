@@ -15,7 +15,7 @@ interface Props {
   hasMore?: boolean;
   itemTag?: string;
   gap?: number;
-  sizeDependencies?: unknown;
+  sizeDependencies?: (item: unknown) => unknown;
   scrollTarget?: HTMLElement | string | null;
 }
 
@@ -174,8 +174,7 @@ defineExpose({
 <template>
   <DynamicScroller
     ref="scrollerRef"
-    class="virtual-list-v2__scroller"
-    :class="{ 'virtual-list-v2__scroller--local': !pageMode }"
+    class="virtual-list-v2"
     :items="items"
     :key-field="keyField"
     :min-item-size="minItemSize"
@@ -224,19 +223,6 @@ defineExpose({
 .virtual-list-v2 {
   position: relative;
   width: 100%;
-}
-
-.virtual-list-v2--local {
-  height: 100%;
-}
-
-.virtual-list-v2__scroller {
-  width: 100%;
-}
-
-.virtual-list-v2__scroller--local {
-  height: 100%;
-  overflow-y: auto;
 }
 
 .virtual-list-v2__item {

@@ -16,3 +16,5 @@ declare namespace NodeJS {
     PUSH_NOTIFICATIONS_UNREGISTER_ENDPOINT: string | undefined;
   }
 }
+
+declare module 'vue-virtual-scroller';
