@@ -174,7 +174,7 @@ defineExpose({
 <template>
   <DynamicScroller
     ref="scrollerRef"
-    class="virtual-list-v2"
+    class="virtual-list"
     :items="items"
     :key-field="keyField"
     :min-item-size="minItemSize"
@@ -188,7 +188,7 @@ defineExpose({
         :data-index="index"
         :size-dependencies="resolveSizeDependencies(item)"
         :tag="itemTag"
-        class="virtual-list-v2__item"
+        class="virtual-list__item"
         :style="{ paddingBottom: `${gap}px` }"
       >
         <slot :item="item" :index="index" />
@@ -196,21 +196,21 @@ defineExpose({
     </template>
 
     <template #after>
-      <div class="virtual-list-v2__sentinel" ref="sentinelRef" aria-hidden="true" />
+      <div class="virtual-list__sentinel" ref="sentinelRef" aria-hidden="true" />
 
-      <div v-if="loading && items.length" class="virtual-list-v2__loader">
+      <div v-if="loading && items.length" class="virtual-list__loader">
         <slot name="loader">
           <q-spinner-dots color="primary" size="md" />
         </slot>
       </div>
 
-      <div v-if="!loading && !items.length" class="virtual-list-v2__empty">
+      <div v-if="!loading && !items.length" class="virtual-list__empty">
         <slot name="empty">
           <!-- No items found -->
         </slot>
       </div>
 
-      <div v-if="!hasMore && items.length" class="virtual-list-v2__end">
+      <div v-if="!hasMore && items.length" class="virtual-list__end">
         <slot name="end">
           <!-- No more items -->
         </slot>
@@ -220,23 +220,23 @@ defineExpose({
 </template>
 
 <style scoped>
-.virtual-list-v2 {
+.virtual-list {
   position: relative;
   width: 100%;
 }
 
-.virtual-list-v2__item {
+.virtual-list__item {
   width: 100%;
 }
 
-.virtual-list-v2__sentinel {
+.virtual-list__sentinel {
   height: 1px;
   width: 100%;
 }
 
-.virtual-list-v2__loader,
-.virtual-list-v2__end,
-.virtual-list-v2__empty {
+.virtual-list__loader,
+.virtual-list__end,
+.virtual-list__empty {
   width: 100%;
   display: flex;
   justify-content: center;
