@@ -203,11 +203,13 @@ const selectItem = (item: unknown) => {
         (i) => i.documentId === portfolio.documentId,
       );
 
-      if (itemIndex !== -1) {
-        singleListRef.value.scrollToIndex(itemIndex);
-      }
-
       showSingleMode.value = true;
+
+      setTimeout(() => {
+        if (itemIndex !== -1) {
+          singleListRef.value?.scrollToIndex(itemIndex);
+        }
+      }, 0);
     }, 100);
   }
 };

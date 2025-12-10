@@ -118,6 +118,22 @@ const checkSentinelVisibility = () => {
   }
 };
 
+const resolveSizeDependencies = (item: unknown) => {
+  if (!props.sizeDependencies) return [];
+
+  const deps = props.sizeDependencies(item);
+  if (Array.isArray(deps)) return deps;
+
+  return [deps];
+};
+
+const scrollToIndex = (index: number) => {
+  const scroller = scrollerRef.value as
+    | (ComponentPublicInstance & { scrollToItem?: (index: number) => void })
+    | null;
+  scroller?.scrollToItem?.(index);
+};
+
 onMounted(() => {
   createObserver();
   requestAnimationFrame(() => checkSentinelVisibility());
@@ -149,24 +165,6 @@ watch(
     void nextTick(() => checkSentinelVisibility());
   },
 );
-
-const resolveSizeDependencies = (item: unknown) => {
-  if (!props.sizeDependencies) return [];
-
-  const deps = props.sizeDependencies(item);
-  if (Array.isArray(deps)) return deps;
-
-  return [deps];
-};
-
-const scrollToIndex = (index: number) => {
-  const scroller = scrollerRef.value as
-    | (ComponentPublicInstance & { scrollToItem?: (index: number) => void })
-    | null;
-  setTimeout(() => {
-    scroller?.scrollToItem?.(index);
-  }, 0);
-};
 
 defineExpose({
   scrollToIndex,
