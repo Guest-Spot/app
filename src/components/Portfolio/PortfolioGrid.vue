@@ -8,7 +8,7 @@
     :loading="loading"
     :has-more="hasMore"
     :buffer="300"
-    :load-offset="400"
+    :load-offset="100"
     @load-more="handleLoadMore"
   >
     <template #default="{ item: row, index }">
@@ -26,6 +26,7 @@
 
   <!-- Single view -->
   <VirtualListV2
+    v-if="selectedItem"
     v-show="selectedItem"
     class="feed-single bg-block"
     data-no-pull-refresh
