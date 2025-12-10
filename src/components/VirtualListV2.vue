@@ -159,74 +159,13 @@ const resolveSizeDependencies = (item: unknown) => {
   return [deps];
 };
 
-const SCROLL_RETRY_LIMIT = 5;
-
-const getScrollContext = () => {
-  const rootElement = getRootElement();
-  const scrollTop =
-    rootElement?.scrollTop ??
-    window.scrollY ??
-    window.pageYOffset ??
-    document.documentElement.scrollTop ??
-    0;
-  const viewportHeight =
-    rootElement?.clientHeight ??
-    window.innerHeight ??
-    document.documentElement.clientHeight;
-  const containerTop = rootElement?.getBoundingClientRect().top ?? 0;
-
-  return { rootElement, scrollTop, viewportHeight, containerTop };
-};
-
-const findItemElement = (index: number) => {
-  const scrollerEl = scrollerRef.value?.$el as HTMLElement | undefined;
-  return (
-    (scrollerEl?.querySelector(
-      `[data-index="${index}"]`,
-    ) as HTMLElement | null) ?? null
-  );
-};
-
-const smoothScrollTo = (top: number, rootElement: HTMLElement | null) => {
-  const options: ScrollToOptions = { top, behavior: 'smooth' };
-  if (rootElement) {
-    rootElement.scrollTo(options);
-  } else {
-    window.scrollTo(options);
-  }
-};
-
-const centerItemInView = (index: number, attempt = 0) => {
-  const itemElement = findItemElement(index);
-
-  if (!itemElement) {
-    if (attempt >= SCROLL_RETRY_LIMIT) return;
-
-    requestAnimationFrame(() => centerItemInView(index, attempt + 1));
-    return;
-  }
-
-  const { rootElement: rootElementElement, scrollTop, viewportHeight, containerTop } =
-    getScrollContext();
-  const rootElement = rootElementElement as HTMLElement | null;
-
-  const targetRect = itemElement.getBoundingClientRect();
-  const targetCenter =
-    targetRect.top - containerTop + scrollTop + targetRect.height / 2;
-  const destination = Math.max(targetCenter - viewportHeight / 2, 0);
-
-  smoothScrollTo(destination, rootElement);
-};
-
 const scrollToIndex = (index: number) => {
   const scroller = scrollerRef.value as
     | (ComponentPublicInstance & { scrollToItem?: (index: number) => void })
     | null;
-  scroller?.scrollToItem?.(index);
-
-  void nextTick(() => {
-    requestAnimationFrame(() => centerItemInView(index));
-  });
+  setTimeout(() => {
+    scroller?.scrollToItem?.(index);
+  }, 0);
 };
 
 defineExpose({

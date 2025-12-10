@@ -27,7 +27,7 @@
   <!-- Single view -->
   <VirtualListV2
     v-if="selectedItem"
-    v-show="selectedItem"
+    v-show="showSingleMode"
     class="feed-single bg-block"
     data-no-pull-refresh
     :style="singleStyle"
@@ -90,6 +90,7 @@ const emit = defineEmits<{ (event: 'load-more'): void; (event: 'edit', documentI
 
 const { items } = toRefs(props);
 
+const showSingleMode = ref(false);
 const selectedItem = ref<IPortfolio | null>(null);
 const singleListRef = ref<InstanceType<typeof VirtualListV2> | null>(null);
 const gridRows = computed(() =>
@@ -175,6 +176,7 @@ const handleSwipePan = (payload: TouchPanPayload) => {
     resetSwipeState();
     if (shouldClose) {
       selectedItem.value = null;
+      showSingleMode.value = false;
     }
     return true;
   }
@@ -204,6 +206,8 @@ const selectItem = (item: unknown) => {
       if (itemIndex !== -1) {
         singleListRef.value.scrollToIndex(itemIndex);
       }
+
+      showSingleMode.value = true;
     }, 100);
   }
 };
@@ -215,6 +219,7 @@ const handleLoadMore = () => {
 const forceCloseSingleView = () => {
   resetSwipeState();
   selectedItem.value = null;
+  showSingleMode.value = false;
 };
 
 watch(selectedItem, (newValue) => {
