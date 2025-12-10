@@ -28,14 +28,14 @@
           <q-spinner color="primary" size="32px" />
         </div>
         <div v-else-if="localNotifies.length > 0" class="notification-list">
-          <VirtualList
+          <VirtualListV2
             :items="localNotifies"
-            :item-height="250"
-            dynamic-height
+            :min-item-size="250"
             :gap="16"
             :loading="isLoading"
             :has-more="hasMoreNotifies"
-            selector=".notification-scroll-container"
+            scroll-target=".notification-scroll-container"
+            :page-mode="false"
             @load-more="loadMoreNotifies"
           >
             <template #default="{ item }">
@@ -46,7 +46,7 @@
                 v-close-popup
               />
             </template>
-          </VirtualList>
+          </VirtualListV2>
         </div>
         <div
           v-else
@@ -67,7 +67,7 @@ import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { InviteNotificationItem, NotificationItem } from 'src/components';
 import type { INotify } from 'src/interfaces/notify';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-import VirtualList from 'src/components/VirtualList.vue';
+import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import { InviteType } from 'src/interfaces/enums';
 
 interface Props {

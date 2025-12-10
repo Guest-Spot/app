@@ -37,11 +37,10 @@
             description="Please wait while we fetch the latest shops"
             spinner-name="dots"
           />
-          <VirtualList
+          <VirtualListV2
             v-else-if="shops.length > 0"
             :items="shops"
-            :item-height="320"
-            dynamic-height
+            :min-item-size="320"
             :gap="16"
             :loading="isLoadingShops"
             :has-more="hasMoreShops"
@@ -50,7 +49,7 @@
             <template #default="{ item: shop }">
               <ShopCard :shop="castUser(shop)" @click="selectShop" />
             </template>
-          </VirtualList>
+          </VirtualListV2>
           <NoResult
             v-else
             icon="search_off"
@@ -116,7 +115,6 @@ import { useCitiesStore } from 'src/stores/cities';
 import type { IGraphQLCitiesResult } from 'src/interfaces/city';
 import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
-import VirtualList from 'src/components/VirtualList.vue';
 import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import type { UserType } from 'src/interfaces/enums';
