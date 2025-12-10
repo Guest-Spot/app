@@ -8,7 +8,7 @@
     :loading="loading"
     :has-more="hasMore"
     :buffer="300"
-    :load-offset="400"
+    :load-offset="600"
     @load-more="handleLoadMore"
   >
     <template #default="{ item: row, index }">
@@ -26,7 +26,8 @@
 
   <!-- Single view -->
   <VirtualListV2
-    v-show="selectedItem"
+    v-if="selectedItem"
+    v-show="showSingleMode"
     class="feed-single bg-block"
     data-no-pull-refresh
     :style="singleStyle"
@@ -89,6 +90,7 @@ const emit = defineEmits<{ (event: 'load-more'): void; (event: 'edit', documentI
 
 const { items } = toRefs(props);
 
+const showSingleMode = ref(false);
 const selectedItem = ref<IPortfolio | null>(null);
 const singleListRef = ref<InstanceType<typeof VirtualListV2> | null>(null);
 const gridRows = computed(() =>
@@ -174,6 +176,7 @@ const handleSwipePan = (payload: TouchPanPayload) => {
     resetSwipeState();
     if (shouldClose) {
       selectedItem.value = null;
+      showSingleMode.value = false;
     }
     return true;
   }
@@ -200,9 +203,13 @@ const selectItem = (item: unknown) => {
         (i) => i.documentId === portfolio.documentId,
       );
 
-      if (itemIndex !== -1) {
-        singleListRef.value.scrollToIndex(itemIndex);
-      }
+      showSingleMode.value = true;
+
+      setTimeout(() => {
+        if (itemIndex !== -1) {
+          singleListRef.value?.scrollToIndex(itemIndex);
+        }
+      }, 0);
     }, 100);
   }
 };
@@ -214,6 +221,7 @@ const handleLoadMore = () => {
 const forceCloseSingleView = () => {
   resetSwipeState();
   selectedItem.value = null;
+  showSingleMode.value = false;
 };
 
 watch(selectedItem, (newValue) => {
