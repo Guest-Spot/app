@@ -8,7 +8,7 @@
     :loading="loading"
     :has-more="hasMore"
     :buffer="300"
-    :load-offset="100"
+    :load-offset="600"
     @load-more="handleLoadMore"
   >
     <template #default="{ item: row, index }">
