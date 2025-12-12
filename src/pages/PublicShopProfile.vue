@@ -98,7 +98,7 @@
     </div>
     <!-- Booking Button -->
     <div
-      v-if="!canClaim && (shopData?.openingHours?.length && artists?.length)"
+      v-if="(shopData?.openingHours?.length && artists?.length)"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">

@@ -16,12 +16,12 @@
       <q-card-section class="dialog-content">
         <template v-if="timeLeft > 0">
           <p class="q-mb-md">
-            <span class="text-primary text-weight-bold">Thank you, your request has been sent.</span> Our support team will contact you shortly.
+            Thank you, your request has been sent. <span class="text-primary text-weight-bold">Our support team will contact you shortly</span>.
           </p>
         </template>
         <template v-else>
           <p class="q-mb-md">
-            If you want to verify that this is <span class="text-primary text-weight-bold">your account</span>, please send a request. Our support team will contact you shortly to verify your account.
+            If you want to verify that this is your account, please send a request. Our support team will contact you shortly to verify your account.
           </p>
         </template>
       </q-card-section>
