@@ -16,12 +16,12 @@
       <q-card-section class="dialog-content">
         <template v-if="timeLeft > 0">
           <p class="q-mb-md">
-            <span class="text-primary text-weight-bold">Thank you, your request has been sent.</span> Our support team will contact you shortly.
+            Thank you, your request has been sent. <span class="text-primary text-weight-bold">Our support team will contact you shortly</span>.
           </p>
         </template>
         <template v-else>
           <p class="q-mb-md">
-            If you want to verify that this is <span class="text-primary text-weight-bold">your account</span>, please send a request. Our support team will contact you shortly to verify your account.
+            If you want to verify that this is your account, please send a request. Our support team will contact you shortly to verify your account.
           </p>
         </template>
       </q-card-section>
@@ -56,10 +56,13 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { createMembershipRequest } from 'src/api/membershipRequest';
 import useNotify from 'src/modules/useNotify';
+import type { UserType } from 'src/interfaces/enums';
 
 interface Props {
   modelValue: boolean;
   email: string;
+  type: UserType;
+  username: string;
   name: string;
   phone: string;
   link: string;
@@ -133,7 +136,10 @@ const onConfirm = async () => {
   try {
     isLoading.value = true;
     await createMembershipRequest({
+      userId: props.documentId,
+      username: props.username,
       email: props.email,
+      type: props.type,
       name: props.name,
       phone: props.phone,
       link: props.link,

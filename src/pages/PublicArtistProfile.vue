@@ -90,7 +90,7 @@
 
     <!-- Booking Button -->
     <div
-      v-if="!canClaim && (artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
+      v-if="(artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
       class="action-buttons full-width bg-block flex justify-center q-gap-sm"
     >
       <div class="container">
@@ -112,6 +112,9 @@
     <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
     <ClaimProfileDialog
       v-model="showClaimDialog"
+      :username="artistData.username || ''"
+      :type="artistData.type || UserType.Artist"
+      :user-id="artistData.documentId || ''"
       :email="artistData.email || ''"
       :name="artistData.name || ''"
       :phone="artistData.phone || ''"

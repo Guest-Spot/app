@@ -30,6 +30,10 @@
           <q-skeleton width="100%" height="200px" class="border-radius-lg" />
           <q-skeleton width="100%" height="200px" class="border-radius-lg" />
         </div>
+        <div class="flex no-wrap q-gap-md">
+          <q-skeleton width="100%" height="200px" class="border-radius-lg" />
+          <q-skeleton width="100%" height="200px" class="border-radius-lg" />
+        </div>
       </div>
 
       <!-- Feed Content - Tile View -->

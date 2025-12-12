@@ -103,7 +103,7 @@
               class="bg-block"
               rounded
               color="primary"
-              label="Sign in with email"
+              label="Sign in with username or email"
               to="/sign-in"
             />
           </div>

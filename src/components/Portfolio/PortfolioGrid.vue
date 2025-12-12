@@ -4,7 +4,7 @@
     :items="gridRows"
     key-field="key"
     :min-item-size="220"
-    :gap="12"
+    :gap="16"
     :loading="loading"
     :has-more="hasMore"
     :buffer="300"
