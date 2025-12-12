@@ -7,7 +7,7 @@
       <div class="flex column items-start">
         <h2 class="text-h5 q-my-none">Sign In <span class="text-primary">to your account</span></h2>
         <p class="text-grey-6 q-mt-sm q-mb-none">
-          Enter your email and password to continue
+          Enter your login and password to continue
         </p>
       </div>
     </div>
@@ -17,16 +17,15 @@
         <div class="auth-card full-width bg-block border-radius-lg q-pa-lg flex column q-gap-md">
           <q-form @submit="handleLogin" class="email-form flex column q-gap-md">
             <div class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">Enter your email</label>
+              <label class="input-label">Enter your username or email</label>
               <q-input
                 v-model="form.login"
-                type="email"
-                placeholder="Email"
+                placeholder="Login"
                 outlined
                 rounded
                 size="lg"
                 hint="Required field"
-                :rules="[(val) => !!val || 'Email is required']"
+                :rules="[(val) => !!val || 'Username or email is required']"
                 class="full-width"
                 bg-color="transparent"
               >

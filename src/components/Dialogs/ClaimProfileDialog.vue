@@ -133,6 +133,7 @@ const onConfirm = async () => {
   try {
     isLoading.value = true;
     await createMembershipRequest({
+      userId: props.documentId,
       email: props.email,
       name: props.name,
       phone: props.phone,

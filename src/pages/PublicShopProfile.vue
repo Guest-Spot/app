@@ -118,6 +118,7 @@
     </div>
     <ClaimProfileDialog
       v-model="showClaimDialog"
+      :user-id="shopData.documentId || ''"
       :email="shopData.email || ''"
       :name="shopData.name || ''"
       :phone="shopData.phone || ''"
