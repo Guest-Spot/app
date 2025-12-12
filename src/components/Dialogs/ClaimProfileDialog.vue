@@ -56,10 +56,13 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { createMembershipRequest } from 'src/api/membershipRequest';
 import useNotify from 'src/modules/useNotify';
+import type { UserType } from 'src/interfaces/enums';
 
 interface Props {
   modelValue: boolean;
   email: string;
+  type: UserType;
+  username: string;
   name: string;
   phone: string;
   link: string;
@@ -134,7 +137,9 @@ const onConfirm = async () => {
     isLoading.value = true;
     await createMembershipRequest({
       userId: props.documentId,
+      username: props.username,
       email: props.email,
+      type: props.type,
       name: props.name,
       phone: props.phone,
       link: props.link,

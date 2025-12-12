@@ -63,6 +63,7 @@ export const USERS_QUERY = gql`
     usersPermissionsUsers(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       name
+      username
       createdAt
       updatedAt
       type
@@ -119,6 +120,7 @@ export const USER_QUERY = gql`
     usersPermissionsUser(documentId: $documentId) {
       documentId
       name
+      username
       createdAt
       updatedAt
       type
@@ -177,6 +179,7 @@ export const UPDATE_USER_MUTATION = gql`
       data {
         documentId
         name
+        username
         createdAt
         updatedAt
         type
@@ -326,6 +329,7 @@ export const CREATE_MEMBERSHIP_REQUEST_MUTATION = gql`
     createMembershipRequest(data: $data) {
       documentId
       email
+      username
     }
   }
 `;
@@ -334,6 +338,7 @@ export const MEMBERSHIP_REQUESTS_QUERY = gql`
   query MembershipRequests {
     membershipRequests {
       email
+      username
     }
   }
 `;

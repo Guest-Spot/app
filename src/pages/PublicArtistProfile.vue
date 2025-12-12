@@ -112,6 +112,8 @@
     <ShopInfoDialog v-model="showShopDialog" :shop-data="artistData.parent || null" />
     <ClaimProfileDialog
       v-model="showClaimDialog"
+      :username="artistData.username || ''"
+      :type="artistData.type || UserType.Artist"
       :user-id="artistData.documentId || ''"
       :email="artistData.email || ''"
       :name="artistData.name || ''"
