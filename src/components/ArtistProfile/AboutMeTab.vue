@@ -56,6 +56,30 @@
     >
       <div class="info-section">
         <div class="input-group">
+          <label class="input-label">Country</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter country"
+            class="custom-input"
+            v-model="artistData.country"
+            clearable
+          />
+        </div>
+        <div class="input-group">
+          <label class="input-label">State</label>
+          <q-input
+            outlined
+            dense
+            rounded
+            placeholder="Enter state"
+            class="custom-input"
+            v-model="artistData.state"
+            clearable
+          />
+        </div>
+        <div class="input-group">
           <label class="input-label">City</label>
           <q-input
             outlined
@@ -384,6 +408,8 @@ const artistData = reactive<IArtistFormData>({
   name: '',
   description: '',
   city: '',
+  country: '',
+  state: '',
   address: '',
   phone: '',
   email: '',

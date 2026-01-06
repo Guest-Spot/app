@@ -21,6 +21,8 @@ export const ME_QUERY = gql`
       }
       description
       city
+      country
+      state
       address
       link
       phone
@@ -213,6 +215,8 @@ export const UPDATE_USER_MUTATION = gql`
         }
         description
         city
+        country
+        state
         address
         link
         phone

@@ -4,6 +4,8 @@ export interface IArtistFormData {
   name: string;
   description: string;
   city?: string;
+  country?: string;
+  state?: string;
   address?: string;
   phone?: string;
   email?: string;
