@@ -54,6 +54,9 @@
               <q-skeleton type="text" width="50%" height="20px" />
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
+            <div class="flex items-center justify-center q-gap-sm text-caption text-grey-6">
+              {{ artistLocation.split(', ').filter(Boolean).join(', ') }}
+            </div>
             <SocialLinks v-if="links" :links="links" />
           </div>
         </div>
@@ -215,6 +218,9 @@ const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
 const links = computed(() => artistData.value?.profile?.links);
+const artistLocation = computed(() => {
+  return [artistData.value.country, artistData.value.state, artistData.value.city, artistData.value.address].filter(Boolean).join(', ');
+});
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
 const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);

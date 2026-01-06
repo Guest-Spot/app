@@ -118,6 +118,7 @@ export const USERS_QUERY = gql`
           type
           value
         }
+        website
       }
     }
   }
@@ -184,6 +185,7 @@ export const USER_QUERY = gql`
           type
           value
         }
+        website
       }
     }
   }

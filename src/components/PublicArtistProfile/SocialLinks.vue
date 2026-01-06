@@ -9,7 +9,7 @@
       round
       unelevated
       flat
-      size="md"
+      size="sm"
       class="social-link-btn"
       :aria-label="`Visit ${link.type} profile`"
     >
@@ -85,8 +85,8 @@ const getIconType = (type: LinkType): LinkType => {
 }
 
 .social-icon-svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   color: var(--q-primary);
 }
 </style>

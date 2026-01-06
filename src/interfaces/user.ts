@@ -4,6 +4,7 @@ import type { RegisterPushTokenPayload } from 'src/interfaces/pushNotifications'
 
 export interface IProfile {
   links: ILink[];
+  website?: string;
 }
 
 // JWT Token interfaces

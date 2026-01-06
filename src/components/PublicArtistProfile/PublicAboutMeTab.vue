@@ -37,7 +37,6 @@
       :data="workingHours"
       class="opening-times-card"
     />
-    <InfoCard v-if="location.length" title="Location" icon="location_on" :data="location" />
     <InfoCard v-if="contacts.length" title="Contacts" icon="contact_phone" :data="contacts" />
   </div>
 </template>
@@ -71,27 +70,6 @@ const basicInformation = computed(() =>
   ].filter((item) => item.value),
 );
 
-const location = computed(() =>
-  [
-    {
-      label: 'Country',
-      value: props.artistData.country || '',
-    },
-    {
-      label: 'State',
-      value: props.artistData.state || '',
-    },
-    {
-      label: 'City',
-      value: props.artistData.city || '',
-    },
-    {
-      label: 'Address',
-      value: props.artistData.address || '',
-    },
-  ].filter((item) => item.value),
-);
-
 const contacts = computed(() =>
   [
     {
@@ -104,7 +82,12 @@ const contacts = computed(() =>
       value: props.artistData.email || '',
       type: InfoItemType.Email,
     },
-  ].filter((item) => item.value),
+    {
+      label: 'Website',
+      value: props.artistData.profile?.website || '',
+      type: InfoItemType.Link,
+    },
+  ].filter((item) => item.value && !item.value.includes('@noemail.com')),
 );
 
 const workingHours = computed(() => {
