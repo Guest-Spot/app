@@ -51,6 +51,8 @@ export interface IUser {
   updatedAt: string;
   name: string;
   city?: string;
+  country?: string;
+  state?: string;
   address?: string;
   link?: string;
   description: string;

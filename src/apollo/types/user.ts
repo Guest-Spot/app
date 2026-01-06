@@ -79,6 +79,8 @@ export const USERS_QUERY = gql`
       }
       description
       city
+      country
+      state
       address
       link
       phone
@@ -142,6 +144,8 @@ export const USER_QUERY = gql`
       }
       description
       city
+      country
+      state
       address
       link
       phone

@@ -1,6 +1,6 @@
 <template>
   <div class="tabs-comp">
-    <div class="flex q-gap-sm justify-start no-wrap bg-block border-radius-lg">
+    <div class="flex q-gap-sm justify-start no-wrap bg-block border-radius-lg q-pa-xs">
       <q-btn
         v-for="t in tabs"
         :key="`tab-${t.tab}-${t.label}`"

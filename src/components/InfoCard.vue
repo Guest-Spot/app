@@ -1,7 +1,7 @@
 <template>
   <!-- Contacts -->
   <div class="info-card bg-block border-radius-md">
-    <div v-if="title || icon" class="card-header q-px-md q-py-sm bg-block">
+    <div v-if="title || icon" class="card-header q-px-md q-pt-md">
       <q-icon :name="icon" size="18px" />
       <h3 class="card-title text-subtitle1">{{ title }}</h3>
     </div>

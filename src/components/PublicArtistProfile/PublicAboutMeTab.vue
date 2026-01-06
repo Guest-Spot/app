@@ -74,6 +74,14 @@ const basicInformation = computed(() =>
 const location = computed(() =>
   [
     {
+      label: 'Country',
+      value: props.artistData.country || '',
+    },
+    {
+      label: 'State',
+      value: props.artistData.state || '',
+    },
+    {
       label: 'City',
       value: props.artistData.city || '',
     },
