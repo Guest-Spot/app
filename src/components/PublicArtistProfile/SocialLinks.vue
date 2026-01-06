@@ -60,8 +60,6 @@ const getIconType = (type: LinkType): LinkType => {
     [LinkType.Other]: LinkType.Other,
   };
 
-  console.log(type);
-
   return iconMap[type] || LinkType.Other;
 };
 </script>

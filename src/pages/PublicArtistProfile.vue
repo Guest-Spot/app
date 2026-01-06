@@ -49,12 +49,12 @@
                 <VerifiedBadge v-if="artistData.verified" :verified="artistData.verified" />
               </div>
               <!-- Social Media Links -->
-              <SocialLinks v-if="artistData.profile?.links" :links="artistData.profile.links" />
             </template>
             <template v-else>
               <q-skeleton type="text" width="50%" height="20px" />
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
+            <SocialLinks v-if="links" :links="links" />
           </div>
         </div>
       </div>
@@ -214,6 +214,7 @@ const portfolioItems = ref<IPortfolio[]>([]);
 const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
+const links = computed(() => artistData.value?.profile?.links);
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
 const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);

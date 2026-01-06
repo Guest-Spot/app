@@ -111,6 +111,12 @@ export const USERS_QUERY = gql`
           url
         }
       }
+      profile {
+        links {
+          type
+          value
+        }
+      }
     }
   }
 `;
