@@ -31,6 +31,12 @@
       :data="basicInformation"
     />
     <InfoCard
+      v-if="artistData.experience"
+      title="Experience"
+      icon="work"
+      :data="[{ label: '', value: `${artistData.experience}+ years` }]"
+    />
+    <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"
       icon="schedule"
