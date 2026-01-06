@@ -25,7 +25,7 @@
       </template>
     </InfoCard>
     <InfoCard
-      v-if="basicInformation.length || canClaim"
+      v-if="basicInformation.length"
       title="About me"
       icon="description"
       :data="basicInformation"
