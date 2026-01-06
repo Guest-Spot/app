@@ -38,7 +38,7 @@
     :hasMore="hasMore"
     :min-item-size="400"
     :gap="16"
-    :buffer="200"
+    :buffer="450"
     :load-offset="400"
     :page-mode="false"
     @load-more="handleLoadMore"
