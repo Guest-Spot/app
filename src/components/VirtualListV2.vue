@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
-import type { ComponentPublicInstance } from 'vue';
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+import { ref, watch } from 'vue'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import type { ComponentPublicInstance } from 'vue'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 interface Props {
-  items: unknown[];
-  keyField?: string;
-  minItemSize?: number;
-  pageMode?: boolean;
-  buffer?: number;
-  loadOffset?: number;
-  loading?: boolean;
-  hasMore?: boolean;
-  itemTag?: string;
-  gap?: number;
-  sizeDependencies?: (item: unknown) => unknown;
-  scrollTarget?: HTMLElement | string | null;
+  items: unknown[]
+  keyField?: string
+  minItemSize?: number
+  pageMode?: boolean
+  buffer?: number
+  loadOffset?: number
+  loading?: boolean
+  hasMore?: boolean
+  itemTag?: string
+  gap?: number
+  sizeDependencies?: (item: unknown) => unknown
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,146 +28,63 @@ const props = withDefaults(defineProps<Props>(), {
   hasMore: true,
   itemTag: 'div',
   gap: 0,
-  scrollTarget: null,
-});
+})
 
-const emit = defineEmits<{
-  'load-more': [];
-}>();
+const emit = defineEmits<{ 'load-more': [] }>()
 
-const scrollerRef = ref<ComponentPublicInstance | null>(null);
-const sentinelRef = ref<HTMLElement | null>(null);
-const observer = ref<IntersectionObserver | null>(null);
-const isAwaitingLoad = ref(false);
-
-const resetAwaitingFlag = (loading: boolean) => {
-  if (!loading) {
-    isAwaitingLoad.value = false;
-  }
-};
+const scrollerRef = ref<ComponentPublicInstance | null>(null)
+const isAwaitingLoad = ref(false)
 
 watch(
   () => props.loading,
-  (loading) => resetAwaitingFlag(loading),
-);
+  (loading) => {
+    if (!loading) isAwaitingLoad.value = false
+  },
+)
 
 const maybeLoadMore = () => {
-  if (props.loading || isAwaitingLoad.value || !props.hasMore) return;
+  if (props.loading || isAwaitingLoad.value || !props.hasMore) return
+  isAwaitingLoad.value = true
+  emit('load-more')
+}
 
-  isAwaitingLoad.value = true;
-  emit('load-more');
-};
+/**
+ * update(startIndex, endIndex, visibleStartIndex, visibleEndIndex)
+ * endIndex включает buffer-зону, visibleEndIndex — only the visible items.
+ */
+const onUpdate = (
+  _startIndex: number,
+  endIndex: number,
+  _visibleStartIndex: number,
+  visibleEndIndex: number,
+) => {
+  if (!props.hasMore || props.loading || isAwaitingLoad.value) return
 
-const disconnectObserver = () => {
-  if (observer.value) {
-    observer.value.disconnect();
-    observer.value = null;
+  // Threshold in pixels (approximately) through minItemSize:
+  const aheadItems = Math.max(3, Math.ceil(props.loadOffset / props.minItemSize))
+
+  // I would rely on endIndex (with buffer), this gives early loading
+  const thresholdIndex = props.items.length - 1 - aheadItems
+
+  if (endIndex >= thresholdIndex || visibleEndIndex >= thresholdIndex) {
+    maybeLoadMore()
   }
-};
-
-const getRootElement = () => {
-  if (props.pageMode) return null;
-
-  if (props.scrollTarget) {
-    if (typeof props.scrollTarget === 'string') {
-      return document.querySelector(props.scrollTarget) as HTMLElement;
-    }
-    return props.scrollTarget;
-  }
-
-  return (scrollerRef.value?.$el as Element | undefined) ?? null;
-};
-
-const createObserver = () => {
-  disconnectObserver();
-
-  const rootElement = getRootElement();
-
-  observer.value = new IntersectionObserver(
-    (entries) => {
-      const [entry] = entries;
-      if (entry?.isIntersecting) {
-        maybeLoadMore();
-      }
-    },
-    {
-      root: rootElement,
-      rootMargin: `0px 0px ${props.loadOffset}px 0px`,
-      threshold: 0,
-    },
-  );
-
-  if (sentinelRef.value) {
-    observer.value.observe(sentinelRef.value);
-  }
-};
-
-const checkSentinelVisibility = () => {
-  if (!sentinelRef.value || !props.hasMore || props.loading) return;
-
-  const rect = sentinelRef.value.getBoundingClientRect();
-  const rootElement = getRootElement();
-  const viewportHeight = rootElement
-    ? (rootElement as HTMLElement).clientHeight
-    : window.innerHeight || document.documentElement.clientHeight;
-  const rootTop = rootElement ? rootElement.getBoundingClientRect().top : 0;
-
-  if (rect.top - rootTop <= viewportHeight + props.loadOffset) {
-    maybeLoadMore();
-  }
-};
+}
 
 const resolveSizeDependencies = (item: unknown) => {
-  if (!props.sizeDependencies) return [];
-
-  const deps = props.sizeDependencies(item);
-  if (Array.isArray(deps)) return deps;
-
-  return [deps];
-};
+  if (!props.sizeDependencies) return []
+  const deps = props.sizeDependencies(item)
+  return Array.isArray(deps) ? deps : [deps]
+}
 
 const scrollToIndex = (index: number) => {
   const scroller = scrollerRef.value as
     | (ComponentPublicInstance & { scrollToItem?: (index: number) => void })
-    | null;
-  scroller?.scrollToItem?.(index);
-};
+    | null
+  scroller?.scrollToItem?.(index)
+}
 
-onMounted(() => {
-  createObserver();
-  requestAnimationFrame(() => checkSentinelVisibility());
-});
-
-onUnmounted(() => {
-  disconnectObserver();
-});
-
-watch(
-  () => [props.pageMode, props.loadOffset, props.scrollTarget, scrollerRef.value],
-  () => {
-    void nextTick(() => {
-      createObserver();
-    });
-  },
-);
-
-watch(
-  () => props.items.length,
-  () => {
-    void nextTick(() => checkSentinelVisibility());
-  },
-);
-
-watch(
-  () => props.hasMore,
-  () => {
-    void nextTick(() => checkSentinelVisibility());
-  },
-);
-
-defineExpose({
-  scrollToIndex,
-});
+defineExpose({ scrollToIndex })
 </script>
 
 <template>
@@ -180,6 +96,8 @@ defineExpose({
     :min-item-size="minItemSize"
     :page-mode="pageMode"
     :buffer="buffer"
+    :emit-update="true"
+    @update="onUpdate"
   >
     <template #default="{ item, index, active }">
       <DynamicScrollerItem
@@ -196,53 +114,19 @@ defineExpose({
     </template>
 
     <template #after>
-      <div class="virtual-list__sentinel" ref="sentinelRef" aria-hidden="true" />
-
-      <div v-if="loading && items.length" class="virtual-list__loader">
+      <div v-if="loading && items.length" class="virtual-list__loader flex items-center justify-center">
         <slot name="loader">
           <q-spinner-dots color="primary" size="md" />
         </slot>
       </div>
 
       <div v-if="!loading && !items.length" class="virtual-list__empty">
-        <slot name="empty">
-          <!-- No items found -->
-        </slot>
+        <slot name="empty" />
       </div>
 
       <div v-if="!hasMore && items.length" class="virtual-list__end">
-        <slot name="end">
-          <!-- No more items -->
-        </slot>
+        <slot name="end" />
       </div>
     </template>
   </DynamicScroller>
 </template>
-
-<style scoped>
-.virtual-list {
-  position: relative;
-  width: 100%;
-}
-
-.virtual-list__item {
-  width: 100%;
-}
-
-.virtual-list__sentinel {
-  height: 1px;
-  width: 100%;
-}
-
-.virtual-list__loader,
-.virtual-list__end,
-.virtual-list__empty {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px 0;
-  color: var(--q-color-grey-6);
-  font-size: 14px;
-}
-</style>

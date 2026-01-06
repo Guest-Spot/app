@@ -7,8 +7,8 @@
     :gap="16"
     :loading="loading"
     :has-more="hasMore"
-    :buffer="300"
-    :load-offset="600"
+    :buffer="600"
+    :load-offset="500"
     @load-more="handleLoadMore"
   >
     <template #default="{ item: row, index }">
