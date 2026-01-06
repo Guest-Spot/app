@@ -1,11 +1,12 @@
 <template>
   <!-- Contacts -->
   <div class="info-card bg-block border-radius-md">
-    <div class="card-header q-px-md q-py-sm bg-block">
+    <div v-if="title || icon" class="card-header q-px-md q-py-sm bg-block">
       <q-icon :name="icon" size="18px" />
       <h3 class="card-title text-subtitle1">{{ title }}</h3>
     </div>
     <div class="card-content">
+      <slot name="header" />
       <div
         class="info-row"
         v-for="item in data"
@@ -70,9 +71,9 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import whatsappIconUrl from 'src/assets/icons/whatsapp.svg';
 
 interface Props {
-  title: string;
-  icon: string;
-  data: {
+  title?: string;
+  icon?: string;
+  data?: {
     label: string;
     value: string;
     type?: InfoItemType;

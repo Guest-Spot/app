@@ -1,16 +1,10 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
     <InfoCard
-      v-if="basicInformation.length || canClaim"
-      title="About me"
-      icon="description"
-      :data="basicInformation"
+      v-if="canClaim"
+      :data="[{ label: '', value: 'This shop has not yet claimed their profile. Please contact Guest Spot support to claim it.' }]"
     >
-      <template #footer v-if="canClaim">
-        <!-- Claim Button -->
-        <p v-if="!basicInformation.length" class="text-grey-6">
-          This shop has not yet claimed their profile. Please contact Guest Spot support to claim it.
-        </p>
+      <template #footer>
         <q-btn
           rounded
           color="primary"
@@ -60,15 +54,6 @@ defineEmits<{
 const props = defineProps<Props>();
 
 const { formatTime } = useDate();
-
-const basicInformation = computed(() =>
-  [
-    {
-      label: '',
-      value: props.shopData.description || '',
-    },
-  ].filter((item) => item.value),
-);
 
 const contacts = computed(() =>
   [
