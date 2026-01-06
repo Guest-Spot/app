@@ -48,6 +48,8 @@
                 <span class="full-name text-h6">{{ artistData.name }}</span>
                 <VerifiedBadge v-if="artistData.verified" :verified="artistData.verified" />
               </div>
+              <!-- Social Media Links -->
+              <SocialLinks v-if="artistData.profile?.links" :links="artistData.profile.links" />
             </template>
             <template v-else>
               <q-skeleton type="text" width="50%" height="20px" />
@@ -129,6 +131,7 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp, VerifiedBadge } from 'src/components';
+import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';

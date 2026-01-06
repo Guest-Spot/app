@@ -3,16 +3,7 @@ import type { UserType } from 'src/interfaces/enums';
 import type { RegisterPushTokenPayload } from 'src/interfaces/pushNotifications';
 
 export interface IProfile {
-  name: string;
-  pictures: IPicture[];
-  description: string;
-  link: string;
-  city: string;
-  address: string;
-  phone: string;
-  email: string;
   links: ILink[];
-  openingHours: IOpeningHours[];
 }
 
 // JWT Token interfaces
@@ -75,6 +66,7 @@ export interface IUser {
   depositAmount?: number | null;
   chargeDeposit?: boolean;
   verified?: boolean;
+  profile?: IProfile;
 }
 
 // Auth state interface

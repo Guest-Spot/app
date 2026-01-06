@@ -11,7 +11,8 @@ export enum LinkType {
   Whatsapp = 'whatsapp',
   Facebook = 'facebook',
   Tiktok = 'tiktok',
-  Site = 'site',
+  Youtube = 'youtube',
+  Vk = 'vk',
   Other = 'other',
 }
 
