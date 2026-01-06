@@ -4,6 +4,7 @@
       <ProfileHeader
         class="q-mb-md"
         :name="user?.name || 'Artist'"
+        sub-title="My Profile"
         @openPublicProfile="openPublicProfile"
       />
     </div>

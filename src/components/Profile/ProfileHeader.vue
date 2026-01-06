@@ -1,6 +1,7 @@
 <template>
-  <div class="flex justify-between items-center q-gap-md no-wrap">
-    <div class="profile-welcome-row text-h6 flex items-center q-gap-sm">
+  <div class="flex justify-between items-start q-gap-md no-wrap">
+    <div class="profile-welcome-row flex column items-start text-h6">
+      <span v-if="subTitle" class="text-body2 text-grey-6">{{ subTitle }}</span>
       <span>
         {{ name }}
         <VerifiedBadge v-if="isVerified" :verified="isVerified" icon-only />
@@ -105,6 +106,10 @@ defineOptions({
 
 defineProps({
   name: {
+    type: String,
+    default: '',
+  },
+  subTitle: {
     type: String,
     default: '',
   },
