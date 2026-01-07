@@ -56,27 +56,7 @@
     </div>
 
     <!-- Save Button -->
-    <div class="save-btn container" :class="{ 'save-btn--active': !!hasChanges }">
-      <q-btn
-        class="full-width bg-block"
-        @click="handleSave"
-        rounded
-        size="lg"
-        :text-color="!!hasChanges ? 'primary' : ''"
-        unelevated
-        :loading="loading"
-        :disable="loading"
-      >
-        <q-icon name="save" size="18px" />
-        <span class="q-ml-sm text-subtitle1">Save changes</span>
-        <template #loading>
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-spinner size="sm" />
-            <span class="q-ml-sm text-subtitle1">Saving...</span>
-          </div>
-        </template>
-      </q-btn>
-    </div>
+    <SaveButton :has-changes="!!hasChanges" :loading="loading" @save="handleSave" />
   </q-page>
 </template>
 
@@ -87,6 +67,7 @@ import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
+import SaveButton from 'src/components/SaveButton.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -179,26 +160,5 @@ const handleSave = async () => {
   letter-spacing: 0.8px;
 }
 
-.sticky-save-button {
-  position: sticky;
-  bottom: 0;
-  background: var(--q-dark-page, #fff);
-  padding: 16px 0;
-  z-index: 10;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.save-btn {
-  width: 100%;
-  position: fixed;
-  bottom: env(safe-area-inset-bottom);
-
-  .q-btn {
-    font-weight: 700;
-    font-size: 18.8px;
-    letter-spacing: 0.6px;
-    height: 48px;
-  }
-}
 </style>
 
