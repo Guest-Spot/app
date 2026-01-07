@@ -10,7 +10,7 @@
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-sm full-width">
+          <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-md full-width">
             <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Experience</label>
               <q-input
