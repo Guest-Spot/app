@@ -47,6 +47,13 @@ export const ME_QUERY = gql`
       device_tokens {
         token
       }
+      profile {
+        links {
+          type
+          value
+        }
+        website
+      }
     }
   }
 `;
@@ -231,6 +238,13 @@ export const UPDATE_USER_MUTATION = gql`
           day
           start
           end
+        }
+        profile {
+          links {
+            type
+            value
+          }
+          website
         }
       }
     }

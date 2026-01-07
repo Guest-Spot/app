@@ -177,6 +177,69 @@
       </div>
     </q-expansion-item>
 
+    <!-- Social Media Section -->
+    <q-expansion-item
+      icon="share"
+      label="Social Media"
+      header-class="expansion-header"
+      class="bg-block border-radius-lg"
+    >
+      <div class="info-section">
+        <div v-if="artistData.links && artistData.links.length > 0" class="links-list q-mb-md">
+          <div
+            v-for="(link, index) in artistData.links"
+            :key="index"
+            class="links-row q-mb-md"
+          >
+            <div class="link-input-group">
+              <q-select
+                outlined
+                dense
+                rounded
+                v-model="link.type"
+                :options="socialLinkTypes"
+                option-label="label"
+                option-value="value"
+                map-options
+                emit-value
+                class="custom-input"
+              />
+              <q-input
+                outlined
+                dense
+                rounded
+                placeholder="Enter URL"
+                class="custom-input"
+                v-model="link.value"
+                clearable
+              />
+              <q-btn
+                round
+                flat
+                icon="delete"
+                color="negative"
+                size="sm"
+                class="remove-link-btn bg-block"
+                @click="removeLink(index)"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="input-group">
+          <q-btn
+            rounded
+            unelevated
+            flat
+            color="primary"
+            icon="add"
+            label="Add social media link"
+            class="add-link-btn full-width bg-block"
+            @click="addLink"
+          />
+        </div>
+      </div>
+    </q-expansion-item>
+
     <!-- Payment Settings -->
     <q-expansion-item
       v-if="settingsStore.getStripeEnabled && user?.verified"
@@ -375,6 +438,7 @@ import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
 import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
 import FeedbackLogout from 'src/components/FeedbackLogout.vue';
+import { LinkType } from 'src/interfaces/enums';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -403,6 +467,17 @@ const {
   onError: onErrorCheckStripeAccountStatus,
 } = useMutation(CHECK_STRIPE_ACCOUNT_STATUS_MUTATION);
 
+// Social link types options
+const socialLinkTypes = [
+  { label: 'Instagram', value: LinkType.Instagram },
+  { label: 'Facebook', value: LinkType.Facebook },
+  { label: 'Telegram', value: LinkType.Telegram },
+  { label: 'WhatsApp', value: LinkType.Whatsapp },
+  { label: 'TikTok', value: LinkType.Tiktok },
+  { label: 'YouTube', value: LinkType.Youtube },
+  { label: 'VK', value: LinkType.Vk },
+];
+
 // Form data
 const artistData = reactive<IArtistFormData>({
   name: '',
@@ -417,6 +492,7 @@ const artistData = reactive<IArtistFormData>({
   experience: null,
   depositAmount: null,
   openingHours: [],
+  links: [],
 });
 // NOTE: This variable is used to compare the original data with the new data
 const artistDataOriginal = reactive<IArtistFormData>({ ...artistData });
@@ -479,17 +555,20 @@ const openingHoursChanges = computed(() => {
 });
 
 const hasChanges = computed(() => {
-  // Exclude openingHours from comparison as it's handled separately
+  // Exclude openingHours and links from comparison as they're handled separately
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { openingHours: _originalHours, ...originalWithoutHours } = artistDataOriginal;
+  const { openingHours: _originalHours, links: _originalLinks, ...originalWithoutHoursAndLinks } = artistDataOriginal;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { openingHours: _currentHours, ...currentWithoutHours } = artistData;
+  const { openingHours: _currentHours, links: _currentLinks, ...currentWithoutHoursAndLinks } = artistData;
+
+  const linksChanged = JSON.stringify(artistData.links || []) !== JSON.stringify(artistDataOriginal.links || []);
 
   return (
-    Object.keys(compareAndReturnDifferences(originalWithoutHours, currentWithoutHours)).length > 0 ||
+    Object.keys(compareAndReturnDifferences(originalWithoutHoursAndLinks, currentWithoutHoursAndLinks)).length > 0 ||
     imagesForUpload.value.length > 0 ||
     imagesForRemove.value.length > 0 ||
-    openingHoursChanges.value
+    openingHoursChanges.value ||
+    linksChanged
   );
 });
 
@@ -515,6 +594,16 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
   const differences = compareAndReturnDifferences(artistDataOriginal, preparedData);
   // Exclude openingHours from the main mutation as it's handled separately
   delete differences.openingHours;
+
+  // Handle profile.links separately
+  const linksChanged = JSON.stringify(artistData.links || []) !== JSON.stringify(artistDataOriginal.links || []);
+  if (linksChanged) {
+    differences.profile = {
+      links: (artistData.links || []).filter((link) => link.value && link.value.trim() !== ''),
+    };
+  }
+  delete differences.links;
+
   return differences;
 };
 
@@ -545,6 +634,23 @@ const onCopyToClipboard = (text: string) => {
   showSuccess('Copied to clipboard');
 };
 
+// Social links management
+const addLink = () => {
+  if (!artistData.links) {
+    artistData.links = [];
+  }
+  artistData.links.push({
+    type: LinkType.Instagram,
+    value: '',
+  });
+};
+
+const removeLink = (index: number) => {
+  if (artistData.links) {
+    artistData.links.splice(index, 1);
+  }
+};
+
 const saveChanges = async () => {
   saveLoading.value = true;
   try {
@@ -571,11 +677,15 @@ const saveChanges = async () => {
         data,
       });
     } else {
-      // If only opening hours changed, still trigger success
+      // If only opening hours or links changed, still trigger success
       await Promise.all([fetchMe(), refetchOpeningHours()]);
       // After refetch, data will be synced via onResultOpeningHours
       imagesForUpload.value = [];
       imagesForRemove.value = [];
+      // Sync links to original data
+      if (artistData.links) {
+        artistDataOriginal.links = JSON.parse(JSON.stringify(artistData.links));
+      }
       showSuccess('Your profile successfully updated');
     }
   } catch (error) {
@@ -598,6 +708,10 @@ onDoneUpdateArtist((result) => {
     void Promise.all([fetchMe(), refetchOpeningHours()]).then(() => {
       imagesForUpload.value = [];
       imagesForRemove.value = [];
+      // Sync links to original data after successful update
+      if (artistData.links) {
+        artistDataOriginal.links = JSON.parse(JSON.stringify(artistData.links));
+      }
       showSuccess('Your profile successfully updated');
     });
   }
@@ -624,6 +738,8 @@ watch(
           : null,
         // Don't include openingHours from user profile, use separate query
         openingHours: currentOpeningHours,
+        // Include links from profile
+        links: profile?.profile?.links ? [...profile.profile.links] : [],
       };
 
       Object.assign(artistData, userData);
@@ -631,6 +747,7 @@ watch(
       Object.assign(artistDataOriginal, {
         ...userData,
         openingHours: originalOpeningHours,
+        links: profile?.profile?.links ? JSON.parse(JSON.stringify(profile.profile.links)) : [],
       });
     }
   },
@@ -802,10 +919,6 @@ defineExpose({
 }
 
 .add-link-btn {
-  margin-bottom: 8px;
-}
-
-.remove-link-btn {
   margin-bottom: 8px;
 }
 
