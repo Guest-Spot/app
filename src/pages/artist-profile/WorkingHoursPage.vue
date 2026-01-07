@@ -9,10 +9,8 @@
 
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
-        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <div class="working-hours-container">
-            <WorkingHoursEditor v-model="localHours" />
-          </div>
+        <div class="working-hours-container">
+          <WorkingHoursEditor v-model="localHours" />
         </div>
       </div>
     </div>
