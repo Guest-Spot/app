@@ -54,10 +54,23 @@
               <q-skeleton type="text" width="50%" height="20px" />
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
-            <div class="profile-location flex items-center justify-center q-gap-sm text-caption text-grey-6">
+            <div v-if="artistLocation" class="profile-location flex items-center justify-center q-gap-sm text-caption text-grey-6">
               {{ artistLocation.split(', ').filter(Boolean).join(', ') }}
             </div>
-            <SocialLinks v-if="links" :links="links" />
+            <div class="flex items-center justify-center q-gap-sm">
+              <SocialLinks v-if="links" :links="links" />
+              <q-btn
+                v-if="artistLocation"
+                round
+                flat
+                size="sm"
+                @click="openGoogleMaps"
+                class="social-link-btn bg-block"
+                color="primary"
+              >
+                <q-icon name="place" />
+              </q-btn>
+            </div>
           </div>
         </div>
       </div>
@@ -219,7 +232,8 @@ const trips = ref<ITrip[]>([]);
 // Computed properties for favorites
 const links = computed(() => artistData.value?.profile?.links);
 const artistLocation = computed(() => {
-  return [artistData.value.country, artistData.value.state, artistData.value.city, artistData.value.address].filter(Boolean).join(', ');
+  const location = [artistData.value.country, artistData.value.state, artistData.value.city, artistData.value.address].filter(Boolean).join(', ');
+  return location || null;
 });
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
@@ -297,6 +311,21 @@ const goToBookingPage = () => {
   }
   if (!artistData.value.documentId) return;
   void router.push({ name: 'CreateBooking', query: { artistId: artistData.value.documentId } });
+};
+
+const openGoogleMaps = () => {
+  const locationParts = [
+    artistData.value.address,
+    artistData.value.city,
+    artistData.value.state,
+    artistData.value.country,
+  ].filter(Boolean);
+
+  if (locationParts.length === 0) return;
+
+  const query = locationParts.join(', ');
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  window.open(googleMapsUrl, '_blank');
 };
 
 // Function to load artist data
@@ -460,5 +489,19 @@ onBeforeMount(() => {
   right: 0;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
+}
+
+.social-link-btn {
+  color: var(--q-primary);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+
+  :deep(.q-icon) {
+    color: var(--q-primary);
+  }
 }
 </style>

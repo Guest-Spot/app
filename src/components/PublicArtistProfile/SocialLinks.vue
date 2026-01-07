@@ -65,28 +65,17 @@ const getIconType = (type: LinkType): LinkType => {
 </script>
 
 <style scoped lang="scss">
-.social-links {
-  margin-top: 8px;
-  margin-bottom: 4px;
-}
-
 .social-link-btn {
-  color: var(--q-primary);
   transition: all 0.2s ease;
 
   &:hover {
     transform: scale(1.1);
     opacity: 0.8;
   }
-
-  :deep(.q-icon) {
-    color: var(--q-primary);
-  }
 }
 
 .social-icon-svg {
   width: 20px;
   height: 20px;
-  color: var(--q-primary);
 }
 </style>
