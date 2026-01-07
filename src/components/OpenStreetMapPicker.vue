@@ -57,15 +57,18 @@
       </div>
     </div>
 
-    <div ref="mapContainer" class="map-container border-radius-lg"></div>
-    <div v-if="loading" class="map-loading flex items-center justify-center">
-      <q-spinner size="md" />
+    <div class="map-wrapper border-radius-lg">
+      <div ref="mapContainer" class="map-container"></div>
+      <q-skeleton v-if="showSkeleton" width="100%" height="100%" class="map-skeleton bg-block border-radius-lg" />
+      <div v-else-if="loading" class="map-loading flex items-center justify-center">
+        <q-spinner size="md" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { forwardGeocode, type ForwardGeocodingResult } from 'src/utils/geocoding';
@@ -91,6 +94,7 @@ interface Props {
   state?: string;
   city?: string;
   address?: string;
+  dataLoading?: boolean;
 }
 
 interface Emits {
@@ -104,6 +108,10 @@ const emit = defineEmits<Emits>();
 const mapContainer = ref<HTMLDivElement | null>(null);
 const searchContainerRef = ref<HTMLDivElement | null>(null);
 const loading = ref(true);
+const isDataLoading = computed(() => props.dataLoading ?? false);
+const initialLocationResolved = ref(false);
+const initialGeocodeInProgress = ref(false);
+const showSkeleton = computed(() => isDataLoading.value || !initialLocationResolved.value);
 let map: L.Map | null = null;
 let marker: L.Marker<L.LatLngExpression> | null = null;
 
@@ -162,8 +170,37 @@ const geocodeAddressOnInit = async () => {
   }
 };
 
+const resolveInitialLocation = async () => {
+  if (initialLocationResolved.value || isDataLoading.value) {
+    return;
+  }
+
+  if (props.modelValue) {
+    initialLocationResolved.value = true;
+    return;
+  }
+
+  const addressQuery = buildAddressQuery();
+  if (!addressQuery) {
+    initialLocationResolved.value = true;
+    return;
+  }
+
+  if (!map || !marker || initialGeocodeInProgress.value) {
+    return;
+  }
+
+  initialGeocodeInProgress.value = true;
+  try {
+    await geocodeAddressOnInit();
+  } finally {
+    initialGeocodeInProgress.value = false;
+    initialLocationResolved.value = true;
+  }
+};
+
 const initializeMap = () => {
-  if (!mapContainer.value) {
+  if (!mapContainer.value || map || isDataLoading.value) {
     return;
   }
 
@@ -220,8 +257,7 @@ const initializeMap = () => {
     // Wait for map to be fully loaded
     map.whenReady(() => {
       loading.value = false;
-      // If we have address data but no coordinates, try to geocode
-      void geocodeAddressOnInit();
+      void resolveInitialLocation();
     });
   } catch (error) {
     console.error('Error loading OpenStreetMap:', error);
@@ -299,6 +335,11 @@ watch(
       marker.setLatLng(position);
       map.setView(position, 15);
     }
+    if (newValue) {
+      initialLocationResolved.value = true;
+      return;
+    }
+    void resolveInitialLocation();
   },
   { deep: true },
 );
@@ -309,6 +350,10 @@ watch(
   async () => {
     // Only geocode if we don't have coordinates and map is initialized
     if (!props.modelValue && map && marker) {
+      if (!initialLocationResolved.value) {
+        await resolveInitialLocation();
+        return;
+      }
       await geocodeAddressOnInit();
     }
   },
@@ -317,10 +362,25 @@ watch(
 
 onMounted(() => {
   // Small delay to ensure DOM is ready
-  setTimeout(() => {
-    void initializeMap();
-  }, 100);
+  if (!isDataLoading.value) {
+    setTimeout(() => {
+      void initializeMap();
+    }, 100);
+  }
+  void resolveInitialLocation();
 });
+
+watch(
+  () => isDataLoading.value,
+  (dataLoading) => {
+    if (!dataLoading) {
+      setTimeout(() => {
+        void initializeMap();
+      }, 100);
+      void resolveInitialLocation();
+    }
+  },
+);
 
 onUnmounted(() => {
   if (map) {
@@ -343,21 +403,36 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-.map-container {
+.map-wrapper {
+  position: relative;
   width: 100%;
   height: 300px;
   min-height: 300px;
+  overflow: hidden;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
   z-index: 1;
 }
 
+.map-skeleton,
 .map-loading {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 2;
+}
+
+.map-skeleton {
+  pointer-events: all;
+}
+
+.map-loading {
   background-color: rgba(255, 255, 255, 0.8);
-  z-index: 10;
 }
 
 // Leaflet styles override
@@ -373,4 +448,3 @@ onUnmounted(() => {
   display: none;
 }
 </style>
-

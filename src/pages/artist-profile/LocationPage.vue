@@ -19,6 +19,7 @@
                 :state="formData.state"
                 :city="formData.city"
                 :address="formData.address"
+                :data-loading="isLocationLoading"
                 @location-changed="handleLocationChanged"
               />
             </div>
@@ -59,7 +60,7 @@ import { reverseGeocode } from 'src/utils/geocoding';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
-const { fetchMe, user } = useUser();
+const { fetchMe, user, isLoading } = useUser();
 
 const loading = ref(false);
 const formData = ref({
@@ -71,6 +72,7 @@ const formData = ref({
 
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
 const isUpdatingFromMap = ref(false);
+const isLocationLoading = computed(() => isLoading.value && !user.value);
 
 const handleLocationChanged = async (location: { lat: number; lng: number }) => {
   isUpdatingFromMap.value = true;
@@ -198,4 +200,3 @@ const handleSave = async () => {
 }
 
 </style>
-
