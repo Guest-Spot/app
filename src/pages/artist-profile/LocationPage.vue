@@ -11,10 +11,14 @@
       <div class="container">
         <!-- OpenStreetMap Section -->
         <div class="full-width bg-block border-radius-lg q-pa-lg q-mb-md">
-          <div class="flex column items-start q-gap-xs full-width border-radius-lg">
+          <div class="flex column items-start q-gap-md full-width">
             <label class="input-label">Select location on map</label>
             <OpenStreetMapPicker
               v-model="selectedLocation"
+              :country="formData.country"
+              :state="formData.state"
+              :city="formData.city"
+              :address="formData.address"
               @location-changed="handleLocationChanged"
             />
           </div>
@@ -22,7 +26,7 @@
 
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
           <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-md full-width">
-            <div class="flex column items-start q-gap-xs full-width">
+            <div v-if="formData.country" class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Country</label>
               <q-input
                 v-model="formData.country"
@@ -33,7 +37,7 @@
                 size="lg"
                 class="full-width"
                 bg-color="transparent"
-                clearable
+                readonly
               >
                 <template v-slot:prepend>
                   <q-icon name="public" color="grey-6" />
@@ -41,7 +45,7 @@
               </q-input>
             </div>
 
-            <div class="flex column items-start q-gap-xs full-width">
+            <div v-if="formData.state" class="flex column items-start q-gap-xs full-width">
               <label class="input-label">State</label>
               <q-input
                 v-model="formData.state"
@@ -52,7 +56,7 @@
                 size="lg"
                 class="full-width"
                 bg-color="transparent"
-                clearable
+                readonly
               >
                 <template v-slot:prepend>
                   <q-icon name="map" color="grey-6" />
@@ -60,7 +64,7 @@
               </q-input>
             </div>
 
-            <div class="flex column items-start q-gap-xs full-width">
+            <div v-if="formData.city" class="flex column items-start q-gap-xs full-width">
               <label class="input-label">City</label>
               <q-input
                 v-model="formData.city"
@@ -71,7 +75,7 @@
                 size="lg"
                 class="full-width"
                 bg-color="transparent"
-                clearable
+                readonly
               >
                 <template v-slot:prepend>
                   <q-icon name="location_city" color="grey-6" />
@@ -79,7 +83,7 @@
               </q-input>
             </div>
 
-            <div class="flex column items-start q-gap-xs full-width">
+            <div v-if="formData.address" class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Address</label>
               <q-input
                 v-model="formData.address"
@@ -87,10 +91,10 @@
                 placeholder="Enter address"
                 outlined
                 rounded
+                readonly
                 size="lg"
                 class="full-width"
                 bg-color="transparent"
-                clearable
               >
                 <template v-slot:prepend>
                   <q-icon name="home" color="grey-6" />
