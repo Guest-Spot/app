@@ -17,20 +17,8 @@
       </div>
     </div>
 
-    <!-- Sticky Save Button -->
-    <div class="sticky-save-button">
-      <div class="container">
-        <q-btn
-          class="save-btn bg-block full-width"
-          :loading="loading"
-          rounded
-          unelevated
-          @click="handleSave"
-        >
-          Save changes
-        </q-btn>
-      </div>
-    </div>
+    <!-- Save Button -->
+    <SaveButton :has-changes="!!hasChanges" :loading="loading" @save="handleSave" />
   </q-page>
 </template>
 
@@ -42,6 +30,7 @@ import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useOpeningHours from 'src/modules/useOpeningHours';
 import WorkingHoursEditor from 'src/components/ShopProfile/WorkingHoursEditor.vue';
+import SaveButton from 'src/components/SaveButton.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -62,6 +51,10 @@ onResultOpeningHours((result) => {
     localHours.splice(0, localHours.length, ...hours);
     originalHours.value = JSON.parse(JSON.stringify(hours));
   }
+});
+
+const hasChanges = computed(() => {
+  return JSON.stringify([...localHours]) !== JSON.stringify(originalHours.value);
 });
 
 const handleSave = async () => {
@@ -92,22 +85,6 @@ const handleSave = async () => {
   padding-bottom: 100px;
 }
 
-.sticky-save-button {
-  position: sticky;
-  bottom: 0;
-  background: var(--q-dark-page, #fff);
-  padding: 16px 0;
-  z-index: 10;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.save-btn {
-  font-weight: 700;
-  font-size: 18.8px;
-  letter-spacing: 0.6px;
-  height: 48px;
-  text-transform: none;
-}
 
 .working-hours-container {
   width: 100%;

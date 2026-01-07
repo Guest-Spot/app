@@ -73,20 +73,8 @@
       </div>
     </div>
 
-    <!-- Sticky Save Button -->
-    <div class="sticky-save-button">
-      <div class="container">
-        <q-btn
-          class="save-btn bg-block full-width"
-          :loading="loading"
-          rounded
-          unelevated
-          @click="handleSave"
-        >
-          Save changes
-        </q-btn>
-      </div>
-    </div>
+    <!-- Save Button -->
+    <SaveButton :has-changes="!!hasChanges" :loading="loading" @save="handleSave" />
   </q-page>
 </template>
 
@@ -98,6 +86,7 @@ import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import { LinkType } from 'src/interfaces/enums';
+import SaveButton from 'src/components/SaveButton.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -189,6 +178,12 @@ const removeLink = (index: number) => {
 
 const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
 
+const hasChanges = computed(() => {
+  return (
+    JSON.stringify(formData.value.links || []) !== JSON.stringify(originalLinks.value || [])
+  );
+});
+
 onDoneUpdate((result) => {
   loading.value = false;
   if (result.errors?.length) {
@@ -249,22 +244,6 @@ const handleSave = async () => {
   letter-spacing: 0.8px;
 }
 
-.sticky-save-button {
-  position: sticky;
-  bottom: 0;
-  background: var(--q-dark-page, #fff);
-  padding: 16px 0;
-  z-index: 10;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.save-btn {
-  font-weight: 700;
-  font-size: 18.8px;
-  letter-spacing: 0.6px;
-  height: 48px;
-  text-transform: none;
-}
 
 .links-row {
   display: flex;

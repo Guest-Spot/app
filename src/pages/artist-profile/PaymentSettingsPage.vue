@@ -137,25 +137,18 @@
       </div>
     </div>
 
-    <!-- Sticky Save Button (only shown when payment is configured) -->
-    <div v-if="user?.stripeAccountID && user?.payoutsEnabled === true" class="sticky-save-button">
-      <div class="container">
-        <q-btn
-          class="save-btn bg-block full-width"
-          :loading="loading"
-          rounded
-          unelevated
-          @click="handleSave"
-        >
-          Save changes
-        </q-btn>
-      </div>
-    </div>
+    <!-- Save Button (only shown when payment is configured) -->
+    <SaveButton
+      v-if="user?.stripeAccountID && user?.payoutsEnabled === true"
+      :has-changes="!!hasChanges"
+      :loading="loading"
+      @save="handleSave"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { copyToClipboard } from 'quasar';
 import { useMutation } from '@vue/apollo-composable';
@@ -168,6 +161,7 @@ import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useStripe from 'src/composables/useStripe';
 import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
+import SaveButton from 'src/components/SaveButton.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -213,6 +207,13 @@ const {
 } = useMutation(CHECK_STRIPE_ACCOUNT_STATUS_MUTATION);
 
 const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
+
+const hasChanges = computed(() => {
+  return (
+    formData.value.chargeDeposit !== (user.value?.chargeDeposit || false) ||
+    dollarsToCents(formData.value.depositAmount) !== (user.value?.depositAmount || null)
+  );
+});
 
 onDoneUpdate((result) => {
   loading.value = false;
@@ -388,21 +389,5 @@ onBeforeUnmount(async () => {
   letter-spacing: 0.8px;
 }
 
-.sticky-save-button {
-  position: sticky;
-  bottom: 0;
-  background: var(--q-dark-page, #fff);
-  padding: 16px 0;
-  z-index: 10;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.save-btn {
-  font-weight: 700;
-  font-size: 18.8px;
-  letter-spacing: 0.6px;
-  height: 48px;
-  text-transform: none;
-}
 </style>
 
