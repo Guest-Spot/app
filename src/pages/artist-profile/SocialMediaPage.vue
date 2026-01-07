@@ -11,7 +11,7 @@
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
           <div class="flex column items-start q-gap-sm full-width">
-            <div v-if="formData.links && formData.links.length > 0" class="links-list full-width q-mb-md">
+            <div v-if="formData.links && formData.links.length > 0" class="links-list full-width">
               <div
                 v-for="(link, index) in formData.links"
                 :key="index"
@@ -28,8 +28,24 @@
                     option-value="value"
                     map-options
                     emit-value
-                    class="custom-input"
-                  />
+                    class="custom-input social-media-select"
+                  >
+                    <template #selected-item="scope">
+                      <div class="selected-icon-wrapper">
+                        <SocialIcon :type="scope.opt.value" class="selected-social-icon" size="14px" />
+                      </div>
+                    </template>
+                    <template #option="scope">
+                      <q-item v-bind="scope.itemProps">
+                        <q-item-section avatar>
+                          <SocialIcon :type="scope.opt.value" class="option-social-icon" size="14px" />
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label>{{ scope.opt.label }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
                   <q-input
                     outlined
                     dense
@@ -50,6 +66,9 @@
                   />
                 </div>
               </div>
+            </div>
+            <div v-else class="text-body2 text-grey-7 text-center q-pa-md full-width">
+              No social media links added yet
             </div>
             <div class="input-group full-width">
               <div v-if="allLinkTypesAdded" class="text-body2 text-grey-7 text-center q-pa-md">
@@ -87,6 +106,7 @@ import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import { LinkType } from 'src/interfaces/enums';
 import SaveButton from 'src/components/SaveButton.vue';
+import SocialIcon from 'src/components/PublicArtistProfile/SocialIcon.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -114,7 +134,9 @@ watch(
   user,
   (profile) => {
     if (profile) {
-      const links = profile?.profile?.links ? [...profile.profile.links] : [];
+      const links = profile?.profile?.links
+        ? profile.profile.links.map(link => ({ ...link }))
+        : [];
       formData.value = {
         links,
       };
@@ -258,8 +280,29 @@ const handleSave = async () => {
   align-items: center;
 }
 
-.add-link-btn {
-  margin-bottom: 8px;
+.social-media-select {
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.selected-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.selected-social-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--q-primary);
+}
+
+.option-social-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--q-primary);
 }
 </style>
 
