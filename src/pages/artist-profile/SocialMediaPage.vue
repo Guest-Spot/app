@@ -16,6 +16,7 @@
                 v-for="(link, index) in formData.links"
                 :key="index"
                 class="links-row q-mb-md"
+                :class="{ 'links-row--focused': focusedInputIndex === index }"
               >
                 <div class="link-input-group">
                   <q-select
@@ -51,9 +52,10 @@
                     dense
                     rounded
                     placeholder="Enter URL"
-                    class="custom-input"
+                    class="custom-input url-input"
                     v-model="link.value"
-                    clearable
+                    @focus="handleInputFocus(index)"
+                    @blur="handleInputBlur"
                   />
                   <q-btn
                     round
@@ -112,6 +114,8 @@ const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
 
 const loading = ref(false);
+const focusedInputIndex = ref<number | null>(null);
+const blurTimeout = ref<NodeJS.Timeout | null>(null);
 const formData = ref<{ links: Array<{ type: LinkType; value: string }> }>({
   links: [],
 });
@@ -195,6 +199,37 @@ const removeLink = (index: number) => {
   if (formData.value.links) {
     formData.value.links.splice(index, 1);
   }
+};
+
+const handleInputFocus = (index: number) => {
+  // Cancel any pending blur timeout
+  if (blurTimeout.value) {
+    clearTimeout(blurTimeout.value);
+    blurTimeout.value = null;
+  }
+  // Immediately set the focused index
+  focusedInputIndex.value = index;
+};
+
+const handleInputBlur = () => {
+  // Store the current focused index at the time of blur
+  const blurredIndex = focusedInputIndex.value;
+
+  // Use setTimeout to allow focus event on another input to fire first
+  blurTimeout.value = setTimeout(() => {
+    // Check if focus actually moved to another input
+    const activeElement = document.activeElement;
+    const isInputFocused = activeElement && activeElement.closest('.url-input');
+
+    // Only reset if:
+    // 1. No input is currently focused, AND
+    // 2. The focused index hasn't changed (meaning focus didn't move to another input)
+    if (!isInputFocused && focusedInputIndex.value === blurredIndex) {
+      focusedInputIndex.value = null;
+    }
+
+    blurTimeout.value = null;
+  }, 50);
 };
 
 const { mutate: updateProfile } = useMutation(UPDATE_PROFILE_MUTATION);
@@ -281,6 +316,7 @@ const handleSave = async () => {
   display: flex;
   gap: 15px;
   align-items: flex-end;
+  position: relative;
 }
 
 .link-input-group {
@@ -288,6 +324,34 @@ const handleSave = async () => {
   display: flex;
   gap: 10px;
   align-items: center;
+  position: relative;
+}
+
+.url-input {
+  flex: 1;
+  position: relative;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.links-row--focused .url-input {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  min-width: 100%;
+  z-index: 10;
+}
+
+.links-row--focused .social-media-select {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.links-row--focused .remove-link-btn {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .selected-icon-wrapper {
