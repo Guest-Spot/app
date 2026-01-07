@@ -73,20 +73,23 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { forwardGeocode, type ForwardGeocodingResult } from 'src/utils/geocoding';
 
-// Fix for default marker icon in Leaflet
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+// Create custom marker with primary color
+const createCustomMarkerIcon = (): L.DivIcon => {
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--q-primary').trim() || '#ff3d00';
 
-const DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <svg width="32" height="41" viewBox="0 0 32 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 0C7.163 0 0 7.163 0 16C0 28.5 16 41 16 41C16 41 32 28.5 32 16C32 7.163 24.837 0 16 0Z" fill="${primaryColor}"/>
+        <circle cx="16" cy="16" r="6" fill="white"/>
+      </svg>
+    `,
+    iconSize: [32, 41],
+    iconAnchor: [16, 41],
+    popupAnchor: [0, -41],
+  });
+};
 
 interface Props {
   modelValue?: { lat: number; lng: number } | null;
@@ -223,9 +226,10 @@ const initializeMap = () => {
       maxZoom: 19,
     }).addTo(map);
 
-    // Create marker
+    // Create marker with custom primary color icon
     marker = L.marker(defaultCenter, {
       draggable: true,
+      icon: createCustomMarkerIcon(),
     }).addTo(map);
 
     // Update position when marker is dragged
@@ -446,5 +450,10 @@ onUnmounted(() => {
 
 :deep(.leaflet-control-attribution) {
   display: none;
+}
+
+.custom-marker {
+  background: transparent;
+  border: none;
 }
 </style>
