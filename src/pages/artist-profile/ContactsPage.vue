@@ -9,8 +9,27 @@
 
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
-        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
+        <div class="text-center full-width bg-block border-radius-lg q-px-lg q-pt-lg q-pb-sm">
           <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-md full-width">
+            <div class="flex column items-start q-gap-xs full-width">
+              <label class="input-label">Website</label>
+              <q-input
+                v-model="formData.website"
+                type="url"
+                placeholder="Enter website URL"
+                outlined
+                rounded
+                size="lg"
+                class="full-width"
+                bg-color="transparent"
+                clearable
+              >
+                <template v-slot:prepend>
+                  <q-icon name="language" color="grey-6" />
+                </template>
+              </q-input>
+            </div>
+
             <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Phone</label>
               <q-input
@@ -48,7 +67,6 @@
                 </template>
               </q-input>
             </div>
-
           </q-form>
         </div>
       </div>
@@ -64,6 +82,7 @@ import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
+import { UPDATE_PROFILE_MUTATION } from 'src/apollo/types/profile';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import SaveButton from 'src/components/SaveButton.vue';
@@ -76,6 +95,7 @@ const loading = ref(false);
 const formData = ref({
   phone: '',
   email: '',
+  website: '',
 });
 
 const emailRules = [
@@ -94,35 +114,22 @@ watch(
       formData.value = {
         phone: profile.phone || '',
         email: profile.email || '',
+        website: profile.profile?.website || '',
       };
     }
   },
   { immediate: true },
 );
 
-const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
+const { mutate: updateUser } = useMutation(UPDATE_USER_MUTATION);
+const { mutate: updateProfile } = useMutation(UPDATE_PROFILE_MUTATION);
 
 const hasChanges = computed(() => {
   return (
     formData.value.phone !== (user.value?.phone || '') ||
-    formData.value.email !== (user.value?.email || '')
+    formData.value.email !== (user.value?.email || '') ||
+    formData.value.website !== (user.value?.profile?.website || '')
   );
-});
-
-onDoneUpdate((result) => {
-  loading.value = false;
-  if (result.errors?.length) {
-    console.error('Error updating user:', result.errors);
-    showError('Error updating contacts');
-    return;
-  }
-
-  if (result.data?.updateUsersPermissionsUser) {
-    void fetchMe().then(() => {
-      showSuccess('Contacts successfully updated');
-      router.back();
-    });
-  }
 });
 
 const handleSave = async () => {
@@ -141,16 +148,66 @@ const handleSave = async () => {
     data.email = formData.value.email;
   }
 
-  if (Object.keys(data).length === 0) {
+  const websiteChanged = formData.value.website !== (user.value.profile?.website || '');
+  const profileDocumentId = user.value.profile?.documentId;
+  if (websiteChanged && !profileDocumentId) {
+    loading.value = false;
+    showError('Profile not found');
+    return;
+  }
+
+  const mutations: Promise<unknown>[] = [];
+  if (Object.keys(data).length > 0) {
+    mutations.push(
+      updateUser({
+        id: user.value.id,
+        data,
+      }),
+    );
+  }
+
+  if (websiteChanged && profileDocumentId) {
+    mutations.push(
+      updateProfile({
+        documentId: profileDocumentId,
+        data: {
+          website: formData.value.website || null,
+        },
+      }),
+    );
+  }
+
+  if (mutations.length === 0) {
     loading.value = false;
     router.back();
     return;
   }
 
-  await updateUser({
-    id: user.value.id,
-    data,
-  });
+  try {
+    const results = await Promise.all(mutations);
+    const hasErrors = results.some((result) => {
+      if (typeof result !== 'object' || result === null) {
+        return false;
+      }
+      const errors = (result as { errors?: unknown[] }).errors;
+      return Array.isArray(errors) && errors.length > 0;
+    });
+
+    await fetchMe();
+
+    if (hasErrors) {
+      showError('Error updating contacts');
+      return;
+    }
+
+    showSuccess('Contacts successfully updated');
+    router.back();
+  } catch (error) {
+    console.error('Error updating contacts:', error);
+    showError('Error updating contacts');
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -169,4 +226,3 @@ const handleSave = async () => {
 }
 
 </style>
-

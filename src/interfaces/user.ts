@@ -3,6 +3,7 @@ import type { UserType } from 'src/interfaces/enums';
 import type { RegisterPushTokenPayload } from 'src/interfaces/pushNotifications';
 
 export interface IProfile {
+  documentId?: string;
   links: ILink[];
   website?: string;
 }

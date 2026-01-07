@@ -48,6 +48,7 @@ export const ME_QUERY = gql`
         token
       }
       profile {
+        documentId
         links {
           type
           value
@@ -123,6 +124,7 @@ export const USERS_QUERY = gql`
         }
       }
       profile {
+        documentId
         links {
           type
           value
@@ -190,6 +192,7 @@ export const USER_QUERY = gql`
         }
       }
       profile {
+        documentId
         links {
           type
           value
@@ -240,6 +243,7 @@ export const UPDATE_USER_MUTATION = gql`
           end
         }
         profile {
+          documentId
           links {
             type
             value

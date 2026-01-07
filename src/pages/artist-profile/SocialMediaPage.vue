@@ -100,7 +100,7 @@
 import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
-import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
+import { UPDATE_PROFILE_MUTATION } from 'src/apollo/types/profile';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import { LinkType } from 'src/interfaces/enums';
@@ -197,7 +197,7 @@ const removeLink = (index: number) => {
   }
 };
 
-const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
+const { mutate: updateProfile } = useMutation(UPDATE_PROFILE_MUTATION);
 
 const hasChanges = computed(() => {
   return (
@@ -205,25 +205,15 @@ const hasChanges = computed(() => {
   );
 });
 
-onDoneUpdate((result) => {
-  loading.value = false;
-  if (result.errors?.length) {
-    console.error('Error updating user:', result.errors);
-    showError('Error updating social media links');
-    return;
-  }
-
-  if (result.data?.updateUsersPermissionsUser) {
-    void fetchMe().then(() => {
-      showSuccess('Social media links successfully updated');
-      router.back();
-    });
-  }
-});
-
 const handleSave = async () => {
   if (!user.value?.id) {
     showError('User not found');
+    return;
+  }
+
+  const profileDocumentId = user.value.profile?.documentId;
+  if (!profileDocumentId) {
+    showError('Profile not found');
     return;
   }
 
@@ -238,16 +228,37 @@ const handleSave = async () => {
     return;
   }
 
-  const data = {
-    profile: {
-      links: (formData.value.links || []).filter((link) => link.value && link.value.trim() !== ''),
-    },
-  };
+  const links = (formData.value.links || [])
+    .filter((link) => link.value && link.value.trim() !== '')
+    .map((link) => ({
+      type: link.type,
+      value: link.value,
+    }));
 
-  await updateUser({
-    id: user.value.id,
-    data,
-  });
+  try {
+    const result = await updateProfile({
+      documentId: profileDocumentId,
+      data: {
+        links,
+      },
+    });
+    const hasErrors = Array.isArray(result?.errors) && result.errors.length > 0;
+
+    await fetchMe();
+
+    if (hasErrors) {
+      showError('Error updating social media links');
+      return;
+    }
+
+    showSuccess('Social media links successfully updated');
+    router.back();
+  } catch (error) {
+    console.error('Error updating social media links:', error);
+    showError('Error updating social media links');
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -298,4 +309,3 @@ const handleSave = async () => {
   color: var(--q-primary);
 }
 </style>
-

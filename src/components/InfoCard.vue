@@ -34,28 +34,30 @@
           :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']"
           formatted
         />
-        <q-btn
-          v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
-          :icon="whatsappIcon"
-          :href="getWhatsappLink(item.value) ?? undefined"
-          target="_blank"
-          rel="noopener"
-          size="sm"
-          round
-          unelevated
-          class="bg-block q-ml-auto"
-          aria-label="Write via WhatsApp"
-        />
-        <q-btn
-          v-if="item.value && item.type === InfoItemType.Link"
-          icon="content_copy"
-          size="sm"
-          round
-          unelevated
-          class="bg-block q-ml-auto"
-          text-color="primary"
-          @click="copyLink(item.value)"
-        />
+        <div class="flex items-center q-gap-sm q-ml-auto">
+          <q-btn
+            v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
+            :icon="whatsappIcon"
+            :href="getWhatsappLink(item.value) ?? undefined"
+            target="_blank"
+            rel="noopener"
+            size="sm"
+            round
+            unelevated
+            class="bg-block q-ml-auto"
+            aria-label="Write via WhatsApp"
+          />
+          <q-btn
+            v-if="item.value && isCopyable(item.type)"
+            icon="content_copy"
+            size="sm"
+            round
+            unelevated
+            class="bg-block q-ml-auto"
+            text-color="primary"
+            @click="copyLink(item.value)"
+          />
+        </div>
 
         <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
       </div>
@@ -96,11 +98,18 @@ const getWhatsappLink = (phone: string): string | null => {
   return digits ? `https://wa.me/${digits}` : null;
 };
 
+const isCopyable = (type?: InfoItemType): boolean => {
+  if (!type) {
+    return false;
+  }
+  return [InfoItemType.Link, InfoItemType.Phone, InfoItemType.Email].includes(type);
+};
+
 const showToast = () => {
   $q.notify({
     type: 'positive',
     color: 'dark',
-    message: 'Link copied!',
+    message: 'Copied!',
     position: 'top',
     timeout: 2000,
     actions: [
