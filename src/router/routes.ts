@@ -132,37 +132,37 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'profile/basic-information',
-        component: () => import('pages/artist-profile/BasicInformationPage.vue'),
+        component: () => import('pages/profile/BasicInformationPage.vue'),
         meta: { title: 'Basic Information', requiresAuth: true },
       },
       {
         path: 'profile/location',
-        component: () => import('pages/artist-profile/LocationPage.vue'),
+        component: () => import('pages/profile/LocationPage.vue'),
         meta: { title: 'Location', requiresAuth: true },
       },
       {
         path: 'profile/contacts',
-        component: () => import('pages/artist-profile/ContactsPage.vue'),
+        component: () => import('pages/profile/ContactsPage.vue'),
         meta: { title: 'Contacts', requiresAuth: true },
       },
       {
         path: 'profile/working-hours',
-        component: () => import('pages/artist-profile/WorkingHoursPage.vue'),
+        component: () => import('pages/profile/WorkingHoursPage.vue'),
         meta: { title: 'Working Hours', requiresAuth: true },
       },
       {
         path: 'profile/additional-information',
-        component: () => import('pages/artist-profile/AdditionalInformationPage.vue'),
+        component: () => import('pages/profile/AdditionalInformationPage.vue'),
         meta: { title: 'Additional Information', requiresAuth: true },
       },
       {
         path: 'profile/social-media',
-        component: () => import('pages/artist-profile/SocialMediaPage.vue'),
+        component: () => import('pages/profile/SocialMediaPage.vue'),
         meta: { title: 'Social Media', requiresAuth: true },
       },
       {
         path: 'profile/payment-settings',
-        component: () => import('pages/artist-profile/PaymentSettingsPage.vue'),
+        component: () => import('pages/profile/PaymentSettingsPage.vue'),
         meta: { title: 'Payment Settings', requiresAuth: true },
       },
       {

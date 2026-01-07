@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { AboutMeTab } from 'src/components/ArtistProfile';
+import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import { PortfolioTab } from 'src/components';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';

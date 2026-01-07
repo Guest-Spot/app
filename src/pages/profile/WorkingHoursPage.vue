@@ -27,7 +27,7 @@ import type { IOpeningHours } from 'src/interfaces/common';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useOpeningHours from 'src/modules/useOpeningHours';
-import WorkingHoursEditor from 'src/components/ShopProfile/WorkingHoursEditor.vue';
+import WorkingHoursEditor from 'src/components/Profile/WorkingHoursEditor.vue';
 import SaveButton from 'src/components/SaveButton.vue';
 
 const router = useRouter();
@@ -88,4 +88,3 @@ const handleSave = async () => {
   width: 100%;
 }
 </style>
-

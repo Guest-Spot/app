@@ -228,14 +228,14 @@ const TABS = computed<ITab[]>(() => [
     tab: TAB_ABOUT,
   },
   {
-    label: 'Artists',
-    tab: TAB_ARTISTS,
-    count: artists.value.length,
-  },
-  {
     label: 'Portfolio',
     tab: TAB_PORTFOLIO,
     count: portfolioItems.value.length,
+  },
+  {
+    label: 'Artists',
+    tab: TAB_ARTISTS,
+    count: artists.value.length,
   },
 ]);
 

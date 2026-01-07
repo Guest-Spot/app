@@ -9,7 +9,7 @@
         class="day-card"
       >
         <template #header>
-          <div class="flex column q-gap-sm">
+          <div class="flex q-gap-sm no-wrap">
             <div class="field">
               <label class="input-label text-grey-6">Start</label>
               <q-input

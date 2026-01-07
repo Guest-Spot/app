@@ -169,7 +169,7 @@
 import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
-import WorkingHoursEditor from './WorkingHoursEditor.vue';
+import WorkingHoursEditor from 'src/components/Profile/WorkingHoursEditor.vue';
 import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
 import type { IOpeningHours } from 'src/interfaces/common';
