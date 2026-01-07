@@ -54,7 +54,7 @@
               <q-skeleton type="text" width="50%" height="20px" />
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
-            <div class="flex items-center justify-center q-gap-sm text-caption text-grey-6">
+            <div class="profile-location flex items-center justify-center q-gap-sm text-caption text-grey-6">
               {{ artistLocation.split(', ').filter(Boolean).join(', ') }}
             </div>
             <SocialLinks v-if="links" :links="links" />
@@ -413,6 +413,10 @@ onBeforeMount(() => {
 
 .profile-avatar {
   overflow: hidden;
+}
+
+.profile-location {
+  max-width: 200px;
 }
 
 .profile-name-row {

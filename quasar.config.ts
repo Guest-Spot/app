@@ -105,6 +105,7 @@ export default defineConfig((ctx) => {
         GOOGLE_IOS_CLIENT_ID: process.env.GOOGLE_IOS_CLIENT_ID,
         GOOGLE_ANDROID_CLIENT_ID: process.env.GOOGLE_ANDROID_CLIENT_ID,
         GOOGLE_SERVER_CLIENT_ID: process.env.GOOGLE_SERVER_CLIENT_ID,
+        GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
         APP_VERSION: process.env.APP_VERSION || process.env.npm_package_version,
         SENTRY_DSN: process.env.SENTRY_DSN,
         SENTRY_ENVIRONMENT: sentryEnvironment,

@@ -9,6 +9,17 @@
 
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
+        <!-- OpenStreetMap Section -->
+        <div class="full-width bg-block border-radius-lg q-pa-lg q-mb-md">
+          <div class="flex column items-start q-gap-xs full-width border-radius-lg">
+            <label class="input-label">Select location on map</label>
+            <OpenStreetMapPicker
+              v-model="selectedLocation"
+              @location-changed="handleLocationChanged"
+            />
+          </div>
+        </div>
+
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
           <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-md full-width">
             <div class="flex column items-start q-gap-xs full-width">
@@ -104,7 +115,13 @@ import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - Vue components with <script setup> are auto-exported
 import SaveButton from 'src/components/SaveButton.vue';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - Vue components with <script setup> are auto-exported
+import OpenStreetMapPicker from 'src/components/OpenStreetMapPicker.vue';
+import { reverseGeocode } from 'src/utils/geocoding';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -118,6 +135,31 @@ const formData = ref({
   address: '',
 });
 
+const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
+const isUpdatingFromMap = ref(false);
+
+const handleLocationChanged = async (location: { lat: number; lng: number }) => {
+  isUpdatingFromMap.value = true;
+  try {
+    // Add a small delay to respect Nominatim rate limits (1 request per second)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const result = await reverseGeocode(location.lat, location.lng);
+    if (result) {
+      formData.value = {
+        country: result.country || formData.value.country,
+        state: result.state || formData.value.state,
+        city: result.city || formData.value.city,
+        address: result.address || formData.value.address,
+      };
+    }
+  } catch (error) {
+    console.error('Error during reverse geocoding:', error);
+  } finally {
+    isUpdatingFromMap.value = false;
+  }
+};
+
 // Load user data
 watch(
   user,
@@ -129,6 +171,9 @@ watch(
         city: profile.city || '',
         address: profile.address || '',
       };
+      // If user has address, try to geocode it to get coordinates
+      // For now, we'll just initialize with empty location
+      // In the future, you could add forward geocoding here
     }
   },
   { immediate: true },

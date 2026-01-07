@@ -14,6 +14,7 @@ declare namespace NodeJS {
     SENTRY_AUTH_TOKEN: string | undefined;
     PUSH_NOTIFICATIONS_REGISTER_ENDPOINT: string | undefined;
     PUSH_NOTIFICATIONS_UNREGISTER_ENDPOINT: string | undefined;
+    GOOGLE_MAPS_API_KEY: string | undefined;
   }
 }
 
