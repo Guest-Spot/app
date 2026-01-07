@@ -199,7 +199,7 @@ const { convertFiltersToGraphQLFilters } = useHelpers();
 const { showError, showSuccess } = useNotify();
 const citiesStore = useCitiesStore();
 const { formatToFullTime } = useDate();
-const { user, isArtist } = useUser();
+const { user, isArtist, isGuest } = useUser();
 const {
   initiatePayment: initiateBookingPayment,
   isProcessing: isPaymentProcessing,
@@ -315,7 +315,14 @@ const schedule = reactive({
   startTime: '',
 });
 
-const isScheduleComplete = computed(() => Boolean(schedule.day) && Boolean(schedule.startTime));
+const hasScheduleHours = computed(() =>
+  shopOpeningHours.value.some((entry) => entry?.start && entry?.end),
+);
+const isScheduleComplete = computed(() => {
+  if (!schedule.day) return false;
+  if (!hasScheduleHours.value) return true;
+  return Boolean(schedule.startTime);
+});
 const isSubmitDisabled = computed(() => isSubmitting.value || !isScheduleComplete.value);
 
 const artistBookings = ref<IBooking[]>([]);
@@ -638,8 +645,8 @@ const onSubmit = async () => {
         description: input.description,
         placement: input.placement,
         size: input.size,
-        day: input.day,
-        start: input.start,
+        day: input.day || undefined,
+        start: input.start || undefined,
         artist: input.artist,
         references: input.references,
         owner: input.owner,
@@ -668,7 +675,7 @@ const onSubmit = async () => {
     } else {
       showSuccess('Booking request sent!');
       await resetFormState();
-      void router.push(isArtist.value ? '/events?tab=bookings' : '/my-bookings');
+      void router.push(isArtist.value ? '/events?tab=bookings' : isGuest.value ? '/my-bookings' : '/bookings');
     }
   } catch (error) {
     console.error('Failed to submit booking:', error);
@@ -849,7 +856,7 @@ onErrorCities((error) => {
 
 const handleBrowserFinished = () => {
   console.log('Browser closed, redirecting to my bookings...');
-  void router.push('/my-bookings');
+  void router.push(isArtist.value ? '/events?tab=bookings' : isGuest.value ? '/my-bookings' : '/bookings');
 };
 
 onMounted(() => {

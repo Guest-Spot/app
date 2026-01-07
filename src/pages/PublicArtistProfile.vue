@@ -107,10 +107,7 @@
     </div>
 
     <!-- Booking Button -->
-    <div
-      v-if="(artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
-      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
-    >
+    <div v-if="artistData.documentId" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
         <q-btn
           rounded

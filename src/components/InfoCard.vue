@@ -28,13 +28,12 @@
           <span class="info-value link-text text-grey-6">{{ item.value }}</span>
         </a>
         <ExpandableText
-          v-else
-          :text="item.value"
+          :text="item.value || 'n/a'"
           collapsible
           :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']"
           formatted
         />
-        <div class="flex items-center q-gap-sm q-ml-auto">
+        <div v-if="item.value" class="flex items-center q-gap-sm q-ml-auto">
           <q-btn
             v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
             :icon="whatsappIcon"
@@ -58,8 +57,6 @@
             @click="copyLink(item.value)"
           />
         </div>
-
-        <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
       </div>
       <slot name="footer" />
     </div>

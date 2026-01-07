@@ -94,7 +94,7 @@
                       </div>
                       <div class="flex items-center q-gap-xs q-mb-xs">
                         <q-icon name="schedule" size="14px" color="grey-6" />
-                        <span class="text-grey-6">{{ formatTime(booking.start || '') }}</span>
+                        <span class="text-grey-6">{{ formatTime(booking.start || '') || 'n/a' }}</span>
                       </div>
                       <div
                         v-if="shouldShowDeposit(booking)"
