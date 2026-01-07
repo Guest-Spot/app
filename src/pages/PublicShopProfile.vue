@@ -38,7 +38,7 @@
 
         <!-- User Details -->
         <div class="container">
-          <div class="user-details flex column items-center q-gap-lg full-width q-pt-lg">
+          <div class="user-details flex column items-center full-width q-pt-lg">
             <div class="flex column items-start full-width">
               <div
                 v-if="shopData.name || shopData.description"
@@ -48,17 +48,29 @@
                   <span class="full-name text-h6">{{ shopData.name }}</span>
                   <VerifiedBadge v-if="shopData.verified" :verified="shopData.verified" />
                 </div>
-                <ExpandableText
-                  collapsible
-                  :text="shopData.description"
-                  class="status text-body2 text-left text-grey-6"
-                />
               </div>
               <template v-else>
                 <q-skeleton type="text" width="50%" height="20px" />
                 <q-skeleton type="text" width="100%" height="20px" />
                 <q-skeleton type="text" width="100%" height="20px" />
               </template>
+            </div>
+            <div v-if="shopLocation" class="profile-location flex items-start justify-start q-gap-sm text-caption text-grey-6 q-mt-sm full-width">
+              {{ shopLocation.split(', ').filter(Boolean).join(', ') }}
+            </div>
+            <div class="flex items-center justify-start q-gap-sm q-mt-sm full-width">
+              <q-btn
+                v-if="shopLocation"
+                round
+                flat
+                size="sm"
+                @click="openGoogleMaps"
+                class="social-link-btn bg-block"
+                color="primary"
+              >
+                <q-icon name="place" />
+              </q-btn>
+              <SocialLinks v-if="links" :links="links" />
             </div>
           </div>
         </div>
@@ -74,6 +86,7 @@
           send-initial-tab
           @setActiveTab="setActiveTab"
           :disable="!shopData.documentId"
+          class="full-width"
         />
       </div>
 
@@ -146,11 +159,11 @@ import { useLazyQuery } from '@vue/apollo-composable';
 import { PORTFOLIOS_QUERY } from 'src/apollo/types/portfolio';
 import { USER_QUERY, USERS_QUERY } from 'src/apollo/types/user';
 import { useShopsStore } from 'src/stores/shops';
-import ExpandableText from 'src/components/ExpandableText.vue';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import { ClaimProfileDialog } from 'src/components/Dialogs';
+import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -189,6 +202,8 @@ const shopData = ref<IUser>({
   createdAt: '',
   updatedAt: '',
   city: '',
+  country: '',
+  state: '',
   address: '',
   link: '',
   description: '',
@@ -221,6 +236,11 @@ const shopPictures = computed(() => shopData.value?.pictures?.map((picture) => p
 const isAuthenticated = computed(() => userStore.isAuthenticated);
 const canClaim = computed(() => !!shopData.value.email && !shopData.value.confirmed && shopData.value.type !== UserType.Guest);
 const showClaimDialog = ref(false);
+const links = computed(() => shopData.value?.profile?.links);
+const shopLocation = computed(() => {
+  const location = [shopData.value.country, shopData.value.state, shopData.value.city, shopData.value.address].filter(Boolean).join(', ');
+  return location || null;
+});
 
 const TABS = computed<ITab[]>(() => [
   {
@@ -268,6 +288,21 @@ const goToBookingPage = () => {
       shopId: shopData.value.documentId,
     },
   });
+};
+
+const openGoogleMaps = () => {
+  const locationParts = [
+    shopData.value.address,
+    shopData.value.city,
+    shopData.value.state,
+    shopData.value.country,
+  ].filter(Boolean);
+
+  if (locationParts.length === 0) return;
+
+  const query = locationParts.join(', ');
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  window.open(googleMapsUrl, '_blank');
 };
 
 // Fetch shop data from store or via Apollo
@@ -422,5 +457,19 @@ onBeforeMount(() => {
   right: 0;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
+}
+
+.social-link-btn {
+  color: var(--q-primary);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+
+  :deep(.q-icon) {
+    color: var(--q-primary);
+  }
 }
 </style>

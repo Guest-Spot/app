@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import type { IOpeningHours } from 'src/interfaces/common';
 import useNotify from 'src/modules/useNotify';
@@ -36,7 +36,7 @@ const { fetchMe, user } = useUser();
 const { fetchOpeningHours, handleOpeningHoursChanges } = useOpeningHours();
 
 const loading = ref(false);
-const localHours = reactive<IOpeningHours[]>([]);
+const localHours = ref<IOpeningHours[]>([]);
 const originalHours = ref<IOpeningHours[]>([]);
 
 // Fetch opening hours
@@ -46,13 +46,13 @@ const { refetch: refetchOpeningHours, onResult: onResultOpeningHours } = fetchOp
 onResultOpeningHours((result) => {
   if (result.data?.openingHours) {
     const hours = [...result.data.openingHours];
-    localHours.splice(0, localHours.length, ...hours);
+    localHours.value = hours;
     originalHours.value = JSON.parse(JSON.stringify(hours));
   }
 });
 
 const hasChanges = computed(() => {
-  return JSON.stringify([...localHours]) !== JSON.stringify(originalHours.value);
+  return JSON.stringify(localHours.value) !== JSON.stringify(originalHours.value);
 });
 
 const handleSave = async () => {
@@ -64,7 +64,7 @@ const handleSave = async () => {
   loading.value = true;
 
   try {
-    await handleOpeningHoursChanges(originalHours.value, [...localHours], user.value.id);
+    await handleOpeningHoursChanges(originalHours.value, localHours.value, user.value.id);
     await Promise.all([fetchMe(), refetchOpeningHours()]);
     showSuccess('Working hours successfully updated');
     router.back();
