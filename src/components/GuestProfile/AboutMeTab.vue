@@ -1,106 +1,61 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <ImageUploader
-      :images="guestData.avatar ? [guestData.avatar] : []"
-      placeholder-icon="person"
-      class="guest-avatar"
-      placeholder="Upload avatar"
-      @on-upload="imagesForUpload = $event"
-      @on-remove="imagesForRemove = $event"
-      @on-update="onUpdateImages"
-    />
+    <div class="relative-position">
+      <ImageUploader
+        :images="avatarData ? [avatarData] : []"
+        placeholder-icon="person"
+        class="guest-avatar q-z-1"
+        placeholder="Upload avatar"
+        @on-upload="imagesForUpload = $event"
+        @on-remove="imagesForRemove = $event"
+        @on-update="onUpdateImages"
+      />
+    </div>
 
-    <!-- BIO Section -->
-    <q-expansion-item
-      icon="person"
-      label="Basic Information"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Name</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter name"
-            class="custom-input"
-            v-model="guestData.name"
-          />
+    <!-- Navigation List -->
+    <div class="navigation-list flex column bg-block border-radius-lg">
+      <!-- Basic Information -->
+      <div
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/basic-information')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="person" size="24px" color="grey-6" />
+            <span>Basic Information</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
       </div>
-    </q-expansion-item>
 
-    <!-- Contacts Section -->
-    <q-expansion-item
-      icon="contact_phone"
-      label="Contacts"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">Phone</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            type="tel"
-            placeholder="Enter phone number"
-            class="custom-input"
-            clearable
-            v-model="guestData.phone"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Email</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter email address"
-            class="custom-input"
-            v-model="guestData.email"
-          />
+      <!-- Location -->
+      <div
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/location')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="location_on" size="24px" color="grey-6" />
+            <span>Location</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
       </div>
-    </q-expansion-item>
 
-    <!-- Location Section -->
-    <q-expansion-item
-      icon="location_on"
-      label="Location"
-      header-class="expansion-header"
-      class="bg-block border-radius-lg"
-    >
-      <div class="info-section">
-        <div class="input-group">
-          <label class="input-label">City</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter city"
-            class="custom-input"
-            clearable
-            v-model="guestData.city"
-          />
-        </div>
-        <div class="input-group">
-          <label class="input-label">Address</label>
-          <q-input
-            outlined
-            dense
-            rounded
-            placeholder="Enter address"
-            class="custom-input"
-            clearable
-            v-model="guestData.address"
-          />
+      <!-- Contacts -->
+      <div
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/contacts')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="contact_phone" size="24px" color="grey-6" />
+            <span>Contacts</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
       </div>
-    </q-expansion-item>
+    </div>
 
     <!-- Theme Settings -->
     <ThemeSettings />
@@ -110,98 +65,53 @@
 
     <!-- Feedback & Logout Section -->
     <FeedbackLogout />
-
-    <!-- Save Button -->
-    <div class="save-btn" :class="{ 'save-btn--active': !!hasChanges }">
-      <q-btn
-        class="full-width bg-block"
-        @click="saveChanges"
-        rounded
-        size="lg"
-        :text-color="!!hasChanges ? 'primary' : ''"
-        unelevated
-        :loading="saveLoading"
-        :disable="saveLoading"
-      >
-        <q-icon name="save" size="18px" />
-        <span class="q-ml-sm text-subtitle1">Save changes</span>
-        <template #loading>
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-spinner size="sm" />
-            <span class="q-ml-sm text-subtitle1">Saving...</span>
-          </div>
-        </template>
-      </q-btn>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive, computed } from 'vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
 import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
-import type { IGuestFormData } from 'src/interfaces/guest';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
-import { compareAndReturnDifferences } from 'src/helpers/handleObject';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
-import { useUnsavedChanges } from 'src/composables/useUnsavedChanges';
 import FeedbackLogout from 'src/components/FeedbackLogout.vue';
 
+const router = useRouter();
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
 
-// Setup mutation
-const { mutate: updateGuest, onDone: onDoneUpdateGuest } = useMutation(UPDATE_USER_MUTATION);
+// Setup mutation for avatar only
+const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
 const { mutate: deleteImage } = useMutation(DELETE_IMAGE_MUTATION);
-
-// Form data
-const guestData = reactive<IGuestFormData>({
-  name: '',
-  email: '',
-  avatar: null,
-  phone: '',
-  city: '',
-  address: '',
-});
-// NOTE: This variable is used to compare the original data with the new data
-const guestDataOriginal = { ...guestData };
-// ------------------------------------------------------------------------//
 
 const imagesForRemove = ref<string[]>([]);
 const imagesForUpload = ref<File[]>([]);
 const saveLoading = ref(false);
 
-const hasChanges = computed(
-  () =>
-    Object.keys(compareAndReturnDifferences(guestDataOriginal, guestData)).length > 0 ||
-    imagesForUpload.value.length > 0 ||
-    imagesForRemove.value.length > 0,
-);
-
-// Setup unsaved changes warning
-useUnsavedChanges(hasChanges);
-
-// Prepare data for mutation
-const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
-  const preparedData = {
-    ...guestData,
-    ...(uploadedFiles.length > 0 && {
-      avatar: uploadedFiles[0]?.id,
-    }),
+// Avatar data
+const avatarData = computed(() => {
+  if (!user.value?.avatar) return null;
+  return {
+    url: user.value.avatar.url,
+    id: user.value.avatar.id,
+    index: user.value.avatar.index || 0,
   };
+});
 
-  // Remove avatar field if no new image and no existing image
-  if (!preparedData.avatar && imagesForRemove.value.length > 0) {
-    preparedData.avatar = null;
-  }
+const navigateTo = (path: string) => {
+  void router.push(path);
+};
 
-  const differences = compareAndReturnDifferences(guestDataOriginal, preparedData);
-  return differences;
+const onUpdateImages = (files: { id: string; file: File }[]) => {
+  imagesForRemove.value = files.map((file) => file.id);
+  imagesForUpload.value = files.map((file) => file.file);
+  void saveAvatar();
 };
 
 async function upload(): Promise<UploadFileResponse[] | []> {
@@ -221,128 +131,72 @@ async function deleteImages(): Promise<void> {
   }
 }
 
-const onUpdateImages = (files: { id: string; file: File }[]) => {
-  imagesForRemove.value = files.map((file) => file.id);
-  imagesForUpload.value = files.map((file) => file.file);
-};
-
-const saveChanges = async () => {
+const saveAvatar = async () => {
   saveLoading.value = true;
   try {
-    if (!user.value?.documentId) {
-      throw new Error('Guest profile not found');
+    if (!user.value?.id) {
+      throw new Error('User not found');
     }
 
     await deleteImages();
     const uploadedFiles: UploadFileResponse[] = await upload();
 
-    const data = prepareDataForMutation(uploadedFiles);
+    const data: Record<string, unknown> = {};
+    if (uploadedFiles.length > 0) {
+      data.avatar = uploadedFiles[0]?.id;
+    } else if (imagesForRemove.value.length > 0) {
+      data.avatar = null;
+    }
 
-    await updateGuest({
-      id: user.value.id,
-      data,
-    });
+    if (Object.keys(data).length > 0) {
+      await updateUser({
+        id: user.value.id,
+        data,
+      });
+    } else {
+      saveLoading.value = false;
+    }
   } catch (error) {
-    console.error('Error updating data:', error);
-    showError('Error updating data');
-  } finally {
+    console.error('Error updating avatar:', error);
+    showError('Error updating avatar');
     saveLoading.value = false;
   }
 };
 
-onDoneUpdateGuest((result) => {
+onDoneUpdate((result) => {
+  saveLoading.value = false;
   if (result.errors?.length) {
-    console.error('Error updating guest:', result.errors);
-    showError('Error updating profile');
+    console.error('Error updating user:', result.errors);
+    showError('Error updating avatar');
     return;
   }
 
   if (result.data?.updateUsersPermissionsUser) {
-    void fetchMe();
-    Object.assign(guestDataOriginal, { ...guestData });
-    imagesForUpload.value = [];
-    imagesForRemove.value = [];
-    showSuccess('Your profile successfully updated');
-  }
-});
-
-watch(
-  user,
-  (profile) => {
-    Object.assign(guestData, {
-      ...profile,
-      avatar: profile?.avatar
-        ? {
-            url: profile?.avatar?.url,
-            id: profile?.avatar?.id,
-            index: profile?.avatar?.index || 0,
-          }
-        : null,
+    void fetchMe().then(() => {
+      imagesForUpload.value = [];
+      imagesForRemove.value = [];
+      showSuccess('Avatar successfully updated');
     });
-    Object.assign(guestDataOriginal, { ...guestData });
-  },
-  { immediate: true },
-);
-
-// Expose data for parent component
-defineExpose({
-  guestData,
+  }
 });
 </script>
 
 <style scoped lang="scss">
-.info-section {
-  padding: 16px;
-}
-
-.input-group {
-  width: 100%;
-  margin-bottom: 20px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.input-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.links-row {
-  display: flex;
-  gap: 15px;
-  align-items: flex-end;
-}
-
-.link-input-group {
-  flex: 1;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.add-link-btn {
-  margin-bottom: 8px;
-}
-
-.remove-link-btn {
-  margin-bottom: 8px;
-}
-
-.save-btn {
-  margin-top: 20px;
-  text-align: center;
-
-  &--active {
-    position: sticky;
-    bottom: 90px;
-  }
-}
-
 .guest-avatar {
   min-height: 300px;
+}
+
+.navigation-list {
+  width: 100%;
+}
+
+.nav-item {
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+    transform: translateX(2px);
+  }
 }
 </style>

@@ -3,7 +3,8 @@
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
-        :name="user?.name || 'Guest'"
+        sub-title="My Profile"
+        :name="user?.name || user?.username || 'Guest'"
         @openPublicProfile="openPublicProfile"
       />
     </div>
