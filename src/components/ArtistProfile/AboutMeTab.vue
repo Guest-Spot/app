@@ -197,7 +197,7 @@
                 dense
                 rounded
                 v-model="link.type"
-                :options="socialLinkTypes"
+                :options="getAvailableLinkTypes(index)"
                 option-label="label"
                 option-value="value"
                 map-options
@@ -226,7 +226,11 @@
           </div>
         </div>
         <div class="input-group">
+          <div v-if="allLinkTypesAdded" class="text-body2 text-grey-7 text-center q-pa-md">
+            All social media link types have been added
+          </div>
           <q-btn
+            v-else
             rounded
             unelevated
             flat
@@ -635,12 +639,48 @@ const onCopyToClipboard = (text: string) => {
 };
 
 // Social links management
+// Get used link types (excluding current index to allow changing type)
+const getUsedLinkTypes = (excludeIndex?: number): LinkType[] => {
+  if (!artistData.links || artistData.links.length === 0) {
+    return [];
+  }
+  return artistData.links
+    .map((link, index) => (index !== excludeIndex && link?.type ? link.type : null))
+    .filter((type): type is LinkType => type !== null);
+};
+
+// Get available link types for a specific link (by index)
+const getAvailableLinkTypes = (currentIndex: number) => {
+  const usedTypes = getUsedLinkTypes(currentIndex);
+  return socialLinkTypes.filter((linkType) => !usedTypes.includes(linkType.value));
+};
+
+// Check if all link types are added
+const allLinkTypesAdded = computed(() => {
+  if (!artistData.links || artistData.links.length === 0) {
+    return false;
+  }
+  const usedTypes = getUsedLinkTypes();
+  const uniqueUsedTypes = new Set(usedTypes);
+  return uniqueUsedTypes.size >= socialLinkTypes.length;
+});
+
+// Get first available link type
+const getFirstAvailableLinkType = (): LinkType => {
+  const usedTypes = getUsedLinkTypes();
+  const availableType = socialLinkTypes.find((linkType) => !usedTypes.includes(linkType.value));
+  return availableType?.value || LinkType.Instagram;
+};
+
 const addLink = () => {
+  if (allLinkTypesAdded.value) {
+    return;
+  }
   if (!artistData.links) {
     artistData.links = [];
   }
   artistData.links.push({
-    type: LinkType.Instagram,
+    type: getFirstAvailableLinkType(),
     value: '',
   });
 };
