@@ -57,7 +57,7 @@
             <div v-if="artistLocation" class="profile-location flex items-center justify-center q-gap-sm text-caption text-grey-6">
               {{ artistLocation.split(', ').filter(Boolean).join(', ') }}
             </div>
-            <div class="flex items-center justify-center q-gap-sm">
+            <div class="flex items-center justify-center q-gap-sm q-mt-sm">
               <SocialLinks v-if="links" :links="links" />
               <q-btn
                 v-if="artistLocation"
