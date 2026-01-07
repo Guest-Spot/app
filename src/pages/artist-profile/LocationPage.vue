@@ -10,100 +10,27 @@
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
         <!-- OpenStreetMap Section -->
-        <div class="full-width bg-block border-radius-lg q-pa-lg q-mb-md">
-          <div class="flex column items-start q-gap-md full-width">
-            <label class="input-label">Select location on map</label>
-            <OpenStreetMapPicker
-              v-model="selectedLocation"
-              :country="formData.country"
-              :state="formData.state"
-              :city="formData.city"
-              :address="formData.address"
-              @location-changed="handleLocationChanged"
-            />
-          </div>
-        </div>
-
-        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-md full-width">
-            <div v-if="formData.country" class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">Country</label>
-              <q-input
-                v-model="formData.country"
-                type="text"
-                placeholder="Enter country"
-                outlined
-                rounded
-                size="lg"
-                class="full-width"
-                bg-color="transparent"
-                readonly
-              >
-                <template v-slot:prepend>
-                  <q-icon name="public" color="grey-6" />
-                </template>
-              </q-input>
+        <InfoCard icon="map" title="Select location on map" :data="[]" class="q-mb-md">
+          <template #header>
+            <div class="full-width">
+              <OpenStreetMapPicker
+                v-model="selectedLocation"
+                :country="formData.country"
+                :state="formData.state"
+                :city="formData.city"
+                :address="formData.address"
+                @location-changed="handleLocationChanged"
+              />
             </div>
+          </template>
+        </InfoCard>
 
-            <div v-if="formData.state" class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">State</label>
-              <q-input
-                v-model="formData.state"
-                type="text"
-                placeholder="Enter state"
-                outlined
-                rounded
-                size="lg"
-                class="full-width"
-                bg-color="transparent"
-                readonly
-              >
-                <template v-slot:prepend>
-                  <q-icon name="map" color="grey-6" />
-                </template>
-              </q-input>
-            </div>
-
-            <div v-if="formData.city" class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">City</label>
-              <q-input
-                v-model="formData.city"
-                type="text"
-                placeholder="Enter city"
-                outlined
-                rounded
-                size="lg"
-                class="full-width"
-                bg-color="transparent"
-                readonly
-              >
-                <template v-slot:prepend>
-                  <q-icon name="location_city" color="grey-6" />
-                </template>
-              </q-input>
-            </div>
-
-            <div v-if="formData.address" class="flex column items-start q-gap-xs full-width">
-              <label class="input-label">Address</label>
-              <q-input
-                v-model="formData.address"
-                type="text"
-                placeholder="Enter address"
-                outlined
-                rounded
-                readonly
-                size="lg"
-                class="full-width"
-                bg-color="transparent"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="home" color="grey-6" />
-                </template>
-              </q-input>
-            </div>
-
-          </q-form>
-        </div>
+        <InfoCard
+          v-if="locationInfo.length > 0"
+          icon="location_on"
+          title="Location"
+          :data="locationInfo"
+        />
       </div>
     </div>
 
@@ -125,6 +52,9 @@ import SaveButton from 'src/components/SaveButton.vue';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - Vue components with <script setup> are auto-exported
 import OpenStreetMapPicker from 'src/components/OpenStreetMapPicker.vue';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - Vue components with <script setup> are auto-exported
+import InfoCard from 'src/components/InfoCard.vue';
 import { reverseGeocode } from 'src/utils/geocoding';
 
 const router = useRouter();
@@ -184,6 +114,23 @@ watch(
 );
 
 const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
+
+const locationInfo = computed(() => {
+  const items = [];
+  if (formData.value.country) {
+    items.push({ label: 'Country', value: formData.value.country });
+  }
+  if (formData.value.state) {
+    items.push({ label: 'State', value: formData.value.state });
+  }
+  if (formData.value.city) {
+    items.push({ label: 'City', value: formData.value.city });
+  }
+  if (formData.value.address) {
+    items.push({ label: 'Address', value: formData.value.address });
+  }
+  return items;
+});
 
 const hasChanges = computed(() => {
   return (
@@ -248,15 +195,6 @@ const handleSave = async () => {
 <style scoped>
 .content-wrapper {
   padding-bottom: 100px;
-}
-
-.input-label {
-  display: block;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.57;
-  letter-spacing: 0.8px;
 }
 
 </style>

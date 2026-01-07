@@ -1,5 +1,5 @@
 <template>
-  <div class="openstreetmap-picker full-width flex column q-gap-sm">
+  <div class="openstreetmap-picker full-width flex column q-gap-md">
     <div class="search-container" ref="searchContainerRef">
       <q-input
         v-model="searchQuery"
