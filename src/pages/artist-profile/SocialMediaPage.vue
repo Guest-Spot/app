@@ -79,7 +79,6 @@
                 rounded
                 unelevated
                 flat
-                color="primary"
                 icon="add"
                 label="Add social media link"
                 class="add-link-btn full-width bg-block"
