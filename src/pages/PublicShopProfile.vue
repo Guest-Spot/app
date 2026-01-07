@@ -59,6 +59,7 @@
               {{ shopLocation.split(', ').filter(Boolean).join(', ') }}
             </div>
             <div class="flex items-center justify-start q-gap-sm q-mt-sm full-width">
+              <SocialLinks v-if="links" :links="links" />
               <q-btn
                 v-if="shopLocation"
                 round
@@ -70,7 +71,6 @@
               >
                 <q-icon name="place" />
               </q-btn>
-              <SocialLinks v-if="links" :links="links" />
             </div>
           </div>
         </div>
