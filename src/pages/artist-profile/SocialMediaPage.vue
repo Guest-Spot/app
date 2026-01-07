@@ -32,13 +32,13 @@
                   >
                     <template #selected-item="scope">
                       <div class="selected-icon-wrapper">
-                        <SocialIcon :type="scope.opt.value" class="selected-social-icon" size="14px" />
+                        <SocialIcon :type="scope.opt.value" class="selected-social-icon" />
                       </div>
                     </template>
                     <template #option="scope">
                       <q-item v-bind="scope.itemProps">
                         <q-item-section avatar>
-                          <SocialIcon :type="scope.opt.value" class="option-social-icon" size="14px" />
+                          <SocialIcon :type="scope.opt.value" class="option-social-icon" />
                         </q-item-section>
                         <q-item-section>
                           <q-item-label>{{ scope.opt.label }}</q-item-label>
@@ -280,11 +280,6 @@ const handleSave = async () => {
   align-items: center;
 }
 
-.social-media-select {
-  min-width: 60px;
-  max-width: 80px;
-}
-
 .selected-icon-wrapper {
   display: flex;
   align-items: center;
@@ -294,8 +289,7 @@ const handleSave = async () => {
 }
 
 .selected-social-icon {
-  width: 24px;
-  height: 24px;
+  width: 18px;
   color: var(--q-primary);
 }
 
