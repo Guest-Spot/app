@@ -24,6 +24,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import type { IOpeningHours } from 'src/interfaces/common';
+import { OpeningHoursKeysDays } from 'src/interfaces/enums';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useOpeningHours from 'src/modules/useOpeningHours';
@@ -39,6 +40,27 @@ const loading = ref(false);
 const localHours = ref<IOpeningHours[]>([]);
 const originalHours = ref<IOpeningHours[]>([]);
 
+const orderedDays: ReadonlyArray<OpeningHoursKeysDays> = [
+  OpeningHoursKeysDays.mon,
+  OpeningHoursKeysDays.tue,
+  OpeningHoursKeysDays.wed,
+  OpeningHoursKeysDays.thu,
+  OpeningHoursKeysDays.fri,
+  OpeningHoursKeysDays.sat,
+  OpeningHoursKeysDays.sun,
+];
+
+// Compare only day/start/end in a fixed order to avoid false positives from IDs or ordering.
+const hoursSignature = (hours: IOpeningHours[]) =>
+  orderedDays
+    .map((day: keyof typeof OpeningHoursKeysDays) => {
+      const hour = hours.find((item) => item.day === day);
+      const start = hour?.start ?? '';
+      const end = hour?.end ?? '';
+      return `${day}:${start}-${end}`;
+    })
+    .join('|');
+
 // Fetch opening hours
 const userDocumentId = computed(() => user.value?.documentId);
 const { refetch: refetchOpeningHours, onResult: onResultOpeningHours } = fetchOpeningHours(userDocumentId);
@@ -52,7 +74,7 @@ onResultOpeningHours((result) => {
 });
 
 const hasChanges = computed(() => {
-  return JSON.stringify(localHours.value) !== JSON.stringify(originalHours.value);
+  return hoursSignature(localHours.value) !== hoursSignature(originalHours.value);
 });
 
 const handleSave = async () => {
