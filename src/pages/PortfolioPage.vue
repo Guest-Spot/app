@@ -56,6 +56,7 @@
               placeholder="Upload images"
               multiple
               placeholderIcon="photo_library"
+              :loading="isSubmitting"
               @on-upload="imagesForUpload = $event"
               @on-remove="imagesForRemove = $event"
               @on-update="onUpdateImages"

@@ -6,6 +6,7 @@
       :placeholder-icon="isShop ? 'photo_library' : 'person'"
       class="artist-avatar q-z-1"
       :placeholder="isShop ? 'Upload images' : 'Upload avatar'"
+      :loading="saveLoading"
       @on-upload="onUploadImages"
       @on-remove="onRemoveImages"
       @on-update="onUpdateImages"
@@ -211,22 +212,12 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
 
 async function upload(): Promise<UploadFileResponse[] | []> {
   if (imagesForUpload.value.length > 0) {
-    if (isShop.value) {
-      // Shop pictures upload to gallery folder
-      const username = user.value?.username || user.value?.email || user.value?.id;
-      if (!username) {
-        throw new Error('Username not found. Cannot upload shop images.');
-      }
-      const folderPath = `${username}/gallery`;
-      return await uploadFiles(imagesForUpload.value, folderPath);
-    } else {
-      // Avatar uploads to user's avatar folder
-      if (!user.value?.username) {
-        throw new Error('Username not found. Cannot upload avatar.');
-      }
-      const folderPath = `${user.value?.username}/avatar`;
-      return await uploadFiles(imagesForUpload.value, folderPath);
+    const username = user.value?.username;
+    if (!username) {
+      throw new Error('Username not found. Cannot upload images.');
     }
+    const folderPath = isShop.value ? `${username}/gallery` : `${username}/avatar`;
+    return await uploadFiles(imagesForUpload.value, folderPath);
   }
   return [];
 }

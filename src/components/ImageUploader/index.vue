@@ -26,6 +26,7 @@
       :placeholderIcon="placeholderIcon"
       :has-images="hasImages"
       @on-change="onChangeImage"
+      @loading="uploadFormLoading = $event"
     />
 
     <!-- Dialog -->
@@ -33,12 +34,12 @@
       v-model="dialog"
       :image-src="previewDialogSrc"
       :allow-cropping="allowCropping"
-      @loading="isLoading = $event"
+      @loading="dialogLoading = $event"
       @cropped="onImageCropped"
     />
 
     <!-- Loader -->
-    <q-inner-loading :showing="isLoading" size="sm" style="z-index: 10" />
+    <q-inner-loading :showing="isBusy" size="sm" style="z-index: 10" />
   </div>
 </template>
 
@@ -98,6 +99,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const MAX_SIZE = 4096;
@@ -105,7 +110,9 @@ const MAX_SIZE = 4096;
 const { formatFileToBase64 } = useImage();
 
 const imagesPreview = ref<IPicture[]>([]);
-const isLoading = ref(false);
+const dialogLoading = ref(false);
+const uploadFormLoading = ref(false);
+const processingLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
 const currentImageIndex = ref<number | null>(null);
@@ -117,6 +124,10 @@ const filesForUpdate = ref<{ file: File | null; id: string }[]>([]);
 import { ImagePreviewDialog } from 'src/components/Dialogs';
 
 const hasImages = computed(() => imagesPreview.value.length > 0);
+const isBusy = computed(
+  () =>
+    props.loading || dialogLoading.value || uploadFormLoading.value || processingLoading.value,
+);
 
 // ---------- Methods ---------- //
 function zoomImage(src: string, index?: number) {
@@ -142,30 +153,35 @@ async function compressAndPrepare(file: File): Promise<{ file: File; base64: str
 }
 
 async function onChangeImage(input: File | File[]) {
-  const files = Array.isArray(input) ? input : [input];
-  const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-  const newPreviewsList = [];
-  const newFilesList = [];
-  for (const [index, result] of results.entries()) {
-    const id = uid();
-    const newPreview = {
-      url: result?.base64 || '',
-      id: id,
-      index: imagesPreview.value.length + index,
-    };
-    const newFile = {
-      file: result?.file || null,
-      id: id,
-    };
-    newPreviewsList.push(newPreview);
-    newFilesList.push(newFile);
+  processingLoading.value = true;
+  try {
+    const files = Array.isArray(input) ? input : [input];
+    const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
+    const newPreviewsList = [];
+    const newFilesList = [];
+    for (const [index, result] of results.entries()) {
+      const id = uid();
+      const newPreview = {
+        url: result?.base64 || '',
+        id: id,
+        index: imagesPreview.value.length + index,
+      };
+      const newFile = {
+        file: result?.file || null,
+        id: id,
+      };
+      newPreviewsList.push(newPreview);
+      newFilesList.push(newFile);
+    }
+    imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
+    filesForUpload.value = [...filesForUpload.value, ...newFilesList];
+    emit(
+      'on-upload',
+      filesForUpload.value.map((f) => f.file),
+    );
+  } finally {
+    processingLoading.value = false;
   }
-  imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
-  filesForUpload.value = [...filesForUpload.value, ...newFilesList];
-  emit(
-    'on-upload',
-    filesForUpload.value.map((f) => f.file),
-  );
 }
 
 function onRemoveImage(index: number) {
