@@ -56,6 +56,7 @@
 
       <!-- Working Hours -->
       <div
+        v-if="!isGuest"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/working-hours')"
       >
@@ -70,6 +71,7 @@
 
       <!-- Additional Information -->
       <div
+        v-if="!isGuest"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/additional-information')"
       >
@@ -84,6 +86,7 @@
 
       <!-- Social Media -->
       <div
+        v-if="!isGuest"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/social-media')"
       >
@@ -98,7 +101,7 @@
 
       <!-- Payment Settings -->
       <div
-        v-if="settingsStore.getStripeEnabled && user?.verified"
+        v-if="settingsStore.getStripeEnabled && user?.verified && !isGuest"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/payment-settings')"
       >
@@ -140,7 +143,7 @@ import FeedbackLogout from 'src/components/FeedbackLogout.vue';
 
 const router = useRouter();
 const { showError } = useNotify();
-const { fetchMe, user, isShop } = useUser();
+const { fetchMe, user, isShop, isGuest } = useUser();
 const settingsStore = useSettingsStore();
 
 // Setup mutation for avatar only
