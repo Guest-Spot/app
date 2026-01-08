@@ -1,21 +1,21 @@
 <template>
-  <div class="save-btn container" :class="{ 'save-btn--active': hasChanges }">
+  <div class="save-btn container bg-block" :class="{ 'save-btn--active': hasChanges }">
     <q-btn
-      class="full-width bg-block"
-      @click="emit('save')"
       rounded
-      size="lg"
-      :text-color="hasChanges ? 'primary' : ''"
-      unelevated
+      class="full-width q-py-sm q-mb-lg q-mt-md bg-block"
+      :color="hasChanges ? 'primary' : ''"
+      @click="emit('save')"
       :loading="loading"
-      :disable="loading"
+      :disable="loading || !hasChanges"
     >
-      <q-icon name="save" size="18px" />
-      <span class="q-ml-sm text-subtitle1">Save changes</span>
+      <div class="flex items-center justify-center q-gap-sm">
+        <q-icon name="save" />
+        <span class="text-h6">Save changes</span>
+      </div>
       <template #loading>
         <div class="flex items-center justify-center q-gap-sm">
           <q-spinner size="sm" />
-          <span class="q-ml-sm text-subtitle1">Saving...</span>
+          <span class="text-h6">Saving...</span>
         </div>
       </template>
     </q-btn>
@@ -35,14 +35,10 @@ const emit = defineEmits<{ save: [] }>();
 .save-btn {
   width: 100%;
   position: fixed;
-  bottom: env(safe-area-inset-bottom);
-
-  .q-btn {
-    font-weight: 700;
-    font-size: 18.8px;
-    letter-spacing: 0.6px;
-    height: 48px;
-  }
+  bottom: 0;
+  right: 0;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
 }
 </style>
 

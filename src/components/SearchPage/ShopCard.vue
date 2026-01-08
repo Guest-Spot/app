@@ -10,7 +10,7 @@
       <div class="flex justify-between items-center no-wrap q-gap-md">
         <div class="shop-title-row flex items-center q-gap-xs">
           <h4 class="shop-title">{{ shop?.name || 'Unknown shop' }}</h4>
-          <VerifiedBadge :verified="shop?.verified" iconOnly />
+          <VerifiedBadge :verified="shop?.verified ?? false" icon-only />
         </div>
         <q-btn
           round
@@ -22,9 +22,9 @@
         />
       </div>
       <div class="shop-info">
-        <div v-if="shop?.city || shop?.address" class="shop-location text-grey-6">
+        <div v-if="location" class="shop-location text-grey-6">
           <q-icon name="location_on" size="16px" />
-          <span>{{ shop?.city || '' }}{{ shop?.address ? `, ${shop?.address}` : '' }}</span>
+          <span>{{ location || 'n/a' }}</span>
         </div>
         <div class="shop-hours text-grey-6">
           <q-icon name="schedule" size="16px" />
@@ -71,6 +71,10 @@ const openingHourText = computed(() => {
     return `${formatTime(todayTime.start)} - ${formatTime(todayTime.end)}`;
   }
   return 'Closed';
+});
+
+const location = computed(() => {
+  return [props.shop.country, props.shop.state, props.shop.city, props.shop.address].filter(Boolean).join(', ');
 });
 
 const toggleFavorite = () => {

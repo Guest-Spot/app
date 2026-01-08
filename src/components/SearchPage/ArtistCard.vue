@@ -24,11 +24,9 @@
             <q-icon name="store" size="14px" />
             <span class="text-caption">{{ artist.parent.name }}</span>
           </div>
-          <div v-if="artist.city || artist.address" class="artist-location text-grey-6">
+          <div v-if="location" class="artist-location text-grey-6">
             <q-icon name="location_on" size="14px" />
-            <span v-if="artist.city && artist.address">{{ artist.city }}{{ artist.address ? `, ${artist.address}` : '' }}</span>
-            <span v-else-if="artist.city">{{ artist.city }}</span>
-            <span v-else>{{ artist.address }}</span>
+            <span>{{ location || 'n/a' }}</span>
           </div>
           <div v-if="artist.experience" class="artist-experience text-grey-6">
             <q-icon name="work" size="14px" />
@@ -77,6 +75,10 @@ const router = useRouter();
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
 
 const isFavorite = computed(() => isArtistFavorite(props.artist.documentId));
+
+const location = computed(() => {
+  return [props.artist.country, props.artist.state, props.artist.city, props.artist.address].filter(Boolean).join(', ');
+});
 
 const toggleFavorite = () => {
   toggleArtistFavorite(props.artist);
