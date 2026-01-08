@@ -41,7 +41,6 @@
                 size="lg"
                 rows="4"
                 autogrow
-                counter
                 class="full-width"
                 bg-color="transparent"
               >
