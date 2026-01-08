@@ -301,7 +301,12 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
 
 async function upload(): Promise<UploadFileResponse[] | []> {
   if (imagesForUpload.value.length > 0) {
-    return await uploadFiles(imagesForUpload.value);
+    const username = user.value?.username || user.value?.email || user.value?.id;
+    if (!username) {
+      throw new Error('Username not found. Cannot upload shop images.');
+    }
+    const folderPath = `${username}/gallery`;
+    return await uploadFiles(imagesForUpload.value, folderPath);
   }
   return [];
 }

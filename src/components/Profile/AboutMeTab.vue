@@ -1,17 +1,15 @@
 <template>
   <div class="about-me-tab flex column q-gap-md">
-    <div class="relative-position">
-      <ImageUploader
-        :images="avatarData ? [avatarData] : []"
-        placeholder-icon="person"
-        class="artist-avatar q-z-1"
-        placeholder="Upload avatar"
-        @on-upload="imagesForUpload = $event"
-        @on-remove="imagesForRemove = $event"
-        @on-update="onUpdateImages"
-      />
-    </div>
-
+    <ImageUploader
+      :images="isShop ? picturesData : (avatarData ? [avatarData] : [])"
+      :multiple="isShop"
+      :placeholder-icon="isShop ? 'photo_library' : 'person'"
+      class="artist-avatar q-z-1"
+      :placeholder="isShop ? 'Upload images' : 'Upload avatar'"
+      @on-upload="onUploadImages"
+      @on-remove="onRemoveImages"
+      @on-update="onUpdateImages"
+    />
     <!-- Navigation List -->
     <div class="navigation-list flex column bg-block border-radius-lg">
       <!-- Basic Information -->
@@ -141,8 +139,8 @@ import { useSettingsStore } from 'src/stores/settings';
 import FeedbackLogout from 'src/components/FeedbackLogout.vue';
 
 const router = useRouter();
-const { showSuccess, showError } = useNotify();
-const { fetchMe, user } = useUser();
+const { showError } = useNotify();
+const { fetchMe, user, isShop } = useUser();
 const settingsStore = useSettingsStore();
 
 // Setup mutation for avatar only
@@ -163,19 +161,69 @@ const avatarData = computed(() => {
   };
 });
 
+// Pictures data for Shop
+const picturesData = computed(() => {
+  if (!user.value?.pictures || user.value.pictures.length === 0) return [];
+  return user.value.pictures.map((picture, index) => ({
+    url: picture.url,
+    id: picture.id,
+    index: index,
+  }));
+});
+
 const navigateTo = (path: string) => {
   void router.push(path);
+};
+
+// ImageUploader emits on-remove and on-upload back-to-back; coalesce into one save.
+let saveScheduled = false;
+const scheduleSave = () => {
+  if (saveScheduled) return;
+  saveScheduled = true;
+  void Promise.resolve().then(() => {
+    saveScheduled = false;
+    if (isShop.value) {
+      void savePictures();
+    } else {
+      void saveAvatar();
+    }
+  });
+};
+
+const onUploadImages = (files: File[]) => {
+  imagesForUpload.value = files;
+  scheduleSave();
+};
+
+const onRemoveImages = (ids: string[]) => {
+  imagesForRemove.value = ids;
+  scheduleSave();
 };
 
 const onUpdateImages = (files: { id: string; file: File }[]) => {
   imagesForRemove.value = files.map((file) => file.id);
   imagesForUpload.value = files.map((file) => file.file);
-  void saveAvatar();
+  scheduleSave();
 };
 
 async function upload(): Promise<UploadFileResponse[] | []> {
   if (imagesForUpload.value.length > 0) {
-    return await uploadFiles(imagesForUpload.value);
+    if (isShop.value) {
+      // Shop pictures upload to gallery folder
+      const username = user.value?.username || user.value?.email || user.value?.id;
+      if (!username) {
+        throw new Error('Username not found. Cannot upload shop images.');
+      }
+      const folderPath = `${username}/gallery`;
+      return await uploadFiles(imagesForUpload.value, folderPath);
+    } else {
+      // Avatar uploads to user's avatar folder
+      if (!user.value?.username) {
+        throw new Error('Username not found. Cannot upload avatar.');
+      }
+      const folderPath = `${user.value?.username}/avatar`;
+      return await uploadFiles(imagesForUpload.value, folderPath);
+    }
   }
   return [];
 }
@@ -222,11 +270,46 @@ const saveAvatar = async () => {
   }
 };
 
+const savePictures = async () => {
+  saveLoading.value = true;
+  try {
+    if (!user.value?.id) {
+      throw new Error('User not found');
+    }
+
+    await deleteImages();
+    const uploadedFiles: UploadFileResponse[] = await upload();
+
+    const data: Record<string, unknown> = {};
+    if (uploadedFiles.length > 0 || imagesForRemove.value.length > 0) {
+      data.pictures = [
+        ...uploadedFiles.map((file) => file.id),
+        ...(user.value.pictures || [])
+          .map((picture) => picture.id)
+          .filter((id) => !imagesForRemove.value.includes(id)),
+      ];
+    }
+
+    if (Object.keys(data).length > 0) {
+      await updateUser({
+        id: user.value.id,
+        data,
+      });
+    } else {
+      saveLoading.value = false;
+    }
+  } catch (error) {
+    console.error('Error updating pictures:', error);
+    showError('Error updating pictures');
+    saveLoading.value = false;
+  }
+};
+
 onDoneUpdate((result) => {
   saveLoading.value = false;
   if (result.errors?.length) {
     console.error('Error updating user:', result.errors);
-    showError('Error updating avatar');
+    showError(isShop.value ? 'Error updating pictures' : 'Error updating avatar');
     return;
   }
 
@@ -234,7 +317,6 @@ onDoneUpdate((result) => {
     void fetchMe().then(() => {
       imagesForUpload.value = [];
       imagesForRemove.value = [];
-      showSuccess('Avatar successfully updated');
     });
   }
 });

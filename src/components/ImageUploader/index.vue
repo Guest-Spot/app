@@ -217,6 +217,9 @@ watch(
     if (!newValue || JSON.stringify(newValue) === JSON.stringify(oldValue)) return;
     imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
+    imagesIdsForRemove.value = [];
+    filesForUpload.value = [];
+    filesForUpdate.value = [];
   },
   {
     immediate: true,

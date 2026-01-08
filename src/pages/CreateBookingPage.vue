@@ -631,7 +631,13 @@ const onSubmit = async () => {
     isSubmitting.value = true;
     let uploadedReferences: UploadFileResponse[] = [];
     if (referenceFiles.value.length > 0) {
-      uploadedReferences = await uploadFiles(referenceFiles.value);
+      const username = user.value?.username || user.value?.email || user.value?.id;
+      if (!username) {
+        showError('Username not found. Cannot upload reference files.');
+        return;
+      }
+      const folderPath = `${username}/references`;
+      uploadedReferences = await uploadFiles(referenceFiles.value, folderPath);
     }
 
     const input = buildBookingPayload(uploadedReferences);

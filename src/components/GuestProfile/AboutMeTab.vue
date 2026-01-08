@@ -116,7 +116,13 @@ const onUpdateImages = (files: { id: string; file: File }[]) => {
 
 async function upload(): Promise<UploadFileResponse[] | []> {
   if (imagesForUpload.value.length > 0) {
-    return await uploadFiles(imagesForUpload.value);
+    // Avatar uploads to user's avatar folder
+    const username = user.value?.username || user.value?.email || user.value?.id;
+    if (!username) {
+      throw new Error('Username not found. Cannot upload avatar.');
+    }
+    const folderPath = `${username}/avatar`;
+    return await uploadFiles(imagesForUpload.value, folderPath);
   }
   return [];
 }

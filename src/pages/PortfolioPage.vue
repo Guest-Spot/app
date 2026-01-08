@@ -156,7 +156,13 @@ const confirmWork = async () => {
     // Upload new images
     let uploadedFiles: UploadFileResponse[] = [];
     if (imagesForUpload.value.length > 0) {
-      uploadedFiles = await uploadFiles(imagesForUpload.value);
+      const username = profile.username || profile.email || profile.id;
+      if (!username) {
+        showError('Username not found. Cannot upload portfolio images.');
+        return;
+      }
+      const folderPath = `${username}/portfolio`;
+      uploadedFiles = await uploadFiles(imagesForUpload.value, folderPath);
     }
 
     // Prepare data for mutation
