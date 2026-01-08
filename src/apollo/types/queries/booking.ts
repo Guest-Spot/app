@@ -26,7 +26,10 @@ export const BOOKINGS_QUERY = gql`
       artist {
         documentId
         name
+        country
+        state
         city
+        address
         experience
         depositAmount
         chargeDeposit

@@ -13,7 +13,7 @@
         :key="`${item.label}-${item.value}`"
         :class="item.className"
       >
-        <span v-if="item.label" class="info-label">{{ item.label }}:</span>
+        <span v-if="item.label" class="info-label text-grey-4">{{ item.label }}:</span>
         <a v-if="item.type === InfoItemType.Phone" target="_blank" :href="`tel:${item.value}`">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
@@ -28,13 +28,13 @@
           <span class="info-value link-text text-grey-6">{{ item.value }}</span>
         </a>
         <ExpandableText
-          v-else
+          v-else-if="item.value"
           :text="item.value"
           collapsible
           :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']"
           formatted
         />
-        <div class="flex items-center q-gap-sm q-ml-auto">
+        <div v-if="item.value" class="flex items-center q-gap-sm q-ml-auto">
           <q-btn
             v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
             :icon="whatsappIcon"
@@ -59,7 +59,7 @@
           />
         </div>
 
-        <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
+        <span v-if="!item.value" class="info-value text-grey-6">n/a</span>
       </div>
       <slot name="footer" />
     </div>

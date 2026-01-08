@@ -49,7 +49,8 @@
       </div>
       <div class="time-info text-grey-6">
         <q-icon name="schedule" size="16px" />
-        <span>{{ startTime }} - {{ endTime }}</span>
+        <span v-if="startTime && endTime">{{ startTime }} - {{ endTime }}</span>
+        <span v-else>n/a</span>
       </div>
     </div>
 
