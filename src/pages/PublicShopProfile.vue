@@ -61,8 +61,8 @@
             <div class="flex items-center justify-start q-gap-sm q-mt-sm full-width">
               <SocialLinks v-if="links" :links="links" />
               <q-btn
-                v-if="shopLocation"
-                round
+                :round="!!links?.length"
+                :rounded="!links?.length"
                 flat
                 size="sm"
                 @click="openGoogleMaps"
@@ -70,6 +70,7 @@
                 color="primary"
               >
                 <q-icon name="place" />
+                <span v-if="!links?.length" class="text-caption q-ml-xs">Google Maps</span>
               </q-btn>
             </div>
           </div>

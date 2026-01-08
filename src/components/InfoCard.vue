@@ -34,7 +34,7 @@
           :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']"
           formatted
         />
-        <div v-if="item.value" class="flex items-center q-gap-sm q-ml-auto">
+        <div v-if="item.value" class="flex items-center q-gap-sm q-ml-auto mt-minus-5">
           <q-btn
             v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
             :icon="whatsappIcon"
@@ -178,5 +178,9 @@ const copyLink = (value: string) => {
 .link-text {
   text-decoration: underline;
   word-break: break-all;
+}
+
+.mt-minus-5 {
+  margin-top: -5px;
 }
 </style>
