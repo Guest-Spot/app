@@ -38,6 +38,12 @@
       @cropped="onImageCropped"
     />
 
+    <!-- Delete Confirmation Dialog -->
+    <DeleteImageConfirmationDialog
+      v-model="deleteConfirmationDialog"
+      @confirm="handleDeleteConfirm"
+    />
+
     <!-- Loader -->
     <q-inner-loading :showing="isBusy" size="sm" style="z-index: 10" />
   </div>
@@ -119,9 +125,13 @@ const currentImageIndex = ref<number | null>(null);
 const imagesIdsForRemove = ref<string[]>([]);
 const filesForUpload = ref<{ file: File | null; id: string }[]>([]);
 const filesForUpdate = ref<{ file: File | null; id: string }[]>([]);
+const deleteConfirmationDialog = ref(false);
+const pendingDeleteIndex = ref<number | null>(null);
+
+const STORAGE_KEY = 'imageUploader.skipDeleteConfirmation';
 
 // Import dialog component statically
-import { ImagePreviewDialog } from 'src/components/Dialogs';
+import { ImagePreviewDialog, DeleteImageConfirmationDialog } from 'src/components/Dialogs';
 
 const hasImages = computed(() => imagesPreview.value.length > 0);
 const isBusy = computed(
@@ -184,7 +194,20 @@ async function onChangeImage(input: File | File[]) {
   }
 }
 
-function onRemoveImage(index: number) {
+function shouldSkipConfirmation(): boolean {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored === 'true';
+}
+
+function saveSkipConfirmation(skip: boolean) {
+  if (skip) {
+    localStorage.setItem(STORAGE_KEY, 'true');
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function performImageRemoval(index: number) {
   const itemByIndex = imagesPreview.value.find((v) => v.index === index);
   imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.id || ''].filter(
     (id) => !filesForUpload.value.some((f) => f.id === id),
@@ -196,6 +219,25 @@ function onRemoveImage(index: number) {
     'on-upload',
     filesForUpload.value.map((f) => f.file),
   );
+}
+
+function onRemoveImage(index: number) {
+  if (shouldSkipConfirmation()) {
+    performImageRemoval(index);
+  } else {
+    pendingDeleteIndex.value = index;
+    deleteConfirmationDialog.value = true;
+  }
+}
+
+function handleDeleteConfirm(skipConfirmation: boolean) {
+  if (skipConfirmation) {
+    saveSkipConfirmation(true);
+  }
+  if (pendingDeleteIndex.value !== null) {
+    performImageRemoval(pendingDeleteIndex.value);
+    pendingDeleteIndex.value = null;
+  }
 }
 
 function onImageCropped({ file, base64 }: { file: File; base64: string }) {
