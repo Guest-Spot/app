@@ -118,7 +118,7 @@ DEPENDENCIES:
   - "CapacitorCommunityAppleSignIn (from `../../node_modules/@capacitor-community/apple-sign-in`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
-  - "CapacitorShare (from `../../../node_modules/@capacitor/share`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapgoCapacitorNavigationBar (from `../../node_modules/@capgo/capacitor-navigation-bar`)"
   - "CapgoCapacitorSocialLogin (from `../../node_modules/@capgo/capacitor-social-login`)"
@@ -164,7 +164,7 @@ EXTERNAL SOURCES:
   CapacitorPushNotifications:
     :path: "../../node_modules/@capacitor/push-notifications"
   CapacitorShare:
-    :path: "../../../node_modules/@capacitor/share"
+    :path: "../../node_modules/@capacitor/share"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
   CapgoCapacitorNavigationBar:
@@ -207,6 +207,6 @@ SPEC CHECKSUMS:
   Sentry: f7dddfabe691274d6d630f04621e1345f9d6b9e0
   SentryCapacitor: 09d18680bd9366850de59dc3859af859ad4116fa
 
-PODFILE CHECKSUM: b2306ee1a4300206afa78bf4dea180b724ad4c50
+PODFILE CHECKSUM: 806c6687e8b8c0e191b6531727cd3ef544c57b10
 
 COCOAPODS: 1.16.2

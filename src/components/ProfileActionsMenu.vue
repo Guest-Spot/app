@@ -37,6 +37,7 @@ import { copyToClipboard } from 'quasar';
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import useNotify from 'src/modules/useNotify';
+import { WEB_FALLBACK } from 'src/config/constants';
 
 defineOptions({
   name: 'ProfileActionsMenu',
@@ -55,7 +56,7 @@ const showMenu = ref(false);
 const getProfileUrl = (): string => {
   if (!props.documentId) return '';
   const profilePath = `/${props.type}/${props.documentId}`;
-  return `${window.location.origin}${window.location.pathname}#${profilePath}`;
+  return `${WEB_FALLBACK}#${profilePath}`;
 };
 
 const copyProfileLink = async () => {

@@ -3,9 +3,7 @@
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
-      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
-        <q-icon name="chevron_left" size="24px" />
-      </q-btn>
+      <BackButton />
 
       <!-- Action Buttons -->
       <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
@@ -170,6 +168,7 @@ import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import { ClaimProfileDialog } from 'src/components/Dialogs';
 import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
 import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
+import { BackButton } from 'src/components';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -384,11 +383,6 @@ onBeforeMount(() => {
 </script>
 
 <style scoped lang="scss">
-.back-btn {
-  top: 16px;
-  left: 16px;
-}
-
 .action-buttons-header {
   top: 16px;
   right: 16px;
@@ -399,10 +393,6 @@ onBeforeMount(() => {
     padding-top: 0;
     border-radius: 50px 50px 0 0;
     overflow: hidden;
-  }
-
-  .back-btn {
-    top: 70px;
   }
 
   .action-buttons-header {

@@ -2,9 +2,7 @@
   <q-page class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
     <div class="container">
       <!-- Back Button -->
-      <q-btn round flat @click="$router.back()" class="bg-block absolute-top-left q-z-2 back-btn">
-        <q-icon name="chevron_left" size="24px" />
-      </q-btn>
+      <BackButton />
 
       <!-- Action Buttons -->
       <div class="action-buttons-header absolute-top-right q-z-2 flex q-gap-xs items-center">
@@ -154,6 +152,7 @@ import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/compon
 import { TabsComp, VerifiedBadge } from 'src/components';
 import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
 import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
+import { BackButton } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
@@ -422,21 +421,12 @@ onBeforeMount(() => {
 </script>
 
 <style scoped lang="scss">
-.back-btn {
-  top: 16px;
-  left: 16px;
-}
-
 .action-buttons-header {
   top: 16px;
   right: 16px;
 }
 
 .q-ios-padding {
-  .back-btn {
-    top: 70px;
-  }
-
   .action-buttons-header {
     top: 70px;
   }
