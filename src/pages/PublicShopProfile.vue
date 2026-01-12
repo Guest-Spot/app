@@ -20,6 +20,13 @@
           <q-icon v-if="isFavorite" name="bookmark" size="24px" color="red" />
           <q-icon v-else name="bookmark_border" size="24px" color="red" />
         </q-btn>
+
+        <!-- Actions Menu -->
+        <ProfileActionsMenu
+          :document-id="shopData.documentId"
+          :name="shopData.name"
+          type="shop"
+        />
       </div>
 
       <div class="profile-info-container flex column">
@@ -55,7 +62,7 @@
                 <q-skeleton type="text" width="100%" height="20px" />
               </template>
             </div>
-            <div v-if="shopLocation" class="profile-location flex items-start justify-start q-gap-sm text-caption text-grey-6 q-mt-sm full-width">
+            <div v-if="shopLocation" class="profile-location flex items-start justify-start q-gap-sm text-caption text-grey-6 full-width">
               {{ shopLocation.split(', ').filter(Boolean).join(', ') }}
             </div>
             <div class="flex items-center justify-start q-gap-sm q-mt-sm full-width">
@@ -162,6 +169,7 @@ import { useUserStore } from 'src/stores/user';
 import VerifiedBadge from 'src/components/VerifiedBadge.vue';
 import { ClaimProfileDialog } from 'src/components/Dialogs';
 import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
+import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();

@@ -57,7 +57,7 @@ onMounted(() => {
       void router.replace(url.hash.substring(1));
     }
   });
-  });
+});
 </script>
 
 <style scoped>

@@ -24,6 +24,13 @@
           <q-icon v-if="isFavorite" name="bookmark" size="22px" color="red" />
           <q-icon v-else name="bookmark_border" size="22px" color="red" />
         </q-btn>
+
+        <!-- Actions Menu -->
+        <ProfileActionsMenu
+          :document-id="artistData.documentId"
+          :name="artistData.name"
+          type="artist"
+        />
       </div>
       <!-- Profile Header Section -->
       <div class="profile-header q-mb-md">
@@ -146,6 +153,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp, VerifiedBadge } from 'src/components';
 import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
+import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
