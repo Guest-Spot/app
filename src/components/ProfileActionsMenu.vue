@@ -1,29 +1,38 @@
 <template>
-  <q-btn round flat icon="more_vert" class="bg-block">
-    <q-menu style="width: 200px" anchor="bottom right" self="top right" :offset="[0, 4]">
-      <q-list>
-        <q-item clickable v-close-popup @click="copyProfileLink">
-          <q-item-section>
-            <div class="flex items-center q-gap-sm">
-              <q-icon name="content_copy" size="18px" />
-              <q-item-label>Copy profile link</q-item-label>
-            </div>
-          </q-item-section>
-        </q-item>
-        <q-item clickable v-close-popup @click="shareProfile">
-          <q-item-section>
-            <div class="flex items-center q-gap-sm">
-              <q-icon name="share" size="18px" />
-              <q-item-label>Share this profile</q-item-label>
-            </div>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-menu>
-  </q-btn>
+  <q-btn round flat icon="more_vert" class="bg-block" @click="showMenu = true" />
+  <q-dialog v-model="showMenu" position="bottom" no-route-dismiss>
+    <q-card class="profile-actions-menu">
+      <div class="q-px-md q-py-lg flex column q-gap-md">
+        <q-btn class="bg-block" rounded unelevated @click="handleCopyProfileLink">
+          <div class="flex items-center q-gap-sm q-pa-sm">
+            <q-icon name="content_copy" size="18px" />
+            <span>Copy profile link</span>
+          </div>
+        </q-btn>
+        <q-btn class="bg-block" rounded unelevated @click="handleShareProfile">
+          <div class="flex items-center q-gap-sm q-pa-sm">
+            <q-icon name="share" size="18px" />
+            <span>Share this profile</span>
+          </div>
+        </q-btn>
+      </div>
+      <q-card-actions class="dialog-actions bg-block">
+        <q-btn
+          color="grey-9"
+          rounded
+          unelevated
+          class="full-width bg-block"
+          v-close-popup
+        >
+          <div class="q-pa-sm">Cancel</div>
+        </q-btn>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { copyToClipboard } from 'quasar';
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
@@ -41,6 +50,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const { showError, showSuccess } = useNotify();
+const showMenu = ref(false);
 
 const getProfileUrl = (): string => {
   if (!props.documentId) return '';
@@ -61,6 +71,11 @@ const copyProfileLink = async () => {
     console.error('Error copying to clipboard:', error);
     showError('Failed to copy link');
   }
+};
+
+const handleCopyProfileLink = async () => {
+  showMenu.value = false;
+  await copyProfileLink();
 };
 
 const shareProfile = async () => {
@@ -101,5 +116,29 @@ const shareProfile = async () => {
     }
   }
 };
+
+const handleShareProfile = async () => {
+  showMenu.value = false;
+  await shareProfile();
+};
 </script>
 
+<style scoped lang="scss">
+.profile-actions-menu {
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.dialog-actions {
+  padding: 16px 20px 32px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  .dialog-actions__controls {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+  }
+}
+</style>
