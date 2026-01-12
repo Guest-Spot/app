@@ -26,6 +26,7 @@
       :placeholderIcon="placeholderIcon"
       :has-images="hasImages"
       @on-change="onChangeImage"
+      @loading="uploadFormLoading = $event"
     />
 
     <!-- Dialog -->
@@ -33,12 +34,18 @@
       v-model="dialog"
       :image-src="previewDialogSrc"
       :allow-cropping="allowCropping"
-      @loading="isLoading = $event"
+      @loading="dialogLoading = $event"
       @cropped="onImageCropped"
     />
 
+    <!-- Delete Confirmation Dialog -->
+    <DeleteImageConfirmationDialog
+      v-model="deleteConfirmationDialog"
+      @confirm="handleDeleteConfirm"
+    />
+
     <!-- Loader -->
-    <q-inner-loading :showing="isLoading" size="sm" style="z-index: 10" />
+    <q-inner-loading :showing="isBusy" size="sm" style="z-index: 10" />
   </div>
 </template>
 
@@ -98,6 +105,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const MAX_SIZE = 4096;
@@ -105,18 +116,28 @@ const MAX_SIZE = 4096;
 const { formatFileToBase64 } = useImage();
 
 const imagesPreview = ref<IPicture[]>([]);
-const isLoading = ref(false);
+const dialogLoading = ref(false);
+const uploadFormLoading = ref(false);
+const processingLoading = ref(false);
 const dialog = ref(false);
 const previewDialogSrc = ref<string | null>(null);
 const currentImageIndex = ref<number | null>(null);
 const imagesIdsForRemove = ref<string[]>([]);
 const filesForUpload = ref<{ file: File | null; id: string }[]>([]);
 const filesForUpdate = ref<{ file: File | null; id: string }[]>([]);
+const deleteConfirmationDialog = ref(false);
+const pendingDeleteIndex = ref<number | null>(null);
+
+const STORAGE_KEY = 'imageUploader.skipDeleteConfirmation';
 
 // Import dialog component statically
-import { ImagePreviewDialog } from 'src/components/Dialogs';
+import { ImagePreviewDialog, DeleteImageConfirmationDialog } from 'src/components/Dialogs';
 
 const hasImages = computed(() => imagesPreview.value.length > 0);
+const isBusy = computed(
+  () =>
+    props.loading || dialogLoading.value || uploadFormLoading.value || processingLoading.value,
+);
 
 // ---------- Methods ---------- //
 function zoomImage(src: string, index?: number) {
@@ -142,33 +163,51 @@ async function compressAndPrepare(file: File): Promise<{ file: File; base64: str
 }
 
 async function onChangeImage(input: File | File[]) {
-  const files = Array.isArray(input) ? input : [input];
-  const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
-  const newPreviewsList = [];
-  const newFilesList = [];
-  for (const [index, result] of results.entries()) {
-    const id = uid();
-    const newPreview = {
-      url: result?.base64 || '',
-      id: id,
-      index: imagesPreview.value.length + index,
-    };
-    const newFile = {
-      file: result?.file || null,
-      id: id,
-    };
-    newPreviewsList.push(newPreview);
-    newFilesList.push(newFile);
+  processingLoading.value = true;
+  try {
+    const files = Array.isArray(input) ? input : [input];
+    const results = await Promise.all(files.map((f) => compressAndPrepare(f)));
+    const newPreviewsList = [];
+    const newFilesList = [];
+    for (const [index, result] of results.entries()) {
+      const id = uid();
+      const newPreview = {
+        url: result?.base64 || '',
+        id: id,
+        index: imagesPreview.value.length + index,
+      };
+      const newFile = {
+        file: result?.file || null,
+        id: id,
+      };
+      newPreviewsList.push(newPreview);
+      newFilesList.push(newFile);
+    }
+    imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
+    filesForUpload.value = [...filesForUpload.value, ...newFilesList];
+    emit(
+      'on-upload',
+      filesForUpload.value.map((f) => f.file),
+    );
+  } finally {
+    processingLoading.value = false;
   }
-  imagesPreview.value = [...imagesPreview.value, ...newPreviewsList];
-  filesForUpload.value = [...filesForUpload.value, ...newFilesList];
-  emit(
-    'on-upload',
-    filesForUpload.value.map((f) => f.file),
-  );
 }
 
-function onRemoveImage(index: number) {
+function shouldSkipConfirmation(): boolean {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored === 'true';
+}
+
+function saveSkipConfirmation(skip: boolean) {
+  if (skip) {
+    localStorage.setItem(STORAGE_KEY, 'true');
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
+
+function performImageRemoval(index: number) {
   const itemByIndex = imagesPreview.value.find((v) => v.index === index);
   imagesIdsForRemove.value = [...imagesIdsForRemove.value, itemByIndex?.id || ''].filter(
     (id) => !filesForUpload.value.some((f) => f.id === id),
@@ -180,6 +219,25 @@ function onRemoveImage(index: number) {
     'on-upload',
     filesForUpload.value.map((f) => f.file),
   );
+}
+
+function onRemoveImage(index: number) {
+  if (shouldSkipConfirmation()) {
+    performImageRemoval(index);
+  } else {
+    pendingDeleteIndex.value = index;
+    deleteConfirmationDialog.value = true;
+  }
+}
+
+function handleDeleteConfirm(skipConfirmation: boolean) {
+  if (skipConfirmation) {
+    saveSkipConfirmation(true);
+  }
+  if (pendingDeleteIndex.value !== null) {
+    performImageRemoval(pendingDeleteIndex.value);
+    pendingDeleteIndex.value = null;
+  }
 }
 
 function onImageCropped({ file, base64 }: { file: File; base64: string }) {
@@ -217,6 +275,9 @@ watch(
     if (!newValue || JSON.stringify(newValue) === JSON.stringify(oldValue)) return;
     imagesPreview.value = [];
     imagesPreview.value = [...imagesPreview.value, ...newValue];
+    imagesIdsForRemove.value = [];
+    filesForUpload.value = [];
+    filesForUpdate.value = [];
   },
   {
     immediate: true,

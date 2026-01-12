@@ -3,7 +3,8 @@
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
-        :name="user?.name || 'Guest'"
+        sub-title="My Profile"
+        :name="user?.name || user?.username || 'Guest'"
         @openPublicProfile="openPublicProfile"
       />
     </div>
@@ -15,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import AboutMeTab from 'src/components/GuestProfile/AboutMeTab.vue';
+import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import useUser from 'src/modules/useUser';
 import { useRouter } from 'vue-router';

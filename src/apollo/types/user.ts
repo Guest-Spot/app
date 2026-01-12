@@ -21,6 +21,8 @@ export const ME_QUERY = gql`
       }
       description
       city
+      country
+      state
       address
       link
       phone
@@ -44,6 +46,14 @@ export const ME_QUERY = gql`
       }
       device_tokens {
         token
+      }
+      profile {
+        documentId
+        links {
+          type
+          value
+        }
+        website
       }
     }
   }
@@ -79,6 +89,8 @@ export const USERS_QUERY = gql`
       }
       description
       city
+      country
+      state
       address
       link
       phone
@@ -111,6 +123,14 @@ export const USERS_QUERY = gql`
           url
         }
       }
+      profile {
+        documentId
+        links {
+          type
+          value
+        }
+        website
+      }
     }
   }
 `;
@@ -136,6 +156,8 @@ export const USER_QUERY = gql`
       }
       description
       city
+      country
+      state
       address
       link
       phone
@@ -168,6 +190,14 @@ export const USER_QUERY = gql`
           documentId
           url
         }
+      }
+      profile {
+        documentId
+        links {
+          type
+          value
+        }
+        website
       }
     }
   }
@@ -195,6 +225,8 @@ export const UPDATE_USER_MUTATION = gql`
         }
         description
         city
+        country
+        state
         address
         link
         phone
@@ -209,6 +241,14 @@ export const UPDATE_USER_MUTATION = gql`
           day
           start
           end
+        }
+        profile {
+          documentId
+          links {
+            type
+            value
+          }
+          website
         }
       }
     }

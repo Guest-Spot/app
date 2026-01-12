@@ -1,69 +1,69 @@
 <template>
   <div class="working-hours">
     <div class="days-row">
-      <div
+      <InfoCard
         v-for="(item, idx) in localHours"
         :key="item.day"
-        class="day-card bg-block border-radius-md"
+        :title="OpeningHoursDays[item.day]"
+        icon="schedule"
+        class="day-card"
       >
-        <div class="day-title text-subtitle2 text-bold bg-block q-py-sm q-px-md">
-          <q-badge
-            :label="OpeningHoursDays[item.day]"
-            :color="item.start && item.end ? 'primary' : 'transparent'"
-          />
-        </div>
-        <div class="flex column q-gap-sm q-pa-md">
-          <div class="field">
-            <label class="input-label text-grey-6">Start</label>
-            <q-input
-              :model-value="formatTime(localHours[idx]?.start || '')"
-              outlined
-              dense
-              rounded
-              readonly
-              clearable
-              class="custom-input time-input"
-              @click="openDialog(idx, 'start')"
-            >
-              <template #append>
-                <q-icon name="schedule" class="cursor-pointer" @click="openDialog(idx, 'start')" />
-              </template>
-            </q-input>
-            <TimePickerDialog
-              :model-value="dialogs[idx]?.start || false"
-              @update:model-value="(val) => updateDialogVisibility(idx, 'start', val)"
-              :time="item.start"
-              :title="`Select start time — ${OpeningHoursDays[item.day]}`"
-              @confirm="onConfirm(idx, 'start', $event)"
-            />
-          </div>
+        <template #header>
+          <div class="flex q-gap-sm no-wrap">
+            <div class="field">
+              <label class="input-label text-grey-6">Start</label>
+              <q-input
+                :model-value="formatTime(localHours[idx]?.start || '')"
+                outlined
+                dense
+                rounded
+                readonly
+                clearable
+                class="custom-input time-input"
+                @click="openDialog(idx, 'start')"
+              >
+                <template #append>
+                  <q-icon name="schedule" class="cursor-pointer" @click="openDialog(idx, 'start')" />
+                </template>
+              </q-input>
+              <TimePickerDialog
+                :model-value="dialogs[idx]?.start || false"
+                @update:model-value="(val) => updateDialogVisibility(idx, 'start', val)"
+                :time="item.start"
+                field-type="start"
+                :title="`Select start time — ${OpeningHoursDays[item.day]}`"
+                @confirm="onConfirm(idx, 'start', $event)"
+              />
+            </div>
 
-          <div class="field">
-            <label class="input-label text-grey-6">End</label>
-            <q-input
-              :model-value="formatTime(localHours[idx]?.end || '')"
-              outlined
-              dense
-              rounded
-              readonly
-              clearable
-              class="custom-input time-input"
-              @click="openDialog(idx, 'end')"
-            >
-              <template #append>
-                <q-icon name="schedule" class="cursor-pointer" @click="openDialog(idx, 'end')" />
-              </template>
-            </q-input>
-            <TimePickerDialog
-              :model-value="dialogs[idx]?.end || false"
-              @update:model-value="(val) => updateDialogVisibility(idx, 'end', val)"
-              :time="item.end"
-              :title="`Select end time — ${OpeningHoursDays[item.day]}`"
-              @confirm="onConfirm(idx, 'end', $event)"
-            />
+            <div class="field">
+              <label class="input-label text-grey-6">End</label>
+              <q-input
+                :model-value="formatTime(localHours[idx]?.end || '')"
+                outlined
+                dense
+                rounded
+                readonly
+                clearable
+                class="custom-input time-input"
+                @click="openDialog(idx, 'end')"
+              >
+                <template #append>
+                  <q-icon name="schedule" class="cursor-pointer" @click="openDialog(idx, 'end')" />
+                </template>
+              </q-input>
+              <TimePickerDialog
+                :model-value="dialogs[idx]?.end || false"
+                @update:model-value="(val) => updateDialogVisibility(idx, 'end', val)"
+                :time="item.end"
+                field-type="end"
+                :title="`Select end time — ${OpeningHoursDays[item.day]}`"
+                @confirm="onConfirm(idx, 'end', $event)"
+              />
+            </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </InfoCard>
     </div>
   </div>
 </template>
@@ -71,6 +71,7 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
 import { TimePickerDialog } from 'src/components/Dialogs';
+import { InfoCard } from 'src/components';
 import type { IOpeningHours } from 'src/interfaces/common';
 import { OpeningHoursKeysDays, OpeningHoursDays } from 'src/interfaces/enums';
 import useDate from 'src/modules/useDate';
@@ -158,15 +159,13 @@ defineExpose({ value });
 
 .days-row {
   display: flex;
+  flex-direction: column;
   gap: 12px;
-  overflow-x: auto;
   padding-bottom: 4px;
 }
 
 .day-card {
-  max-width: 170px;
-  flex: 0 0 auto;
-  overflow: hidden;
+  width: 100%;
 }
 
 .field {

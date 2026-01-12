@@ -1,5 +1,8 @@
 <template>
-  <router-view />
+  <div class="app-wrapper">
+    <div class="gradient-spot"></div>
+    <router-view />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -56,3 +59,28 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped>
+.app-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.gradient-spot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, var(--q-primary) 15%, transparent) 0%,
+    color-mix(in srgb, var(--q-primary) 4%, transparent) 70%,
+    transparent 70%
+  );
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+</style>

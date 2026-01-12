@@ -1,14 +1,11 @@
 <template>
   <div class="public-about-me-tab flex column q-gap-md full-width">
     <InfoCard
-      v-if="basicInformation.length || canClaim"
-      title="About me"
-      icon="description"
-      :data="basicInformation"
+      v-if="canClaim"
     >
       <template #footer v-if="canClaim">
         <!-- Claim Button -->
-        <p v-if="!basicInformation.length" class="text-grey-6">
+        <p class="text-grey-6">
           This artist has not yet claimed their profile. Please contact Guest Spot support to claim it.
         </p>
         <q-btn
@@ -28,14 +25,24 @@
       </template>
     </InfoCard>
     <InfoCard
+      v-if="basicInformation.length"
+      title="About me"
+      icon="description"
+      :data="basicInformation"
+    />
+    <InfoCard
+      v-if="artistData.experience"
+      title="Experience"
+      icon="work"
+      :data="[{ label: '', value: `${artistData.experience}+ years` }]"
+    />
+    <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"
       icon="schedule"
       :data="workingHours"
       class="opening-times-card"
     />
-    <InfoCard v-if="links.length" title="Links" icon="link" :data="links" />
-    <InfoCard v-if="location.length" title="Location" icon="location_on" :data="location" />
     <InfoCard v-if="contacts.length" title="Contacts" icon="contact_phone" :data="contacts" />
   </div>
 </template>
@@ -69,19 +76,6 @@ const basicInformation = computed(() =>
   ].filter((item) => item.value),
 );
 
-const location = computed(() =>
-  [
-    {
-      label: 'City',
-      value: props.artistData.city || '',
-    },
-    {
-      label: 'Address',
-      value: props.artistData.address || '',
-    },
-  ].filter((item) => item.value),
-);
-
 const contacts = computed(() =>
   [
     {
@@ -94,17 +88,12 @@ const contacts = computed(() =>
       value: props.artistData.email || '',
       type: InfoItemType.Email,
     },
-  ].filter((item) => item.value),
-);
-
-const links = computed(() =>
-  [
     {
-      label: 'Portfolio',
-      value: props.artistData.link || '',
+      label: 'Website',
+      value: props.artistData.profile?.website || '',
       type: InfoItemType.Link,
     },
-  ].filter((item) => item.value),
+  ].filter((item) => item.value && !item.value.includes('@noemail.com')),
 );
 
 const workingHours = computed(() => {

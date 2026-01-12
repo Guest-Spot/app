@@ -1,16 +1,10 @@
 <template>
   <div class="public-about-shop-tab flex column q-gap-md">
     <InfoCard
-      v-if="basicInformation.length || canClaim"
-      title="About me"
-      icon="description"
-      :data="basicInformation"
+      v-if="canClaim"
+      :data="[{ label: '', value: 'This shop has not yet claimed their profile. Please contact Guest Spot support to claim it.' }]"
     >
-      <template #footer v-if="canClaim">
-        <!-- Claim Button -->
-        <p v-if="!basicInformation.length" class="text-grey-6">
-          This shop has not yet claimed their profile. Please contact Guest Spot support to claim it.
-        </p>
+      <template #footer>
         <q-btn
           rounded
           color="primary"
@@ -27,6 +21,12 @@
         </q-btn>
       </template>
     </InfoCard>
+    <InfoCard
+      v-if="shopData.description"
+      title="About shop"
+      icon="description"
+      :data="[{ label: '', value: shopData.description }]"
+    />
     <InfoCard
       v-if="workingHours?.length"
       title="Opening Times"
@@ -61,25 +61,8 @@ const props = defineProps<Props>();
 
 const { formatTime } = useDate();
 
-const basicInformation = computed(() =>
-  [
-    {
-      label: '',
-      value: props.shopData.description || '',
-    },
-  ].filter((item) => item.value),
-);
-
 const contacts = computed(() =>
   [
-    {
-      label: 'City',
-      value: props.shopData.city || '',
-    },
-    {
-      label: 'Address',
-      value: props.shopData.address || '',
-    },
     {
       label: 'Phone',
       value: props.shopData.phone || '',
@@ -90,7 +73,12 @@ const contacts = computed(() =>
       value: props.shopData.email || '',
       type: InfoItemType.Email,
     },
-  ].filter((contact) => !!contact.value),
+    {
+      label: 'Website',
+      value: props.shopData.profile?.website || '',
+      type: InfoItemType.Link,
+    },
+  ].filter((contact) => !!contact.value && !contact.value.includes('@noemail.com')),
 );
 
 const links = computed(() => [

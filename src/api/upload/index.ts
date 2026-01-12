@@ -37,12 +37,41 @@ export interface UpdateFileInfoParams {
   name?: string;
 }
 
+type UploadApiResponse<T> = T | { data: T };
+
+const hasDataWrapper = <T>(payload: UploadApiResponse<T>): payload is { data: T } => {
+  return typeof payload === 'object' && payload !== null && 'data' in payload;
+};
+
+const normalizeUploadFilesResponse = (
+  payload: UploadApiResponse<UploadFileResponse[]>,
+): UploadFileResponse[] => {
+  if (Array.isArray(payload)) return payload;
+  if (hasDataWrapper(payload)) {
+    return Array.isArray(payload.data) ? payload.data : [];
+  }
+  return [];
+};
+
+const normalizeUploadFileResponse = (
+  payload: UploadApiResponse<UploadFileResponse>,
+): UploadFileResponse => {
+  if (hasDataWrapper(payload)) {
+    return payload.data;
+  }
+  return payload;
+};
+
 /**
  * Upload files to Strapi
  * @param files - File(s) to upload
+ * @param folder - Optional folder path where files should be uploaded
  * @returns Promise with uploaded file(s) data
  */
-export async function uploadFiles(files: File | File[]): Promise<UploadFileResponse[]> {
+export async function uploadFiles(
+  files: File | File[],
+  folder?: string,
+): Promise<UploadFileResponse[]> {
   const formData = new FormData();
 
   if (Array.isArray(files)) {
@@ -53,13 +82,18 @@ export async function uploadFiles(files: File | File[]): Promise<UploadFileRespo
     formData.append('files', files);
   }
 
-  const response = await api.post<UploadFileResponse[]>('/api/upload', formData, {
+  // Add folder parameter if provided
+  if (folder) {
+    formData.append('folder', folder);
+  }
+
+  const response = await api.post<UploadApiResponse<UploadFileResponse[]>>('/api/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
 
-  return response.data;
+  return normalizeUploadFilesResponse(response.data);
 }
 
 /**
@@ -86,13 +120,13 @@ export async function uploadEntryFiles(params: UploadEntryParams): Promise<Uploa
   if (params.source) formData.append('source', params.source);
   if (params.path) formData.append('path', params.path);
 
-  const response = await api.post<UploadFileResponse[]>('/api/upload', formData, {
+  const response = await api.post<UploadApiResponse<UploadFileResponse[]>>('/api/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
 
-  return response.data;
+  return normalizeUploadFilesResponse(response.data);
 }
 
 /**
@@ -100,8 +134,8 @@ export async function uploadEntryFiles(params: UploadEntryParams): Promise<Uploa
  * @returns Promise with files list
  */
 export async function getFiles(): Promise<UploadFileResponse[]> {
-  const response = await api.get<UploadFileResponse[]>('/api/upload/files');
-  return response.data;
+  const response = await api.get<UploadApiResponse<UploadFileResponse[]>>('/api/upload/files');
+  return normalizeUploadFilesResponse(response.data);
 }
 
 /**
@@ -110,8 +144,8 @@ export async function getFiles(): Promise<UploadFileResponse[]> {
  * @returns Promise with file data
  */
 export async function getFile(id: number | string): Promise<UploadFileResponse> {
-  const response = await api.get<UploadFileResponse>(`/api/upload/files/${id}`);
-  return response.data;
+  const response = await api.get<UploadApiResponse<UploadFileResponse>>(`/api/upload/files/${id}`);
+  return normalizeUploadFileResponse(response.data);
 }
 
 /**
@@ -127,13 +161,17 @@ export async function updateFileInfo(
   const formData = new FormData();
   formData.append('fileInfo', JSON.stringify(fileInfo));
 
-  const response = await api.post<UploadFileResponse>(`/api/upload?id=${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
+  const response = await api.post<UploadApiResponse<UploadFileResponse>>(
+    `/api/upload?id=${id}`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     },
-  });
+  );
 
-  return response.data;
+  return normalizeUploadFileResponse(response.data);
 }
 
 /**
@@ -142,6 +180,6 @@ export async function updateFileInfo(
  * @returns Promise with deleted file data
  */
 export async function deleteFile(id: number | string): Promise<UploadFileResponse> {
-  const response = await api.delete<UploadFileResponse>(`/api/upload/files/${id}`);
-  return response.data;
+  const response = await api.delete<UploadApiResponse<UploadFileResponse>>(`/api/upload/files/${id}`);
+  return normalizeUploadFileResponse(response.data);
 }

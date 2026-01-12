@@ -6,6 +6,7 @@
       placeholder="Upload images"
       multiple
       placeholderIcon="photo_library"
+      :loading="saveLoading"
       @on-upload="imagesForUpload = $event"
       @on-remove="imagesForRemove = $event"
       @on-update="onUpdateImages"
@@ -169,7 +170,7 @@
 import { ref, watch, reactive, computed } from 'vue';
 import { ThemeSettings } from 'src/components';
 import ImageUploader from 'src/components/ImageUploader/index.vue';
-import WorkingHoursEditor from './WorkingHoursEditor.vue';
+import WorkingHoursEditor from 'src/components/Profile/WorkingHoursEditor.vue';
 import DeleteAccountSection from 'src/components/Profile/DeleteAccountSection.vue';
 import type { IShopFormData } from 'src/interfaces/shop';
 import type { IOpeningHours } from 'src/interfaces/common';
@@ -301,7 +302,12 @@ const prepareDataForMutation = (uploadedFiles: UploadFileResponse[] | []) => {
 
 async function upload(): Promise<UploadFileResponse[] | []> {
   if (imagesForUpload.value.length > 0) {
-    return await uploadFiles(imagesForUpload.value);
+    const username = user.value?.username || user.value?.email || user.value?.id;
+    if (!username) {
+      throw new Error('Username not found. Cannot upload shop images.');
+    }
+    const folderPath = `${username}/gallery`;
+    return await uploadFiles(imagesForUpload.value, folderPath);
   }
   return [];
 }

@@ -24,6 +24,13 @@
           <q-icon v-if="isFavorite" name="bookmark" size="22px" color="red" />
           <q-icon v-else name="bookmark_border" size="22px" color="red" />
         </q-btn>
+
+        <!-- Actions Menu -->
+        <ProfileActionsMenu
+          :document-id="artistData.documentId"
+          :name="artistData.name"
+          type="artist"
+        />
       </div>
       <!-- Profile Header Section -->
       <div class="profile-header q-mb-md">
@@ -48,11 +55,30 @@
                 <span class="full-name text-h6">{{ artistData.name }}</span>
                 <VerifiedBadge v-if="artistData.verified" :verified="artistData.verified" />
               </div>
+              <!-- Social Media Links -->
             </template>
             <template v-else>
               <q-skeleton type="text" width="50%" height="20px" />
               <q-skeleton type="text" width="70%" height="20px" />
             </template>
+            <div v-if="artistLocation" class="profile-location flex items-center justify-center q-gap-sm text-caption text-grey-6">
+              {{ artistLocation.split(', ').filter(Boolean).join(', ') }}
+            </div>
+            <div class="flex items-center justify-center q-gap-sm q-mt-sm">
+              <SocialLinks v-if="links" :links="links" />
+              <q-btn
+                :round="!!links?.length"
+                :rounded="!links?.length"
+                flat
+                size="sm"
+                @click="openGoogleMaps"
+                class="social-link-btn bg-block"
+                color="primary"
+              >
+                <q-icon name="place" />
+                <span v-if="!links?.length" class="text-caption q-ml-xs">Google Maps</span>
+              </q-btn>
+            </div>
           </div>
         </div>
       </div>
@@ -89,10 +115,7 @@
     </div>
 
     <!-- Booking Button -->
-    <div
-      v-if="(artistData?.openingHours?.length || (artistData?.parent && artistData?.parent?.openingHours?.length))"
-      class="action-buttons full-width bg-block flex justify-center q-gap-sm"
-    >
+    <div v-if="artistData.documentId" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
         <q-btn
           rounded
@@ -129,6 +152,8 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { PublicAboutMeTab, PublicPortfolioTab, PublicTripsTab } from 'src/components/ArtistProfile';
 import { TabsComp, VerifiedBadge } from 'src/components';
+import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
+import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
 import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
@@ -211,6 +236,11 @@ const portfolioItems = ref<IPortfolio[]>([]);
 const trips = ref<ITrip[]>([]);
 
 // Computed properties for favorites
+const links = computed(() => artistData.value?.profile?.links);
+const artistLocation = computed(() => {
+  const location = [artistData.value.country, artistData.value.state, artistData.value.city, artistData.value.address].filter(Boolean).join(', ');
+  return location || null;
+});
 const isFavorite = computed(() => isArtistFavorite(artistData.value.documentId));
 const isAuthenticated = computed(() => userStore.isAuthenticated);
 const canClaim = computed(() => !!artistData.value.email && !artistData.value.confirmed && artistData.value.type !== UserType.Guest);
@@ -287,6 +317,21 @@ const goToBookingPage = () => {
   }
   if (!artistData.value.documentId) return;
   void router.push({ name: 'CreateBooking', query: { artistId: artistData.value.documentId } });
+};
+
+const openGoogleMaps = () => {
+  const locationParts = [
+    artistData.value.address,
+    artistData.value.city,
+    artistData.value.state,
+    artistData.value.country,
+  ].filter(Boolean);
+
+  if (locationParts.length === 0) return;
+
+  const query = locationParts.join(', ');
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  window.open(googleMapsUrl, '_blank');
 };
 
 // Function to load artist data
@@ -405,6 +450,10 @@ onBeforeMount(() => {
   overflow: hidden;
 }
 
+.profile-location {
+  max-width: 200px;
+}
+
 .profile-name-row {
   justify-content: center;
   flex-wrap: wrap;
@@ -446,5 +495,19 @@ onBeforeMount(() => {
   right: 0;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
+}
+
+.social-link-btn {
+  color: var(--q-primary);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+
+  :deep(.q-icon) {
+    color: var(--q-primary);
+  }
 }
 </style>

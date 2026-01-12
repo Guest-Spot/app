@@ -1,4 +1,4 @@
-export { default as AboutMeTab } from './AboutMeTab.vue';
+export { default as AboutMeTab } from '../Profile/AboutMeTab.vue';
 export { default as TripsTab } from './TripsTab.vue';
 
 // Public components for external viewing

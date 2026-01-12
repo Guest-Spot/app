@@ -43,12 +43,12 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import useDate from 'src/modules/useDate';
 
 interface Props {
   modelValue: boolean;
   time: string | null;
   title: string | null;
+  fieldType?: 'start' | 'end';
 }
 
 interface Emits {
@@ -56,27 +56,87 @@ interface Emits {
   (e: 'confirm', time: string | null): void;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  fieldType: 'start',
+});
+
 const emit = defineEmits<Emits>();
 
-const { formatToFullTime } = useDate();
+// Convert time from HH:mm:ss.SSS to hh:mm A format for q-time
+const convertTo12HourFormat = (time: string | null): string => {
+  if (!time) {
+    return props.fieldType === 'start' ? '09:00 AM' : '05:00 PM';
+  }
+
+  const match = time.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return '';
+
+  const hours = parseInt(match[1] ?? '0', 10);
+  const minutes = match[2] ?? '00';
+  const period: 'AM' | 'PM' = props.fieldType === 'start' ? 'AM' : 'PM';
+
+  // Convert to 12-hour format
+  const hours12 = hours % 12 || 12;
+
+  return `${hours12}:${minutes} ${period}`;
+};
+
+// Convert time from hh:mm A back to HH:mm:ss.SSS format
+const convertFrom12HourFormat = (time12Hour: string): string => {
+  if (!time12Hour) return '';
+
+  const match = time12Hour.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i);
+  if (!match) return '';
+
+  const hours = parseInt(match[1] ?? '0', 10);
+  const minutes = match[2] ?? '00';
+  const period = match[3]?.toUpperCase() || (props.fieldType === 'start' ? 'AM' : 'PM');
+
+  // Convert to 24-hour format
+  let hours24: number;
+  if (period === 'PM') {
+    hours24 = hours === 12 ? 12 : hours + 12;
+  } else {
+    hours24 = hours === 12 ? 0 : hours;
+  }
+
+  return `${hours24.toString().padStart(2, '0')}:${minutes}:00.000`;
+};
+
+// Initialize timeValue when dialog opens or time prop changes
+const initializeTimeValue = () => {
+  const convertedTime = convertTo12HourFormat(props.time);
+  timeValue.value = convertedTime;
+};
 
 const isVisible = ref(props.modelValue);
-const timeValue = ref(props.time);
+const timeValue = ref<string>('');
+
+// Initialize timeValue on mount
+if (props.modelValue) {
+  initializeTimeValue();
+}
 
 // Watch for external changes to modelValue
 watch(
   () => props.modelValue,
   (newValue) => {
     isVisible.value = newValue;
+    if (newValue) {
+      // When dialog opens, initialize with correct AM/PM
+      initializeTimeValue();
+    }
   },
 );
 
 // Watch for external changes to time
 watch(
   () => props.time,
-  (newValue) => {
-    timeValue.value = newValue;
+  () => {
+    if (isVisible.value) {
+      // Only update if dialog is open
+      initializeTimeValue();
+    }
   },
 );
 
@@ -92,11 +152,19 @@ const clearTime = () => {
 const closeDialog = () => {
   isVisible.value = false;
   // Reset time to original value when canceling
-  timeValue.value = props.time;
+  initializeTimeValue();
 };
 
 const confirmTime = () => {
-  emit('confirm', formatToFullTime(timeValue.value || '') || null);
+  if (!timeValue.value) {
+    emit('confirm', null);
+    isVisible.value = false;
+    return;
+  }
+
+  // Convert from 12-hour format back to full time format
+  const fullTime = convertFrom12HourFormat(timeValue.value);
+  emit('confirm', fullTime || null);
   isVisible.value = false;
 };
 </script>
@@ -138,9 +206,10 @@ const confirmTime = () => {
     }
   }
 
-  // :deep(.q-time__header-ampm) {
-  //   display: none;
-  // }
+  :deep(.q-time__header-ampm),
+  :deep(.q-time__ampm) {
+    display: none !important;
+  }
 }
 
 .body--dark {

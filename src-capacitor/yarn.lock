@@ -70,6 +70,11 @@
   resolved "https://registry.npmjs.org/@capacitor/push-notifications/-/push-notifications-7.0.3.tgz"
   integrity sha512-4qt5dRVBkHzq202NEoj3JC+S+zQCrZ1FJh7sjkICy/i1iEos+VaoB3bie8eWDQ2LTARktB4+k2xkdpu8pcVo/g==
 
+"@capacitor/share@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.npmjs.org/@capacitor/share/-/share-7.0.3.tgz"
+  integrity sha512-KYWFzHJRG8+tpMzgwQZOxhrXrWbqZOkkwb01DKq2E5p6jBNJFA1YZ95NHlvMnci4TG5QPzldjjpxwP2PEq+3Wg==
+
 "@capacitor/status-bar@^7.0.3":
   version "7.0.3"
   resolved "https://registry.npmjs.org/@capacitor/status-bar/-/status-bar-7.0.3.tgz"

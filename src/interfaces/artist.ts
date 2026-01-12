@@ -1,9 +1,11 @@
-import type { IPicture, IOpeningHours } from 'src/interfaces/common';
+import type { IPicture, IOpeningHours, ILink } from 'src/interfaces/common';
 
 export interface IArtistFormData {
   name: string;
   description: string;
   city?: string;
+  country?: string;
+  state?: string;
   address?: string;
   phone?: string;
   email?: string;
@@ -12,4 +14,5 @@ export interface IArtistFormData {
   depositAmount?: number | null;
   openingHours?: IOpeningHours[];
   chargeDeposit?: boolean;
+  links?: ILink[];
 }

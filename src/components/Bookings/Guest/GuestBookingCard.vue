@@ -51,7 +51,8 @@
       <!-- Time -->
       <div class="time-info q-mb-xs text-grey-6">
         <q-icon name="schedule" size="16px" />
-        <span>{{ formattedTime }}</span>
+        <span v-if="formattedTime">{{ formattedTime }}</span>
+        <span v-else>n/a</span>
       </div>
 
       <!-- Deposit Info -->

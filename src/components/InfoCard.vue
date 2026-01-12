@@ -1,18 +1,19 @@
 <template>
   <!-- Contacts -->
-  <div class="info-card bg-block border-radius-md">
-    <div class="card-header q-px-md q-py-sm bg-block">
+  <div class="info-card bg-block border-radius-lg">
+    <div v-if="title || icon" class="card-header q-px-md q-pt-md">
       <q-icon :name="icon" size="18px" />
       <h3 class="card-title text-subtitle1">{{ title }}</h3>
     </div>
     <div class="card-content">
+      <slot name="header" />
       <div
         class="info-row"
         v-for="item in data"
         :key="`${item.label}-${item.value}`"
         :class="item.className"
       >
-        <span v-if="item.label" class="info-label">{{ item.label }}:</span>
+        <span v-if="item.label" class="info-label text-grey-4">{{ item.label }}:</span>
         <a v-if="item.type === InfoItemType.Phone" target="_blank" :href="`tel:${item.value}`">
           <span class="info-value text-grey-6">{{ item.value }}</span>
         </a>
@@ -27,36 +28,38 @@
           <span class="info-value link-text text-grey-6">{{ item.value }}</span>
         </a>
         <ExpandableText
-          v-else
+          v-else-if="item.value"
           :text="item.value"
           collapsible
           :class="item.className ? ['info-value', 'text-grey-6', item.className] : ['info-value', 'text-grey-6']"
           formatted
         />
-        <q-btn
-          v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
-          :icon="whatsappIcon"
-          :href="getWhatsappLink(item.value) ?? undefined"
-          target="_blank"
-          rel="noopener"
-          size="sm"
-          round
-          unelevated
-          class="bg-block q-ml-auto"
-          aria-label="Write via WhatsApp"
-        />
-        <q-btn
-          v-if="item.value && item.type === InfoItemType.Link"
-          icon="content_copy"
-          size="sm"
-          round
-          unelevated
-          class="bg-block q-ml-auto"
-          text-color="primary"
-          @click="copyLink(item.value)"
-        />
+        <div v-if="item.value" class="flex items-center q-gap-sm q-ml-auto mt-minus-5">
+          <q-btn
+            v-if="item.type === InfoItemType.Phone && getWhatsappLink(item.value)"
+            :icon="whatsappIcon"
+            :href="getWhatsappLink(item.value) ?? undefined"
+            target="_blank"
+            rel="noopener"
+            size="sm"
+            round
+            unelevated
+            class="bg-block q-ml-auto"
+            aria-label="Write via WhatsApp"
+          />
+          <q-btn
+            v-if="item.value && isCopyable(item.type)"
+            icon="content_copy"
+            size="sm"
+            round
+            unelevated
+            class="bg-block q-ml-auto"
+            text-color="primary"
+            @click="copyLink(item.value)"
+          />
+        </div>
 
-        <q-skeleton v-if="!item.value" type="text" width="100%" height="20px" />
+        <span v-if="!item.value" class="info-value text-grey-6">n/a</span>
       </div>
       <slot name="footer" />
     </div>
@@ -70,9 +73,9 @@ import ExpandableText from 'src/components/ExpandableText.vue';
 import whatsappIconUrl from 'src/assets/icons/whatsapp.svg';
 
 interface Props {
-  title: string;
-  icon: string;
-  data: {
+  title?: string;
+  icon?: string;
+  data?: {
     label: string;
     value: string;
     type?: InfoItemType;
@@ -95,11 +98,18 @@ const getWhatsappLink = (phone: string): string | null => {
   return digits ? `https://wa.me/${digits}` : null;
 };
 
+const isCopyable = (type?: InfoItemType): boolean => {
+  if (!type) {
+    return false;
+  }
+  return [InfoItemType.Link, InfoItemType.Phone, InfoItemType.Email].includes(type);
+};
+
 const showToast = () => {
   $q.notify({
     type: 'positive',
     color: 'dark',
-    message: 'Link copied!',
+    message: 'Copied!',
     position: 'top',
     timeout: 2000,
     actions: [
@@ -168,5 +178,9 @@ const copyLink = (value: string) => {
 .link-text {
   text-decoration: underline;
   word-break: break-all;
+}
+
+.mt-minus-5 {
+  margin-top: -5px;
 }
 </style>

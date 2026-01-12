@@ -7,8 +7,8 @@
     :gap="16"
     :loading="loading"
     :has-more="hasMore"
-    :buffer="300"
-    :load-offset="600"
+    :buffer="600"
+    :load-offset="500"
     @load-more="handleLoadMore"
   >
     <template #default="{ item: row, index }">
@@ -38,7 +38,7 @@
     :hasMore="hasMore"
     :min-item-size="400"
     :gap="16"
-    :buffer="200"
+    :buffer="450"
     :load-offset="400"
     :page-mode="false"
     @load-more="handleLoadMore"
