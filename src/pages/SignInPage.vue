@@ -15,7 +15,7 @@
     <div class="q-my-auto full-width">
       <div class="container flex column items-center q-gap-lg">
         <div class="auth-card full-width bg-block border-radius-lg q-pa-lg flex column q-gap-md">
-          <q-form @submit="handleLogin" class="email-form flex column q-gap-md">
+          <q-form @submit="handleLogin" class="email-form flex column">
             <div class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Enter your username or email</label>
               <q-input
@@ -24,7 +24,6 @@
                 outlined
                 rounded
                 size="lg"
-                hint="Required field"
                 :rules="[(val) => !!val || 'Username or email is required']"
                 class="full-width"
                 bg-color="transparent"
@@ -44,7 +43,6 @@
                 outlined
                 rounded
                 size="lg"
-                hint="Required field"
                 :rules="[
                   (val) => !!val || 'Password is required',
                 ]"
