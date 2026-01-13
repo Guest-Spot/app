@@ -741,7 +741,6 @@ onBeforeUnmount(() => {
   transition: all 0.2s ease;
 }
 
-.business-card:hover,
 .business-card--active {
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--q-primary);
