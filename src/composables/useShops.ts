@@ -52,7 +52,7 @@ export default function useShops() {
         },
         sort: sortSettings.sortBy
           ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-          : undefined,
+          : ['createdAt:desc'],
         pagination: {
           page: shopsStore.getPage,
           pageSize: PAGINATION_PAGE_SIZE,
@@ -84,7 +84,7 @@ export default function useShops() {
       },
       sort: sortSettings.sortBy
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : undefined,
+        : ['createdAt:desc'],
       pagination: {
         page: shopsStore.getPage,
         pageSize: PAGINATION_PAGE_SIZE,
