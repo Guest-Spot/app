@@ -96,7 +96,11 @@ const sortBy = ref<string | null>(props.sortValue.sortBy);
 const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
-const sortOptions = [{ label: 'Name: A to Z', value: 'name' }];
+const sortOptions = [
+  { label: 'Name: A to Z', value: 'name' },
+  { label: 'Date Created', value: 'createdAt' },
+  { label: 'Last Updated', value: 'updatedAt' },
+];
 
 // Watch for props changes
 watch(
