@@ -1,47 +1,91 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+// Helper to create overlay routes with base page
+const createPageWithOverlays = (
+  basePath: string,
+  baseName: string,
+  baseComponent: () => Promise<unknown>,
+  baseMeta: Record<string, unknown> = {}
+) => ({
+  path: basePath,
+  component: () => import('components/PageWrapper.vue'),
+  children: [
+    {
+      path: '',
+      name: baseName,
+      components: {
+        page: baseComponent,
+      },
+      meta: baseMeta,
+    },
+    {
+      path: 'artist/:documentId',
+      name: `${baseName}Artist`,
+      components: {
+        page: baseComponent,
+        default: () => import('pages/PublicArtistProfile.vue'),
+      },
+      meta: { ...baseMeta, title: 'Artist Profile', hasBack: true },
+    },
+    {
+      path: 'shop/:documentId',
+      name: `${baseName}Shop`,
+      components: {
+        page: baseComponent,
+        default: () => import('pages/PublicShopProfile.vue'),
+      },
+      meta: { ...baseMeta, title: 'Shop Profile', hasBack: true },
+    },
+  ],
+});
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      {
-        path: '',
-        name: 'Index',
-        component: () => import('pages/IndexPage.vue'),
-        meta: { title: 'Search Page', saveScrollPosition: true },
-      },
-      {
-        path: 'feed',
-        name: 'Feed',
-        component: () => import('pages/FeedPage.vue'),
-        meta: { title: 'Feed', saveScrollPosition: true, keepAlive: true },
-      },
-      {
-        path: 'bookmarks',
-        component: () => import('pages/BookmarksPage.vue'),
-        meta: { title: 'Bookmarks', saveScrollPosition: true },
-      },
-      {
-        path: 'events',
-        component: () => import('src/pages/EventsPage.vue'),
-        meta: { title: 'My Trips & Bookings' },
-      },
-      {
-        path: 'bookings',
-        component: () => import('pages/BookingsPage.vue'),
-        meta: { title: 'Shop Bookings' },
-      },
-      {
-        path: 'my-bookings',
-        component: () => import('pages/MyBookingsPage.vue'),
-        meta: { title: 'My Booking Requests' },
-      },
-      {
-        path: 'profile',
-        component: () => import('src/pages/ProfileRouter.vue'),
-        meta: { title: 'My Profile' },
-      },
+      createPageWithOverlays(
+        '',
+        'Index',
+        () => import('pages/IndexPage.vue'),
+        { title: 'Search Page', saveScrollPosition: true }
+      ),
+      createPageWithOverlays(
+        'feed',
+        'Feed',
+        () => import('pages/FeedPage.vue'),
+        { title: 'Feed', saveScrollPosition: true, keepAlive: true }
+      ),
+      createPageWithOverlays(
+        'bookmarks',
+        'Bookmarks',
+        () => import('pages/BookmarksPage.vue'),
+        { title: 'Bookmarks', saveScrollPosition: true }
+      ),
+      createPageWithOverlays(
+        'events',
+        'Events',
+        () => import('src/pages/EventsPage.vue'),
+        { title: 'My Trips & Bookings' }
+      ),
+      createPageWithOverlays(
+        'bookings',
+        'Bookings',
+        () => import('pages/BookingsPage.vue'),
+        { title: 'Shop Bookings' }
+      ),
+      createPageWithOverlays(
+        'my-bookings',
+        'MyBookings',
+        () => import('pages/MyBookingsPage.vue'),
+        { title: 'My Booking Requests' }
+      ),
+      createPageWithOverlays(
+        'profile',
+        'Profile',
+        () => import('src/pages/ProfileRouter.vue'),
+        { title: 'My Profile' }
+      ),
       {
         path: 'feedback',
         component: () => import('pages/FeedbackPage.vue'),
@@ -126,11 +170,6 @@ const routes: RouteRecordRaw[] = [
         name: 'Stripe Onboarding Expired',
       },
       {
-        path: 'artist/:documentId',
-        component: () => import('pages/PublicArtistProfile.vue'),
-        meta: { title: 'Artist Profile', hasBack: true },
-      },
-      {
         path: 'profile/basic-information',
         component: () => import('pages/profile/BasicInformationPage.vue'),
         meta: { title: 'Basic Information', requiresAuth: true },
@@ -164,11 +203,6 @@ const routes: RouteRecordRaw[] = [
         path: 'profile/payment-settings',
         component: () => import('pages/profile/PaymentSettingsPage.vue'),
         meta: { title: 'Payment Settings', requiresAuth: true },
-      },
-      {
-        path: 'shop/:documentId',
-        component: () => import('pages/PublicShopProfile.vue'),
-        meta: { title: 'Shop Profile', hasBack: true },
       },
       {
         path: 'store-redirect',
