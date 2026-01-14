@@ -1,31 +1,34 @@
 <template>
+  <PullToRefresh>
   <div class="page-wrapper" :class="{ 'overlay-active': isOverlayActive }">
     <!-- Base page - always visible, cached with keep-alive -->
-    <keep-alive>
-      <router-view name="page" />
-    </keep-alive>
+      <keep-alive>
+        <router-view name="page" />
+      </keep-alive>
 
-    <!-- Overlay page with iOS-style animation -->
-    <router-view v-slot="{ Component, route: overlayRoute }">
-      <transition
-        enter-active-class="animated slideInRight"
-        leave-active-class="animated slideOutRight"
-      >
-        <div
-          v-if="Component && overlayRoute.meta.hasBack"
-          :key="overlayRoute.path"
-          class="page-overlay"
+      <!-- Overlay page with iOS-style animation -->
+      <router-view v-slot="{ Component, route: overlayRoute }">
+        <transition
+          enter-active-class="animated slideInRight"
+          leave-active-class="animated slideOutRight"
         >
-          <component :is="Component" />
-        </div>
-      </transition>
-    </router-view>
-  </div>
+          <div
+            v-if="Component && overlayRoute.meta.overlay"
+            :key="overlayRoute.path"
+            class="page-overlay"
+          >
+            <component :is="Component" />
+          </div>
+        </transition>
+      </router-view>
+    </div>
+  </PullToRefresh>
 </template>
 
 <script setup lang="ts">
 import { computed, watch, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
+import PullToRefresh from '../components/PullToRefresh.vue';
 
 defineOptions({
   name: 'PageWrapper',
@@ -35,7 +38,7 @@ const route = useRoute();
 
 // Track if overlay is active to help pages pause their activity
 const isOverlayActive = computed(() => {
-  return route.meta.hasBack === true;
+  return route.meta.overlay === true;
 });
 
 // Prevent scrolling on base page when overlay is active
@@ -90,12 +93,13 @@ onBeforeUnmount(() => {
 <style lang="scss">
 .page-wrapper {
   position: relative;
-  min-height: 100%;
 
   // Optimize base page when overlay is active
   &.overlay-active {
     // Reduce repaints on base page
     contain: layout style paint;
+    z-index: 3000;
+    min-height: 100vh;
   }
 }
 
@@ -105,7 +109,8 @@ onBeforeUnmount(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 2000;
+  min-height: 100vh;
+  z-index: 3000;
   background: #fff;
   overflow-y: auto;
   // GPU acceleration hint for smooth animations

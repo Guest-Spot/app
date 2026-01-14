@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <div class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
     <!-- Navigation Tabs -->
     <div class="container">
       <div class="flex items-center q-gap-sm no-wrap">
@@ -91,7 +91,7 @@
         </div>
       </div>
     </div>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">

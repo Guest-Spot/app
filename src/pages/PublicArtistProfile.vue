@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
+  <div class="page q-pb-none flex column items-start q-gap-md">
     <div class="container">
       <!-- Back Button -->
       <BackButton />
@@ -142,7 +142,7 @@
       :link="artistData.link || ''"
       :document-id="artistData.documentId || ''"
     />
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -480,9 +480,10 @@ onBeforeMount(() => {
 }
 
 .action-buttons {
-  position: fixed;
+  position: sticky;
   bottom: 0;
   right: 0;
+  margin-top: auto;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
 }

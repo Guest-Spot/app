@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-pb-lg flex column items-start q-gap-md q-pb-5xl">
+  <div class="page q-pb-none flex column items-start q-gap-md">
     <!-- Profile Header Section -->
     <div class="profile-header relative-position q-mx-auto full-width q-mb-md">
       <!-- Back Button -->
@@ -143,7 +143,7 @@
       :link="shopData.link || ''"
       :document-id="shopData.documentId || ''"
     />
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">

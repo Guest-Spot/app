@@ -25,7 +25,7 @@ const createPageWithOverlays = (
         page: baseComponent,
         default: () => import('pages/PublicArtistProfile.vue'),
       },
-      meta: { ...baseMeta, title: 'Artist Profile', hasBack: true },
+      meta: { ...baseMeta, title: 'Artist Profile', overlay: true },
     },
     {
       path: 'shop/:documentId',
@@ -34,7 +34,7 @@ const createPageWithOverlays = (
         page: baseComponent,
         default: () => import('pages/PublicShopProfile.vue'),
       },
-      meta: { ...baseMeta, title: 'Shop Profile', hasBack: true },
+      meta: { ...baseMeta, title: 'Shop Profile', overlay: true },
     },
   ],
 });
