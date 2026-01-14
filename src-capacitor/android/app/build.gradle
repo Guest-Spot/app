@@ -19,8 +19,8 @@ android {
         applicationId "com.guestspot.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "1.7"
+        versionCode 9
+        versionName "1.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         
         // Google Web Client ID from environment variables or local.properties
