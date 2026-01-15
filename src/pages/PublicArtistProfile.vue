@@ -48,9 +48,9 @@
             <q-icon v-else name="person" size="58px" color="grey-9" />
           </q-avatar>
           <div class="flex column items-center full-width">
-            <template v-if="artistData.name">
+            <template v-if="artistData.name || artistData.username || artistData.email">
               <div class="profile-name-row flex items-center q-gap-xs">
-                <span class="full-name text-h6">{{ artistData.name }}</span>
+                <span class="full-name text-h6">{{ artistData.name || artistData.username || artistData.email || 'Unknown artist' }}</span>
                 <VerifiedBadge v-if="artistData.verified" :verified="artistData.verified" />
               </div>
               <!-- Social Media Links -->
