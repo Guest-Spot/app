@@ -11,7 +11,7 @@
       <div class="container">
         <div class="full-width bg-block border-radius-lg q-pa-lg">
           <div class="flex column items-start q-gap-md full-width">
-            <div class="step-indicator text-subtitle2 text-grey-5 q-px-md q-py-sm border-radius-lg">
+            <div class="step-indicator bg-block text-subtitle2 text-grey-5 q-px-md q-py-sm border-radius-lg">
               Step {{ currentStep }} of {{ totalSteps }}
             </div>
 
@@ -163,41 +163,14 @@
               @submit.prevent="goToNextStep"
               class="flex column items-start q-gap-lg full-width"
             >
-              <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">City</label>
-                <q-input
-                  v-model="form.city"
-                  type="text"
-                  placeholder="City"
-                  outlined
-                  rounded
-                  size="lg"
-                  class="full-width"
-                  bg-color="transparent"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="location_on" color="grey-6" />
-                  </template>
-                </q-input>
-              </div>
-
-              <div class="flex column items-start q-gap-xs full-width">
-                <label class="input-label">Address</label>
-                <q-input
-                  v-model="form.address"
-                  type="text"
-                  placeholder="Address"
-                  outlined
-                  rounded
-                  size="lg"
-                  class="full-width"
-                  bg-color="transparent"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="home" color="grey-6" />
-                  </template>
-                </q-input>
-              </div>
+              <LocationPickerCard
+                v-model:selectedLocation="selectedLocation"
+                :form-data="locationFormData"
+                :data-loading="isLocationLoading"
+                :reverse-geocoding="isUpdatingFromMap"
+                :location-info="locationInfo"
+                @location-changed="handleLocationChanged"
+              />
 
               <div class="button-group full-width q-mt-sm">
                 <q-btn
@@ -390,6 +363,10 @@ import { type QForm } from 'quasar';
 import { REGISTER_MUTATION, USER_EMAIL_EXISTS_QUERY } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import getMutationErrorMessage from 'src/helpers/getMutationErrorMessage';
+import { useLocationPicker, type LocationFormData, type LocationLatLng } from 'src/composables/useLocationPicker';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - Vue components with <script setup> are auto-exported
+import LocationPickerCard from 'src/components/location/LocationPickerCard.vue';
 
 type RegisterResponse = {
   register: {
@@ -424,6 +401,8 @@ type RegisterForm = {
   name: string;
   email: string;
   phone: string;
+  country: string;
+  state: string;
   city: string;
   address: string;
   link: string;
@@ -446,6 +425,8 @@ const form = ref<RegisterForm>({
   name: '',
   email: '',
   phone: '',
+  country: '',
+  state: '',
   city: '',
   address: '',
   link: '',
@@ -461,6 +442,22 @@ const passwordForm = ref<QForm | null>(null);
 const emailValidationTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const emailStatus = ref<'idle' | 'checking' | 'available' | 'taken' | 'error'>('idle');
 const lastRequestedEmail = ref('');
+const selectedLocation = ref<LocationLatLng | null>(null);
+
+const locationFormData = computed<LocationFormData>({
+  get: () => ({
+    country: form.value.country,
+    state: form.value.state,
+    city: form.value.city,
+    address: form.value.address,
+  }),
+  set: (value) => {
+    form.value.country = value.country;
+    form.value.state = value.state;
+    form.value.city = value.city;
+    form.value.address = value.address;
+  },
+});
 
 const userTypes = [
   {
@@ -499,6 +496,13 @@ const confirmPasswordRules = [
   (val: string) => !!val || 'Confirm password is required',
   (val: string) => val === form.value.password || 'Passwords must match',
 ];
+
+const { handleLocationChanged, isLocationLoading, isUpdatingFromMap, locationInfo } = useLocationPicker(
+  {
+    formData: locationFormData,
+    dataLoading: computed(() => false),
+  },
+);
 
 const stripPortfolioUrlProtocol = (value = '') =>
   value.trim().replace(/^https?:\/\//i, '');
@@ -722,7 +726,6 @@ onBeforeUnmount(() => {
 .step-indicator {
   width: 100%;
   text-align: left;
-  background-color: rgba(255, 255, 255, 0.04);
   border-radius: 24px;
 }
 

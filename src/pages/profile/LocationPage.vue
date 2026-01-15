@@ -9,29 +9,13 @@
 
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
-        <!-- OpenStreetMap Section -->
-        <InfoCard icon="map" title="Select location on map" :data="[]" class="q-mb-md">
-          <template #header>
-            <div class="full-width">
-              <OpenStreetMapPicker
-                v-model="selectedLocation"
-                :country="formData.country"
-                :state="formData.state"
-                :city="formData.city"
-                :address="formData.address"
-                :data-loading="isLocationLoading"
-                :reverse-geocoding="isUpdatingFromMap"
-                @location-changed="handleLocationChanged"
-              />
-            </div>
-          </template>
-        </InfoCard>
-
-        <InfoCard
-          v-if="locationInfo.length > 0"
-          icon="location_on"
-          title="Location"
-          :data="locationInfo"
+        <LocationPickerCard
+          v-model:selectedLocation="selectedLocation"
+          :form-data="formData"
+          :data-loading="isLocationLoading"
+          :reverse-geocoding="isUpdatingFromMap"
+          :location-info="locationInfo"
+          @location-changed="handleLocationChanged"
         />
       </div>
     </div>
@@ -49,16 +33,13 @@ import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useProfile from 'src/composables/useProfile';
+import { useLocationPicker } from 'src/composables/useLocationPicker';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - Vue components with <script setup> are auto-exported
 import SaveButton from 'src/components/SaveButton.vue';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - Vue components with <script setup> are auto-exported
-import OpenStreetMapPicker from 'src/components/OpenStreetMapPicker.vue';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - Vue components with <script setup> are auto-exported
-import InfoCard from 'src/components/InfoCard.vue';
-import { reverseGeocode } from 'src/utils/geocoding';
+import LocationPickerCard from 'src/components/location/LocationPickerCard.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
@@ -73,30 +54,12 @@ const formData = ref({
 });
 
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
-const isUpdatingFromMap = ref(false);
-const isLocationLoading = computed(() => isLoading.value && !user.value);
-
-const handleLocationChanged = async (location: { lat: number; lng: number }) => {
-  isUpdatingFromMap.value = true;
-  try {
-    // Add a small delay to respect Nominatim rate limits (1 request per second)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const result = await reverseGeocode(location.lat, location.lng);
-    if (result) {
-      formData.value = {
-        country: result.country || formData.value.country,
-        state: result.state || formData.value.state,
-        city: result.city || formData.value.city,
-        address: result.address || formData.value.address,
-      };
-    }
-  } catch (error) {
-    console.error('Error during reverse geocoding:', error);
-  } finally {
-    isUpdatingFromMap.value = false;
-  }
-};
+const { handleLocationChanged, isLocationLoading, isUpdatingFromMap, locationInfo } = useLocationPicker(
+  {
+    formData,
+    dataLoading: computed(() => isLoading.value && !user.value),
+  },
+);
 
 // Load user data
 watch(
@@ -127,23 +90,6 @@ watch(
 
 const { mutate: updateUser } = useMutation(UPDATE_USER_MUTATION);
 const { updateProfile } = useProfile();
-
-const locationInfo = computed(() => {
-  const items = [];
-  if (formData.value.country) {
-    items.push({ label: 'Country', value: formData.value.country });
-  }
-  if (formData.value.state) {
-    items.push({ label: 'State', value: formData.value.state });
-  }
-  if (formData.value.city) {
-    items.push({ label: 'City', value: formData.value.city });
-  }
-  if (formData.value.address) {
-    items.push({ label: 'Address', value: formData.value.address });
-  }
-  return items;
-});
 
 const hasChanges = computed(() => {
   const currentLat = selectedLocation.value?.lat ?? null;
