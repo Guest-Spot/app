@@ -9,6 +9,9 @@ export const UPDATE_PROFILE_MUTATION = gql`
         type
         value
       }
+      lat
+      lng
     }
   }
 `;
+

@@ -54,6 +54,8 @@ export const ME_QUERY = gql`
           value
         }
         website
+        lat
+        lng
       }
     }
   }
@@ -130,6 +132,8 @@ export const USERS_QUERY = gql`
           value
         }
         website
+        lat
+        lng
       }
     }
   }
@@ -198,6 +202,8 @@ export const USER_QUERY = gql`
           value
         }
         website
+        lat
+        lng
       }
     }
   }
@@ -249,6 +255,8 @@ export const UPDATE_USER_MUTATION = gql`
             value
           }
           website
+          lat
+          lng
         }
       }
     }
