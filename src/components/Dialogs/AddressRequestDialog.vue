@@ -27,7 +27,7 @@
 
         <h3 class="text-h5 text-bold q-mb-sm">Add your location</h3>
         <p class="text-body1 text-grey-6 q-mb-none">
-          Help clients find you easier by adding your address to your profile
+          {{ description }}
         </p>
       </q-card-section>
 
@@ -59,6 +59,7 @@ import { ref, watch } from 'vue';
 
 interface Props {
   modelValue: boolean;
+  description: string;
 }
 
 interface Emits {
