@@ -1,5 +1,10 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+    <AddressRequestDialog
+      v-model="showAddressDialog"
+      @dismiss="handleDismissAddressDialog"
+      @fill-address="handleFillAddress"
+    />
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
@@ -30,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import { ShopArtistsTab } from 'src/components/ShopProfile';
@@ -38,8 +43,12 @@ import { TabsComp, PortfolioTab } from 'src/components';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import { useRouter } from 'vue-router';
 import useUser from 'src/modules/useUser';
+import AddressRequestDialog from 'src/components/Dialogs/AddressRequestDialog.vue';
+import { hasUserAddress } from 'src/utils/address';
 
-const { user } = useUser();
+const { user, isShop } = useUser();
+
+const ADDRESS_DIALOG_STORAGE_KEY = 'guestspot-address-dialog-dismissed';
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
@@ -63,6 +72,38 @@ const TABS: ITab[] = [
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
 const router = useRouter();
+const showAddressDialog = ref(false);
+
+const addressDialogStorageKey = computed(() => {
+  const userId = user.value?.id;
+  return userId ? `${ADDRESS_DIALOG_STORAGE_KEY}-${userId}` : null;
+});
+
+const isAddressDialogDismissed = computed(() => {
+  const storageKey = addressDialogStorageKey.value;
+  if (!storageKey) {
+    return false;
+  }
+  return localStorage.getItem(storageKey) === 'true';
+});
+
+const shouldShowAddressDialog = computed(() => {
+  if (!isShop.value || !user.value) {
+    return false;
+  }
+  if (hasUserAddress(user.value)) {
+    return false;
+  }
+  return !isAddressDialogDismissed.value;
+});
+
+watch(
+  shouldShowAddressDialog,
+  (shouldShow) => {
+    showAddressDialog.value = shouldShow;
+  },
+  { immediate: true },
+);
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
@@ -70,5 +111,18 @@ const setActiveTab = (tab: ITab) => {
 
 const openPublicProfile = () => {
   void router.push(`/shop/${user.value?.documentId}`);
+};
+
+const handleDismissAddressDialog = () => {
+  const storageKey = addressDialogStorageKey.value;
+  if (storageKey) {
+    localStorage.setItem(storageKey, 'true');
+  }
+  showAddressDialog.value = false;
+};
+
+const handleFillAddress = () => {
+  showAddressDialog.value = false;
+  void router.push('/profile/location');
 };
 </script>
