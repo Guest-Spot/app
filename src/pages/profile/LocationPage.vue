@@ -20,6 +20,7 @@
                 :city="formData.city"
                 :address="formData.address"
                 :data-loading="isLocationLoading"
+                :reverse-geocoding="isUpdatingFromMap"
                 @location-changed="handleLocationChanged"
               />
             </div>

@@ -63,6 +63,12 @@
       <div v-else-if="loading" class="map-loading flex items-center justify-center">
         <q-spinner size="md" />
       </div>
+      <q-linear-progress
+        v-if="isGeocoding || reverseGeocoding"
+        indeterminate
+        color="primary"
+        class="geocoding-loader"
+      />
     </div>
   </div>
 </template>
@@ -98,6 +104,7 @@ interface Props {
   city?: string;
   address?: string;
   dataLoading?: boolean;
+  reverseGeocoding?: boolean;
 }
 
 interface Emits {
@@ -112,6 +119,7 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 const searchContainerRef = ref<HTMLDivElement | null>(null);
 const loading = ref(true);
 const isDataLoading = computed(() => props.dataLoading ?? false);
+const reverseGeocoding = computed(() => props.reverseGeocoding ?? false);
 const initialLocationResolved = ref(false);
 const initialGeocodeInProgress = ref(false);
 const showSkeleton = computed(() => isDataLoading.value || !initialLocationResolved.value);
@@ -124,6 +132,9 @@ const searchResults = ref<ForwardGeocodingResult[]>([]);
 const searching = ref(false);
 const showSearchResults = ref(false);
 let hideSearchResultsTimeout: ReturnType<typeof setTimeout> | null = null;
+
+// Geocoding state
+const isGeocoding = ref(false);
 
 const buildAddressQuery = (): string | null => {
   const parts: string[] = [];
@@ -147,6 +158,7 @@ const geocodeAddressOnInit = async () => {
     return;
   }
 
+  isGeocoding.value = true;
   try {
     // Add delay to respect Nominatim rate limits
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -170,6 +182,8 @@ const geocodeAddressOnInit = async () => {
     }
   } catch (error) {
     console.error('Error during initial geocoding:', error);
+  } finally {
+    isGeocoding.value = false;
   }
 };
 
@@ -448,12 +462,16 @@ onUnmounted(() => {
   border-radius: 8px;
 }
 
-:deep(.leaflet-control-attribution) {
-  display: none;
-}
-
 .custom-marker {
   background: transparent;
   border: none;
+}
+
+.geocoding-loader {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
 }
 </style>
