@@ -90,7 +90,7 @@ const handleDismiss = () => {
 
 const handleFillAddress = () => {
   emit('fill-address');
-  isVisible.value = false;
+  handleDismiss();
 };
 </script>
 

@@ -118,6 +118,7 @@ interface Props {
   address?: string;
   dataLoading?: boolean;
   reverseGeocoding?: boolean;
+  autoLocation?: boolean;
 }
 
 interface Emits {
@@ -136,6 +137,7 @@ const reverseGeocoding = computed(() => props.reverseGeocoding ?? false);
 const initialLocationResolved = ref(false);
 const initialGeocodeInProgress = ref(false);
 const showSkeleton = computed(() => isDataLoading.value || !initialLocationResolved.value);
+const autoLocationCalled = ref(false);
 let map: L.Map | null = null;
 let marker: L.Marker<L.LatLngExpression> | null = null;
 
@@ -152,6 +154,21 @@ const isGeocoding = ref(false);
 // Geolocation state
 const gettingLocation = ref(false);
 const mapInitialized = ref(false);
+
+const hasTextAddress = computed(() => {
+  return Boolean(
+    (props.address && props.address.trim()) ||
+      (props.city && props.city.trim()) ||
+      (props.state && props.state.trim()) ||
+      (props.country && props.country.trim()),
+  );
+});
+
+const hasCoordinates = computed(() => {
+  return props.modelValue?.lat != null && props.modelValue?.lng != null;
+});
+
+const hasAnyLocation = computed(() => hasTextAddress.value || hasCoordinates.value);
 
 const buildAddressQuery = (): string | null => {
   const parts: string[] = [];
@@ -488,6 +505,23 @@ watch(
       void resolveInitialLocation();
     }
   },
+);
+
+watch(
+  () => [props.autoLocation, isDataLoading.value, mapInitialized.value, hasAnyLocation.value],
+  () => {
+    if (
+      props.autoLocation &&
+      !isDataLoading.value &&
+      mapInitialized.value &&
+      !hasAnyLocation.value &&
+      !autoLocationCalled.value
+    ) {
+      autoLocationCalled.value = true;
+      void getCurrentLocation();
+    }
+  },
+  { immediate: true },
 );
 
 onUnmounted(() => {

@@ -11,6 +11,7 @@
             :address="formData.address"
             :data-loading="dataLoading"
             :reverse-geocoding="reverseGeocoding"
+            :auto-location="autoLocation"
             @location-changed="emitLocationChanged"
           />
         </div>
@@ -44,11 +45,13 @@ const props = withDefaults(
     dataLoading?: boolean;
     reverseGeocoding?: boolean;
     locationInfo?: LocationInfoItem[];
+    autoLocation?: boolean;
   }>(),
   {
     dataLoading: false,
     reverseGeocoding: false,
     locationInfo: () => [],
+    autoLocation: false,
   },
 );
 
@@ -65,6 +68,7 @@ const localSelectedLocation = computed({
 const resolvedLocationInfo = computed(() => props.locationInfo ?? []);
 const dataLoading = computed(() => props.dataLoading ?? false);
 const reverseGeocoding = computed(() => props.reverseGeocoding ?? false);
+const autoLocation = computed(() => props.autoLocation ?? false);
 
 const emitLocationChanged = (location: LocationLatLng) => {
   emit('location-changed', location);
