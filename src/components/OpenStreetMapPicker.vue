@@ -59,6 +59,17 @@
 
     <div class="map-wrapper border-radius-lg">
       <div ref="mapContainer" class="map-container"></div>
+      <q-btn
+        v-if="!showSkeleton && !loading && mapInitialized"
+        round
+        unelevated
+        color="white"
+        text-color="dark"
+        icon="my_location"
+        class="my-location-btn"
+        :loading="gettingLocation"
+        @click="getCurrentLocation"
+      />
       <q-skeleton v-if="showSkeleton" width="100%" height="100%" class="map-skeleton bg-block border-radius-lg" />
       <div v-else-if="loading" class="map-loading flex items-center justify-center">
         <q-spinner size="md" />
@@ -78,6 +89,8 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { forwardGeocode, type ForwardGeocodingResult } from 'src/utils/geocoding';
+import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 
 // Create custom marker with primary color
 const createCustomMarkerIcon = (): L.DivIcon => {
@@ -135,6 +148,10 @@ let hideSearchResultsTimeout: ReturnType<typeof setTimeout> | null = null;
 
 // Geocoding state
 const isGeocoding = ref(false);
+
+// Geolocation state
+const gettingLocation = ref(false);
+const mapInitialized = ref(false);
 
 const buildAddressQuery = (): string | null => {
   const parts: string[] = [];
@@ -275,6 +292,7 @@ const initializeMap = () => {
     // Wait for map to be fully loaded
     map.whenReady(() => {
       loading.value = false;
+      mapInitialized.value = true;
       void resolveInitialLocation();
     });
   } catch (error) {
@@ -344,6 +362,78 @@ const hideSearchResultsDelayed = () => {
   }, 200);
 };
 
+// Get current user location using Capacitor Geolocation
+const getCurrentLocation = async () => {
+  if (gettingLocation.value || !map || !marker) {
+    return;
+  }
+
+  gettingLocation.value = true;
+
+  try {
+    // Check and request permissions
+    let permissionStatus = await Geolocation.checkPermissions();
+
+    if (permissionStatus.location === 'prompt' || permissionStatus.location === 'prompt-with-rationale') {
+      permissionStatus = await Geolocation.requestPermissions();
+    }
+
+    if (permissionStatus.location !== 'granted') {
+      console.error('Location permission denied');
+      return;
+    }
+
+    // Get current position with high accuracy for real GPS location
+    const position = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    });
+
+    const { latitude, longitude } = position.coords;
+    const location = { lat: latitude, lng: longitude };
+    const positionArray: [number, number] = [latitude, longitude];
+
+    // Update marker and map
+    marker.setLatLng(positionArray);
+    map.setView(positionArray, 15);
+
+    // Emit events
+    emit('update:modelValue', location);
+    emit('location-changed', location);
+  } catch (error) {
+    console.error('Error getting current location:', error);
+
+    // Fallback to browser geolocation API for web platform
+    if (!Capacitor.isNativePlatform() && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const location = { lat: latitude, lng: longitude };
+          const positionArray: [number, number] = [latitude, longitude];
+
+          if (map && marker) {
+            marker.setLatLng(positionArray);
+            map.setView(positionArray, 15);
+            emit('update:modelValue', location);
+            emit('location-changed', location);
+          }
+        },
+        (err) => {
+          console.error('Browser geolocation error:', err);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
+    }
+  } finally {
+    gettingLocation.value = false;
+  }
+};
+
 // Watch for external changes to modelValue
 watch(
   () => props.modelValue,
@@ -411,6 +501,7 @@ onUnmounted(() => {
   if (hideSearchResultsTimeout) {
     clearTimeout(hideSearchResultsTimeout);
   }
+  mapInitialized.value = false;
 });
 </script>
 
@@ -473,5 +564,13 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 3;
+}
+
+.my-location-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 </style>
