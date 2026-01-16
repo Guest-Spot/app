@@ -177,9 +177,14 @@ const activeFilters = ref<IFilters>({
     : null,
 });
 
+const sortQuery = route.query.sort?.toString();
+const [sortByFromQuery, sortDirectionFromQuery] = sortQuery?.split(':') ?? [];
 const sortSettings = ref<SortSettings>({
-  sortBy: route.query.sort?.toString().split(':')[0] as string | null,
-  sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc',
+  sortBy: sortByFromQuery || 'distance',
+  sortDirection:
+    sortDirectionFromQuery === 'asc' || sortDirectionFromQuery === 'desc'
+      ? sortDirectionFromQuery
+      : 'asc',
 });
 
 const hasActiveFilters = computed(() =>

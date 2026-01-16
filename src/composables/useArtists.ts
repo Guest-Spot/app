@@ -7,11 +7,7 @@ import { useArtistsStore } from 'src/stores/artists';
 import useHelpers from 'src/modules/useHelpers';
 import { UserType } from 'src/interfaces/enums';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-
-interface SortSettings {
-  sortBy: string | null;
-  sortDirection: 'asc' | 'desc';
-}
+import { getSortParams, type SortSettings } from 'src/utils/sort';
 
 export default function useArtists() {
   const artistsStore = useArtistsStore();
@@ -38,6 +34,8 @@ export default function useArtists() {
       return;
     }
 
+    const { sort, distanceSort } = getSortParams(sortSettings);
+
     void loadArtists(
       null,
       {
@@ -50,10 +48,8 @@ export default function useArtists() {
             name: searchQuery || null,
           }),
         },
-        sort: sortSettings.sortBy
-          ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-          : undefined,
-        distanceSort: 'asc',
+        sort,
+        distanceSort,
         pagination: {
           page: artistsStore.getPage,
           pageSize: PAGINATION_PAGE_SIZE,
@@ -76,6 +72,8 @@ export default function useArtists() {
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
+    const { sort, distanceSort } = getSortParams(sortSettings);
+
     void refetchArtists({
       filters: {
         type: {
@@ -83,10 +81,8 @@ export default function useArtists() {
         },
         ...convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
       },
-      sort: sortSettings.sortBy
-        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : undefined,
-      distanceSort: 'asc',
+      sort,
+      distanceSort,
       pagination: {
         page: 1,
         pageSize: PAGINATION_PAGE_SIZE,

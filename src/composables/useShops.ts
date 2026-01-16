@@ -7,11 +7,8 @@ import { useShopsStore } from 'src/stores/shops';
 import useHelpers from 'src/modules/useHelpers';
 import { UserType } from 'src/interfaces/enums';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
+import { getSortParams, type SortSettings } from 'src/utils/sort';
 
-interface SortSettings {
-  sortBy: string | null;
-  sortDirection: 'asc' | 'desc';
-}
 
 export default function useShops() {
   const shopsStore = useShopsStore();
@@ -38,6 +35,8 @@ export default function useShops() {
       return;
     }
 
+    const { sort, distanceSort } = getSortParams(sortSettings);
+
     void loadShops(
       null,
       {
@@ -50,10 +49,8 @@ export default function useShops() {
             name: searchQuery || null,
           }),
         },
-        sort: sortSettings.sortBy
-          ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-          : undefined,
-        distanceSort: 'asc',
+        sort,
+        distanceSort,
         pagination: {
           page: shopsStore.getPage,
           pageSize: PAGINATION_PAGE_SIZE,
@@ -76,6 +73,8 @@ export default function useShops() {
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
+    const { sort, distanceSort } = getSortParams(sortSettings);
+
     void refetchShops({
       filters: {
         type: {
@@ -83,10 +82,8 @@ export default function useShops() {
         },
         ...convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
       },
-      sort: sortSettings.sortBy
-        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : undefined,
-      distanceSort: 'asc',
+      sort,
+      distanceSort,
       pagination: {
         page: shopsStore.getPage,
         pageSize: PAGINATION_PAGE_SIZE,

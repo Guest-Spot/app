@@ -115,12 +115,7 @@ import useInviteCompos from 'src/composables/useInviteCompos';
 import type { IInvite } from 'src/interfaces/invite';
 import { UserType } from 'src/interfaces/enums';
 import useUser from 'src/modules/useUser';
-
-// Sort settings interface
-interface SortSettings {
-  sortBy: string | null;
-  sortDirection: 'asc' | 'desc';
-}
+import { getSortParams, type SortSettings } from 'src/utils/sort';
 
 interface Props {
   modelValue: boolean;
@@ -162,7 +157,7 @@ const activeFilters = ref<IFilters>({
 });
 
 const sortSettings = ref<SortSettings>({
-  sortBy: null,
+  sortBy: 'distance',
   sortDirection: 'asc',
 });
 
@@ -262,13 +257,15 @@ const resetPagination = () => {
   hasMoreArtists.value = true;
 };
 
+const getDialogSortParams = () => getSortParams(sortSettings.value);
+
 const closeDialog = () => {
   isVisible.value = false;
   // Reset search when closing dialog
   searchQuery.value = '';
   // Reset filters and sort
   activeFilters.value = { type: UserType.Artist, city: null };
-  sortSettings.value = { sortBy: null, sortDirection: 'asc' };
+  sortSettings.value = { sortBy: 'distance', sortDirection: 'asc' };
   // Reset dialogs
   showSearchDialog.value = false;
   showFilterDialog.value = false;
@@ -279,6 +276,8 @@ const loadArtistsList = (resetData = false) => {
   if (resetData) {
     resetPagination();
   }
+
+  const { sort, distanceSort } = getDialogSortParams();
 
   // Only load if we don't have artists data yet or we're resetting
   if ((localArtists.value.length === 0 || resetData) && !isLoadingQuery.value) {
@@ -292,9 +291,8 @@ const loadArtistsList = (resetData = false) => {
           name: searchQuery.value || null,
         }),
       },
-      sort: sortSettings.value.sortBy
-        ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
-        : ['name:asc'],
+      sort,
+      distanceSort,
       pagination: {
         page: currentPage.value,
         pageSize: PAGINATION_PAGE_SIZE,
@@ -306,6 +304,8 @@ const loadArtistsList = (resetData = false) => {
 const loadMoreArtists = () => {
   if (!isLoadingQuery.value && hasMoreArtists.value) {
     currentPage.value += 1;
+    const { sort, distanceSort } = getDialogSortParams();
+
     void loadArtistsQuery(null, {
       filters: {
         type: {
@@ -316,9 +316,8 @@ const loadMoreArtists = () => {
           name: searchQuery.value || null,
         }),
       },
-      sort: sortSettings.value.sortBy
-        ? [`${sortSettings.value.sortBy}:${sortSettings.value.sortDirection}`]
-        : ['name:asc'],
+      sort,
+      distanceSort,
       pagination: {
         page: currentPage.value,
         pageSize: PAGINATION_PAGE_SIZE,

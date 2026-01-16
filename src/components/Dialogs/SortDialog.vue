@@ -97,6 +97,7 @@ const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
 const sortOptions = [
+  { label: 'Distance', value: 'distance' },
   { label: 'Name: A to Z', value: 'name' },
   { label: 'Date Created', value: 'createdAt' },
   { label: 'Last Updated', value: 'updatedAt' },
@@ -153,7 +154,7 @@ const applySort = () => {
 };
 
 const clearSort = () => {
-  sortBy.value = null;
+  sortBy.value = 'distance';
   sortDirection.value = 'asc';
   saveSortToUrl(sortBy.value || '', sortDirection.value);
   emit('update:sortValue', {

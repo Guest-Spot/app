@@ -385,7 +385,7 @@ const activeFilters = ref<IFilters>({
 });
 
 const sortSettings = ref({
-  sortBy: null as string | null,
+  sortBy: 'distance' as string | null,
   sortDirection: 'asc' as 'asc' | 'desc',
 });
 
