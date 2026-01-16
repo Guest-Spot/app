@@ -52,7 +52,8 @@ export default function useArtists() {
         },
         sort: sortSettings.sortBy
           ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-          : ['createdAt:desc'],
+          : undefined,
+        distanceSort: 'asc',
         pagination: {
           page: artistsStore.getPage,
           pageSize: PAGINATION_PAGE_SIZE,
@@ -84,7 +85,8 @@ export default function useArtists() {
       },
       sort: sortSettings.sortBy
         ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : ['createdAt:desc'],
+        : undefined,
+      distanceSort: 'asc',
       pagination: {
         page: 1,
         pageSize: PAGINATION_PAGE_SIZE,

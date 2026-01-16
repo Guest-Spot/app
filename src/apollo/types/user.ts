@@ -66,13 +66,14 @@ export const USERS_QUERY = gql`
     $filters: UsersPermissionsUserFiltersInput
     $sort: [String]
     $pagination: PaginationArg
+    $distanceSort: String
   ) {
-    usersPermissionsUsers_connection(filters: $filters, sort: $sort, pagination: $pagination) {
+    usersPermissionsUsers_connection(filters: $filters, sort: $sort, pagination: $pagination, distanceSort: $distanceSort) {
       pageInfo {
         total
       }
     }
-    usersPermissionsUsers(filters: $filters, sort: $sort, pagination: $pagination) {
+    usersPermissionsUsers(filters: $filters, sort: $sort, pagination: $pagination, distanceSort: $distanceSort) {
       documentId
       name
       username
