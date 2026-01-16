@@ -1,4 +1,4 @@
-import { computed, ref, watch, type ComputedRef, type Ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch, type ComputedRef, type Ref } from 'vue';
 import type { IUser } from 'src/interfaces/user';
 import { hasUserAddress } from 'src/utils/address';
 
@@ -16,6 +16,8 @@ export const useAddressRequestDialog = ({
   onFillAddress,
 }: AddressDialogOptions) => {
   const showAddressDialog = ref(false);
+  const showDelayMs = 3000;
+  const showTimerId = ref<ReturnType<typeof setTimeout> | null>(null);
 
   const addressDialogStorageKey = computed(() => {
     const userId = user.value?.id;
@@ -43,10 +45,31 @@ export const useAddressRequestDialog = ({
   watch(
     shouldShowAddressDialog,
     (shouldShow) => {
-      showAddressDialog.value = shouldShow;
+      if (showTimerId.value) {
+        clearTimeout(showTimerId.value);
+        showTimerId.value = null;
+      }
+
+      if (!shouldShow) {
+        showAddressDialog.value = false;
+        return;
+      }
+
+      // Delay dialog display to avoid immediate popup.
+      showTimerId.value = setTimeout(() => {
+        showAddressDialog.value = true;
+        showTimerId.value = null;
+      }, showDelayMs);
     },
     { immediate: true },
   );
+
+  onBeforeUnmount(() => {
+    if (showTimerId.value) {
+      clearTimeout(showTimerId.value);
+      showTimerId.value = null;
+    }
+  });
 
   const dismissAddressDialog = () => {
     const storageKey = addressDialogStorageKey.value;
