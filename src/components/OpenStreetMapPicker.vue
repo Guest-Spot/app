@@ -322,7 +322,7 @@ const initializeMap = () => {
     });
 
     // Add OpenStreetMap tiles
-    L.tileLayer('https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '',
       maxZoom: 19,
     }).addTo(map);
