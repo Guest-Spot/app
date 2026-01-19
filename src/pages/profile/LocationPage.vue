@@ -1,5 +1,5 @@
 <template>
-  <q-page class="page q-py-md flex column items-start q-gap-md">
+  <q-page class="page location-page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
       <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
         <q-icon name="arrow_back" />
@@ -9,15 +9,18 @@
 
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
-        <LocationPickerCard
-          v-model:selectedLocation="selectedLocation"
-          :form-data="formData"
-          :data-loading="isLocationLoading"
-          :reverse-geocoding="isUpdatingFromMap"
-          :location-info="locationInfo"
-          @location-changed="handleLocationChanged"
-          @remove-address="handleRemoveAddress"
-        />
+        <LocationPromoBanner v-if="shouldShowAddressPromo" class="q-mb-md" :is-guest="isGuest" />
+        <div ref="mapSectionRef">
+          <LocationPickerCard
+            v-model:selectedLocation="selectedLocation"
+            :form-data="formData"
+            :data-loading="isLocationLoading"
+            :reverse-geocoding="isUpdatingFromMap"
+            :location-info="locationInfo"
+            @location-changed="handleLocationChanged"
+            @remove-address="handleRemoveAddress"
+          />
+        </div>
       </div>
     </div>
 
@@ -36,18 +39,16 @@ import useUser from 'src/modules/useUser';
 import useProfile from 'src/composables/useProfile';
 import { useLocationPicker } from 'src/composables/useLocationPicker';
 import { forwardGeocode } from 'src/utils/geocoding';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - Vue components with <script setup> are auto-exported
 import SaveButton from 'src/components/SaveButton.vue';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - Vue components with <script setup> are auto-exported
 import LocationPickerCard from 'src/components/location/LocationPickerCard.vue';
+import LocationPromoBanner from 'src/components/location/LocationPromoBanner.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
-const { fetchMe, user, isLoading } = useUser();
+const { fetchMe, user, isLoading, isGuest } = useUser();
 
 const loading = ref(false);
+const mapSectionRef = ref<HTMLElement | null>(null);
 const formData = ref({
   country: '',
   state: '',
@@ -62,6 +63,16 @@ const { handleLocationChanged, isLocationLoading, isUpdatingFromMap, locationInf
     dataLoading: computed(() => isLoading.value && !user.value),
   },
 );
+
+const hasLocationDetails = computed(() =>
+  Boolean(
+    (formData.value.country && formData.value.country.trim()) ||
+      (formData.value.state && formData.value.state.trim()) ||
+      (formData.value.city && formData.value.city.trim()) ||
+      (formData.value.address && formData.value.address.trim()),
+  ),
+);
+const shouldShowAddressPromo = computed(() => !isLocationLoading.value && !hasLocationDetails.value);
 
 // Load user data
 watch(
@@ -228,5 +239,4 @@ const handleSave = async () => {
 .content-wrapper {
   padding-bottom: 100px;
 }
-
 </style>

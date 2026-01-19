@@ -1,6 +1,6 @@
 <template>
   <div class="full-width flex column q-gap-md">
-    <InfoCard icon="map" title="Select location on map" :data="[]">
+    <InfoCard icon="map" title="Select your location on the map" :data="[]">
       <template #header>
         <div class="full-width">
           <OpenStreetMapPicker
