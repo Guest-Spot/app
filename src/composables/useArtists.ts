@@ -8,10 +8,22 @@ import useHelpers from 'src/modules/useHelpers';
 import { UserType } from 'src/interfaces/enums';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { getSortParams, type SortSettings } from 'src/utils/sort';
+import { useUserStore } from 'src/stores/user';
+import { useTokens } from 'src/modules/useTokens';
 
 export default function useArtists() {
   const artistsStore = useArtistsStore();
   const { convertFiltersToGraphQLFilters } = useHelpers();
+  const userStore = useUserStore();
+  const { isAuthenticated: hasValidSession } = useTokens();
+
+  const canUseDistanceSort = () => userStore.getIsAuthenticated || hasValidSession();
+
+  const normalizeSortSettings = (sortSettings: SortSettings): SortSettings => {
+    if (canUseDistanceSort()) return sortSettings;
+    if (sortSettings.sortBy && sortSettings.sortBy !== 'distance') return sortSettings;
+    return { sortBy: 'createdAt', sortDirection: 'desc' };
+  };
 
   const {
     load: loadArtists,
@@ -34,7 +46,7 @@ export default function useArtists() {
       return;
     }
 
-    const { sort, distanceSort } = getSortParams(sortSettings);
+    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
 
     void loadArtists(
       null,
@@ -72,7 +84,7 @@ export default function useArtists() {
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
-    const { sort, distanceSort } = getSortParams(sortSettings);
+    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
 
     void refetchArtists({
       filters: {

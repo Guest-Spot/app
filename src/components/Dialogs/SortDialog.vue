@@ -63,8 +63,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from 'src/stores/user';
+import { useTokens } from 'src/modules/useTokens';
 
 interface SortValue {
   sortBy: string | null;
@@ -87,6 +89,10 @@ const emit = defineEmits<Emits>();
 
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
+const { isAuthenticated: hasValidSession } = useTokens();
+
+const isAuthorized = computed(() => userStore.getIsAuthenticated || hasValidSession());
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -96,12 +102,17 @@ const sortBy = ref<string | null>(props.sortValue.sortBy);
 const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
-const sortOptions = [
+const allSortOptions = [
   { label: 'Distance', value: 'distance' },
   { label: 'Name: A to Z', value: 'name' },
   { label: 'Date Created', value: 'createdAt' },
   { label: 'Last Updated', value: 'updatedAt' },
 ];
+const sortOptions = computed(() =>
+  isAuthorized.value
+    ? allSortOptions
+    : allSortOptions.filter((option) => option.value !== 'distance')
+);
 
 // Watch for props changes
 watch(
@@ -111,20 +122,6 @@ watch(
   },
 );
 
-watch(
-  () => props.sortValue,
-  (newValue) => {
-    sortBy.value = newValue.sortBy;
-    sortDirection.value = newValue.sortDirection;
-  },
-  { deep: true },
-);
-
-// Watch for internal changes to isVisible
-watch(isVisible, (newValue) => {
-  emit('update:modelValue', newValue);
-});
-
 const saveSortToUrl = (sortBy: string, sortDirection: string) => {
   if (props.noRouteReplace) return;
   const queryParams = {
@@ -132,6 +129,44 @@ const saveSortToUrl = (sortBy: string, sortDirection: string) => {
   };
   void router.replace({ query: { ...route.query, ...queryParams } });
 };
+
+const ensureAuthorizedSort = () => {
+  if (isAuthorized.value) return;
+  if (sortBy.value && sortBy.value !== 'distance') return;
+
+  const fallbackSortBy = 'createdAt';
+  const fallbackSortDirection = 'desc';
+  if (sortBy.value === fallbackSortBy && sortDirection.value === fallbackSortDirection) return;
+
+  sortBy.value = fallbackSortBy;
+  sortDirection.value = fallbackSortDirection;
+  saveSortToUrl(fallbackSortBy, fallbackSortDirection);
+  emit('update:sortValue', {
+    sortBy: fallbackSortBy,
+    sortDirection: fallbackSortDirection,
+  });
+};
+
+watch(
+  () => props.sortValue,
+  (newValue) => {
+    sortBy.value = newValue.sortBy;
+    sortDirection.value = newValue.sortDirection;
+    ensureAuthorizedSort();
+  },
+  { deep: true, immediate: true },
+);
+
+watch(isAuthorized, (authorized) => {
+  if (!authorized) {
+    ensureAuthorizedSort();
+  }
+});
+
+// Watch for internal changes to isVisible
+watch(isVisible, (newValue) => {
+  emit('update:modelValue', newValue);
+});
 
 const selectSortOption = (value: string) => {
   if (sortBy.value !== value) {
@@ -154,13 +189,13 @@ const applySort = () => {
 };
 
 const clearSort = () => {
-  sortBy.value = 'distance';
-  sortDirection.value = 'asc';
-  saveSortToUrl(sortBy.value || '', sortDirection.value);
-  emit('update:sortValue', {
-    sortBy: sortBy.value,
-    sortDirection: sortDirection.value,
-  });
+  const fallbackSort: SortValue = isAuthorized.value
+    ? { sortBy: 'distance', sortDirection: 'asc' }
+    : { sortBy: 'createdAt', sortDirection: 'desc' };
+  sortBy.value = fallbackSort.sortBy;
+  sortDirection.value = fallbackSort.sortDirection;
+  saveSortToUrl(fallbackSort.sortBy || '', fallbackSort.sortDirection);
+  emit('update:sortValue', fallbackSort);
 };
 </script>
 
