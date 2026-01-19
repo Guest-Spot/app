@@ -14,6 +14,27 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
+        <div v-if="shouldShowDistancePromo" class="distance-promo q-mb-md">
+          <div class="distance-promo__icon">
+            <q-icon name="my_location" />
+          </div>
+          <div class="distance-promo__text">
+            <div class="text-subtitle2 text-bold">Nearby first</div>
+            <div class="text-caption text-grey-6">
+              Add your location to unlock distance sorting and see closer results first.
+            </div>
+          </div>
+          <q-btn
+            color="primary"
+            rounded
+            unelevated
+            size="sm"
+            no-caps
+            class="distance-promo__cta"
+            label="Set location"
+            @click="handleSetLocation"
+          />
+        </div>
         <q-list class="flex column q-gap-sm">
           <q-item
             v-for="option in sortOptions"
@@ -33,33 +54,6 @@
             </q-item-section>
             <q-item-section>
               <q-item-label :class="{ 'text-grey-6': option.disabled }">{{ option.label }}</q-item-label>
-              <div v-if="option.hint" class="text-caption text-grey-6 flex items-center q-gap-xs">
-                <q-btn
-                  v-if="option.linkTo"
-                  flat
-                  dense
-                  no-caps
-                  class="q-pa-none text-caption"
-                  color="white"
-                  :to="option.linkTo"
-                  :label="option.hint"
-                  :ripple="false"
-                  @click.stop
-                />
-                <q-btn
-                  v-if="option.linkTo"
-                  flat
-                  dense
-                  round
-                  class="q-pa-none absolute-right q-mr-sm"
-                  color="primary"
-                  icon="arrow_right"
-                  :to="option.linkTo"
-                  :ripple="false"
-                  @click.stop
-                />
-                <span v-else>{{ option.hint }}</span>
-              </div>
             </q-item-section>
             <q-item-section avatar v-if="sortBy === option.value">
               <q-avatar class="bg-block">
@@ -97,7 +91,6 @@ import { ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from 'src/stores/user';
 import { useTokens } from 'src/modules/useTokens';
-import { hasUserAddress } from 'src/utils/address';
 
 interface SortValue {
   sortBy: string | null;
@@ -108,8 +101,6 @@ interface SortOption {
   label: string;
   value: string;
   disabled?: boolean;
-  hint?: string;
-  linkTo?: string;
 }
 
 interface Props {
@@ -132,12 +123,14 @@ const userStore = useUserStore();
 const { isAuthenticated: hasValidSession } = useTokens();
 
 const isAuthorized = computed(() => userStore.getIsAuthenticated || hasValidSession());
-const isDistanceSortDisabled = computed(() => {
-  if (!isAuthorized.value) return false;
-  if (!userStore.getUser) return false;
-  return !hasUserAddress(userStore.getUser);
+const hasUserCoordinates = computed(() => {
+  const user = userStore.getUser;
+  return user?.profile?.lat != null && user?.profile?.lng != null;
 });
-const canUseDistanceSort = computed(() => isAuthorized.value && !isDistanceSortDisabled.value);
+const canUseDistanceSort = computed(() => isAuthorized.value && hasUserCoordinates.value);
+const shouldShowDistancePromo = computed(
+  () => isAuthorized.value && Boolean(userStore.getUser) && !hasUserCoordinates.value,
+);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -153,24 +146,9 @@ const allSortOptions: SortOption[] = [
   { label: 'Date Created', value: 'createdAt' },
   { label: 'Last Updated', value: 'updatedAt' },
 ];
-const distanceSortHint = 'Add address to use distance';
-const sortOptions = computed<SortOption[]>(() => {
-  if (!isAuthorized.value) {
-    return allSortOptions.filter((option) => option.value !== 'distance');
-  }
-
-  return allSortOptions.map((option) => {
-    if (option.value !== 'distance' || !isDistanceSortDisabled.value) {
-      return option;
-    }
-    return {
-      ...option,
-      disabled: true,
-      hint: distanceSortHint,
-      linkTo: '/profile/location',
-    };
-  });
-});
+const sortOptions = computed<SortOption[]>(() =>
+  allSortOptions.filter((option) => option.value !== 'distance' || canUseDistanceSort.value),
+);
 
 // Watch for props changes
 watch(
@@ -244,6 +222,11 @@ const closeDialog = () => {
   isVisible.value = false;
 };
 
+const handleSetLocation = () => {
+  closeDialog();
+  void router.push('/profile/location');
+};
+
 const applySort = () => {
   closeDialog();
 };
@@ -277,6 +260,39 @@ const clearSort = () => {
 
   .dialog-content {
     padding: 20px;
+
+    .distance-promo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.06) 100%);
+    }
+
+    .distance-promo__icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--q-primary);
+      flex: 0 0 auto;
+    }
+
+    .distance-promo__text {
+      flex: 1 1 180px;
+      min-width: 180px;
+    }
+
+    .distance-promo__cta {
+      flex: 0 0 auto;
+      font-weight: 600;
+    }
   }
 
   .dialog-actions {
@@ -302,6 +318,17 @@ const clearSort = () => {
   .sort-dialog {
     .dialog-header {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dialog-content {
+      .distance-promo {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%);
+      }
+
+      .distance-promo__icon {
+        background: rgba(255, 255, 255, 0.08);
+      }
     }
   }
 }

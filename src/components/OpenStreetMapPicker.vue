@@ -164,6 +164,10 @@ const hasTextAddress = computed(() => {
   );
 });
 
+const shouldEmitGeocodeUpdates = computed(() => {
+  return Boolean(props.address && props.address.trim());
+});
+
 const hasCoordinates = computed(() => {
   return props.modelValue?.lat != null && props.modelValue?.lng != null;
 });
@@ -185,8 +189,24 @@ const popupContent = computed(() => {
 });
 
 const updateMarkerPopup = () => {
-  if (marker) {
-    marker.bindPopup(popupContent.value).openPopup();
+  if (!marker) {
+    return;
+  }
+  marker.bindPopup(popupContent.value);
+  if (map && map.hasLayer(marker)) {
+    marker.openPopup();
+  }
+};
+
+const ensureMarkerVisible = () => {
+  if (map && marker && !map.hasLayer(marker)) {
+    marker.addTo(map);
+  }
+};
+
+const hideMarker = () => {
+  if (map && marker && map.hasLayer(marker)) {
+    marker.remove();
   }
 };
 
@@ -200,7 +220,7 @@ const buildAddressQuery = (): string | null => {
   return parts.length > 0 ? parts.join(', ') : null;
 };
 
-const geocodeAddressOnInit = async () => {
+const geocodeAddressOnInit = async (emitUpdates: boolean = true) => {
   // If we already have coordinates, don't geocode
   if (props.modelValue) {
     return;
@@ -224,15 +244,20 @@ const geocodeAddressOnInit = async () => {
         const position: [number, number] = [result.lat, result.lng];
 
         marker.setLatLng(position);
-        map.setView(position, 15);
-        updateMarkerPopup();
+        map.setView(position, emitUpdates ? 15 : 11);
 
-        const location = {
-          lat: result.lat,
-          lng: result.lng,
-        };
-        emit('update:modelValue', location);
-        emit('location-changed', location);
+        if (emitUpdates) {
+          ensureMarkerVisible();
+          updateMarkerPopup();
+          const location = {
+            lat: result.lat,
+            lng: result.lng,
+          };
+          emit('update:modelValue', location);
+          emit('location-changed', location);
+        } else {
+          hideMarker();
+        }
       }
     }
   } catch (error) {
@@ -264,7 +289,7 @@ const resolveInitialLocation = async () => {
 
   initialGeocodeInProgress.value = true;
   try {
-    await geocodeAddressOnInit();
+    await geocodeAddressOnInit(shouldEmitGeocodeUpdates.value);
   } finally {
     initialGeocodeInProgress.value = false;
     initialLocationResolved.value = true;
@@ -299,7 +324,10 @@ const initializeMap = () => {
     marker = L.marker(defaultCenter, {
       draggable: true,
       icon: createCustomMarkerIcon(),
-    }).addTo(map);
+    });
+    if (hasCoordinates.value) {
+      marker.addTo(map);
+    }
 
     // Bind popup to marker
     marker.bindPopup(popupContent.value);
@@ -326,6 +354,7 @@ const initializeMap = () => {
           lng: e.latlng.lng,
         };
         marker.setLatLng(e.latlng);
+        ensureMarkerVisible();
         emit('update:modelValue', location);
         emit('location-changed', location);
       }
@@ -381,6 +410,7 @@ const selectSearchResult = (result: ForwardGeocodingResult) => {
   if (map && marker) {
     marker.setLatLng(position);
     map.setView(position, 15);
+    ensureMarkerVisible();
     updateMarkerPopup();
 
     const location = {
@@ -447,6 +477,7 @@ const getCurrentLocation = async () => {
     // Update marker and map
     marker.setLatLng(positionArray);
     map.setView(positionArray, 15);
+    ensureMarkerVisible();
     updateMarkerPopup();
 
     // Emit events
@@ -466,6 +497,7 @@ const getCurrentLocation = async () => {
           if (map && marker) {
             marker.setLatLng(positionArray);
             map.setView(positionArray, 15);
+            ensureMarkerVisible();
             updateMarkerPopup();
             emit('update:modelValue', location);
             emit('location-changed', location);
@@ -494,10 +526,16 @@ watch(
       const position: [number, number] = [newValue.lat, newValue.lng];
       marker.setLatLng(position);
       map.setView(position, 15);
+      ensureMarkerVisible();
       updateMarkerPopup();
     }
     if (newValue) {
       initialLocationResolved.value = true;
+      return;
+    }
+    hideMarker();
+    if (map && marker && hasTextAddress.value) {
+      void geocodeAddressOnInit(shouldEmitGeocodeUpdates.value);
       return;
     }
     void resolveInitialLocation();
@@ -519,7 +557,7 @@ watch(
         await resolveInitialLocation();
         return;
       }
-      await geocodeAddressOnInit();
+      await geocodeAddressOnInit(shouldEmitGeocodeUpdates.value);
     }
   },
   { deep: true },
