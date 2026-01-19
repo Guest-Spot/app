@@ -60,6 +60,13 @@
   dependencies:
     tslib "^2.1.0"
 
+"@capacitor/geolocation@^7.0.0":
+  version "7.1.7"
+  resolved "https://registry.npmjs.org/@capacitor/geolocation/-/geolocation-7.1.7.tgz"
+  integrity sha512-7HZNcWEmb5eG8Fqok1VtcNPrepPDi2aA5K8H+zy5sp9JRWbR7/fr+v6foT+BoaapnIjw0ddzf70BEllRLjZbLQ==
+  dependencies:
+    "@capacitor/synapse" "^1.0.3"
+
 "@capacitor/ios@^7.4.3":
   version "7.4.3"
   resolved "https://registry.npmjs.org/@capacitor/ios/-/ios-7.4.3.tgz"
@@ -79,6 +86,11 @@
   version "7.0.3"
   resolved "https://registry.npmjs.org/@capacitor/status-bar/-/status-bar-7.0.3.tgz"
   integrity sha512-JyRpVnKwHij9hgPWolF6PK+HT3e2HSPjN11/h2OmKxq8GAdPGARFLv+97eZl0pvuvm0Kka/LpiLb5whXISBg7Q==
+
+"@capacitor/synapse@^1.0.3":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@capacitor/synapse/-/synapse-1.0.4.tgz"
+  integrity sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw==
 
 "@capgo/capacitor-navigation-bar@^7.3.14":
   version "7.3.14"

@@ -164,9 +164,10 @@ const hasTextAddress = computed(() => {
   );
 });
 
-const shouldEmitGeocodeUpdates = computed(() => {
-  return Boolean(props.address && props.address.trim());
-});
+const hasStreetAddress = computed(() => Boolean(props.address && props.address.trim()));
+
+const shouldEmitGeocodeUpdates = computed(() => hasStreetAddress.value);
+const shouldShowMarker = computed(() => hasStreetAddress.value);
 
 const hasCoordinates = computed(() => {
   return props.modelValue?.lat != null && props.modelValue?.lng != null;
@@ -199,6 +200,10 @@ const updateMarkerPopup = () => {
 };
 
 const ensureMarkerVisible = () => {
+  if (!shouldShowMarker.value) {
+    hideMarker();
+    return;
+  }
   if (map && marker && !map.hasLayer(marker)) {
     marker.addTo(map);
   }
@@ -308,9 +313,11 @@ const initializeMap = () => {
       : [40.7128, -74.006]; // New York default
 
     // Initialize map
+    const initialZoom = props.modelValue ? (shouldShowMarker.value ? 15 : 11) : 10;
+
     map = L.map(mapContainer.value, {
       center: defaultCenter,
-      zoom: props.modelValue ? 15 : 10,
+      zoom: initialZoom,
       zoomControl: true,
     });
 
@@ -325,7 +332,7 @@ const initializeMap = () => {
       draggable: true,
       icon: createCustomMarkerIcon(),
     });
-    if (hasCoordinates.value) {
+    if (hasCoordinates.value && shouldShowMarker.value) {
       marker.addTo(map);
     }
 
@@ -442,6 +449,39 @@ const hideSearchResultsDelayed = () => {
   }, 200);
 };
 
+const locationOptions = {
+  enableHighAccuracy: true,
+  timeout: 10000,
+  maximumAge: 0,
+};
+
+const updateLocationFromCoords = (latitude: number, longitude: number) => {
+  if (!map || !marker) {
+    return;
+  }
+
+  const location = { lat: latitude, lng: longitude };
+  const positionArray: [number, number] = [latitude, longitude];
+
+  marker.setLatLng(positionArray);
+  map.setView(positionArray, 15);
+  ensureMarkerVisible();
+  updateMarkerPopup();
+
+  emit('update:modelValue', location);
+  emit('location-changed', location);
+};
+
+const getBrowserCurrentPosition = () =>
+  new Promise<GeolocationPosition>((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Browser geolocation is not available'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(resolve, reject, locationOptions);
+  });
+
 // Get current user location using Capacitor Geolocation
 const getCurrentLocation = async () => {
   if (gettingLocation.value || !map || !marker) {
@@ -451,6 +491,19 @@ const getCurrentLocation = async () => {
   gettingLocation.value = true;
 
   try {
+    const isNative = Capacitor.isNativePlatform();
+    const hasGeolocationPlugin = Capacitor.isPluginAvailable('Geolocation');
+
+    if (!isNative || !hasGeolocationPlugin) {
+      if (isNative && !hasGeolocationPlugin) {
+        console.error('Geolocation plugin is not available on this native build.');
+      }
+
+      const position = await getBrowserCurrentPosition();
+      updateLocationFromCoords(position.coords.latitude, position.coords.longitude);
+      return;
+    }
+
     // Check and request permissions
     let permissionStatus = await Geolocation.checkPermissions();
 
@@ -464,54 +517,19 @@ const getCurrentLocation = async () => {
     }
 
     // Get current position with high accuracy for real GPS location
-    const position = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
-    });
-
-    const { latitude, longitude } = position.coords;
-    const location = { lat: latitude, lng: longitude };
-    const positionArray: [number, number] = [latitude, longitude];
-
-    // Update marker and map
-    marker.setLatLng(positionArray);
-    map.setView(positionArray, 15);
-    ensureMarkerVisible();
-    updateMarkerPopup();
-
-    // Emit events
-    emit('update:modelValue', location);
-    emit('location-changed', location);
+    const position = await Geolocation.getCurrentPosition(locationOptions);
+    updateLocationFromCoords(position.coords.latitude, position.coords.longitude);
   } catch (error) {
     console.error('Error getting current location:', error);
 
     // Fallback to browser geolocation API for web platform
     if (!Capacitor.isNativePlatform() && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const location = { lat: latitude, lng: longitude };
-          const positionArray: [number, number] = [latitude, longitude];
-
-          if (map && marker) {
-            marker.setLatLng(positionArray);
-            map.setView(positionArray, 15);
-            ensureMarkerVisible();
-            updateMarkerPopup();
-            emit('update:modelValue', location);
-            emit('location-changed', location);
-          }
-        },
-        (err) => {
-          console.error('Browser geolocation error:', err);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        },
-      );
+      try {
+        const position = await getBrowserCurrentPosition();
+        updateLocationFromCoords(position.coords.latitude, position.coords.longitude);
+      } catch (err) {
+        console.error('Browser geolocation error:', err);
+      }
     }
   } finally {
     gettingLocation.value = false;
@@ -525,7 +543,7 @@ watch(
     if (newValue && map && marker) {
       const position: [number, number] = [newValue.lat, newValue.lng];
       marker.setLatLng(position);
-      map.setView(position, 15);
+      map.setView(position, shouldShowMarker.value ? 15 : 11);
       ensureMarkerVisible();
       updateMarkerPopup();
     }
@@ -541,6 +559,30 @@ watch(
     void resolveInitialLocation();
   },
   { deep: true },
+);
+
+watch(
+  () => shouldShowMarker.value,
+  (shouldShow) => {
+    if (!map || !marker) {
+      return;
+    }
+    if (!shouldShow) {
+      hideMarker();
+      if (props.modelValue) {
+        const position: [number, number] = [props.modelValue.lat, props.modelValue.lng];
+        map.setView(position, 11);
+      }
+      return;
+    }
+    if (props.modelValue) {
+      const position: [number, number] = [props.modelValue.lat, props.modelValue.lng];
+      marker.setLatLng(position);
+      map.setView(position, 15);
+      ensureMarkerVisible();
+      updateMarkerPopup();
+    }
+  },
 );
 
 // Watch for address changes and geocode if no coordinates are set

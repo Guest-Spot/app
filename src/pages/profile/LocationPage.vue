@@ -35,6 +35,7 @@ import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useProfile from 'src/composables/useProfile';
 import { useLocationPicker } from 'src/composables/useLocationPicker';
+import { forwardGeocode } from 'src/utils/geocoding';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - Vue components with <script setup> are auto-exported
 import SaveButton from 'src/components/SaveButton.vue';
@@ -92,6 +93,34 @@ watch(
 const { mutate: updateUser } = useMutation(UPDATE_USER_MUTATION);
 const { updateProfile } = useProfile();
 
+const buildCityQuery = () => {
+  const parts = [formData.value.city, formData.value.state, formData.value.country]
+    .map((part) => part?.trim())
+    .filter(Boolean);
+
+  return parts.length > 0 ? parts.join(', ') : null;
+};
+
+const resolveCityCoordinates = async (): Promise<{ lat: number; lng: number } | null> => {
+  const query = buildCityQuery();
+  if (!query) {
+    return null;
+  }
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const results = await forwardGeocode(query, 1);
+    if (results.length > 0) {
+      const [result] = results;
+      return { lat: result.lat, lng: result.lng };
+    }
+  } catch (error) {
+    console.error('Error resolving city coordinates:', error);
+  }
+
+  return null;
+};
+
 const hasChanges = computed(() => {
   const currentLat = selectedLocation.value?.lat ?? null;
   const currentLng = selectedLocation.value?.lng ?? null;
@@ -134,10 +163,12 @@ const handleSave = async () => {
   if (formData.value.address !== (user.value.address || '')) {
     data.address = formData.value.address || null;
   }
-  const locationChanged =
-    (selectedLocation.value?.lat ?? null) !== (user.value.profile?.lat ?? null) ||
-    (selectedLocation.value?.lng ?? null) !== (user.value.profile?.lng ?? null);
+  const hasAddress = Boolean(formData.value.address && formData.value.address.trim());
   const profileDocumentId = user.value.profile?.documentId ?? null;
+  const resolvedLocation = hasAddress ? selectedLocation.value : await resolveCityCoordinates();
+  const nextLat = hasAddress ? (selectedLocation.value?.lat ?? null) : (resolvedLocation?.lat ?? null);
+  const nextLng = hasAddress ? (selectedLocation.value?.lng ?? null) : (resolvedLocation?.lng ?? null);
+  const locationChanged = nextLat !== (user.value.profile?.lat ?? null) || nextLng !== (user.value.profile?.lng ?? null);
 
   const mutations: Promise<unknown>[] = [];
   if (Object.keys(data).length > 0) {
@@ -149,14 +180,12 @@ const handleSave = async () => {
     );
   }
 
-  // If address is removed, also remove coordinates from profile
-  const shouldRemoveCoordinates = !formData.value.address && (user.value.profile?.lat != null || user.value.profile?.lng != null);
-  
-  if ((locationChanged || shouldRemoveCoordinates) && profileDocumentId && user.value.profile?.documentId) {
+  // If address is removed, store city coordinates instead of exact location
+  if (locationChanged && profileDocumentId && user.value.profile?.documentId) {
     mutations.push(
       updateProfile(profileDocumentId, {
-        lat: selectedLocation.value?.lat ?? null,
-        lng: selectedLocation.value?.lng ?? null,
+        lat: nextLat,
+        lng: nextLng,
       }),
     );
   }
