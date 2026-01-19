@@ -92,7 +92,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>GuestSpot uses the camera so you can capture new portfolio photos and upload them directly to your profile.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>GuestSpot uses your location to center the map and suggest nearby results.</string>
+	<string>GuestSpot uses your location to find nearby tattoo artists and shops.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>GuestSpot saves finished portfolio photos back to your library so you can keep a copy of what you uploaded.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
