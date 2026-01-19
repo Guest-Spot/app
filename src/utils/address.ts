@@ -5,12 +5,7 @@ export const hasUserAddress = (user: IUser | null): boolean => {
     return false;
   }
 
-  const hasTextAddress = Boolean(
-    (user.address && user.address.trim()) ||
-      (user.city && user.city.trim()) ||
-      (user.state && user.state.trim()) ||
-      (user.country && user.country.trim()),
-  );
+  const hasTextAddress = Boolean(user.address && user.address.trim());
 
   const hasCoordinates = user.profile?.lat != null && user.profile?.lng != null;
 

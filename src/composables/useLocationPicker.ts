@@ -1,4 +1,4 @@
-import { computed, ref, type Ref } from 'vue';
+import { computed, ref, watch, type Ref } from 'vue';
 import { reverseGeocode } from 'src/utils/geocoding';
 
 export type LocationFormData = {
@@ -26,6 +26,7 @@ type UseLocationPickerOptions = {
 export const useLocationPicker = ({ formData, dataLoading }: UseLocationPickerOptions) => {
   const isUpdatingFromMap = ref(false);
   const isLocationLoading = computed(() => dataLoading?.value ?? false);
+  const addressRemovedByUser = ref(false);
 
   const handleLocationChanged = async (location: LocationLatLng) => {
     isUpdatingFromMap.value = true;
@@ -39,7 +40,8 @@ export const useLocationPicker = ({ formData, dataLoading }: UseLocationPickerOp
           country: result.country || formData.value.country,
           state: result.state || formData.value.state,
           city: result.city || formData.value.city,
-          address: result.address || formData.value.address,
+          // Don't auto-fill address if user explicitly removed it
+          address: addressRemovedByUser.value ? formData.value.address : (result.address || formData.value.address),
         };
       }
     } catch (error) {
@@ -60,16 +62,31 @@ export const useLocationPicker = ({ formData, dataLoading }: UseLocationPickerOp
     if (formData.value.city) {
       items.push({ label: 'City', value: formData.value.city });
     }
-    if (formData.value.address) {
-      items.push({ label: 'Address', value: formData.value.address });
-    }
+    // Address is excluded from locationInfo - it will be shown separately with delete button
     return items;
   });
+
+  const removeAddress = () => {
+    formData.value.address = '';
+    addressRemovedByUser.value = true;
+  };
+
+  // Reset flag when address is manually set (not from reverse geocoding)
+  watch(
+    () => formData.value.address,
+    (newAddress) => {
+      // If address is set and not empty, reset the flag (user might have manually entered it)
+      if (newAddress && newAddress.trim() && !isUpdatingFromMap.value) {
+        addressRemovedByUser.value = false;
+      }
+    },
+  );
 
   return {
     handleLocationChanged,
     isLocationLoading,
     isUpdatingFromMap,
     locationInfo,
+    removeAddress,
   };
 };

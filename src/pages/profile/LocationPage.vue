@@ -16,6 +16,7 @@
           :reverse-geocoding="isUpdatingFromMap"
           :location-info="locationInfo"
           @location-changed="handleLocationChanged"
+          @remove-address="handleRemoveAddress"
         />
       </div>
     </div>
@@ -54,7 +55,7 @@ const formData = ref({
 });
 
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
-const { handleLocationChanged, isLocationLoading, isUpdatingFromMap, locationInfo } = useLocationPicker(
+const { handleLocationChanged, isLocationLoading, isUpdatingFromMap, locationInfo, removeAddress } = useLocationPicker(
   {
     formData,
     dataLoading: computed(() => isLoading.value && !user.value),
@@ -107,6 +108,11 @@ const hasChanges = computed(() => {
   );
 });
 
+const handleRemoveAddress = () => {
+  removeAddress();
+  selectedLocation.value = null;
+};
+
 const handleSave = async () => {
   if (!user.value?.id) {
     showError('User not found');
@@ -143,7 +149,10 @@ const handleSave = async () => {
     );
   }
 
-  if (locationChanged && profileDocumentId && user.value.profile?.documentId) {
+  // If address is removed, also remove coordinates from profile
+  const shouldRemoveCoordinates = !formData.value.address && (user.value.profile?.lat != null || user.value.profile?.lng != null);
+  
+  if ((locationChanged || shouldRemoveCoordinates) && profileDocumentId && user.value.profile?.documentId) {
     mutations.push(
       updateProfile(profileDocumentId, {
         lat: selectedLocation.value?.lat ?? null,

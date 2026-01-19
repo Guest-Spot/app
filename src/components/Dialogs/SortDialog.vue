@@ -18,18 +18,48 @@
           <q-item
             v-for="option in sortOptions"
             :key="option.value"
-            clickable
+            :clickable="!option.disabled"
             rounded
             dense
-            v-ripple
-            @click="selectSortOption(option.value)"
-            class="bg-block border-radius-lg q-pl-sm q-pr-none"
+            v-ripple="!option.disabled"
+            @click="selectSortOption(option)"
+            :class="[
+              'bg-block border-radius-lg q-pl-sm q-pr-none',
+              { 'text-grey-6': option.disabled },
+            ]"
           >
             <q-item-section avatar>
-              <q-radio v-model="sortBy" :val="option.value" />
+              <q-radio v-model="sortBy" :val="option.value" :disable="option.disabled" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ option.label }}</q-item-label>
+              <q-item-label :class="{ 'text-grey-6': option.disabled }">{{ option.label }}</q-item-label>
+              <div v-if="option.hint" class="text-caption text-grey-6 flex items-center q-gap-xs">
+                <q-btn
+                  v-if="option.linkTo"
+                  flat
+                  dense
+                  no-caps
+                  class="q-pa-none text-caption"
+                  color="white"
+                  :to="option.linkTo"
+                  :label="option.hint"
+                  :ripple="false"
+                  @click.stop
+                />
+                <q-btn
+                  v-if="option.linkTo"
+                  flat
+                  dense
+                  round
+                  class="q-pa-none absolute-right q-mr-sm"
+                  color="primary"
+                  icon="arrow_right"
+                  :to="option.linkTo"
+                  :ripple="false"
+                  @click.stop
+                />
+                <span v-else>{{ option.hint }}</span>
+              </div>
             </q-item-section>
             <q-item-section avatar v-if="sortBy === option.value">
               <q-avatar class="bg-block">
@@ -67,10 +97,19 @@ import { ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from 'src/stores/user';
 import { useTokens } from 'src/modules/useTokens';
+import { hasUserAddress } from 'src/utils/address';
 
 interface SortValue {
   sortBy: string | null;
   sortDirection: 'asc' | 'desc';
+}
+
+interface SortOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  hint?: string;
+  linkTo?: string;
 }
 
 interface Props {
@@ -93,6 +132,12 @@ const userStore = useUserStore();
 const { isAuthenticated: hasValidSession } = useTokens();
 
 const isAuthorized = computed(() => userStore.getIsAuthenticated || hasValidSession());
+const isDistanceSortDisabled = computed(() => {
+  if (!isAuthorized.value) return false;
+  if (!userStore.getUser) return false;
+  return !hasUserAddress(userStore.getUser);
+});
+const canUseDistanceSort = computed(() => isAuthorized.value && !isDistanceSortDisabled.value);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -102,17 +147,30 @@ const sortBy = ref<string | null>(props.sortValue.sortBy);
 const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
-const allSortOptions = [
+const allSortOptions: SortOption[] = [
   { label: 'Distance', value: 'distance' },
   { label: 'Name: A to Z', value: 'name' },
   { label: 'Date Created', value: 'createdAt' },
   { label: 'Last Updated', value: 'updatedAt' },
 ];
-const sortOptions = computed(() =>
-  isAuthorized.value
-    ? allSortOptions
-    : allSortOptions.filter((option) => option.value !== 'distance')
-);
+const distanceSortHint = 'Add address to use distance';
+const sortOptions = computed<SortOption[]>(() => {
+  if (!isAuthorized.value) {
+    return allSortOptions.filter((option) => option.value !== 'distance');
+  }
+
+  return allSortOptions.map((option) => {
+    if (option.value !== 'distance' || !isDistanceSortDisabled.value) {
+      return option;
+    }
+    return {
+      ...option,
+      disabled: true,
+      hint: distanceSortHint,
+      linkTo: '/profile/location',
+    };
+  });
+});
 
 // Watch for props changes
 watch(
@@ -130,8 +188,8 @@ const saveSortToUrl = (sortBy: string, sortDirection: string) => {
   void router.replace({ query: { ...route.query, ...queryParams } });
 };
 
-const ensureAuthorizedSort = () => {
-  if (isAuthorized.value) return;
+const ensureAvailableSort = () => {
+  if (canUseDistanceSort.value) return;
   if (sortBy.value && sortBy.value !== 'distance') return;
 
   const fallbackSortBy = 'createdAt';
@@ -152,14 +210,14 @@ watch(
   (newValue) => {
     sortBy.value = newValue.sortBy;
     sortDirection.value = newValue.sortDirection;
-    ensureAuthorizedSort();
+    ensureAvailableSort();
   },
   { deep: true, immediate: true },
 );
 
-watch(isAuthorized, (authorized) => {
-  if (!authorized) {
-    ensureAuthorizedSort();
+watch(canUseDistanceSort, (canUse) => {
+  if (!canUse) {
+    ensureAvailableSort();
   }
 });
 
@@ -168,7 +226,9 @@ watch(isVisible, (newValue) => {
   emit('update:modelValue', newValue);
 });
 
-const selectSortOption = (value: string) => {
+const selectSortOption = (option: SortOption) => {
+  if (option.disabled) return;
+  const value = option.value;
   if (sortBy.value !== value) {
     sortBy.value = value;
   }
@@ -189,7 +249,7 @@ const applySort = () => {
 };
 
 const clearSort = () => {
-  const fallbackSort: SortValue = isAuthorized.value
+  const fallbackSort: SortValue = canUseDistanceSort.value
     ? { sortBy: 'distance', sortDirection: 'asc' }
     : { sortBy: 'createdAt', sortDirection: 'desc' };
   sortBy.value = fallbackSort.sortBy;

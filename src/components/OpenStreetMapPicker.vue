@@ -170,6 +170,26 @@ const hasCoordinates = computed(() => {
 
 const hasAnyLocation = computed(() => hasTextAddress.value || hasCoordinates.value);
 
+const popupContent = computed(() => {
+  const parts: string[] = [];
+  if (props.city) {
+    parts.push(props.city);
+  }
+  if (props.state) {
+    parts.push(props.state);
+  }
+  if (props.country) {
+    parts.push(props.country);
+  }
+  return parts.length > 0 ? parts.join(', ') : 'Location';
+});
+
+const updateMarkerPopup = () => {
+  if (marker) {
+    marker.bindPopup(popupContent.value).openPopup();
+  }
+};
+
 const buildAddressQuery = (): string | null => {
   const parts: string[] = [];
   if (props.address) parts.push(props.address);
@@ -205,6 +225,7 @@ const geocodeAddressOnInit = async () => {
 
         marker.setLatLng(position);
         map.setView(position, 15);
+        updateMarkerPopup();
 
         const location = {
           lat: result.lat,
@@ -280,6 +301,9 @@ const initializeMap = () => {
       icon: createCustomMarkerIcon(),
     }).addTo(map);
 
+    // Bind popup to marker
+    marker.bindPopup(popupContent.value);
+
     // Update position when marker is dragged
     marker.on('dragend', () => {
       if (marker) {
@@ -288,6 +312,7 @@ const initializeMap = () => {
           lat: latlng.lat,
           lng: latlng.lng,
         };
+        // Popup will be updated when reverse geocoding completes via watch on props
         emit('update:modelValue', location);
         emit('location-changed', location);
       }
@@ -303,6 +328,13 @@ const initializeMap = () => {
         marker.setLatLng(e.latlng);
         emit('update:modelValue', location);
         emit('location-changed', location);
+      }
+    });
+
+    // Open popup when marker is clicked
+    marker.on('click', () => {
+      if (marker) {
+        marker.openPopup();
       }
     });
 
@@ -349,6 +381,7 @@ const selectSearchResult = (result: ForwardGeocodingResult) => {
   if (map && marker) {
     marker.setLatLng(position);
     map.setView(position, 15);
+    updateMarkerPopup();
 
     const location = {
       lat: result.lat,
@@ -414,6 +447,7 @@ const getCurrentLocation = async () => {
     // Update marker and map
     marker.setLatLng(positionArray);
     map.setView(positionArray, 15);
+    updateMarkerPopup();
 
     // Emit events
     emit('update:modelValue', location);
@@ -432,6 +466,7 @@ const getCurrentLocation = async () => {
           if (map && marker) {
             marker.setLatLng(positionArray);
             map.setView(positionArray, 15);
+            updateMarkerPopup();
             emit('update:modelValue', location);
             emit('location-changed', location);
           }
@@ -459,6 +494,7 @@ watch(
       const position: [number, number] = [newValue.lat, newValue.lng];
       marker.setLatLng(position);
       map.setView(position, 15);
+      updateMarkerPopup();
     }
     if (newValue) {
       initialLocationResolved.value = true;
@@ -473,6 +509,10 @@ watch(
 watch(
   () => [props.country, props.state, props.city, props.address],
   async () => {
+    // Update popup when location data changes
+    if (map && marker) {
+      updateMarkerPopup();
+    }
     // Only geocode if we don't have coordinates and map is initialized
     if (!props.modelValue && map && marker) {
       if (!initialLocationResolved.value) {
