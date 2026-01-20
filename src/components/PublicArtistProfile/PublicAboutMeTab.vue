@@ -31,10 +31,10 @@
       :data="basicInformation"
     />
     <InfoCard
-      v-if="artistData.experience"
+      v-if="calculatedExperience"
       title="Experience"
       icon="work"
-      :data="[{ label: '', value: `${artistData.experience}+ years` }]"
+      :data="[{ label: '', value: `${calculatedExperience}+ years` }]"
     />
     <InfoCard
       v-if="workingHours?.length"
@@ -53,6 +53,7 @@ import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType, OpeningHoursDays } from 'src/interfaces/enums';
 import type { IUser } from 'src/interfaces/user';
 import useDate from 'src/modules/useDate';
+import useExperience from 'src/modules/useExperience';
 
 interface Props {
   artistData: IUser;
@@ -66,6 +67,9 @@ defineEmits<{
 const props = defineProps<Props>();
 
 const { formatTime } = useDate();
+const { getExperienceYears } = useExperience();
+
+const calculatedExperience = computed(() => getExperienceYears(props.artistData.experience));
 
 const basicInformation = computed(() =>
   [

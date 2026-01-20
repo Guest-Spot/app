@@ -55,9 +55,9 @@
                 <q-icon name="location_on" size="14px" />
                 <span>{{ [artist.city, artist.address].filter(Boolean).join(' ') }}</span>
               </div>
-              <div v-if="artist.experience" class="artist-meta text-grey-6">
+              <div v-if="getArtistExperience(artist)" class="artist-meta text-grey-6">
                 <q-icon name="work" size="14px" />
-                <span>{{ `${artist.experience}+ years` }}</span>
+                <span>{{ `${getArtistExperience(artist)}+ years` }}</span>
               </div>
             </div>
 
@@ -87,6 +87,7 @@ import type { PropType } from 'vue';
 import type { IUser } from 'src/interfaces/user';
 import { SearchHeader } from 'src/components/SearchPage';
 import InfiniteScrollWrapper from 'src/components/InfiniteScrollWrapper.vue';
+import useExperience from 'src/modules/useExperience';
 
 const props = defineProps({
   artists: {
@@ -123,6 +124,8 @@ const props = defineProps({
   },
 });
 
+const { getExperienceYears } = useExperience();
+
 const emit = defineEmits<{
   (e: 'update:searchQuery', value: string): void;
   (e: 'openSearch'): void;
@@ -131,6 +134,8 @@ const emit = defineEmits<{
   (e: 'loadMore'): void;
   (e: 'select', artist: IUser): void;
 }>();
+
+const getArtistExperience = (artist: IUser) => getExperienceYears(artist.experience);
 
 const innerSearchQuery = computed({
   get: () => props.searchQuery,

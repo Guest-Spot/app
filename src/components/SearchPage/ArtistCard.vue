@@ -28,9 +28,9 @@
             <q-icon name="location_on" size="14px" />
             <span>{{ location || 'n/a' }}</span>
           </div>
-          <div v-if="artist.experience" class="artist-experience text-grey-6">
+          <div v-if="calculatedExperience" class="artist-experience text-grey-6">
             <q-icon name="work" size="14px" />
-            <span>{{ `${artist.experience}+ years` }}</span>
+            <span>{{ `${calculatedExperience}+ years` }}</span>
           </div>
         </div>
       </div>
@@ -58,6 +58,7 @@ import { useRouter } from 'vue-router';
 import { useFavorites } from 'src/modules/useFavorites';
 import type { IUser } from 'src/interfaces/user';
 import { VerifiedBadge } from 'src/components';
+import useExperience from 'src/modules/useExperience';
 
 interface Props {
   artist: IUser;
@@ -73,8 +74,10 @@ const emit = defineEmits<Emits>();
 const router = useRouter();
 
 const { isArtistFavorite, toggleArtistFavorite } = useFavorites();
+const { getExperienceYears } = useExperience();
 
 const isFavorite = computed(() => isArtistFavorite(props.artist.documentId));
+const calculatedExperience = computed(() => getExperienceYears(props.artist.experience));
 
 const location = computed(() => {
   return [props.artist.country, props.artist.state, props.artist.city, props.artist.address].filter(Boolean).join(', ');
