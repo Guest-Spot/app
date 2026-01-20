@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'Index',
         component: () => import('pages/IndexPage.vue'),
-        meta: { title: 'Search Page', saveScrollPosition: true },
+        meta: { title: 'Search Page', saveScrollPosition: true, keepAlive: true },
       },
       {
         path: 'feed',

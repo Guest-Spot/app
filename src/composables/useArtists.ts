@@ -10,6 +10,7 @@ import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { getSortParams, type SortSettings } from 'src/utils/sort';
 import { useUserStore } from 'src/stores/user';
 import { useTokens } from 'src/modules/useTokens';
+import { mergeUsersPreserveOrder } from 'src/utils/users';
 
 export default function useArtists() {
   const artistsStore = useArtistsStore();
@@ -33,9 +34,42 @@ export default function useArtists() {
     onError: onErrorArtists,
   } = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
+  const {
+    load: loadArtistsBackground,
+    onResult: onResultArtistsBackground,
+    onError: onErrorArtistsBackground,
+  } = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
+
   const artists = computed(() => artistsStore.getArtists);
   const totalArtists = computed(() => artistsStore.getTotal);
   const hasMoreArtists = computed(() => artistsStore.getHasMore);
+
+  const buildQueryVariables = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+    page: number,
+  ) => {
+    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
+
+    return {
+      filters: {
+        type: {
+          eq: UserType.Artist,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters,
+          name: searchQuery || null,
+        }),
+      },
+      sort,
+      distanceSort,
+      pagination: {
+        page,
+        pageSize: PAGINATION_PAGE_SIZE,
+      },
+    };
+  };
 
   const fetchArtists = (
     activeFilters: IFilters,
@@ -46,27 +80,9 @@ export default function useArtists() {
       return;
     }
 
-    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
-
     void loadArtists(
       null,
-      {
-        filters: {
-          type: {
-            eq: UserType.Artist,
-          },
-          ...convertFiltersToGraphQLFilters({
-            ...activeFilters,
-            name: searchQuery || null,
-          }),
-        },
-        sort,
-        distanceSort,
-        pagination: {
-          page: artistsStore.getPage,
-          pageSize: PAGINATION_PAGE_SIZE,
-        },
-      },
+      buildQueryVariables(activeFilters, searchQuery, sortSettings, artistsStore.getPage),
       {
         fetchPolicy: 'network-only',
       },
@@ -84,33 +100,34 @@ export default function useArtists() {
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
-    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
-
     void refetchArtists({
-      filters: {
-        type: {
-          eq: UserType.Artist,
-        },
-        ...convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
-      },
-      sort,
-      distanceSort,
-      pagination: {
-        page: 1,
-        pageSize: PAGINATION_PAGE_SIZE,
-      },
+      ...buildQueryVariables(activeFilters, searchQuery, sortSettings, 1),
     });
+  };
+
+  const refreshArtistsData = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+  ) => {
+    void loadArtistsBackground(
+      null,
+      buildQueryVariables(activeFilters, searchQuery, sortSettings, 1),
+      {
+        fetchPolicy: 'network-only',
+      },
+    );
   };
 
   // Result handlers
   onResultArtists(({ data, loading }) => {
     if (!loading && data?.usersPermissionsUsers) {
-      artistsStore.setTotal(data.usersPermissionsUsers_connection.pageInfo.total);
+      const total = data.usersPermissionsUsers_connection.pageInfo.total;
+      artistsStore.setTotal(total);
       // Append new data for load more
       if (data.usersPermissionsUsers.length > 0) {
-        // NOTE: bad practice to use Set to avoid duplicates, but it's the only way to avoid duplicates in the store
-        const artists = new Set([...artistsStore.getArtists, ...data.usersPermissionsUsers]);
-        artistsStore.setArtists([...artists]);
+        const merged = mergeUsersPreserveOrder(artistsStore.getArtists, data.usersPermissionsUsers);
+        artistsStore.setArtists(merged);
         artistsStore.setPage(artistsStore.getPage + 1);
       } else {
         artistsStore.setHasMore(false);
@@ -118,9 +135,29 @@ export default function useArtists() {
     }
   });
 
+  onResultArtistsBackground(({ data, loading }) => {
+    if (!loading && data?.usersPermissionsUsers) {
+      const total = data.usersPermissionsUsers_connection.pageInfo.total;
+      artistsStore.setTotal(total);
+
+      const incoming = data.usersPermissionsUsers;
+      const hadItems = artistsStore.getArtists.length > 0;
+      const merged = mergeUsersPreserveOrder(artistsStore.getArtists, incoming);
+      artistsStore.setArtists(merged);
+      if (!hadItems) {
+        artistsStore.setPage(merged.length > 0 ? 2 : 1);
+        artistsStore.setHasMore(merged.length > 0);
+      }
+    }
+  });
+
   onErrorArtists((error) => {
     console.error('Error fetching artists:', error);
     artistsStore.setHasMore(false);
+  });
+
+  onErrorArtistsBackground((error) => {
+    console.error('Error fetching artists in background:', error);
   });
 
   return {
@@ -131,5 +168,6 @@ export default function useArtists() {
     fetchArtists,
     resetArtistsPagination,
     refetchArtistsData,
+    refreshArtistsData,
   };
 }
