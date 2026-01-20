@@ -49,7 +49,7 @@ const registerListeners = () => {
 
   void PushNotifications.addListener('registration', (token: Token) => {
     currentToken.value = token.value;
-    console.log('Push notification token registered', token.value);
+    console.log('Push notification token registered');
     void syncPushTokenWithBackend();
   });
 
