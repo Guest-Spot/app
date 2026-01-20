@@ -10,6 +10,7 @@ import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import { getSortParams, type SortSettings } from 'src/utils/sort';
 import { useUserStore } from 'src/stores/user';
 import { useTokens } from 'src/modules/useTokens';
+import { mergeUsersPreserveOrder } from 'src/utils/users';
 
 export default function useShops() {
   const shopsStore = useShopsStore();
@@ -33,9 +34,42 @@ export default function useShops() {
     onError: onErrorShops,
   } = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
 
+  const {
+    load: loadShopsBackground,
+    onResult: onResultShopsBackground,
+    onError: onErrorShopsBackground,
+  } = useLazyQuery<IGraphQLUsersResult>(USERS_QUERY);
+
   const shops = computed(() => shopsStore.getShops);
   const totalShops = computed(() => shopsStore.getTotal);
   const hasMoreShops = computed(() => shopsStore.getHasMore);
+
+  const buildQueryVariables = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+    page: number,
+  ) => {
+    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
+
+    return {
+      filters: {
+        type: {
+          eq: UserType.Shop,
+        },
+        ...convertFiltersToGraphQLFilters({
+          ...activeFilters,
+          name: searchQuery || null,
+        }),
+      },
+      sort,
+      distanceSort,
+      pagination: {
+        page,
+        pageSize: PAGINATION_PAGE_SIZE,
+      },
+    };
+  };
 
   const fetchShops = (
     activeFilters: IFilters,
@@ -46,27 +80,9 @@ export default function useShops() {
       return;
     }
 
-    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
-
     void loadShops(
       null,
-      {
-        filters: {
-          type: {
-            eq: UserType.Shop,
-          },
-          ...convertFiltersToGraphQLFilters({
-            ...activeFilters,
-            name: searchQuery || null,
-          }),
-        },
-        sort,
-        distanceSort,
-        pagination: {
-          page: shopsStore.getPage,
-          pageSize: PAGINATION_PAGE_SIZE,
-        },
-      },
+      buildQueryVariables(activeFilters, searchQuery, sortSettings, shopsStore.getPage),
       {
         fetchPolicy: 'network-only',
       },
@@ -84,33 +100,34 @@ export default function useShops() {
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
-    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
-
     void refetchShops({
-      filters: {
-        type: {
-          eq: UserType.Shop,
-        },
-        ...convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
-      },
-      sort,
-      distanceSort,
-      pagination: {
-        page: shopsStore.getPage,
-        pageSize: PAGINATION_PAGE_SIZE,
-      },
+      ...buildQueryVariables(activeFilters, searchQuery, sortSettings, shopsStore.getPage),
     });
+  };
+
+  const refreshShopsData = (
+    activeFilters: IFilters,
+    searchQuery: string | null,
+    sortSettings: SortSettings,
+  ) => {
+    void loadShopsBackground(
+      null,
+      buildQueryVariables(activeFilters, searchQuery, sortSettings, 1),
+      {
+        fetchPolicy: 'network-only',
+      },
+    );
   };
 
   // Result handlers
   onResultShops(({ data, loading }) => {
     if (!loading && data?.usersPermissionsUsers) {
-      shopsStore.setTotal(data.usersPermissionsUsers_connection.pageInfo.total);
+      const total = data.usersPermissionsUsers_connection.pageInfo.total;
+      shopsStore.setTotal(total);
       // Append new data for load more
       if (data.usersPermissionsUsers.length > 0) {
-        // NOTE: bad practice to use Set to avoid duplicates, but it's the only way to avoid duplicates in the store
-        const shops = new Set([...shopsStore.getShops, ...data.usersPermissionsUsers]);
-        shopsStore.setShops([...shops]);
+        const merged = mergeUsersPreserveOrder(shopsStore.getShops, data.usersPermissionsUsers);
+        shopsStore.setShops(merged);
         shopsStore.setPage(shopsStore.getPage + 1);
       } else {
         shopsStore.setHasMore(false);
@@ -118,9 +135,29 @@ export default function useShops() {
     }
   });
 
+  onResultShopsBackground(({ data, loading }) => {
+    if (!loading && data?.usersPermissionsUsers) {
+      const total = data.usersPermissionsUsers_connection.pageInfo.total;
+      shopsStore.setTotal(total);
+
+      const incoming = data.usersPermissionsUsers;
+      const hadItems = shopsStore.getShops.length > 0;
+      const merged = mergeUsersPreserveOrder(shopsStore.getShops, incoming);
+      shopsStore.setShops(merged);
+      if (!hadItems) {
+        shopsStore.setPage(merged.length > 0 ? 2 : 1);
+        shopsStore.setHasMore(merged.length > 0);
+      }
+    }
+  });
+
   onErrorShops((error) => {
     console.error('Error fetching shops:', error);
     shopsStore.setHasMore(false);
+  });
+
+  onErrorShopsBackground((error) => {
+    console.error('Error fetching shops in background:', error);
   });
 
   return {
@@ -131,5 +168,6 @@ export default function useShops() {
     resetShopsPagination,
     fetchShops,
     refetchShopsData,
+    refreshShopsData,
   };
 }

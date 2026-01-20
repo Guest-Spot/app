@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, watch } from 'vue';
+import { ref, computed, onBeforeMount, onMounted, onActivated, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
   SearchTabs,
@@ -118,6 +118,8 @@ import useArtists from 'src/composables/useArtists';
 import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import type { UserType } from 'src/interfaces/enums';
+import { useUserStore } from 'src/stores/user';
+import { useTokens } from 'src/modules/useTokens';
 
 // Sort settings
 interface SortSettings {
@@ -130,6 +132,8 @@ const route = useRoute();
 const router = useRouter();
 
 const citiesStore = useCitiesStore();
+const userStore = useUserStore();
+const { isAuthenticated: hasValidSession } = useTokens();
 
 // Use composables
 const {
@@ -139,7 +143,7 @@ const {
   hasMoreShops,
   resetShopsPagination,
   fetchShops,
-  refetchShopsData,
+  refreshShopsData,
 } = useShops();
 
 const {
@@ -149,7 +153,7 @@ const {
   hasMoreArtists,
   fetchArtists,
   resetArtistsPagination,
-  refetchArtistsData,
+  refreshArtistsData,
 } = useArtists();
 
 const castUser = (item: unknown): IUser => item as IUser;
@@ -177,15 +181,54 @@ const activeFilters = ref<IFilters>({
     : null,
 });
 
+const canUseDistanceSort = () => {
+  const isAuthorized = userStore.getIsAuthenticated || hasValidSession();
+  const user = userStore.getUser;
+  const hasCoordinates = user?.profile?.lat != null && user?.profile?.lng != null;
+  return isAuthorized && hasCoordinates;
+};
+
+const normalizeSortSettings = (settings: SortSettings): SortSettings => {
+  if (canUseDistanceSort()) return settings;
+  if (settings.sortBy && settings.sortBy !== 'distance') return settings;
+  return { sortBy: 'createdAt', sortDirection: 'desc' };
+};
+
 const sortQuery = route.query.sort?.toString();
 const [sortByFromQuery, sortDirectionFromQuery] = sortQuery?.split(':') ?? [];
-const sortSettings = ref<SortSettings>({
-  sortBy: sortByFromQuery || 'distance',
-  sortDirection:
-    sortDirectionFromQuery === 'asc' || sortDirectionFromQuery === 'desc'
-      ? sortDirectionFromQuery
-      : 'asc',
-});
+const sortSettings = ref<SortSettings>(
+  normalizeSortSettings({
+    sortBy: sortByFromQuery || 'distance',
+    sortDirection:
+      sortDirectionFromQuery === 'asc' || sortDirectionFromQuery === 'desc'
+        ? sortDirectionFromQuery
+        : 'asc',
+  }),
+);
+
+const hasMounted = ref(false);
+const lastRefreshAt = ref<number | null>(null);
+const REFRESH_TTL_MS = 90 * 1000;
+
+const shouldRefresh = () => {
+  if (lastRefreshAt.value == null) return true;
+  return Date.now() - lastRefreshAt.value > REFRESH_TTL_MS;
+};
+
+const touchRefresh = () => {
+  lastRefreshAt.value = Date.now();
+};
+
+const isServiceSortChange = (
+  previous: SortSettings | undefined,
+  next: SortSettings | undefined,
+) => {
+  if (!previous || !next) return false;
+  if (canUseDistanceSort()) return false;
+  const wasDistance = !previous.sortBy || previous.sortBy === 'distance';
+  const isFallback = next.sortBy === 'createdAt' && next.sortDirection === 'desc';
+  return wasDistance && isFallback;
+};
 
 const hasActiveFilters = computed(() =>
   Object.values(activeFilters.value).some((filter) =>
@@ -236,20 +279,31 @@ const resetPagination = () => {
 };
 
 const fetchListings = () => {
-  if (!shops.value.length) {
+  const shouldFetchShops = !shops.value.length && hasMoreShops.value;
+  if (shouldFetchShops) {
     fetchShops(activeFilters.value, searchQuery.value, sortSettings.value);
+  } else {
+    refreshShopsData(activeFilters.value, searchQuery.value, sortSettings.value);
   }
-  if (!artists.value.length) {
+  const shouldFetchArtists = !artists.value.length && hasMoreArtists.value;
+  if (shouldFetchArtists) {
     fetchArtists(activeFilters.value, searchQuery.value, sortSettings.value);
+  } else {
+    refreshArtistsData(activeFilters.value, searchQuery.value, sortSettings.value);
   }
+  touchRefresh();
 };
 
 watch(
   [activeFilters, searchQuery, sortSettings],
-  ([newFilters, newSearchQuery, newSortSettings]) => {
+  ([newFilters, newSearchQuery, newSortSettings], [, , oldSortSettings]) => {
+    if (!hasMounted.value || isServiceSortChange(oldSortSettings, newSortSettings)) {
+      return;
+    }
     resetPagination();
-    refetchShopsData(newFilters, newSearchQuery, newSortSettings);
-    refetchArtistsData(newFilters, newSearchQuery, newSortSettings);
+    fetchShops(newFilters, newSearchQuery, newSortSettings);
+    fetchArtists(newFilters, newSearchQuery, newSortSettings);
+    touchRefresh();
   },
 );
 
@@ -264,5 +318,16 @@ onErrorCities((error) => {
 onBeforeMount(() => {
   void fetchListings();
   void loadCities();
+});
+
+onActivated(() => {
+  if (!shouldRefresh()) return;
+  refreshShopsData(activeFilters.value, searchQuery.value, sortSettings.value);
+  refreshArtistsData(activeFilters.value, searchQuery.value, sortSettings.value);
+  touchRefresh();
+});
+
+onMounted(() => {
+  hasMounted.value = true;
 });
 </script>
