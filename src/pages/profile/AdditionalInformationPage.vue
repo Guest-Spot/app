@@ -25,16 +25,23 @@
                 clearable
                 readonly
                 :rules="yearRules"
-                @click.stop="yearProxy?.show()"
+                @click.stop="openYearPicker"
               >
                 <template #prepend>
                   <q-icon name="event" color="grey-6" />
                 </template>
                 <template #append>
-                  <q-icon name="event" class="cursor-pointer" @click.stop="yearProxy?.show()" />
+                  <q-icon name="event" class="cursor-pointer" @click.stop="openYearPicker" />
                 </template>
-                <q-popup-proxy ref="yearProxy" cover transition-show="scale" transition-hide="scale">
+                <q-popup-proxy
+                  ref="yearProxy"
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                  @before-show="resetYearView"
+                >
                   <q-date
+                    ref="yearPicker"
                     v-model="experienceStartYear"
                     mask="YYYY"
                     class="bg-block"
@@ -42,6 +49,7 @@
                     emit-immediately
                     :default-year-month="defaultYearMonth"
                     :navigation-max-year-month="maxYearMonth"
+                    @update:model-value="handleYearSelect"
                   />
                 </q-popup-proxy>
               </q-input>
@@ -83,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
@@ -102,6 +110,7 @@ const loading = ref(false);
 const experienceYears = ref<number | null>(null);
 const experienceStartYear = ref<string | null>(null);
 const yearProxy = ref();
+const yearPicker = ref();
 const currentYear = computed(() => getCurrentYear());
 const defaultYearMonth = computed(() => `${currentYear.value}/01`);
 const maxYearMonth = computed(() => `${currentYear.value}/12`);
@@ -120,6 +129,21 @@ const yearRules = [
     return parsed <= currentYear.value || 'Year cannot be in the future';
   },
 ];
+
+const resetYearView = () => {
+  yearPicker.value?.setView?.('Years');
+};
+
+const openYearPicker = () => {
+  yearProxy.value?.show?.();
+  void nextTick(resetYearView);
+};
+
+const handleYearSelect = (_value: string | null, reason?: string) => {
+  if (reason !== 'year') return;
+  yearProxy.value?.hide?.();
+  resetYearView();
+};
 
 // Load user data
 watch(
