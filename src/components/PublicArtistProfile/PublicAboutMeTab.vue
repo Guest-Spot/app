@@ -30,12 +30,16 @@
       icon="description"
       :data="basicInformation"
     />
-    <InfoCard
-      v-if="artistData.experience"
-      title="Experience"
-      icon="work"
-      :data="[{ label: '', value: `${artistData.experience}+ years` }]"
-    />
+    <div v-if="calculatedExperience" class="experience-card bg-block border-radius-lg">
+      <div class="experience-accent"></div>
+      <div class="experience-content">
+        <div class="experience-label text-grey-5 text-caption">Experience</div>
+        <div class="experience-value text-subtitle1 text-weight-bold">
+          {{ calculatedExperience }}+ years
+        </div>
+      </div>
+      <q-icon name="work" size="28px" class="experience-icon text-primary" />
+    </div>
     <InfoCard
       v-if="workingHours?.length"
       title="Working Hours"
@@ -53,6 +57,7 @@ import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType, OpeningHoursDays } from 'src/interfaces/enums';
 import type { IUser } from 'src/interfaces/user';
 import useDate from 'src/modules/useDate';
+import useExperience from 'src/modules/useExperience';
 
 interface Props {
   artistData: IUser;
@@ -66,6 +71,9 @@ defineEmits<{
 const props = defineProps<Props>();
 
 const { formatTime } = useDate();
+const { getExperienceYears } = useExperience();
+
+const calculatedExperience = computed(() => getExperienceYears(props.artistData.experience));
 
 const basicInformation = computed(() =>
   [
@@ -116,6 +124,54 @@ const workingHours = computed(() => {
 </script>
 
 <style scoped lang="scss">
+.experience-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  overflow: hidden;
+}
+
+.experience-card::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--q-primary);
+  opacity: 0.04;
+}
+
+.experience-accent {
+  width: 4px;
+  height: 44px;
+  border-radius: 999px;
+  background-color: var(--q-primary);
+  opacity: 0.2;
+  flex-shrink: 0;
+}
+
+.experience-content,
+.experience-icon {
+  position: relative;
+  z-index: 1;
+}
+
+.experience-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.experience-icon {
+  opacity: 0.9;
+}
+
 .opening-times-card {
   :deep(.info-row) {
     align-items: center;

@@ -11,11 +11,11 @@
         <div class="flex column">
           <div class="user-name">{{ artist?.name || 'User' }}</div>
           <div
-            v-if="artist?.experience"
+            v-if="calculatedExperience"
             class="experience-info flex items-center q-gap-xs text-grey-6"
           >
             <q-icon name="date_range" size="16px" />
-            <span>{{ artist?.experience }} years of experience</span>
+            <span>{{ calculatedExperience }} years of experience</span>
           </div>
         </div>
       </div>
@@ -101,6 +101,7 @@
 <script setup lang="ts">
 import { computed, defineComponent } from 'vue';
 import type { IBooking } from 'src/interfaces/booking';
+import useExperience from 'src/modules/useExperience';
 
 defineComponent({
   name: 'BookingCard',
@@ -118,6 +119,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 defineEmits<Emits>();
+const { getExperienceYears } = useExperience();
 
 // Computed properties
 const { documentId, title, description, startTime, endTime, date, status, location, type, artist } =
@@ -126,6 +128,7 @@ const { documentId, title, description, startTime, endTime, date, status, locati
 // Determine if this is a sent or received booking for the current user
 const isReceived = computed(() => type === 'shop-to-artist');
 const isSent = computed(() => type === 'artist-to-shop');
+const calculatedExperience = computed(() => getExperienceYears(artist?.experience));
 
 // Methods
 const formatDate = (dateString: string) => {
