@@ -21,6 +21,14 @@
         </q-btn>
       </template>
     </InfoCard>
+    <div v-if="openedYear" class="opened-date-card bg-block border-radius-lg">
+      <div class="opened-date-accent"></div>
+      <div class="opened-date-content">
+        <div class="opened-date-label text-grey-5 text-caption">Date opened</div>
+        <div class="opened-date-value text-subtitle1 text-weight-bold">Since {{ openedYear }}</div>
+      </div>
+      <q-icon name="event" size="28px" class="opened-date-icon text-primary" />
+    </div>
     <InfoCard
       v-if="shopData.description"
       title="About shop"
@@ -46,6 +54,7 @@ import InfoCard from 'src/components/InfoCard.vue';
 import { InfoItemType, OpeningHoursDays } from 'src/interfaces/enums';
 import type { IUser } from 'src/interfaces/user';
 import useDate from 'src/modules/useDate';
+import useExperience from 'src/modules/useExperience';
 
 interface Props {
   shopData: IUser;
@@ -60,6 +69,9 @@ defineEmits<{
 const props = defineProps<Props>();
 
 const { formatTime } = useDate();
+const { getExperienceStartYear } = useExperience();
+
+const openedYear = computed(() => getExperienceStartYear(props.shopData.experience));
 
 const contacts = computed(() =>
   [
@@ -109,6 +121,54 @@ const workingHours = computed(() => {
 </script>
 
 <style scoped lang="scss">
+.opened-date-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  overflow: hidden;
+}
+
+.opened-date-card::after {
+  content: '';
+  position: absolute;
+  top: -35px;
+  right: -45px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--q-primary);
+  opacity: 0.04;
+}
+
+.opened-date-accent {
+  width: 4px;
+  height: 44px;
+  border-radius: 999px;
+  background-color: var(--q-primary);
+  opacity: 0.2;
+  flex-shrink: 0;
+}
+
+.opened-date-content,
+.opened-date-icon {
+  position: relative;
+  z-index: 1;
+}
+
+.opened-date-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.opened-date-icon {
+  opacity: 0.9;
+}
+
 .opening-times-card {
   :deep(.info-row) {
     align-items: center;
