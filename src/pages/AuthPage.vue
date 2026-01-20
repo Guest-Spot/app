@@ -247,11 +247,6 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 
-.business-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--q-primary);
-}
-
 .business-icon {
   min-width: 48px;
   height: 48px;

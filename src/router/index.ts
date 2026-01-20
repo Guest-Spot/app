@@ -24,6 +24,24 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     : createWebHashHistory;
 
   const scrollStore = useScrollStore();
+  const getScrollContainer = () =>
+    document.querySelector('#q-app') ?? null;
+  const scrollToPosition = (top: number, behavior: ScrollBehavior = 'auto') => {
+    const target = getScrollContainer();
+    if (!target) {
+      return;
+    }
+    if (typeof target.scrollTo === 'function') {
+      target.scrollTo({ top, behavior });
+      return;
+    }
+    target.scrollTop = top;
+  };
+  const scheduleScroll = (top: number, behavior: ScrollBehavior = 'auto') => {
+    requestAnimationFrame(() => {
+      scrollToPosition(top, behavior);
+    });
+  };
 
   const Router = createRouter({
     routes,
@@ -47,29 +65,20 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       }
     }
 
-    const QApp = document.querySelector('#q-app');
-    const scrollY = QApp?.scrollTop;
-    setTimeout(() => {
-      if (from.meta.saveScrollPosition) {
-        scrollStore.setScrollPosition(from.path, scrollY || 0);
-      }
-      if (to.meta.saveScrollPosition) {
-        QApp?.scrollTo({
-          top: scrollStore.getScrollPosition(to.path),
-        });
-      }
-    }, 0);
+    const QApp = getScrollContainer();
+    const scrollY = QApp?.scrollTop ?? 0;
+    if (from.meta.saveScrollPosition) {
+      scrollStore.setScrollPosition(from.path, scrollY);
+    }
     next();
   });
 
   Router.afterEach((to) => {
-    const QApp = document.querySelector('#q-app');
-    if (!to.meta.saveScrollPosition) {
-      QApp?.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+    if (to.meta.saveScrollPosition) {
+      scheduleScroll(scrollStore.getScrollPosition(to.path) ?? 0);
+      return;
     }
+    scheduleScroll(0, 'smooth');
   });
 
   return Router;
