@@ -9,7 +9,7 @@
     <div class="shop-details">
       <div class="flex justify-between items-center no-wrap q-gap-md">
         <div class="shop-title-row flex items-center q-gap-xs">
-          <h4 class="shop-title">{{ shop?.name || 'Unknown shop' }}</h4>
+          <h4 class="shop-title">{{ shop?.name || shop?.username || shop?.email || 'Unknown shop' }}</h4>
           <VerifiedBadge :verified="shop?.verified ?? false" icon-only />
         </div>
         <q-btn

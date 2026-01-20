@@ -59,10 +59,27 @@
 
     <div class="map-wrapper border-radius-lg">
       <div ref="mapContainer" class="map-container"></div>
+      <q-btn
+        v-if="!showSkeleton && !loading && mapInitialized"
+        round
+        unelevated
+        color="white"
+        text-color="dark"
+        icon="my_location"
+        class="my-location-btn"
+        :loading="gettingLocation"
+        @click="getCurrentLocation"
+      />
       <q-skeleton v-if="showSkeleton" width="100%" height="100%" class="map-skeleton bg-block border-radius-lg" />
       <div v-else-if="loading" class="map-loading flex items-center justify-center">
         <q-spinner size="md" />
       </div>
+      <q-linear-progress
+        v-if="isGeocoding || reverseGeocoding"
+        indeterminate
+        color="primary"
+        class="geocoding-loader"
+      />
     </div>
   </div>
 </template>
@@ -72,6 +89,8 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { forwardGeocode, type ForwardGeocodingResult } from 'src/utils/geocoding';
+import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 
 // Create custom marker with primary color
 const createCustomMarkerIcon = (): L.DivIcon => {
@@ -98,6 +117,8 @@ interface Props {
   city?: string;
   address?: string;
   dataLoading?: boolean;
+  reverseGeocoding?: boolean;
+  autoLocation?: boolean;
 }
 
 interface Emits {
@@ -112,9 +133,11 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 const searchContainerRef = ref<HTMLDivElement | null>(null);
 const loading = ref(true);
 const isDataLoading = computed(() => props.dataLoading ?? false);
+const reverseGeocoding = computed(() => props.reverseGeocoding ?? false);
 const initialLocationResolved = ref(false);
 const initialGeocodeInProgress = ref(false);
 const showSkeleton = computed(() => isDataLoading.value || !initialLocationResolved.value);
+const autoLocationCalled = ref(false);
 let map: L.Map | null = null;
 let marker: L.Marker<L.LatLngExpression> | null = null;
 
@@ -124,6 +147,73 @@ const searchResults = ref<ForwardGeocodingResult[]>([]);
 const searching = ref(false);
 const showSearchResults = ref(false);
 let hideSearchResultsTimeout: ReturnType<typeof setTimeout> | null = null;
+
+// Geocoding state
+const isGeocoding = ref(false);
+
+// Geolocation state
+const gettingLocation = ref(false);
+const mapInitialized = ref(false);
+
+const hasTextAddress = computed(() => {
+  return Boolean(
+    (props.address && props.address.trim()) ||
+      (props.city && props.city.trim()) ||
+      (props.state && props.state.trim()) ||
+      (props.country && props.country.trim()),
+  );
+});
+
+const hasStreetAddress = computed(() => Boolean(props.address && props.address.trim()));
+
+const shouldEmitGeocodeUpdates = computed(() => hasStreetAddress.value);
+const shouldShowMarker = computed(() => hasStreetAddress.value);
+
+const hasCoordinates = computed(() => {
+  return props.modelValue?.lat != null && props.modelValue?.lng != null;
+});
+
+const hasAnyLocation = computed(() => hasTextAddress.value || hasCoordinates.value);
+
+const popupContent = computed(() => {
+  const parts: string[] = [];
+  if (props.city) {
+    parts.push(props.city);
+  }
+  if (props.state) {
+    parts.push(props.state);
+  }
+  if (props.country) {
+    parts.push(props.country);
+  }
+  return parts.length > 0 ? parts.join(', ') : 'Location';
+});
+
+const updateMarkerPopup = () => {
+  if (!marker) {
+    return;
+  }
+  marker.bindPopup(popupContent.value);
+  if (map && map.hasLayer(marker)) {
+    marker.openPopup();
+  }
+};
+
+const ensureMarkerVisible = () => {
+  if (!shouldShowMarker.value) {
+    hideMarker();
+    return;
+  }
+  if (map && marker && !map.hasLayer(marker)) {
+    marker.addTo(map);
+  }
+};
+
+const hideMarker = () => {
+  if (map && marker && map.hasLayer(marker)) {
+    marker.remove();
+  }
+};
 
 const buildAddressQuery = (): string | null => {
   const parts: string[] = [];
@@ -135,7 +225,7 @@ const buildAddressQuery = (): string | null => {
   return parts.length > 0 ? parts.join(', ') : null;
 };
 
-const geocodeAddressOnInit = async () => {
+const geocodeAddressOnInit = async (emitUpdates: boolean = true) => {
   // If we already have coordinates, don't geocode
   if (props.modelValue) {
     return;
@@ -147,6 +237,7 @@ const geocodeAddressOnInit = async () => {
     return;
   }
 
+  isGeocoding.value = true;
   try {
     // Add delay to respect Nominatim rate limits
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -158,18 +249,26 @@ const geocodeAddressOnInit = async () => {
         const position: [number, number] = [result.lat, result.lng];
 
         marker.setLatLng(position);
-        map.setView(position, 15);
+        map.setView(position, emitUpdates ? 15 : 11);
 
-        const location = {
-          lat: result.lat,
-          lng: result.lng,
-        };
-        emit('update:modelValue', location);
-        emit('location-changed', location);
+        if (emitUpdates) {
+          ensureMarkerVisible();
+          updateMarkerPopup();
+          const location = {
+            lat: result.lat,
+            lng: result.lng,
+          };
+          emit('update:modelValue', location);
+          emit('location-changed', location);
+        } else {
+          hideMarker();
+        }
       }
     }
   } catch (error) {
     console.error('Error during initial geocoding:', error);
+  } finally {
+    isGeocoding.value = false;
   }
 };
 
@@ -195,7 +294,7 @@ const resolveInitialLocation = async () => {
 
   initialGeocodeInProgress.value = true;
   try {
-    await geocodeAddressOnInit();
+    await geocodeAddressOnInit(shouldEmitGeocodeUpdates.value);
   } finally {
     initialGeocodeInProgress.value = false;
     initialLocationResolved.value = true;
@@ -214,9 +313,11 @@ const initializeMap = () => {
       : [40.7128, -74.006]; // New York default
 
     // Initialize map
+    const initialZoom = props.modelValue ? (shouldShowMarker.value ? 15 : 11) : 10;
+
     map = L.map(mapContainer.value, {
       center: defaultCenter,
-      zoom: props.modelValue ? 15 : 10,
+      zoom: initialZoom,
       zoomControl: true,
     });
 
@@ -230,7 +331,13 @@ const initializeMap = () => {
     marker = L.marker(defaultCenter, {
       draggable: true,
       icon: createCustomMarkerIcon(),
-    }).addTo(map);
+    });
+    if (hasCoordinates.value && shouldShowMarker.value) {
+      marker.addTo(map);
+    }
+
+    // Bind popup to marker
+    marker.bindPopup(popupContent.value);
 
     // Update position when marker is dragged
     marker.on('dragend', () => {
@@ -240,6 +347,7 @@ const initializeMap = () => {
           lat: latlng.lat,
           lng: latlng.lng,
         };
+        // Popup will be updated when reverse geocoding completes via watch on props
         emit('update:modelValue', location);
         emit('location-changed', location);
       }
@@ -253,14 +361,23 @@ const initializeMap = () => {
           lng: e.latlng.lng,
         };
         marker.setLatLng(e.latlng);
+        ensureMarkerVisible();
         emit('update:modelValue', location);
         emit('location-changed', location);
+      }
+    });
+
+    // Open popup when marker is clicked
+    marker.on('click', () => {
+      if (marker) {
+        marker.openPopup();
       }
     });
 
     // Wait for map to be fully loaded
     map.whenReady(() => {
       loading.value = false;
+      mapInitialized.value = true;
       void resolveInitialLocation();
     });
   } catch (error) {
@@ -300,6 +417,8 @@ const selectSearchResult = (result: ForwardGeocodingResult) => {
   if (map && marker) {
     marker.setLatLng(position);
     map.setView(position, 15);
+    ensureMarkerVisible();
+    updateMarkerPopup();
 
     const location = {
       lat: result.lat,
@@ -330,6 +449,93 @@ const hideSearchResultsDelayed = () => {
   }, 200);
 };
 
+const locationOptions = {
+  enableHighAccuracy: true,
+  timeout: 10000,
+  maximumAge: 0,
+};
+
+const updateLocationFromCoords = (latitude: number, longitude: number) => {
+  if (!map || !marker) {
+    return;
+  }
+
+  const location = { lat: latitude, lng: longitude };
+  const positionArray: [number, number] = [latitude, longitude];
+
+  marker.setLatLng(positionArray);
+  map.setView(positionArray, 15);
+  ensureMarkerVisible();
+  updateMarkerPopup();
+
+  emit('update:modelValue', location);
+  emit('location-changed', location);
+};
+
+const getBrowserCurrentPosition = () =>
+  new Promise<GeolocationPosition>((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Browser geolocation is not available'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(resolve, reject, locationOptions);
+  });
+
+// Get current user location using Capacitor Geolocation
+const getCurrentLocation = async () => {
+  if (gettingLocation.value || !map || !marker) {
+    return;
+  }
+
+  gettingLocation.value = true;
+
+  try {
+    const isNative = Capacitor.isNativePlatform();
+    const hasGeolocationPlugin = Capacitor.isPluginAvailable('Geolocation');
+
+    if (!isNative || !hasGeolocationPlugin) {
+      if (isNative && !hasGeolocationPlugin) {
+        console.error('Geolocation plugin is not available on this native build.');
+      }
+
+      const position = await getBrowserCurrentPosition();
+      updateLocationFromCoords(position.coords.latitude, position.coords.longitude);
+      return;
+    }
+
+    // Check and request permissions
+    let permissionStatus = await Geolocation.checkPermissions();
+
+    if (permissionStatus.location === 'prompt' || permissionStatus.location === 'prompt-with-rationale') {
+      permissionStatus = await Geolocation.requestPermissions();
+    }
+
+    if (permissionStatus.location !== 'granted') {
+      console.error('Location permission denied');
+      return;
+    }
+
+    // Get current position with high accuracy for real GPS location
+    const position = await Geolocation.getCurrentPosition(locationOptions);
+    updateLocationFromCoords(position.coords.latitude, position.coords.longitude);
+  } catch (error) {
+    console.error('Error getting current location:', error);
+
+    // Fallback to browser geolocation API for web platform
+    if (!Capacitor.isNativePlatform() && navigator.geolocation) {
+      try {
+        const position = await getBrowserCurrentPosition();
+        updateLocationFromCoords(position.coords.latitude, position.coords.longitude);
+      } catch (err) {
+        console.error('Browser geolocation error:', err);
+      }
+    }
+  } finally {
+    gettingLocation.value = false;
+  }
+};
+
 // Watch for external changes to modelValue
 watch(
   () => props.modelValue,
@@ -337,10 +543,17 @@ watch(
     if (newValue && map && marker) {
       const position: [number, number] = [newValue.lat, newValue.lng];
       marker.setLatLng(position);
-      map.setView(position, 15);
+      map.setView(position, shouldShowMarker.value ? 15 : 11);
+      ensureMarkerVisible();
+      updateMarkerPopup();
     }
     if (newValue) {
       initialLocationResolved.value = true;
+      return;
+    }
+    hideMarker();
+    if (map && marker && hasTextAddress.value) {
+      void geocodeAddressOnInit(shouldEmitGeocodeUpdates.value);
       return;
     }
     void resolveInitialLocation();
@@ -348,17 +561,45 @@ watch(
   { deep: true },
 );
 
+watch(
+  () => shouldShowMarker.value,
+  (shouldShow) => {
+    if (!map || !marker) {
+      return;
+    }
+    if (!shouldShow) {
+      hideMarker();
+      if (props.modelValue) {
+        const position: [number, number] = [props.modelValue.lat, props.modelValue.lng];
+        map.setView(position, 11);
+      }
+      return;
+    }
+    if (props.modelValue) {
+      const position: [number, number] = [props.modelValue.lat, props.modelValue.lng];
+      marker.setLatLng(position);
+      map.setView(position, 15);
+      ensureMarkerVisible();
+      updateMarkerPopup();
+    }
+  },
+);
+
 // Watch for address changes and geocode if no coordinates are set
 watch(
   () => [props.country, props.state, props.city, props.address],
   async () => {
+    // Update popup when location data changes
+    if (map && marker) {
+      updateMarkerPopup();
+    }
     // Only geocode if we don't have coordinates and map is initialized
     if (!props.modelValue && map && marker) {
       if (!initialLocationResolved.value) {
         await resolveInitialLocation();
         return;
       }
-      await geocodeAddressOnInit();
+      await geocodeAddressOnInit(shouldEmitGeocodeUpdates.value);
     }
   },
   { deep: true },
@@ -386,6 +627,23 @@ watch(
   },
 );
 
+watch(
+  () => [props.autoLocation, isDataLoading.value, mapInitialized.value, hasAnyLocation.value],
+  () => {
+    if (
+      props.autoLocation &&
+      !isDataLoading.value &&
+      mapInitialized.value &&
+      !hasAnyLocation.value &&
+      !autoLocationCalled.value
+    ) {
+      autoLocationCalled.value = true;
+      void getCurrentLocation();
+    }
+  },
+  { immediate: true },
+);
+
 onUnmounted(() => {
   if (map) {
     map.remove();
@@ -397,6 +655,7 @@ onUnmounted(() => {
   if (hideSearchResultsTimeout) {
     clearTimeout(hideSearchResultsTimeout);
   }
+  mapInitialized.value = false;
 });
 </script>
 
@@ -448,12 +707,24 @@ onUnmounted(() => {
   border-radius: 8px;
 }
 
-:deep(.leaflet-control-attribution) {
-  display: none;
-}
-
 .custom-marker {
   background: transparent;
   border: none;
+}
+
+.geocoding-loader {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+}
+
+.my-location-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 </style>

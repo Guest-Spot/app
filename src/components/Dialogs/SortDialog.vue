@@ -14,22 +14,46 @@
       </q-card-section>
 
       <q-card-section class="dialog-content">
+        <div v-if="shouldShowDistancePromo" class="distance-promo q-mb-md">
+          <div class="distance-promo__icon">
+            <q-icon name="my_location" />
+          </div>
+          <div class="distance-promo__text">
+            <div class="text-subtitle2 text-bold">Nearby first</div>
+            <div class="text-caption text-grey-6">
+              Add your location to unlock distance sorting and see closer results first.
+            </div>
+          </div>
+          <q-btn
+            color="primary"
+            rounded
+            unelevated
+            size="sm"
+            no-caps
+            class="distance-promo__cta"
+            label="Set location"
+            @click="handleSetLocation"
+          />
+        </div>
         <q-list class="flex column q-gap-sm">
           <q-item
             v-for="option in sortOptions"
             :key="option.value"
-            clickable
+            :clickable="!option.disabled"
             rounded
             dense
-            v-ripple
-            @click="selectSortOption(option.value)"
-            class="bg-block border-radius-lg q-pl-sm q-pr-none"
+            v-ripple="!option.disabled"
+            @click="selectSortOption(option)"
+            :class="[
+              'bg-block border-radius-lg q-pl-sm q-pr-none',
+              { 'text-grey-6': option.disabled },
+            ]"
           >
             <q-item-section avatar>
-              <q-radio v-model="sortBy" :val="option.value" />
+              <q-radio v-model="sortBy" :val="option.value" :disable="option.disabled" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ option.label }}</q-item-label>
+              <q-item-label :class="{ 'text-grey-6': option.disabled }">{{ option.label }}</q-item-label>
             </q-item-section>
             <q-item-section avatar v-if="sortBy === option.value">
               <q-avatar class="bg-block">
@@ -63,12 +87,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from 'src/stores/user';
+import { useTokens } from 'src/modules/useTokens';
 
 interface SortValue {
   sortBy: string | null;
   sortDirection: 'asc' | 'desc';
+}
+
+interface SortOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
 }
 
 interface Props {
@@ -87,6 +119,18 @@ const emit = defineEmits<Emits>();
 
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
+const { isAuthenticated: hasValidSession } = useTokens();
+
+const isAuthorized = computed(() => userStore.getIsAuthenticated || hasValidSession());
+const hasUserCoordinates = computed(() => {
+  const user = userStore.getUser;
+  return user?.profile?.lat != null && user?.profile?.lng != null;
+});
+const canUseDistanceSort = computed(() => isAuthorized.value && hasUserCoordinates.value);
+const shouldShowDistancePromo = computed(
+  () => isAuthorized.value && Boolean(userStore.getUser) && !hasUserCoordinates.value,
+);
 
 // Dialog visibility
 const isVisible = ref(props.modelValue);
@@ -96,11 +140,15 @@ const sortBy = ref<string | null>(props.sortValue.sortBy);
 const sortDirection = ref<'asc' | 'desc'>(props.sortValue.sortDirection);
 
 // Sort options
-const sortOptions = [
+const allSortOptions: SortOption[] = [
+  { label: 'Distance', value: 'distance' },
   { label: 'Name: A to Z', value: 'name' },
   { label: 'Date Created', value: 'createdAt' },
   { label: 'Last Updated', value: 'updatedAt' },
 ];
+const sortOptions = computed<SortOption[]>(() =>
+  allSortOptions.filter((option) => option.value !== 'distance' || canUseDistanceSort.value),
+);
 
 // Watch for props changes
 watch(
@@ -110,20 +158,6 @@ watch(
   },
 );
 
-watch(
-  () => props.sortValue,
-  (newValue) => {
-    sortBy.value = newValue.sortBy;
-    sortDirection.value = newValue.sortDirection;
-  },
-  { deep: true },
-);
-
-// Watch for internal changes to isVisible
-watch(isVisible, (newValue) => {
-  emit('update:modelValue', newValue);
-});
-
 const saveSortToUrl = (sortBy: string, sortDirection: string) => {
   if (props.noRouteReplace) return;
   const queryParams = {
@@ -132,7 +166,47 @@ const saveSortToUrl = (sortBy: string, sortDirection: string) => {
   void router.replace({ query: { ...route.query, ...queryParams } });
 };
 
-const selectSortOption = (value: string) => {
+const ensureAvailableSort = () => {
+  if (canUseDistanceSort.value) return;
+  if (sortBy.value && sortBy.value !== 'distance') return;
+
+  const fallbackSortBy = 'createdAt';
+  const fallbackSortDirection = 'desc';
+  if (sortBy.value === fallbackSortBy && sortDirection.value === fallbackSortDirection) return;
+
+  sortBy.value = fallbackSortBy;
+  sortDirection.value = fallbackSortDirection;
+  saveSortToUrl(fallbackSortBy, fallbackSortDirection);
+  emit('update:sortValue', {
+    sortBy: fallbackSortBy,
+    sortDirection: fallbackSortDirection,
+  });
+};
+
+watch(
+  () => props.sortValue,
+  (newValue) => {
+    sortBy.value = newValue.sortBy;
+    sortDirection.value = newValue.sortDirection;
+    ensureAvailableSort();
+  },
+  { deep: true, immediate: true },
+);
+
+watch(canUseDistanceSort, (canUse) => {
+  if (!canUse) {
+    ensureAvailableSort();
+  }
+});
+
+// Watch for internal changes to isVisible
+watch(isVisible, (newValue) => {
+  emit('update:modelValue', newValue);
+});
+
+const selectSortOption = (option: SortOption) => {
+  if (option.disabled) return;
+  const value = option.value;
   if (sortBy.value !== value) {
     sortBy.value = value;
   }
@@ -148,18 +222,23 @@ const closeDialog = () => {
   isVisible.value = false;
 };
 
+const handleSetLocation = () => {
+  closeDialog();
+  void router.push('/profile/location');
+};
+
 const applySort = () => {
   closeDialog();
 };
 
 const clearSort = () => {
-  sortBy.value = null;
-  sortDirection.value = 'asc';
-  saveSortToUrl(sortBy.value || '', sortDirection.value);
-  emit('update:sortValue', {
-    sortBy: sortBy.value,
-    sortDirection: sortDirection.value,
-  });
+  const fallbackSort: SortValue = canUseDistanceSort.value
+    ? { sortBy: 'distance', sortDirection: 'asc' }
+    : { sortBy: 'createdAt', sortDirection: 'desc' };
+  sortBy.value = fallbackSort.sortBy;
+  sortDirection.value = fallbackSort.sortDirection;
+  saveSortToUrl(fallbackSort.sortBy || '', fallbackSort.sortDirection);
+  emit('update:sortValue', fallbackSort);
 };
 </script>
 
@@ -181,6 +260,39 @@ const clearSort = () => {
 
   .dialog-content {
     padding: 20px;
+
+    .distance-promo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.06) 100%);
+    }
+
+    .distance-promo__icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--q-primary);
+      flex: 0 0 auto;
+    }
+
+    .distance-promo__text {
+      flex: 1 1 180px;
+      min-width: 180px;
+    }
+
+    .distance-promo__cta {
+      flex: 0 0 auto;
+      font-weight: 600;
+    }
   }
 
   .dialog-actions {
@@ -206,6 +318,17 @@ const clearSort = () => {
   .sort-dialog {
     .dialog-header {
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dialog-content {
+      .distance-promo {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.08) 100%);
+      }
+
+      .distance-promo__icon {
+        background: rgba(255, 255, 255, 0.08);
+      }
     }
   }
 }

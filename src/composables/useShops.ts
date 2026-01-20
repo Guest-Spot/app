@@ -7,15 +7,23 @@ import { useShopsStore } from 'src/stores/shops';
 import useHelpers from 'src/modules/useHelpers';
 import { UserType } from 'src/interfaces/enums';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-
-interface SortSettings {
-  sortBy: string | null;
-  sortDirection: 'asc' | 'desc';
-}
+import { getSortParams, type SortSettings } from 'src/utils/sort';
+import { useUserStore } from 'src/stores/user';
+import { useTokens } from 'src/modules/useTokens';
 
 export default function useShops() {
   const shopsStore = useShopsStore();
   const { convertFiltersToGraphQLFilters } = useHelpers();
+  const userStore = useUserStore();
+  const { isAuthenticated: hasValidSession } = useTokens();
+
+  const canUseDistanceSort = () => userStore.getIsAuthenticated || hasValidSession();
+
+  const normalizeSortSettings = (sortSettings: SortSettings): SortSettings => {
+    if (canUseDistanceSort()) return sortSettings;
+    if (sortSettings.sortBy && sortSettings.sortBy !== 'distance') return sortSettings;
+    return { sortBy: 'createdAt', sortDirection: 'desc' };
+  };
 
   const {
     load: loadShops,
@@ -38,6 +46,8 @@ export default function useShops() {
       return;
     }
 
+    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
+
     void loadShops(
       null,
       {
@@ -50,9 +60,8 @@ export default function useShops() {
             name: searchQuery || null,
           }),
         },
-        sort: sortSettings.sortBy
-          ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-          : ['createdAt:desc'],
+        sort,
+        distanceSort,
         pagination: {
           page: shopsStore.getPage,
           pageSize: PAGINATION_PAGE_SIZE,
@@ -75,6 +84,8 @@ export default function useShops() {
     searchQuery: string | null,
     sortSettings: SortSettings,
   ) => {
+    const { sort, distanceSort } = getSortParams(normalizeSortSettings(sortSettings));
+
     void refetchShops({
       filters: {
         type: {
@@ -82,9 +93,8 @@ export default function useShops() {
         },
         ...convertFiltersToGraphQLFilters({ ...activeFilters, name: searchQuery || null }),
       },
-      sort: sortSettings.sortBy
-        ? [`${sortSettings.sortBy}:${sortSettings.sortDirection}`]
-        : ['createdAt:desc'],
+      sort,
+      distanceSort,
       pagination: {
         page: shopsStore.getPage,
         pageSize: PAGINATION_PAGE_SIZE,

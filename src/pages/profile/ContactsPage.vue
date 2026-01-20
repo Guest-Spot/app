@@ -11,7 +11,7 @@
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-px-lg q-pt-lg q-pb-sm">
           <q-form @submit.prevent="handleSave" class="flex column items-start q-gap-md full-width">
-            <div class="flex column items-start q-gap-xs full-width">
+            <div v-if="!isGuest" class="flex column items-start q-gap-xs full-width">
               <label class="input-label">Website</label>
               <q-input
                 v-model="formData.website"
@@ -89,7 +89,7 @@ import SaveButton from 'src/components/SaveButton.vue';
 
 const router = useRouter();
 const { showSuccess, showError } = useNotify();
-const { fetchMe, user } = useUser();
+const { fetchMe, user, isGuest } = useUser();
 
 const loading = ref(false);
 const formData = ref({

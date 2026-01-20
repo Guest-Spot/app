@@ -54,6 +54,8 @@ export const ME_QUERY = gql`
           value
         }
         website
+        lat
+        lng
       }
     }
   }
@@ -64,13 +66,14 @@ export const USERS_QUERY = gql`
     $filters: UsersPermissionsUserFiltersInput
     $sort: [String]
     $pagination: PaginationArg
+    $distanceSort: String
   ) {
-    usersPermissionsUsers_connection(filters: $filters, sort: $sort, pagination: $pagination) {
+    usersPermissionsUsers_connection(filters: $filters, sort: $sort, pagination: $pagination, distanceSort: $distanceSort) {
       pageInfo {
         total
       }
     }
-    usersPermissionsUsers(filters: $filters, sort: $sort, pagination: $pagination) {
+    usersPermissionsUsers(filters: $filters, sort: $sort, pagination: $pagination, distanceSort: $distanceSort) {
       documentId
       name
       username
@@ -130,6 +133,8 @@ export const USERS_QUERY = gql`
           value
         }
         website
+        lat
+        lng
       }
     }
   }
@@ -198,6 +203,8 @@ export const USER_QUERY = gql`
           value
         }
         website
+        lat
+        lng
       }
     }
   }
@@ -249,6 +256,8 @@ export const UPDATE_USER_MUTATION = gql`
             value
           }
           website
+          lat
+          lng
         }
       }
     }

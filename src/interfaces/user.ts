@@ -6,6 +6,8 @@ export interface IProfile {
   documentId?: string;
   links: ILink[];
   website?: string;
+  lat?: number;
+  lng?: number;
 }
 
 // JWT Token interfaces

@@ -1,5 +1,11 @@
 <template>
   <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+    <AddressRequestDialog
+      v-model="showAddressDialog"
+      @dismiss="handleDismissAddressDialog"
+      description="Help clients find you easier by adding your address to your profile"
+      @fill-address="handleFillAddress"
+    />
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
@@ -37,8 +43,10 @@ import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import useUser from 'src/modules/useUser';
 import { useRouter } from 'vue-router';
+import AddressRequestDialog from 'src/components/Dialogs/AddressRequestDialog.vue';
+import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog';
 
-const { user } = useUser();
+const { user, isArtist } = useUser();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -58,7 +66,6 @@ const router = useRouter();
 
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
-
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
@@ -66,4 +73,16 @@ const setActiveTab = (tab: ITab) => {
 const openPublicProfile = () => {
   void router.push(`/artist/${user.value?.documentId}`);
 };
+
+const {
+  showAddressDialog,
+  dismissAddressDialog: handleDismissAddressDialog,
+  fillAddress: handleFillAddress,
+} = useAddressRequestDialog({
+  user,
+  enabled: isArtist,
+  onFillAddress: () => {
+    void router.push('/profile/location');
+  },
+});
 </script>

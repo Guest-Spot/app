@@ -16,7 +16,7 @@
       </q-avatar>
       <div class="artist-content q-pr-md">
         <div class="artist-name-row flex items-center q-gap-xs q-mb-sm">
-          <div class="artist-name">{{ artist.name }}</div>
+          <div class="artist-name">{{ artist.name || artist.username || artist.email || 'Unknown artist' }}</div>
           <VerifiedBadge :verified="artist.verified ?? false" :icon-only="true" />
         </div>
         <div class="artist-info">
