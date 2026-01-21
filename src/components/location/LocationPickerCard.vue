@@ -26,7 +26,7 @@
     >
       <template #footer>
         <div v-if="hasAddress" class="info-row flex row no-wrap address-row">
-          <span class="info-label text-grey-4">Address:</span>
+          <span class="info-label text-grey-6">Address:</span>
           <ExpandableText
             :text="formData.address"
             collapsible
