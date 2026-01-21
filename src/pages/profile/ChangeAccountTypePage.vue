@@ -93,6 +93,7 @@
                   :persistent-hint="usernameStatus === 'available'"
                   class="full-width"
                   bg-color="transparent"
+                  clearable
                 >
                   <template v-slot:prepend>
                     <q-icon name="person" color="grey-6" />
@@ -178,13 +179,7 @@
             </q-form>
 
             <div v-else class="flex column items-start q-gap-md full-width">
-              <InfoCard title="Confirm changes" icon="info" :data="confirmationItems">
-                <template #header>
-                  <div class="text-body2 text-grey-6 q-mt-xs q-mb-md">
-                    You are about to update your account type and login details.
-                  </div>
-                </template>
-              </InfoCard>
+              <InfoCard title="Confirm changes" icon="info" :data="confirmationItems" />
 
               <div class="flex row no-wrap items-center q-gap-sm full-width">
                 <q-btn
@@ -549,8 +544,8 @@ const handleUpdate = async () => {
 watch(
   () => form.value.username,
   (value) => {
-    const trimmedValue = value.trim();
-    if (value && trimmedValue !== value) {
+    const trimmedValue = value?.trim();
+    if (trimmedValue && trimmedValue !== value?.trim()) {
       form.value.username = trimmedValue;
       return;
     }
