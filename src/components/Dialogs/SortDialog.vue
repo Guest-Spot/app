@@ -70,7 +70,7 @@
       <q-card-actions class="dialog-actions bg-block">
         <q-btn
           color="grey-9"
-          label="Clear All"
+          label="Set default"
           rounded
           unelevated
           class="bg-block min-width"
