@@ -117,9 +117,9 @@ import useShops from 'src/composables/useShops';
 import useArtists from 'src/composables/useArtists';
 import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
-import type { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import { useTokens } from 'src/modules/useTokens';
+import { useFilterPersistence } from 'src/modules/useFilterPersistence';
 
 // Sort settings
 interface SortSettings {
@@ -169,17 +169,6 @@ const activeTab = ref(TAB_SHOPS);
 const showSearchDialog = ref(false);
 const showFilterDialog = ref(false);
 const showSortDialog = ref(false);
-const searchQuery = ref(route.query.search as string | null);
-
-const activeFilters = ref<IFilters>({
-  type: route.query.type as UserType | null,
-  city: route.query.city as string | null,
-  styles: route.query.styles
-    ? ((Array.isArray(route.query.styles)
-        ? route.query.styles
-        : [route.query.styles]) as string[])
-    : null,
-});
 
 const canUseDistanceSort = () => {
   const isAuthorized = userStore.getIsAuthenticated || hasValidSession();
@@ -194,17 +183,25 @@ const normalizeSortSettings = (settings: SortSettings): SortSettings => {
   return { sortBy: 'createdAt', sortDirection: 'desc' };
 };
 
-const sortQuery = route.query.sort?.toString();
-const [sortByFromQuery, sortDirectionFromQuery] = sortQuery?.split(':') ?? [];
-const sortSettings = ref<SortSettings>(
-  normalizeSortSettings({
-    sortBy: sortByFromQuery || 'distance',
-    sortDirection:
-      sortDirectionFromQuery === 'asc' || sortDirectionFromQuery === 'desc'
-        ? sortDirectionFromQuery
-        : 'asc',
-  }),
-);
+const { loadFilters, saveFilters } = useFilterPersistence();
+const defaultFilterState = {
+  filters: {
+    type: null,
+    city: null,
+    styles: null,
+  },
+  searchQuery: null,
+  sortSettings: normalizeSortSettings({ sortBy: 'distance', sortDirection: 'asc' }),
+};
+const {
+  filters: initialFilters,
+  searchQuery: initialSearchQuery,
+  sortSettings: initialSortSettings,
+} = loadFilters('index', route.query, defaultFilterState);
+
+const searchQuery = ref(initialSearchQuery);
+const activeFilters = ref<IFilters>(initialFilters);
+const sortSettings = ref<SortSettings>(normalizeSortSettings(initialSortSettings));
 
 const hasMounted = ref(false);
 const lastRefreshAt = ref<number | null>(null);
@@ -297,6 +294,7 @@ const fetchListings = () => {
 watch(
   [activeFilters, searchQuery, sortSettings],
   ([newFilters, newSearchQuery, newSortSettings], [, , oldSortSettings]) => {
+    saveFilters('index', newFilters, newSearchQuery, newSortSettings);
     if (!hasMounted.value || isServiceSortChange(oldSortSettings, newSortSettings)) {
       return;
     }
@@ -316,6 +314,7 @@ onErrorCities((error) => {
 });
 
 onBeforeMount(() => {
+  saveFilters('index', activeFilters.value, searchQuery.value, sortSettings.value);
   void fetchListings();
   void loadCities();
 });

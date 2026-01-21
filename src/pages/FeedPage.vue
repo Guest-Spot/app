@@ -74,6 +74,7 @@ import usePortfolios from 'src/composables/usePortfolios';
 import { SearchHeader } from 'src/components/SearchPage';
 import { FilterDialog, SearchDialog } from 'src/components/Dialogs';
 import type { IFilters } from 'src/interfaces/filters';
+import { useFilterPersistence } from 'src/modules/useFilterPersistence';
 
 // Sort settings
 interface SortSettings {
@@ -95,31 +96,41 @@ const {
 
 const portfoliosGridRef = ref<InstanceType<typeof PortfolioGrid> | null>(null);
 
+const { loadFilters, saveFilters } = useFilterPersistence();
+const defaultFilterState: {
+  filters: IFilters;
+  searchQuery: string | null;
+  sortSettings: SortSettings;
+} = {
+  filters: {
+    type: null,
+    city: null,
+    styles: null,
+  },
+  searchQuery: null,
+  sortSettings: {
+    sortBy: null,
+    sortDirection: 'desc',
+  },
+};
+const {
+  filters: initialFilters,
+  searchQuery: initialSearchQuery,
+  sortSettings: initialSortSettings,
+} = loadFilters('feed', route.query, defaultFilterState);
+
+// Search, Filter, Sort State
+const showSearchDialog = ref(false);
+const showFilterDialog = ref(false);
+const searchQuery = ref(initialSearchQuery);
+const activeFilters = ref<IFilters>(initialFilters);
+const sortSettings = ref<SortSettings>(initialSortSettings);
+
 const hasActiveFilters = computed(() =>
   Object.values(activeFilters.value).some((filter) =>
     Array.isArray(filter) ? filter.length > 0 : !!filter
   )
 );
-
-// Search, Filter, Sort State
-const showSearchDialog = ref(false);
-const showFilterDialog = ref(false);
-const searchQuery = ref(route.query.search as string | null);
-
-const activeFilters = ref<IFilters>({
-  type: null,
-  city: route.query.city as string | null,
-  styles: route.query.styles
-    ? ((Array.isArray(route.query.styles)
-        ? route.query.styles
-        : [route.query.styles]) as string[])
-    : null,
-});
-
-const sortSettings = ref<SortSettings>({
-  sortBy: route.query.sort?.toString().split(':')[0] as string | null,
-  sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc',
-});
 
 const hasMounted = ref(false);
 const lastRefreshAt = ref<number | null>(null);
@@ -142,10 +153,14 @@ const forceCloseSingleView = () => {
   portfoliosGridRef.value?.forceCloseSingleView();
 };
 
+const hasQueryKey = (query: Record<string, unknown>, key: string) =>
+  Object.prototype.hasOwnProperty.call(query, key);
+
 // Watchers
 watch(
   [activeFilters, searchQuery, sortSettings],
   ([newFilters, newSearchQuery, newSortSettings]) => {
+    saveFilters('feed', newFilters, newSearchQuery, newSortSettings);
     if (!hasMounted.value) return;
     resetPortfoliosPagination();
     fetchPortfolios(newFilters, newSearchQuery, newSortSettings);
@@ -156,16 +171,21 @@ watch(
 
 watch(
   () => route.query,
-  (newQuery) => {
+  (newQuery, oldQuery) => {
     if (route.name !== 'Feed') return;
+    const shouldSyncCity =
+      hasQueryKey(newQuery, 'city') || (oldQuery ? hasQueryKey(oldQuery, 'city') : false);
+    const shouldSyncStyles =
+      hasQueryKey(newQuery, 'styles') || (oldQuery ? hasQueryKey(oldQuery, 'styles') : false);
+    if (!shouldSyncCity && !shouldSyncStyles) return;
 
-    const newStyles = newQuery.styles
+    const newStyles = hasQueryKey(newQuery, 'styles') && newQuery.styles
       ? ((Array.isArray(newQuery.styles)
           ? newQuery.styles
           : [newQuery.styles]) as string[])
       : null;
 
-    const newCity = newQuery.city as string | null;
+    const newCity = hasQueryKey(newQuery, 'city') ? (newQuery.city as string | null) : null;
 
     const currentStyles = activeFilters.value.styles;
     const stylesChanged = JSON.stringify(currentStyles) !== JSON.stringify(newStyles);
@@ -188,6 +208,7 @@ onBeforeUnmount(() => {
 
 onBeforeMount(() => {
   bus.on('opened-feed-page', forceCloseSingleView);
+  saveFilters('feed', activeFilters.value, searchQuery.value, sortSettings.value);
   if (!portfolios.value.length) {
     fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
   } else {
