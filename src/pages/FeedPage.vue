@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, ref, watch, computed } from 'vue';
+import { computed, onActivated, onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { EventBus } from 'quasar';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';
@@ -90,7 +90,7 @@ const {
   hasMorePortfolios,
   fetchPortfolios,
   resetPortfoliosPagination,
-  refetchPortfoliosData,
+  refreshPortfoliosData,
 } = usePortfolios();
 
 const portfoliosGridRef = ref<InstanceType<typeof PortfolioGrid> | null>(null);
@@ -121,6 +121,19 @@ const sortSettings = ref<SortSettings>({
   sortDirection: route.query.sort?.toString().split(':')[1] as 'asc' | 'desc',
 });
 
+const hasMounted = ref(false);
+const lastRefreshAt = ref<number | null>(null);
+const REFRESH_TTL_MS = 90 * 1000;
+
+const shouldRefresh = () => {
+  if (lastRefreshAt.value == null) return true;
+  return Date.now() - lastRefreshAt.value > REFRESH_TTL_MS;
+};
+
+const touchRefresh = () => {
+  lastRefreshAt.value = Date.now();
+};
+
 const loadMorePortfolios = () => {
   fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
 };
@@ -133,8 +146,10 @@ const forceCloseSingleView = () => {
 watch(
   [activeFilters, searchQuery, sortSettings],
   ([newFilters, newSearchQuery, newSortSettings]) => {
+    if (!hasMounted.value) return;
     resetPortfoliosPagination();
-    refetchPortfoliosData(newFilters, newSearchQuery, newSortSettings);
+    fetchPortfolios(newFilters, newSearchQuery, newSortSettings);
+    touchRefresh();
   },
   { deep: true },
 );
@@ -173,8 +188,26 @@ onBeforeUnmount(() => {
 
 onBeforeMount(() => {
   bus.on('opened-feed-page', forceCloseSingleView);
-  resetPortfoliosPagination();
-  fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
+  if (!portfolios.value.length) {
+    fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
+  } else {
+    refreshPortfoliosData(activeFilters.value, searchQuery.value, sortSettings.value);
+  }
+  touchRefresh();
+});
+
+onActivated(() => {
+  if (!shouldRefresh()) return;
+  if (!portfolios.value.length) {
+    fetchPortfolios(activeFilters.value, searchQuery.value, sortSettings.value);
+  } else {
+    refreshPortfoliosData(activeFilters.value, searchQuery.value, sortSettings.value);
+  }
+  touchRefresh();
+});
+
+onMounted(() => {
+  hasMounted.value = true;
 });
 </script>
 
