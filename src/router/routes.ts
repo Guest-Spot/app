@@ -131,6 +131,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Artist Profile', hasBack: true },
       },
       {
+        path: 'artist/:documentId/tip',
+        component: () => import('pages/TipArtistPage.vue'),
+        meta: { title: 'Tip Artist', hasBack: true },
+      },
+      {
         path: 'profile/basic-information',
         component: () => import('pages/profile/BasicInformationPage.vue'),
         meta: { title: 'Basic Information', requiresAuth: true },
@@ -164,6 +169,11 @@ const routes: RouteRecordRaw[] = [
         path: 'profile/payment-settings',
         component: () => import('pages/profile/PaymentSettingsPage.vue'),
         meta: { title: 'Payment Settings', requiresAuth: true },
+      },
+      {
+        path: 'profile/accept-tips',
+        component: () => import('pages/profile/AcceptTipsPage.vue'),
+        meta: { title: 'Accept Tips & Support', requiresAuth: true },
       },
       {
         path: 'profile/change-account-type',

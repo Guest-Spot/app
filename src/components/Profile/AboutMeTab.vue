@@ -114,6 +114,19 @@
           <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
       </div>
+      <div
+        v-if="isArtist && hasDismissedAddressDialog"
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/accept-tips')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="volunteer_activism" size="24px" color="grey-6" />
+            <span>Accept Tips & Support</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
+        </div>
+      </div>
     </div>
 
     <!-- Theme Settings -->
@@ -141,11 +154,23 @@ import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import { useSettingsStore } from 'src/stores/settings';
 import FeedbackLogout from 'src/components/FeedbackLogout.vue';
+import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
 
 const router = useRouter();
 const { showError } = useNotify();
-const { fetchMe, user, isShop, isGuest } = useUser();
+const { fetchMe, user, isShop, isGuest, isArtist } = useUser();
 const settingsStore = useSettingsStore();
+const isClient = typeof window !== 'undefined';
+const hasDismissedAddressDialog = computed(() => {
+  if (!isClient || !user.value?.id) {
+    return false;
+  }
+  const storageKey = getAddressDialogStorageKey(user.value.id);
+  if (!storageKey) {
+    return false;
+  }
+  return window.localStorage.getItem(storageKey) === 'true';
+});
 
 // Setup mutation for avatar only
 const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);

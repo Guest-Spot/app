@@ -2,7 +2,10 @@ import { computed, onBeforeUnmount, ref, watch, type ComputedRef, type Ref } fro
 import type { IUser } from 'src/interfaces/user';
 import { hasUserAddress } from 'src/utils/address';
 
-const ADDRESS_DIALOG_STORAGE_KEY = 'guestspot-address-dialog-dismissed';
+export const ADDRESS_DIALOG_STORAGE_KEY = 'guestspot-address-dialog-dismissed';
+
+export const getAddressDialogStorageKey = (userId?: string | null): string | null =>
+  userId ? `${ADDRESS_DIALOG_STORAGE_KEY}-${userId}` : null;
 
 type AddressDialogOptions = {
   user: Ref<IUser | null> | ComputedRef<IUser | null>;
@@ -19,10 +22,7 @@ export const useAddressRequestDialog = ({
   const showDelayMs = 3000;
   const showTimerId = ref<ReturnType<typeof setTimeout> | null>(null);
 
-  const addressDialogStorageKey = computed(() => {
-    const userId = user.value?.id;
-    return userId ? `${ADDRESS_DIALOG_STORAGE_KEY}-${userId}` : null;
-  });
+  const addressDialogStorageKey = computed(() => getAddressDialogStorageKey(user.value?.id));
 
   const isAddressDialogDismissed = computed(() => {
     const storageKey = addressDialogStorageKey.value;
