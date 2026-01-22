@@ -8,7 +8,7 @@
     >
       <div class="delete-account-content q-pa-md">
         <div class="flex column q-gap-sm">
-          <div class="text-body2 text-grey-4">
+          <div class="text-body2 text-grey-6">
             Once you delete your account, there is no going back. Please be certain.
           </div>
           <div class="text-body2 text-grey-6 q-mt-sm delete-info">

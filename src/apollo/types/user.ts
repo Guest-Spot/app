@@ -322,6 +322,12 @@ export const USER_EMAIL_EXISTS_QUERY = gql`
   }
 `;
 
+export const USER_USERNAME_EXISTS_QUERY = gql`
+  query Query($username: String!) {
+    userUsernameExists(username: $username)
+  }
+`;
+
 // IMPORTANT: DO NOT use gql for this mutation, it will used in the error link
 export const LOGOUT_MUTATION = `
   mutation LogoutWithRefresh($input: RefreshTokenInput!) {

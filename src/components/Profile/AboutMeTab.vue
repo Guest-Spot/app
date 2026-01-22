@@ -116,6 +116,8 @@
       </div>
     </div>
 
+    <ChangeAccountTypeBanner v-if="isGuest" />
+
     <!-- Theme Settings -->
     <ThemeSettings />
 
@@ -139,6 +141,7 @@ import useNotify from 'src/modules/useNotify';
 import { uploadFiles, type UploadFileResponse } from 'src/api';
 import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
+import ChangeAccountTypeBanner from 'src/components/Profile/ChangeAccountTypeBanner.vue';
 import { useSettingsStore } from 'src/stores/settings';
 import FeedbackLogout from 'src/components/FeedbackLogout.vue';
 

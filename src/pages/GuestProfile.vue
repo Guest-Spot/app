@@ -29,7 +29,6 @@ import AddressRequestDialog from 'src/components/Dialogs/AddressRequestDialog.vu
 import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog';
 
 const { user, isGuest } = useUser();
-
 const router = useRouter();
 
 const {

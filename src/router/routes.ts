@@ -166,6 +166,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Payment Settings', requiresAuth: true },
       },
       {
+        path: 'profile/change-account-type',
+        component: () => import('pages/profile/ChangeAccountTypePage.vue'),
+        meta: { title: 'Change Account Type', requiresAuth: true },
+      },
+      {
         path: 'shop/:documentId',
         component: () => import('pages/PublicShopProfile.vue'),
         meta: { title: 'Shop Profile', hasBack: true },
