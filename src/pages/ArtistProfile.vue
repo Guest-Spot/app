@@ -6,6 +6,11 @@
       description="Help clients find you easier by adding your address to your profile"
       @fill-address="handleFillAddress"
     />
+    <AccountTypeUpgradeDialog
+      v-model="showAccountTypeUpgradeDialog"
+      :account-type="UserType.Artist"
+      @dismiss="dismissUpgradeDialog"
+    />
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
@@ -35,16 +40,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import { PortfolioTab } from 'src/components';
 import { TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import useUser from 'src/modules/useUser';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import AddressRequestDialog from 'src/components/Dialogs/AddressRequestDialog.vue';
 import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog';
+import AccountTypeUpgradeDialog from 'src/components/Dialogs/AccountTypeUpgradeDialog.vue';
+import { useAccountTypeUpgradeDialog } from 'src/composables/useAccountTypeUpgradeDialog';
+import { UserType } from 'src/interfaces/enums';
 
 const { user, isArtist } = useUser();
 
@@ -63,6 +71,7 @@ const TABS: ITab[] = [
 ];
 
 const router = useRouter();
+const route = useRoute();
 
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
@@ -85,4 +94,36 @@ const {
     void router.push('/profile/location');
   },
 });
+
+const {
+  showUpgradeDialog: showAccountTypeUpgradeDialog,
+  triggerUpgradeDialog,
+  dismissUpgradeDialog,
+} = useAccountTypeUpgradeDialog({
+  user,
+  enabled: isArtist,
+  accountType: UserType.Artist,
+});
+
+const clearUpgradeQuery = () => {
+  const { ...rest } = route.query;
+  void router.replace({ query: { ...rest } });
+};
+
+const handleUpgradeQuery = (value: unknown) => {
+  const normalizedValue = Array.isArray(value) ? value[0] : value;
+  if (normalizedValue !== UserType.Artist) {
+    return;
+  }
+  const handled = triggerUpgradeDialog();
+  if (handled) {
+    clearUpgradeQuery();
+  }
+};
+
+watch(
+  () => [route.query.accountTypeUpgraded, user.value?.id],
+  ([value]) => handleUpgradeQuery(value),
+  { immediate: true },
+);
 </script>

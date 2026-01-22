@@ -179,7 +179,28 @@
             </q-form>
 
             <div v-else class="flex column items-start q-gap-md full-width">
-              <InfoCard title="Confirm changes" icon="info" :data="confirmationItems" />
+              <InfoCard title="Confirm changes" icon="info" :data="confirmationItems">
+                <template #footer>
+                  <div class="info-row flex row no-wrap items-center address-row">
+                    <span class="info-label text-grey-6">Password:</span>
+                    <div class="info-value text-grey-6">
+                      <span class="text-grey-6">{{ showPassword ? form.password : '********' }}</span>
+                    </div>
+                    <div class="flex items-center q-gap-sm q-ml-auto mt-minus-5">
+                      <q-btn
+                        :icon="showPassword ? 'visibility_off' : 'visibility'"
+                        size="sm"
+                        round
+                        unelevated
+                        class="bg-block"
+                        text-color="primary"
+                        aria-label="Remove address"
+                        @click="showPassword = !showPassword"
+                      />
+                    </div>
+                  </div>
+                </template>
+              </InfoCard>
 
               <div class="flex row no-wrap items-center q-gap-sm full-width">
                 <q-btn
@@ -218,9 +239,10 @@ import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import getMutationErrorMessage from 'src/helpers/getMutationErrorMessage';
 import { UserType } from 'src/interfaces/enums';
+import { setAccountTypeUpgradeDialogPending } from 'src/composables/useAccountTypeUpgradeDialog';
 import InfoCard from 'src/components/InfoCard.vue';
 
-type AccountType = 'artist' | 'shop';
+type AccountType = UserType.Artist | UserType.Shop;
 
 type ChangeAccountForm = {
   type: AccountType | null;
@@ -267,14 +289,14 @@ const userTypes = [
   {
     label: 'Become an Artist',
     summaryLabel: 'Artist',
-    value: 'artist',
+    value: UserType.Artist,
     icon: 'brush',
     description: 'Showcase your work and accept appointments',
   },
   {
     label: 'Open a Shop',
     summaryLabel: 'Shop',
-    value: 'shop',
+    value: UserType.Shop,
     icon: 'storefront',
     description: 'Promote your shop and manage bookings',
   },
@@ -445,6 +467,17 @@ const validateCredentials = () => {
   return true;
 };
 
+const markAccountTypeUpgradeDialog = () => {
+  const userId = user.value?.id;
+  const accountType = form.value.type;
+
+  if (!userId || !accountType) {
+    return;
+  }
+
+  setAccountTypeUpgradeDialogPending(userId, accountType);
+};
+
 const checkUsernameAvailability = async (username: string) => {
   usernameStatus.value = 'checking';
   try {
@@ -516,8 +549,9 @@ const handleUpdate = async () => {
     await submitUpdate(dataWithPassword);
     guardGuest.value = false;
     await fetchMe();
+    markAccountTypeUpgradeDialog();
     showSuccess('Account type updated successfully');
-    void router.push('/profile');
+    void router.push({ path: '/profile', query: { accountTypeUpgraded: form.value.type } });
   } catch (error) {
     const message = getMutationErrorMessage(error, fallbackMessage);
 
@@ -531,8 +565,9 @@ const handleUpdate = async () => {
       await submitUpdate(baseData);
       guardGuest.value = false;
       await fetchMe();
+      markAccountTypeUpgradeDialog();
       showSuccess('Account type updated. Please set your password later.');
-      void router.push('/profile');
+      void router.push({ path: '/profile', query: { accountTypeUpgraded: form.value.type } });
     } catch (fallbackError) {
       showError(getMutationErrorMessage(fallbackError, fallbackMessage));
     }
@@ -611,6 +646,17 @@ onBeforeUnmount(() => {
   font-weight: 400;
   line-height: 1.57;
   letter-spacing: 0.8px;
+}
+
+.address-row {
+  gap: 12px;
+}
+
+.info-label {
+  font-weight: 600;
+  min-width: 90px;
+  flex-shrink: 0;
+  display: block;
 }
 
 .button-group {

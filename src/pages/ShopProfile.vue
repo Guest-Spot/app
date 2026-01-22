@@ -6,6 +6,11 @@
       description="Help clients find you easier by adding your address to your profile"
       @fill-address="handleFillAddress"
     />
+    <AccountTypeUpgradeDialog
+      v-model="showAccountTypeUpgradeDialog"
+      :account-type="UserType.Shop"
+      @dismiss="dismissUpgradeDialog"
+    />
     <div class="container">
       <ProfileHeader
         class="q-mb-md"
@@ -36,16 +41,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import { ShopArtistsTab } from 'src/components/ShopProfile';
 import { TabsComp, PortfolioTab } from 'src/components';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import useUser from 'src/modules/useUser';
 import AddressRequestDialog from 'src/components/Dialogs/AddressRequestDialog.vue';
 import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog';
+import AccountTypeUpgradeDialog from 'src/components/Dialogs/AccountTypeUpgradeDialog.vue';
+import { useAccountTypeUpgradeDialog } from 'src/composables/useAccountTypeUpgradeDialog';
+import { UserType } from 'src/interfaces/enums';
 
 const { user, isShop } = useUser();
 
@@ -71,6 +79,7 @@ const TABS: ITab[] = [
 // Tab management
 const activeTab = ref<ITab>(TABS[0]!);
 const router = useRouter();
+const route = useRoute();
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
@@ -91,4 +100,36 @@ const {
     void router.push('/profile/location');
   },
 });
+
+const {
+  showUpgradeDialog: showAccountTypeUpgradeDialog,
+  triggerUpgradeDialog,
+  dismissUpgradeDialog,
+} = useAccountTypeUpgradeDialog({
+  user,
+  enabled: isShop,
+  accountType: UserType.Shop,
+});
+
+const clearUpgradeQuery = () => {
+  const { ...rest } = route.query;
+  void router.replace({ query: { ...rest } });
+};
+
+const handleUpgradeQuery = (value: unknown) => {
+  const normalizedValue = Array.isArray(value) ? value[0] : value;
+  if (normalizedValue !== UserType.Shop) {
+    return;
+  }
+  const handled = triggerUpgradeDialog();
+  if (handled) {
+    clearUpgradeQuery();
+  }
+};
+
+watch(
+  () => [route.query.accountTypeUpgraded, user.value?.id],
+  ([value]) => handleUpgradeQuery(value),
+  { immediate: true },
+);
 </script>
