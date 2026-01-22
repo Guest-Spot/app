@@ -119,9 +119,5 @@ const handleRemoveAddress = () => {
       flex-shrink: 0;
       display: block;
     }
-
-    .mt-minus-5 {
-      margin-top: -5px;
-    }
   }
 </style>

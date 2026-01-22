@@ -179,8 +179,4 @@ const copyLink = (value: string) => {
   text-decoration: underline;
   word-break: break-all;
 }
-
-.mt-minus-5 {
-  margin-top: -5px;
-}
 </style>
