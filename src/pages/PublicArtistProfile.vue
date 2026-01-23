@@ -11,6 +11,17 @@
           <q-icon name="store" size="22px" color="primary" />
         </q-btn>
 
+        <!-- Tips Button -->
+        <q-btn
+          v-if="canShowTipButton"
+          round
+          flat
+          @click="goToTipPage"
+          class="bg-block"
+        >
+          <q-icon name="volunteer_activism" size="22px" color="primary" />
+        </q-btn>
+
         <!-- Favorite Button -->
         <q-btn
           round
@@ -112,23 +123,10 @@
       </div>
     </div>
 
-    <!-- Booking and Tips Actions -->
+    <!-- Booking Actions -->
     <div v-if="artistData.documentId" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
         <div class="buttons-wrapper flex flex-wrap items-center q-gap-sm">
-          <q-btn
-            v-if="canShowTipButton"
-            rounded
-            class="grow-button q-py-sm q-mb-lg q-mt-md"
-            color="secondary"
-            @click="goToTipPage"
-          >
-            <div class="flex items-center justify-center q-gap-sm">
-              <q-icon name="volunteer_activism" />
-              <span class="text-h6">Tip artist</span>
-            </div>
-          </q-btn>
-
           <q-btn
             rounded
             class="grow-button q-py-sm q-mb-lg q-mt-md"

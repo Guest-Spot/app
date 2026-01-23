@@ -1,7 +1,7 @@
 <template>
-  <q-page class="page q-py-md flex column items-start q-gap-md">
+  <q-page class="page q-py-md flex column items-start q-gap-md q-pb-5xl">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
-      <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
+      <q-btn round unelevated text-color="grey-6" @click="redirectToArtistProfile" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
       <h2 class="text-h5 q-my-none">
@@ -29,115 +29,99 @@
           </p>
         </div>
 
-        <div v-else class="text-center full-width bg-block border-radius-lg q-pa-lg">
-          <div class="flex column items-start q-gap-md full-width text-left">
-            <p class="text-body1 text-grey-8 q-mb-md">
-              Choose a preset amount or enter a custom value. You will be redirected to Stripe to complete the payment.
-            </p>
+        <div v-else class="full-width flex colimmn q-gap-md">
 
-            <div class="tip-options flex q-gap-sm q-mb-md flex-wrap">
-              <q-btn
-                v-for="option in tipOptions"
-                :key="option"
-                :label="`$${option}`"
-                size="lg"
-                :color="selectedAmount === option ? 'primary' : 'grey-4'"
-                :text-color="selectedAmount === option ? 'white' : 'black'"
-                rounded
-                unelevated
-                class="option-btn"
-                @click="handleSelectOption(option)"
-              />
+          <!-- Artist Summary -->
+          <ArtistCard :artist="artistData" class="full-width" no-bookmarks />
+
+          <div class="tip-card bg-block border-radius-lg q-pa-lg">
+            <div class="tip-body">
+              <div class="tip-header">
+                <div class="text-subtitle1 text-bold">Choose a tip amount</div>
+                <div class="text-caption text-grey-6">
+                  You will be redirected to Stripe to complete the payment.
+                </div>
+              </div>
+
+              <div class="tip-options">
+                <button
+                  v-for="option in tipOptions"
+                  :key="option.amount"
+                  type="button"
+                  class="tip-option bg-block"
+                  :class="{ 'tip-option--active': selectedAmount === option.amount }"
+                  @click="handleSelectOption(option.amount)"
+                >
+                  <span v-if="option.badge" class="tip-option__badge">{{ option.badge }}</span>
+                  <span class="tip-option__price">${{ option.amount }}</span>
+                  <span class="tip-option__label">{{ option.label }}</span>
+                </button>
+              </div>
+
+              <div class="tip-summary bg-block border-radius-md q-pa-md">
+                <div>
+                  <div class="text-caption text-grey-6">Selected tip</div>
+                  <div class="text-h6">{{ formattedTipAmount }}</div>
+                </div>
+                <q-icon name="payments" color="primary" size="26px" />
+              </div>
             </div>
-
-            <div class="custom-input q-mb-md full-width">
-              <q-input
-                outlined
-                rounded
-                size="lg"
-                type="number"
-                min="1"
-                placeholder="Enter a custom tip"
-                prefix="$"
-                :model-value="customAmount ?? ''"
-                @update:model-value="handleCustomAmount"
-                :disable="isProcessing"
-                class="full-width"
-                bg-color="transparent"
-              />
-              <p class="text-caption text-grey-6 q-mt-xs">Minimum $1</p>
-            </div>
-
-            <div class="selected-amount text-body1 q-mb-md">
-              Tip amount: <span class="text-h6">{{ formattedTipAmount }}</span>
-            </div>
-
-            <q-btn
-              label="Submit tip"
-              color="secondary"
-              rounded
-              unelevated
-              class="full-width"
-              :loading="isProcessing"
-              :disable="!canTip || isProcessing"
-              @click="handleSubmit"
-            />
           </div>
         </div>
+      </div>
+      <div class="action-buttons container bg-block">
+        <q-btn
+          rounded
+          class="grow-button q-py-sm q-mb-lg q-mt-md"
+          color="primary"
+          :loading="isProcessing"
+          :disable="!canTip || isProcessing"
+          @click="handleSubmit"
+        >
+          <div class="flex items-center justify-center q-gap-sm">
+            <q-icon name="payments" />
+            <span class="text-h6">Submit tip</span>
+          </div>
+        </q-btn>
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onBeforeMount, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useLazyQuery } from '@vue/apollo-composable';
 import useTipPayment from 'src/composables/useTipPayment';
 import { USER_QUERY } from 'src/apollo/types/user';
 import type { IGraphQLUserResult, IUser } from 'src/interfaces/user';
 import useNotify from 'src/modules/useNotify';
 import { dollarsToCents } from 'src/helpers/currency';
+import { ArtistCard } from 'src/components/SearchPage';
 
 const route = useRoute();
+const router = useRouter();
 const { showError } = useNotify();
 const { isProcessing, initiateTipPayment } = useTipPayment();
-const tipOptions = [5, 20, 100];
-const selectedAmount = ref<number>(tipOptions[0]);
-const customAmount = ref<number | null>(null);
+const tipOptions = [
+  { amount: 5, label: 'Quick thanks' },
+  { amount: 20, label: 'Big support', badge: 'Popular' },
+  { amount: 100, label: 'Super fan' },
+];
+const selectedAmount = ref<number>(tipOptions[0]!.amount);
 const artistData = ref<IUser | null>(null);
 
 const { load: loadArtist, onResult, onError, loading: isLoadingArtist } =
   useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
-const artistName = computed(() => {
-  if (!artistData.value) return 'artist';
-  return artistData.value.name || artistData.value.username || 'artist';
-});
-
 const canTip = computed(() => artistData.value?.payoutsEnabled === true);
 
-const tipAmount = computed(() => {
-  if (customAmount.value && customAmount.value > 0) {
-    return customAmount.value;
-  }
-  return selectedAmount.value;
-});
+const tipAmount = computed(() => selectedAmount.value);
 
 const formattedTipAmount = computed(() => `$${tipAmount.value.toFixed(2)}`);
 
 const handleSelectOption = (amount: number) => {
   selectedAmount.value = amount;
-  customAmount.value = null;
-};
-
-const handleCustomAmount = (value: string | number) => {
-  const parsed = Number(value);
-  if (Number.isNaN(parsed) || parsed <= 0) {
-    customAmount.value = null;
-  } else {
-    customAmount.value = parsed;
-  }
 };
 
 const handleSubmit = async () => {
@@ -151,16 +135,18 @@ const handleSubmit = async () => {
     return;
   }
 
-  const amountInCents = dollarsToCents(tipAmount.value);
+  if (!selectedAmount.value || selectedAmount.value <= 0) {
+    showError('Enter a valid tip amount.');
+    return;
+  }
+
+  const amountInCents = dollarsToCents(selectedAmount.value);
   if (!amountInCents || amountInCents <= 0) {
     showError('Enter a valid tip amount.');
     return;
   }
 
-  const success = await initiateTipPayment(artistData.value.documentId, amountInCents);
-  if (success) {
-    customAmount.value = null;
-  }
+  await initiateTipPayment(artistData.value.documentId, amountInCents);
 };
 
 onResult((result) => {
@@ -168,6 +154,26 @@ onResult((result) => {
     artistData.value = result.data.usersPermissionsUser;
   }
 });
+
+const redirectToArtistProfile = () => {
+  const documentId = artistData.value?.documentId ?? (route.params.documentId as string);
+  if (documentId) {
+    void router.replace(`/artist/${documentId}`);
+    return;
+  }
+  void router.replace('/');
+};
+
+watch(
+  () => artistData.value,
+  (artist) => {
+    if (!artist) return;
+    if (artist.payoutsEnabled !== true) {
+      showError('This artist is not accepting tips at the moment.');
+      redirectToArtistProfile();
+    }
+  },
+);
 
 onError((error) => {
   console.error('Failed to load artist for tipping:', error);
@@ -185,16 +191,112 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
+.tip-card,
+.tip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .tip-options {
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
 }
 
-.option-btn {
-  min-width: 110px;
+.tip-option {
+  position: relative;
+  min-height: 50px;
+  padding: 14px 12px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--q-text-primary);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.tip-option:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.tip-option__price {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tip-option__label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.tip-option__badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 9px;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.08);
 }
 
-.selected-amount {
-  font-weight: 500;
+.tip-option--active {
+  background: var(--q-primary);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.tip-option--active .tip-option__label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tip-option--active .tip-option__badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.tip-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.grow-button {
+  flex: 1;
+  min-width: 180px;
+  width: 100%;
+}
+
+.action-buttons {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+}
+
+.body--dark .tip-option {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.body--dark .tip-option:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.body--dark .tip-option__badge {
+  background: rgba(255, 255, 255, 0.12);
 }
 </style>

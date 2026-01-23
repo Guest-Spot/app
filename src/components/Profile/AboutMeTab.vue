@@ -115,7 +115,7 @@
         </div>
       </div>
       <div
-        v-if="isArtist && hasDismissedAddressDialog"
+        v-if="isArtist && hasDismissedAddressDialog && user?.payoutsEnabled === true"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/accept-tips')"
       >

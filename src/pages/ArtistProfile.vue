@@ -18,7 +18,6 @@
     />
     <div class="container">
       <ProfileHeader
-        class="q-mb-md"
         :name="user?.name || user?.username || 'Artist'"
         sub-title="My Profile"
         @openPublicProfile="openPublicProfile"

@@ -11,65 +11,23 @@
       <div class="container">
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
           <div class="flex column items-start q-gap-sm full-width text-left">
-            <div v-if="!user?.stripeAccountID">
-              <p class="text-body1 text-grey-8 q-mb-md">
-                Connecting Stripe lets you receive tips securely and directly. Follow the steps below to start accepting support.
-              </p>
+            <p class="text-body1 q-mb-md">
+              Share your tip link to let fans show appreciation and keep them coming back.
+            </p>
 
-              <div class="steps q-mb-lg">
-                <div class="step flex items-start q-gap-md">
-                  <div class="step-number">1</div>
-                  <div>
-                    <p class="step-title q-mb-xs">Connect Stripe</p>
-                    <p class="text-caption text-grey-6">
-                      Securely connect your Stripe account to accept tips directly on GuestSpot.
-                    </p>
-                  </div>
-                </div>
-                <div class="step flex items-start q-gap-md">
-                  <div class="step-number">2</div>
-                  <div>
-                    <p class="step-title q-mb-xs">Share your tip page</p>
-                    <p class="text-caption text-grey-6">
-                      Share your personal tip link so fans can show support from anywhere.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <q-btn
-                label="Setup Stripe"
-                color="secondary"
+            <div class="share-link-row q-mb-md">
+              <q-input
+                outlined
+                dense
                 rounded
-                unelevated
+                readonly
+                :model-value="tipLink"
+                label="Your Tip Page"
                 class="full-width"
-                :loading="stripeSetupLoading"
-                :disable="stripeSetupLoading"
-                @click="handleSetupStripe"
               />
             </div>
 
-            <div v-else>
-              <p class="text-body1 q-mb-md">
-                Share your tip link to let fans show appreciation and keep them coming back.
-              </p>
-
-              <div class="share-link-row q-mb-md">
-                <q-input
-                  outlined
-                  dense
-                  rounded
-                  readonly
-                  :model-value="tipLink"
-                  label="Your Tip Page"
-                  class="full-width"
-                />
-              </div>
-
-              <div class="q-mt-xs">
-                <q-btn label="Copy link" color="primary" rounded class="full-width bg-block" @click="copyTipLink" />
-              </div>
-            </div>
+            <q-btn label="Copy link" color="primary" rounded class="full-width bg-block" @click="copyTipLink" />
           </div>
         </div>
       </div>
@@ -78,21 +36,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch, onBeforeMount } from 'vue';
+import { computed, onMounted, onBeforeUnmount, watch, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { copyToClipboard } from 'quasar';
-import { useMutation } from '@vue/apollo-composable';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useStripe from 'src/composables/useStripe';
-import { GET_STRIPE_DASHBOARD_URL_MUTATION } from 'src/apollo/types/mutations/stripe';
 import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
 
 const router = useRouter();
 const { user, fetchMe } = useUser();
-const { openStripeUrl, addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
+const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 const { showError, showSuccess } = useNotify();
-const stripeSetupLoading = ref(false);
 const isClient = typeof window !== 'undefined';
 
 const hasDismissedAddressDialog = computed(() => {
@@ -106,29 +61,29 @@ const hasDismissedAddressDialog = computed(() => {
   return window.localStorage.getItem(storageKey) === 'true';
 });
 
-const redirectIfAddressDialogNotSeen = () => {
+const isStripeConfigured = computed(() => user.value?.payoutsEnabled === true);
+
+const redirectIfUnavailable = () => {
   if (!user.value?.id) return;
   if (!hasDismissedAddressDialog.value) {
     void router.replace('/profile/basic-information');
+    return;
+  }
+  if (!isStripeConfigured.value) {
+    void router.replace('/profile/payment-settings');
   }
 };
 
 onBeforeMount(() => {
-  redirectIfAddressDialogNotSeen();
+  redirectIfUnavailable();
 });
 
 watch(
-  () => user.value?.id,
+  () => [user.value?.id, user.value?.payoutsEnabled],
   () => {
-    redirectIfAddressDialogNotSeen();
+    redirectIfUnavailable();
   },
 );
-
-const {
-  mutate: getStripeDashboardUrl,
-  onDone: onDoneGetStripeDashboardUrl,
-  onError: onErrorGetStripeDashboardUrl,
-} = useMutation(GET_STRIPE_DASHBOARD_URL_MUTATION);
 
 const tipLink = computed(() => {
   if (!user.value?.documentId) {
@@ -136,17 +91,6 @@ const tipLink = computed(() => {
   }
   return `https://getguestspot.com/artist/${user.value.documentId}/tip`;
 });
-
-const handleSetupStripe = async () => {
-  stripeSetupLoading.value = true;
-  try {
-    await getStripeDashboardUrl();
-  } catch (error) {
-    console.error('Error fetching Stripe dashboard URL:', error);
-    showError('Unable to connect to Stripe. Please try again.');
-    stripeSetupLoading.value = false;
-  }
-};
 
 const handleBrowserFinished = async () => {
   await fetchMe();
@@ -160,34 +104,6 @@ const copyTipLink = () => {
   void copyToClipboard(tipLink.value);
   showSuccess('Link copied to clipboard');
 };
-
-onDoneGetStripeDashboardUrl((result) => {
-  stripeSetupLoading.value = false;
-  if (result.errors?.length) {
-    console.error('Error fetching Stripe URL:', result.errors);
-    showError('Unable to connect to Stripe.');
-    return;
-  }
-
-  const url = result.data?.getStripeDashboardUrl?.url;
-  if (!url) {
-    showError('Unable to connect to Stripe.');
-    return;
-  }
-
-  try {
-    void openStripeUrl(url);
-  } catch (error) {
-    console.error('Error opening Stripe URL:', error);
-    showError('Unable to open Stripe. Please try again.');
-  }
-});
-
-onErrorGetStripeDashboardUrl((error) => {
-  stripeSetupLoading.value = false;
-  console.error('Stripe dashboard URL mutation error:', error);
-  showError('Unable to connect to Stripe. Please try again later.');
-});
 
 onMounted(() => {
   void addBrowserFinishedListener(() => void handleBrowserFinished());

@@ -13,7 +13,6 @@
     />
     <div class="container">
       <ProfileHeader
-        class="q-mb-md"
         :name="user?.name || user?.username || 'Shop'"
         sub-title="My Profile"
         @openPublicProfile="openPublicProfile"
