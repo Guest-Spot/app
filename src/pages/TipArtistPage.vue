@@ -57,6 +57,21 @@
                   <span class="tip-option__label">{{ option.label }}</span>
                 </button>
               </div>
+              <div class="custom-tip-field">
+                <q-input
+                  v-model.number="customAmount"
+                  dense
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  outlined
+                  rounded
+                  hide-bottom-space
+                  class="custom-tip-field__input"
+                  placeholder="Enter any amount"
+                  hint="Leave blank to use one of the presets."
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -102,6 +117,11 @@ const tipOptions = [
   { amount: 100, label: 'Super fan' },
 ];
 const selectedAmount = ref<number>(tipOptions[1]!.amount);
+const customAmount = ref<number | null>(null);
+
+const customAmountIsValid = computed(
+  (): boolean => typeof customAmount.value === 'number' && customAmount.value > 0,
+);
 const artistData = ref<IUser | null>(null);
 
 const { load: loadArtist, onResult, onError, loading: isLoadingArtist } =
@@ -111,12 +131,15 @@ const artistName = computed(() => artistData.value?.name ?? artistData.value?.em
 
 const canTip = computed(() => artistData.value?.payoutsEnabled === true);
 
-const tipAmount = computed(() => selectedAmount.value);
+const tipAmount = computed(() =>
+  customAmountIsValid.value ? customAmount.value! : selectedAmount.value,
+);
 
 const formattedTipAmount = computed(() => `$${tipAmount.value.toFixed(2)}`);
 
 const handleSelectOption = (amount: number) => {
   selectedAmount.value = amount;
+  customAmount.value = null;
 };
 
 const handleSubmit = async () => {
@@ -130,12 +153,13 @@ const handleSubmit = async () => {
     return;
   }
 
-  if (!selectedAmount.value || selectedAmount.value <= 0) {
+  const amountToProcess = tipAmount.value;
+  if (!amountToProcess || amountToProcess <= 0) {
     showError('Enter a valid tip amount.');
     return;
   }
 
-  const amountInCents = dollarsToCents(selectedAmount.value);
+  const amountInCents = dollarsToCents(amountToProcess);
   if (!amountInCents || amountInCents <= 0) {
     showError('Enter a valid tip amount.');
     return;
@@ -197,6 +221,17 @@ onBeforeMount(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
+}
+
+.custom-tip-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 320px;
+}
+
+.custom-tip-field__input {
+  width: 100%;
 }
 
 .tip-option {
