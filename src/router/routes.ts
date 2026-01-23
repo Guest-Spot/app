@@ -171,6 +171,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Payment Settings', requiresAuth: true },
       },
       {
+        path: 'profile/booking-deposit',
+        component: () => import('pages/profile/BookingDepositPage.vue'),
+        meta: { title: 'Booking Deposit', requiresAuth: true },
+      },
+      {
         path: 'profile/accept-tips',
         component: () => import('pages/profile/AcceptTipsPage.vue'),
         meta: { title: 'Accept Tips & Support', requiresAuth: true },

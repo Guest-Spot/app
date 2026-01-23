@@ -9,7 +9,21 @@
 
     <div class="content-wrapper full-width q-pb-xl">
       <div class="container">
-        <div class="text-center full-width bg-block border-radius-lg q-pa-lg">
+        <div class="tips-toggle-card full-width bg-block border-radius-lg q-pa-lg q-mb-md">
+          <div class="flex items-center justify-between full-width">
+            <div>
+              <p class="text-body1 text-weight-medium q-mb-xs flex items-center q-gap-sm justify-between">
+                <span class="text-primary">Tips availability</span>
+                <q-toggle v-model="tipsEnabled" color="primary" dense />
+              </p>
+              <p class="text-caption text-grey-6 q-mb-none">
+                Pause tips without disconnecting Stripe to give yourself a break from new contributions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center full-width bg-block border-radius-lg q-pa-lg q-mb-md">
           <div class="flex column items-start q-gap-sm full-width text-left">
             <p class="text-body1 q-mb-md">
               Share your tip link to let fans show appreciation and keep them coming back.
@@ -30,19 +44,32 @@
             <q-btn label="Copy link" color="primary" rounded class="full-width bg-block" @click="copyTipLink" />
           </div>
         </div>
+
+        <div class="tips-toggle-card full-width bg-block border-radius-lg q-pa-lg q-mb-md">
+          <p class="text-body2 text-grey-6 q-mb-none">
+            After tips are enabled, share the link below or anywhere online so fans can send support through
+            Stripe payouts directly to you.
+          </p>
+          <ul class="tips-instruction-list">
+            <li>Fans see the Tip link on your public profile and in shared posts.</li>
+            <li>Every tip is routed through Stripe and lands in your connected account.</li>
+            <li>Toggle this off anytime to hide the link without touching Stripe settings.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, watch, onBeforeMount } from 'vue';
+import { computed, onBeforeMount, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { copyToClipboard } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useStripe from 'src/composables/useStripe';
 import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
+import { WEB_FALLBACK } from 'src/config/constants';
 
 const router = useRouter();
 const { user, fetchMe } = useUser();
@@ -62,6 +89,51 @@ const hasDismissedAddressDialog = computed(() => {
 });
 
 const isStripeConfigured = computed(() => user.value?.payoutsEnabled === true);
+
+const TIP_PREFERENCE_STORAGE_PREFIX = 'guestspot-accept-tips-preference';
+const tipsEnabled = ref(true);
+const tipsPreferenceStorageKey = computed(() => {
+  if (!isClient) {
+    return null;
+  }
+  const documentId = user.value?.documentId;
+  if (!documentId) {
+    return null;
+  }
+  return `${TIP_PREFERENCE_STORAGE_PREFIX}-${documentId}`;
+});
+
+const loadTipsPreference = () => {
+  if (!isClient) {
+    tipsEnabled.value = user.value?.payoutsEnabled === true;
+    return;
+  }
+
+  const key = tipsPreferenceStorageKey.value;
+  if (!key) {
+    tipsEnabled.value = user.value?.payoutsEnabled === true;
+    return;
+  }
+
+  const stored = window.localStorage.getItem(key);
+  if (stored === 'true' || stored === 'false') {
+    tipsEnabled.value = stored === 'true';
+    return;
+  }
+
+  tipsEnabled.value = user.value?.payoutsEnabled === true;
+};
+
+const persistTipsPreference = (value: boolean) => {
+  if (!isClient) {
+    return;
+  }
+  const key = tipsPreferenceStorageKey.value;
+  if (!key) {
+    return;
+  }
+  window.localStorage.setItem(key, value ? 'true' : 'false');
+};
 
 const redirectIfUnavailable = () => {
   if (!user.value?.id) return;
@@ -85,11 +157,26 @@ watch(
   },
 );
 
+watch(
+  () => [user.value?.documentId, user.value?.payoutsEnabled],
+  () => {
+    loadTipsPreference();
+  },
+  { immediate: true },
+);
+
+watch(
+  tipsEnabled,
+  (value) => {
+    persistTipsPreference(value);
+  },
+);
+
 const tipLink = computed(() => {
   if (!user.value?.documentId) {
     return '';
   }
-  return `https://getguestspot.com/artist/${user.value.documentId}/tip`;
+  return `${WEB_FALLBACK}/#/artist/${user.value.documentId}/tip`;
 });
 
 const handleBrowserFinished = async () => {
@@ -148,5 +235,30 @@ onBeforeUnmount(() => {
 
 .share-link-row {
   width: 100%;
+}
+
+.tips-toggle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tips-instruction-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--q-grey-7);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.tips-instruction-list li {
+  margin-bottom: 4px;
+}
+
+.tips-disabled-message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
 }
 </style>

@@ -99,7 +99,9 @@
           <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
       </div>
+    </div>
 
+    <div class="navigation-list flex column bg-block border-radius-lg">
       <!-- Payment Settings -->
       <div
         v-if="settingsStore.getStripeEnabled && user?.verified && !isGuest"
@@ -110,6 +112,19 @@
           <div class="flex items-center q-gap-md">
             <q-icon name="payment" size="24px" color="grey-6" />
             <span>Payment Settings</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
+        </div>
+      </div>
+      <div
+        v-if="isArtist && settingsStore.getStripeEnabled && user?.verified && !isGuest"
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/booking-deposit')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="savings" size="24px" color="grey-6" />
+            <span>Booking Deposit</span>
           </div>
           <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>

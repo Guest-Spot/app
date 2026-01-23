@@ -57,14 +57,6 @@
                   <span class="tip-option__label">{{ option.label }}</span>
                 </button>
               </div>
-
-              <div class="tip-summary bg-block border-radius-md q-pa-md">
-                <div>
-                  <div class="text-caption text-grey-6">Selected tip</div>
-                  <div class="text-h6">{{ formattedTipAmount }}</div>
-                </div>
-                <q-icon name="payments" color="primary" size="26px" />
-              </div>
             </div>
           </div>
         </div>
@@ -80,7 +72,7 @@
         >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="payments" />
-            <span class="text-h6">Submit tip</span>
+            <span class="text-h6">Submit tip {{ formattedTipAmount }}</span>
           </div>
         </q-btn>
       </div>
@@ -105,10 +97,11 @@ const { showError } = useNotify();
 const { isProcessing, initiateTipPayment } = useTipPayment();
 const tipOptions = [
   { amount: 5, label: 'Quick thanks' },
-  { amount: 20, label: 'Big support', badge: 'Popular' },
+  { amount: 20, label: 'Small support', badge: 'Popular' },
+  { amount: 50, label: 'Big support' },
   { amount: 100, label: 'Super fan' },
 ];
-const selectedAmount = ref<number>(tipOptions[0]!.amount);
+const selectedAmount = ref<number>(tipOptions[1]!.amount);
 const artistData = ref<IUser | null>(null);
 
 const { load: loadArtist, onResult, onError, loading: isLoadingArtist } =
@@ -268,12 +261,6 @@ onBeforeMount(() => {
 .tip-option--active .tip-option__badge {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
-}
-
-.tip-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .grow-button {
