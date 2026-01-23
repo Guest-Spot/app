@@ -114,6 +114,8 @@ const artistData = ref<IUser | null>(null);
 const { load: loadArtist, onResult, onError, loading: isLoadingArtist } =
   useLazyQuery<IGraphQLUserResult>(USER_QUERY);
 
+const artistName = computed(() => artistData.value?.name ?? artistData.value?.email);
+
 const canTip = computed(() => artistData.value?.payoutsEnabled === true);
 
 const tipAmount = computed(() => selectedAmount.value);
