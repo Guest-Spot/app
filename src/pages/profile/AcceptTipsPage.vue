@@ -12,10 +12,16 @@
         <div class="tips-toggle-card full-width bg-block border-radius-lg q-pa-lg q-mb-md">
           <div class="flex items-center justify-between full-width">
             <div>
-              <p class="text-body1 text-weight-medium q-mb-xs flex items-center q-gap-sm justify-between">
-                <span class="text-primary">Tips availability</span>
-                <q-toggle v-model="tipsEnabled" color="primary" dense />
-              </p>
+                <p class="text-body1 text-weight-medium q-mb-xs flex items-center q-gap-sm justify-between">
+                  <span class="text-primary">Tips availability</span>
+                  <q-toggle
+                    v-model="tipsEnabled"
+                    color="primary"
+                    dense
+                    :disable="isSavingTipsPreference"
+                    @update:model-value="handleAcceptTipsToggle"
+                  />
+                </p>
               <p class="text-caption text-grey-6 q-mb-none">
                 Pause tips without disconnecting Stripe to give yourself a break from new contributions.
               </p>
@@ -68,6 +74,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useMutation } from '@vue/apollo-composable';
 import { copyToClipboard } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
@@ -75,6 +82,7 @@ import useStripe from 'src/composables/useStripe';
 import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
 import { WEB_FALLBACK } from 'src/config/constants';
 import { useSettingsStore } from 'src/stores/settings';
+import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
 
 const router = useRouter();
 const { user, fetchMe } = useUser();
@@ -98,51 +106,6 @@ const hasDismissedAddressDialog = computed(() => {
 
 const isStripeConfigured = computed(() => user.value?.payoutsEnabled === true);
 
-const TIP_PREFERENCE_STORAGE_PREFIX = 'guestspot-accept-tips-preference';
-const tipsEnabled = ref(true);
-const tipsPreferenceStorageKey = computed(() => {
-  if (!isClient) {
-    return null;
-  }
-  const documentId = user.value?.documentId;
-  if (!documentId) {
-    return null;
-  }
-  return `${TIP_PREFERENCE_STORAGE_PREFIX}-${documentId}`;
-});
-
-const loadTipsPreference = () => {
-  if (!isClient) {
-    tipsEnabled.value = user.value?.payoutsEnabled === true;
-    return;
-  }
-
-  const key = tipsPreferenceStorageKey.value;
-  if (!key) {
-    tipsEnabled.value = user.value?.payoutsEnabled === true;
-    return;
-  }
-
-  const stored = window.localStorage.getItem(key);
-  if (stored === 'true' || stored === 'false') {
-    tipsEnabled.value = stored === 'true';
-    return;
-  }
-
-  tipsEnabled.value = user.value?.payoutsEnabled === true;
-};
-
-const persistTipsPreference = (value: boolean) => {
-  if (!isClient) {
-    return;
-  }
-  const key = tipsPreferenceStorageKey.value;
-  if (!key) {
-    return;
-  }
-  window.localStorage.setItem(key, value ? 'true' : 'false');
-};
-
 const redirectIfUnavailable = () => {
   if (!user.value?.id) return;
   if (!hasDismissedAddressDialog.value) {
@@ -165,20 +128,65 @@ watch(
   },
 );
 
+const resolveAcceptTipsState = () => {
+  const acceptTipsFlag = user.value?.acceptTips;
+  if (typeof acceptTipsFlag === 'boolean') {
+    return acceptTipsFlag;
+  }
+  return user.value?.payoutsEnabled === true;
+};
+
+const tipsEnabled = ref(resolveAcceptTipsState());
+const lastPersistedAcceptTips = ref(tipsEnabled.value);
+const isSavingTipsPreference = ref(false);
+const { mutate: updateUser } = useMutation(UPDATE_USER_MUTATION);
+
 watch(
-  () => [user.value?.documentId, user.value?.payoutsEnabled],
+  () => [user.value?.acceptTips, user.value?.payoutsEnabled],
   () => {
-    loadTipsPreference();
+    const normalized = resolveAcceptTipsState();
+    lastPersistedAcceptTips.value = normalized;
+    tipsEnabled.value = normalized;
   },
   { immediate: true },
 );
 
-watch(
-  tipsEnabled,
-  (value) => {
-    persistTipsPreference(value);
-  },
-);
+const handleAcceptTipsToggle = async (value: boolean) => {
+  const userId = user.value?.id;
+  if (!userId) {
+    tipsEnabled.value = lastPersistedAcceptTips.value;
+    showError('Unable to update tips availability right now.');
+    return;
+  }
+
+  if (value === lastPersistedAcceptTips.value) {
+    return;
+  }
+
+  isSavingTipsPreference.value = true;
+  try {
+    const result = await updateUser({
+      id: userId,
+      data: {
+        acceptTips: value,
+      },
+    });
+
+    if (result.errors?.length || !result.data?.updateUsersPermissionsUser?.data) {
+      throw new Error(result.errors?.[0]?.message || 'Failed to update tips preference.');
+    }
+
+    lastPersistedAcceptTips.value = value;
+    showSuccess('Tips availability updated.');
+    void fetchMe();
+  } catch (error) {
+    console.error('Failed to update tips preference:', error);
+    tipsEnabled.value = lastPersistedAcceptTips.value;
+    showError('Failed to update tips availability. Try again.');
+  } finally {
+    isSavingTipsPreference.value = false;
+  }
+};
 
 const tipLink = computed(() => {
   if (!user.value?.documentId) {
