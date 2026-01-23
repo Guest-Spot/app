@@ -25,11 +25,11 @@
 
         <div class="text-center full-width bg-block border-radius-lg q-pa-lg q-mb-md">
           <div class="flex column items-start q-gap-sm full-width text-left">
-            <p class="text-body1 q-mb-md">
+            <p class="q-mb-md">
               Share your tip link to let fans show appreciation and keep them coming back.
             </p>
 
-            <div class="share-link-row q-mb-md">
+            <div class="share-link-row">
               <q-input
                 outlined
                 dense
@@ -38,23 +38,27 @@
                 :model-value="tipLink"
                 label="Your Tip Page"
                 class="full-width"
-              />
+              >
+                <template #append>
+                  <q-btn round size="sm" text-color="primary" icon="content_copy" @click="copyTipLink" />
+                </template>
+              </q-input>
             </div>
-
-            <q-btn label="Copy link" color="primary" rounded class="full-width bg-block" @click="copyTipLink" />
           </div>
         </div>
 
         <div class="tips-toggle-card full-width bg-block border-radius-lg q-pa-lg q-mb-md">
-          <p class="text-body2 text-grey-6 q-mb-none">
-            After tips are enabled, share the link below or anywhere online so fans can send support through
-            Stripe payouts directly to you.
+          <p class="text-body1 q-mb-none">
+            If tips are enabled:
           </p>
-          <ul class="tips-instruction-list">
+          <ul class="tips-instruction-list text-grey-6">
             <li>Fans see the Tip link on your public profile and in shared posts.</li>
             <li>Every tip is routed through Stripe and lands in your connected account.</li>
             <li>Toggle this off anytime to hide the link without touching Stripe settings.</li>
           </ul>
+          <p class="text-caption text-grey-7 q-my-none">
+            Stripe takes {{ stripeFeePercentLabel }} of each tip.
+          </p>
         </div>
       </div>
     </div>
@@ -70,12 +74,16 @@ import useUser from 'src/modules/useUser';
 import useStripe from 'src/composables/useStripe';
 import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
 import { WEB_FALLBACK } from 'src/config/constants';
+import { useSettingsStore } from 'src/stores/settings';
 
 const router = useRouter();
 const { user, fetchMe } = useUser();
 const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 const { showError, showSuccess } = useNotify();
 const isClient = typeof window !== 'undefined';
+const settingsStore = useSettingsStore();
+const stripeFeePercent = computed(() => settingsStore.getStripeFeePercent);
+const stripeFeePercentLabel = computed(() => (stripeFeePercent.value !== null ? `${stripeFeePercent.value}%` : 'процент'));
 
 const hasDismissedAddressDialog = computed(() => {
   if (!isClient) {
