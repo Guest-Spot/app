@@ -11,7 +11,7 @@ type PaymentSetupSuccessDialogOptions = {
 };
 
 export const usePaymentSetupSuccessDialog = ({ user }: PaymentSetupSuccessDialogOptions) => {
-  const showPaymentSuccessDialog = ref(true);
+  const showPaymentSuccessDialog = ref(false);
   const previousPayoutsEnabled = ref<boolean | undefined>(undefined);
 
   const paymentSuccessDialogStorageKey = computed(() => getPaymentSuccessDialogStorageKey(user.value?.id));
