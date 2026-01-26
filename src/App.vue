@@ -54,15 +54,14 @@ onMounted(() => {
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {
     const url = new URL(event.url);
-    
+
     // Check if this is a close-browser command
-    if (event.url.includes('close-browser')) {
+    if (url.hash.includes('close-browser')) {
       void Browser.close();
-      return;
     }
-    
+
     // Handle navigation deep links
-    if (url.hash) {
+    else if (url.hash) {
       void router.replace(url.hash.substring(1));
     }
   });
