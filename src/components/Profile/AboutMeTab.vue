@@ -99,10 +99,11 @@
           <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
       </div>
+    </div>
 
-      <!-- Payment Settings -->
+    <!-- Payment Settings -->
+    <div v-if="settingsStore.getStripeEnabled && user?.verified && !isGuest" class="navigation-list flex column bg-block border-radius-lg">
       <div
-        v-if="settingsStore.getStripeEnabled && user?.verified && !isGuest"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/payment-settings')"
       >
@@ -110,6 +111,32 @@
           <div class="flex items-center q-gap-md">
             <q-icon name="payment" size="24px" color="grey-6" />
             <span>Payment Settings</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
+        </div>
+      </div>
+      <div
+        v-if="isArtist && user?.payoutsEnabled === true"
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/booking-deposit')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="savings" size="24px" color="grey-6" />
+            <span>Booking Deposit</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
+        </div>
+      </div>
+      <div
+        v-if="user?.payoutsEnabled === true"
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/accept-tips')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="volunteer_activism" size="24px" color="grey-6" />
+            <span>Accept Tips & Support</span>
           </div>
           <q-icon name="chevron_right" size="24px" color="grey-6" />
         </div>
@@ -144,7 +171,7 @@ import FeedbackLogout from 'src/components/FeedbackLogout.vue';
 
 const router = useRouter();
 const { showError } = useNotify();
-const { fetchMe, user, isShop, isGuest } = useUser();
+const { fetchMe, user, isShop, isGuest, isArtist } = useUser();
 const settingsStore = useSettingsStore();
 
 // Setup mutation for avatar only

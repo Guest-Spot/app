@@ -1,3 +1,4 @@
+export { default as AcceptTipsDialog } from './AcceptTipsDialog.vue';
 export { default as ArtistInviteDialog } from './ArtistInviteDialog.vue';
 export { default as BookingDetailsDialog } from './BookingDetailsDialog.vue';
 export { default as ClaimProfileDialog } from './ClaimProfileDialog.vue';
@@ -10,3 +11,4 @@ export { default as ShopInfoDialog } from './ShopInfoDialog.vue';
 export { default as SortDialog } from './SortDialog.vue';
 export { default as TimePickerDialog } from './TimePickerDialog.vue';
 export { default as TripDialog } from './TripDialog.vue';
+export { default as TipArtistDialog } from './TipArtistDialog.vue';

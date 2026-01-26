@@ -30,6 +30,7 @@ export const ME_QUERY = gql`
       experience
       stripeAccountID
       payoutsEnabled
+      acceptTips
       depositAmount
       chargeDeposit
       verified
@@ -101,6 +102,7 @@ export const USERS_QUERY = gql`
       experience
       stripeAccountID
       payoutsEnabled
+      acceptTips
       depositAmount
       chargeDeposit
       verified
@@ -170,6 +172,7 @@ export const USER_QUERY = gql`
       experience
       stripeAccountID
       payoutsEnabled
+      acceptTips
       depositAmount
       chargeDeposit
       verified
@@ -241,6 +244,7 @@ export const UPDATE_USER_MUTATION = gql`
         experience
         stripeAccountID
         payoutsEnabled
+        acceptTips
         depositAmount
         chargeDeposit
         verified

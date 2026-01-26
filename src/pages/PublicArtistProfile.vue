@@ -11,6 +11,17 @@
           <q-icon name="store" size="22px" color="primary" />
         </q-btn>
 
+        <!-- Tips Button -->
+        <q-btn
+          v-if="canShowTipButton"
+          round
+          flat
+          @click="goToTipPage"
+          class="bg-block"
+        >
+          <q-icon name="volunteer_activism" size="22px" color="primary" />
+        </q-btn>
+
         <!-- Favorite Button -->
         <q-btn
           round
@@ -112,20 +123,22 @@
       </div>
     </div>
 
-    <!-- Booking Button -->
+    <!-- Booking Actions -->
     <div v-if="artistData.documentId" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
-        <q-btn
-          rounded
-          class="full-width q-py-sm q-mb-lg q-mt-md"
-          color="primary"
-          @click="goToBookingPage"
-        >
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="event" />
-            <span class="text-h6">Book</span>
-          </div>
-        </q-btn>
+        <div class="buttons-wrapper flex flex-wrap items-center q-gap-sm">
+          <q-btn
+            rounded
+            class="grow-button q-py-sm q-mb-lg q-mt-md"
+            color="primary"
+            @click="goToBookingPage"
+          >
+            <div class="flex items-center justify-center q-gap-sm">
+              <q-icon name="event" />
+              <span class="text-h6">Book</span>
+            </div>
+          </q-btn>
+        </div>
       </div>
     </div>
 
@@ -142,6 +155,12 @@
       :link="artistData.link || ''"
       :document-id="artistData.documentId || ''"
     />
+    <TipArtistDialog
+      v-model="showTipDialog"
+      :artist-name="artistData.name"
+      @dismiss="dismissTipDialog"
+      @tip="goToTipPage"
+    />
   </q-page>
 </template>
 
@@ -157,7 +176,7 @@ import { type ITab } from 'src/interfaces/tabs';
 import type { ITrip } from 'src/interfaces/trip';
 import type { IPortfolio } from 'src/interfaces/portfolio';
 import { useFavorites } from 'src/modules/useFavorites';
-import { ShopInfoDialog, ClaimProfileDialog } from 'src/components/Dialogs';
+import { ShopInfoDialog, ClaimProfileDialog, TipArtistDialog } from 'src/components/Dialogs';
 import type { IUser, IGraphQLUserResult } from 'src/interfaces/user';
 import { USER_QUERY } from 'src/apollo/types/user';
 import { useLazyQuery } from '@vue/apollo-composable';
@@ -170,6 +189,7 @@ import useInviteCompos from 'src/composables/useInviteCompos';
 import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
+import { useTipDialog } from 'src/composables/useTipDialog';
 
 const {
   load: loadArtist,
@@ -227,6 +247,21 @@ const artistData = ref<IUser>({
   device_tokens: [],
   verified: false,
 });
+
+const currentUser = computed(() => userStore.getUser);
+const profileOwner = computed(() => {
+  if (!artistData.value.documentId) {
+    return null;
+  }
+  return artistData.value;
+});
+const { showTipDialog, dismissTipDialog } = useTipDialog({
+  profileOwner,
+  currentUser,
+});
+const canShowTipButton = computed(
+  () => artistData.value?.payoutsEnabled === true && Boolean(artistData.value?.documentId),
+);
 
 // Portfolio data
 const portfolioItems = ref<IPortfolio[]>([]);
@@ -316,6 +351,11 @@ const goToBookingPage = () => {
   }
   if (!artistData.value.documentId) return;
   void router.push({ name: 'CreateBooking', query: { artistId: artistData.value.documentId } });
+};
+
+const goToTipPage = () => {
+  if (!artistData.value.documentId) return;
+  void router.push(`/artist/${artistData.value.documentId}/tip`);
 };
 
 const openGoogleMaps = () => {
@@ -485,6 +525,11 @@ onBeforeMount(() => {
   right: 0;
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
+}
+
+.buttons-wrapper .grow-button {
+  flex: 1;
+  min-width: 180px;
 }
 
 .social-link-btn {

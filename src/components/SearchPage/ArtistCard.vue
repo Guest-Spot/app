@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div class="artist-actions absolute-top-right q-ma-sm q-z-2 flex column q-gap-xs">
+      <div v-if="!noBookmarks" class="artist-actions absolute-top-right q-ma-sm q-z-2 flex column q-gap-xs">
         <q-btn
           round
           flat
@@ -62,6 +62,7 @@ import useExperience from 'src/modules/useExperience';
 
 interface Props {
   artist: IUser;
+  noBookmarks?: boolean;
 }
 
 interface Emits {

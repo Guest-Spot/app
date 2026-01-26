@@ -8,7 +8,6 @@
     />
     <div class="container">
       <ProfileHeader
-        class="q-mb-md"
         sub-title="My Profile"
         :name="user?.name || user?.username || 'Guest'"
       />
