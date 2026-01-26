@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-py-md flex column items-start q-gap-md">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
-      <q-btn round unelevated text-color="grey-6" @click="$router.back()" class="bg-block">
+      <q-btn round unelevated text-color="grey-6" to="/profile" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
       <h2 class="text-h5 q-my-none">Booking <span class="text-primary">Deposit</span></h2>

@@ -25,17 +25,29 @@
           <div class="pulse-ring pulse-ring-2"></div>
         </div>
 
-        <h3 class="text-h5 text-bold q-mb-sm">Payment Setup Complete</h3>
-        <ul class="text-grey-6 q-mb-none text-left" style="list-style: none; padding-left: 0;">
-          <li class="q-mb-xs">
-            <q-icon name="savings" size="20px" color="primary" class="q-mr-xs" />
-            Collect secure deposits when clients book with you
-          </li>
-          <li class="q-mb-none">
-            <q-icon name="volunteer_activism" size="20px" color="primary" class="q-mr-xs" />
-            Accept tips and let your fans show their appreciation
-          </li>
-        </ul>
+        <h3 class="text-h5 text-bold q-mb-md">Payment Setup Complete</h3>
+        <div class="options-list q-mb-md">
+          <div
+            class="option-item cursor-pointer"
+            @click="navigateToDeposit"
+          >
+            <div class="option-content">
+              <q-icon name="savings" size="24px" color="primary" class="option-icon" />
+              <span class="option-text">Collect secure deposits when clients book with you</span>
+            </div>
+            <q-icon name="chevron_right" size="20px" color="grey-6" />
+          </div>
+          <div
+            class="option-item cursor-pointer"
+            @click="navigateToTips"
+          >
+            <div class="option-content">
+              <q-icon name="volunteer_activism" size="24px" color="primary" class="option-icon" />
+              <span class="option-text">Accept tips and let your fans show their appreciation</span>
+            </div>
+            <q-icon name="chevron_right" size="20px" color="grey-6" />
+          </div>
+        </div>
       </q-card-section>
 
       <q-card-actions class="dialog-actions">
@@ -54,6 +66,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 interface Props {
   modelValue: boolean;
@@ -66,6 +79,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const router = useRouter();
 
 const isVisible = ref(props.modelValue);
 
@@ -83,6 +97,16 @@ watch(isVisible, (newValue) => {
 const handleDismiss = () => {
   emit('dismiss');
   isVisible.value = false;
+};
+
+const navigateToDeposit = () => {
+  handleDismiss();
+  void router.push('/profile/booking-deposit');
+};
+
+const navigateToTips = () => {
+  handleDismiss();
+  void router.push('/profile/accept-tips');
 };
 </script>
 
@@ -106,6 +130,51 @@ const handleDismiss = () => {
 
   .dialog-content {
     padding: 32px 24px 16px;
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background-color: rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+        border-color: var(--q-primary);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      .option-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+      }
+
+      .option-icon {
+        flex-shrink: 0;
+      }
+
+      .option-text {
+        font-size: 14px;
+        line-height: 1.4;
+        text-align: left;
+      }
+    }
   }
 
   .icon-wrapper {
@@ -181,6 +250,14 @@ const handleDismiss = () => {
   }
   50% {
     transform: scale(1.2);
+  }
+}
+
+.body--dark {
+  .payment-setup-success-dialog {
+    .option-item {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
   }
 }
 </style>
