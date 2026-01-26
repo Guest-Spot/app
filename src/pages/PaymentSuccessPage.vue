@@ -22,15 +22,12 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { Capacitor } from '@capacitor/core';
+import { WEB_FALLBACK } from 'src/config/constants';
 
 onMounted(() => {
-  // Close browser on native platforms after showing success message
-  if (Capacitor.isNativePlatform()) {
-    setTimeout(() => {
-      window.location.href = 'com.guestspot.app://close-browser';
-    }, 500);
-  }
+  setTimeout(() => {
+    window.location.href = `${WEB_FALLBACK}/#/close-browser`;
+  }, 500);
 });
 </script>
 
