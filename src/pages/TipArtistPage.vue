@@ -70,6 +70,7 @@
                   class="custom-tip-field__input"
                   placeholder="Enter any amount"
                   hint="Leave blank to use one of the presets."
+                  :rules="[validateMinAmount]"
                 />
               </div>
             </div>
@@ -82,12 +83,14 @@
           class="grow-button q-py-sm q-mb-lg q-mt-md"
           color="primary"
           :loading="isProcessing"
-          :disable="!canTip || isProcessing"
+          :disable="!canSubmit || isProcessing"
           @click="handleSubmit"
         >
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="payments" />
-            <span class="text-h6">Submit tip {{ formattedTipAmount }}</span>
+            <span class="text-h6">
+              Submit tip<template v-if="formattedTipAmount"> {{ formattedTipAmount }}</template>
+            </span>
           </div>
         </q-btn>
       </div>
@@ -116,12 +119,27 @@ const tipOptions = [
   { amount: 50, label: 'Big support' },
   { amount: 100, label: 'Super fan' },
 ];
-const selectedAmount = ref<number>(tipOptions[1]!.amount);
+const selectedAmount = ref<number | null>(tipOptions[1]!.amount);
 const customAmount = ref<number | null>(null);
 
 const customAmountIsValid = computed(
-  (): boolean => typeof customAmount.value === 'number' && customAmount.value > 0,
+  (): boolean => typeof customAmount.value === 'number' && customAmount.value >= 1,
 );
+
+const hasInvalidCustomAmount = computed(
+  (): boolean => customAmount.value !== null && typeof customAmount.value === 'number' && customAmount.value < 1,
+);
+
+const validateMinAmount = (val: number | null): boolean | string => {
+  if (val === null || val === undefined) {
+    return true; // Allow empty value
+  }
+  if (typeof val === 'number' && (val <= 0 || val < 1)) {
+    return 'Minimum tip amount is $1';
+  }
+  return true;
+};
+
 const artistData = ref<IUser | null>(null);
 
 const { load: loadArtist, onResult, onError, loading: isLoadingArtist } =
@@ -131,11 +149,28 @@ const artistName = computed(() => artistData.value?.name ?? artistData.value?.em
 
 const canTip = computed(() => artistData.value?.payoutsEnabled === true);
 
-const tipAmount = computed(() =>
-  customAmountIsValid.value ? customAmount.value! : selectedAmount.value,
-);
+const tipAmount = computed(() => {
+  if (customAmountIsValid.value) {
+    return customAmount.value!;
+  }
+  if (hasInvalidCustomAmount.value) {
+    return null; // Don't show amount if custom value is invalid
+  }
+  return selectedAmount.value ?? tipOptions[1]!.amount;
+});
 
-const formattedTipAmount = computed(() => `$${tipAmount.value.toFixed(2)}`);
+const formattedTipAmount = computed(() => {
+  if (tipAmount.value === null) {
+    return '';
+  }
+  return `$${tipAmount.value.toFixed(2)}`;
+});
+
+const canSubmit = computed(() => {
+  if (!canTip.value) return false;
+  if (hasInvalidCustomAmount.value) return false;
+  return tipAmount.value !== null && tipAmount.value >= 1;
+});
 
 const handleSelectOption = (amount: number) => {
   selectedAmount.value = amount;
@@ -154,8 +189,8 @@ const handleSubmit = async () => {
   }
 
   const amountToProcess = tipAmount.value;
-  if (!amountToProcess || amountToProcess <= 0) {
-    showError('Enter a valid tip amount.');
+  if (!amountToProcess || amountToProcess < 1) {
+    showError('Minimum tip amount is $1.');
     return;
   }
 
@@ -190,6 +225,16 @@ watch(
     if (artist.payoutsEnabled !== true) {
       showError('This artist is not accepting tips at the moment.');
       redirectToArtistProfile();
+    }
+  },
+);
+
+watch(
+  () => customAmount.value,
+  (newVal) => {
+    // Clear selected amount when user starts typing custom value
+    if (newVal !== null && newVal !== undefined) {
+      selectedAmount.value = null;
     }
   },
 );
