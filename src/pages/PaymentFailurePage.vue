@@ -9,8 +9,7 @@
         <div class="flex column items-center">
           <h3 class="text-h5 text-bold q-my-sm">Payment Failed</h3>
           <p class="text-negative text-center q-mb-md q-pa-md text-subtitle2 bg-block border-radius-lg">
-            Your payment could not be processed. Your booking request has not been created.
-            Please try again or contact support if the problem persists.
+            Your payment could not be processed. Please try again or contact support if the problem persists.
           </p>
           <p class="text-grey-6 text-center q-px-xl text-bold">
             You can safely close this browser window now.
