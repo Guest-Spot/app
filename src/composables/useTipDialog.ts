@@ -6,12 +6,10 @@ import {
   type ComputedRef,
   type Ref,
 } from 'vue';
-import { UserType } from 'src/interfaces/enums';
 import type { IUser } from 'src/interfaces/user';
 
 const TIP_DIALOG_DELAY_MS = 8000;
 const TIP_DIALOG_STORAGE_PREFIX = 'guestspot-tip-dialog';
-const ACCEPT_TIPS_DIALOG_STORAGE_PREFIX = 'guestspot-accept-tips-dialog';
 
 type UseTipDialogOptions = {
   profileOwner: Ref<IUser | null> | ComputedRef<IUser | null>;
@@ -41,9 +39,7 @@ const safeWriteStorage = (key: string, value: string) => {
 
 export const useTipDialog = ({ profileOwner, currentUser }: UseTipDialogOptions) => {
   const showTipDialog = ref(false);
-  const showAcceptTipsDialog = ref(false);
   const tipTimerId = ref<ReturnType<typeof setTimeout> | null>(null);
-  const acceptTipsTimerId = ref<ReturnType<typeof setTimeout> | null>(null);
 
   const isProfileOwner = computed(() => {
     if (!currentUser.value || !profileOwner.value) {
@@ -61,21 +57,8 @@ export const useTipDialog = ({ profileOwner, currentUser }: UseTipDialogOptions)
     return `${TIP_DIALOG_STORAGE_PREFIX}-${ownerId}-${userId}`;
   });
 
-  const acceptTipsDialogStorageKey = computed(() => {
-    const ownerId = profileOwner.value?.documentId;
-    if (!ownerId) {
-      return null;
-    }
-    return `${ACCEPT_TIPS_DIALOG_STORAGE_PREFIX}-${ownerId}`;
-  });
-
   const tipAlreadyDismissed = computed(() => {
     const key = tipDialogStorageKey.value;
-    return safeReadStorage(key) === 'true';
-  });
-
-  const acceptTipsAlreadyDismissed = computed(() => {
-    const key = acceptTipsDialogStorageKey.value;
     return safeReadStorage(key) === 'true';
   });
 
@@ -95,39 +78,12 @@ export const useTipDialog = ({ profileOwner, currentUser }: UseTipDialogOptions)
     return true;
   });
 
-  const shouldShowAcceptTipsDialog = computed(() => {
-    if (!profileOwner.value) {
-      return false;
-    }
-    if (!isProfileOwner.value) {
-      return false;
-    }
-    if (currentUser.value?.type !== UserType.Artist) {
-      return false;
-    }
-    if (acceptTipsAlreadyDismissed.value) {
-      return false;
-    }
-    if (profileOwner.value.payoutsEnabled === true) {
-      return false;
-    }
-    return true;
-  });
-
   const dismissTipDialog = () => {
     const key = tipDialogStorageKey.value;
     if (key) {
       safeWriteStorage(key, 'true');
     }
     showTipDialog.value = false;
-  };
-
-  const dismissAcceptTipsDialog = () => {
-    const key = acceptTipsDialogStorageKey.value;
-    if (key) {
-      safeWriteStorage(key, 'true');
-    }
-    showAcceptTipsDialog.value = false;
   };
 
   const handleTipDialogToggle = (shouldShow: boolean) => {
@@ -147,39 +103,16 @@ export const useTipDialog = ({ profileOwner, currentUser }: UseTipDialogOptions)
     }, TIP_DIALOG_DELAY_MS);
   };
 
-  const handleAcceptTipsDialogToggle = (shouldShow: boolean) => {
-    if (acceptTipsTimerId.value) {
-      clearTimeout(acceptTipsTimerId.value);
-      acceptTipsTimerId.value = null;
-    }
-
-    if (!shouldShow) {
-      showAcceptTipsDialog.value = false;
-      return;
-    }
-
-    acceptTipsTimerId.value = setTimeout(() => {
-      showAcceptTipsDialog.value = true;
-      acceptTipsTimerId.value = null;
-    }, TIP_DIALOG_DELAY_MS);
-  };
-
   watch(shouldShowTipDialog, handleTipDialogToggle, { immediate: true });
-  watch(shouldShowAcceptTipsDialog, handleAcceptTipsDialogToggle, { immediate: true });
 
   onBeforeUnmount(() => {
     if (tipTimerId.value) {
       clearTimeout(tipTimerId.value);
     }
-    if (acceptTipsTimerId.value) {
-      clearTimeout(acceptTipsTimerId.value);
-    }
   });
 
   return {
     showTipDialog,
-    showAcceptTipsDialog,
     dismissTipDialog,
-    dismissAcceptTipsDialog,
   };
 };

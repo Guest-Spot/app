@@ -6,11 +6,6 @@
       description="Help clients find you easier by adding your address to your profile"
       @fill-address="handleFillAddress"
     />
-    <AcceptTipsDialog
-      v-model="showAcceptTipsDialog"
-      @dismiss="dismissAcceptTipsDialog"
-      @setup="goToAcceptTips"
-    />
     <AccountTypeUpgradeDialog
       v-model="showAccountTypeUpgradeDialog"
       :account-type="UserType.Artist"
@@ -53,10 +48,8 @@ import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import useUser from 'src/modules/useUser';
 import { useRouter, useRoute } from 'vue-router';
 import AddressRequestDialog from 'src/components/Dialogs/AddressRequestDialog.vue';
-import { AcceptTipsDialog } from 'src/components/Dialogs';
 import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog';
 import { useAccountTypeUpgradeDialog } from 'src/composables/useAccountTypeUpgradeDialog';
-import { useTipDialog } from 'src/composables/useTipDialog';
 import AccountTypeUpgradeDialog from 'src/components/Dialogs/AccountTypeUpgradeDialog.vue';
 import { UserType } from 'src/interfaces/enums';
 
@@ -89,10 +82,6 @@ const openPublicProfile = () => {
   void router.push(`/artist/${user.value?.documentId}`);
 };
 
-const goToAcceptTips = () => {
-  void router.push('/profile/accept-tips');
-};
-
 const {
   showAddressDialog,
   dismissAddressDialog: handleDismissAddressDialog,
@@ -113,14 +102,6 @@ const {
   user,
   enabled: isArtist,
   accountType: UserType.Artist,
-});
-
-const {
-  showAcceptTipsDialog,
-  dismissAcceptTipsDialog,
-} = useTipDialog({
-  profileOwner: user,
-  currentUser: user,
 });
 
 const clearUpgradeQuery = () => {
