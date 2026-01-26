@@ -53,16 +53,25 @@ onMounted(() => {
 
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {
-    const url = new URL(event.url);
+    try {
+      const url = new URL(event.url);
 
-    // Check if this is a close-browser command
-    if (url.hash.includes('close-browser')) {
-      void Browser.close();
-    }
+      // Check if this is a close-browser command
+      // Can be in hash (https://domain.com/#/close-browser) or pathname (com.guestspot.app://close-browser)
+      if (url.hash.includes('close-browser') || url.pathname.includes('close-browser')) {
+        void Browser.close();
+        return;
+      }
 
-    // Handle navigation deep links
-    else if (url.hash) {
-      void router.replace(url.hash.substring(1));
+      // Handle navigation deep links
+      if (url.hash) {
+        void router.replace(url.hash.substring(1));
+      }
+    } catch {
+      // If URL parsing fails, check if the URL string contains close-browser
+      if (event.url.includes('close-browser')) {
+        void Browser.close();
+      }
     }
   });
 });
