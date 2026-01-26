@@ -13,7 +13,7 @@
 
       <q-card-section class="dialog-content text-center">
         <div class="icon-wrapper q-mb-lg">
-          <q-icon name="volunteer_activism" size="42px" color="secondary" />
+          <q-icon name="volunteer_activism" size="42px" color="primary" />
         </div>
         <h3 class="text-h5 q-mb-sm">Accept Tips & Support</h3>
         <p class="text-body1 text-grey-6 q-mb-xs">
@@ -25,7 +25,7 @@
         <q-btn label="Maybe later" flat rounded text-color="grey-7" class="later-btn" @click="handleDismiss" />
         <q-btn
           label="Setup tips"
-          color="secondary"
+          color="primary"
           rounded
           unelevated
           class="fill-btn"
@@ -119,7 +119,7 @@ const handleSetup = () => {
   width: 86px;
   height: 86px;
   border-radius: 50%;
-  border: 2px dashed var(--q-secondary);
+  border: 2px dashed var(--q-primary);
   display: flex;
   align-items: center;
   justify-content: center;

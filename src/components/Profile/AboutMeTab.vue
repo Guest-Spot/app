@@ -101,10 +101,9 @@
       </div>
     </div>
 
-    <div class="navigation-list flex column bg-block border-radius-lg">
-      <!-- Payment Settings -->
+    <!-- Payment Settings -->
+    <div v-if="settingsStore.getStripeEnabled && user?.verified && !isGuest" class="navigation-list flex column bg-block border-radius-lg">
       <div
-        v-if="settingsStore.getStripeEnabled && user?.verified && !isGuest"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/payment-settings')"
       >
@@ -117,7 +116,7 @@
         </div>
       </div>
       <div
-        v-if="isArtist && settingsStore.getStripeEnabled && user?.verified && !isGuest"
+        v-if="isArtist && user?.payoutsEnabled === true"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/booking-deposit')"
       >
@@ -130,7 +129,7 @@
         </div>
       </div>
       <div
-        v-if="isArtist && hasDismissedAddressDialog && user?.payoutsEnabled === true"
+        v-if="user?.payoutsEnabled === true"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/accept-tips')"
       >
@@ -169,23 +168,11 @@ import { DELETE_IMAGE_MUTATION } from 'src/apollo/types/mutations/image';
 import useUser from 'src/modules/useUser';
 import { useSettingsStore } from 'src/stores/settings';
 import FeedbackLogout from 'src/components/FeedbackLogout.vue';
-import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
 
 const router = useRouter();
 const { showError } = useNotify();
 const { fetchMe, user, isShop, isGuest, isArtist } = useUser();
 const settingsStore = useSettingsStore();
-const isClient = typeof window !== 'undefined';
-const hasDismissedAddressDialog = computed(() => {
-  if (!isClient || !user.value?.id) {
-    return false;
-  }
-  const storageKey = getAddressDialogStorageKey(user.value.id);
-  if (!storageKey) {
-    return false;
-  }
-  return window.localStorage.getItem(storageKey) === 'true';
-});
 
 // Setup mutation for avatar only
 const { mutate: updateUser, onDone: onDoneUpdate } = useMutation(UPDATE_USER_MUTATION);
