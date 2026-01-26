@@ -7,13 +7,18 @@
       <h2 class="text-h5 q-my-none">Payment <span class="text-primary">Settings</span></h2>
     </div>
 
+  <PaymentSetupSuccessDialog
+    v-model="showPaymentSuccessDialog"
+    @dismiss="handleDismissPaymentSuccessDialog"
+  />
+
   <div class="content-wrapper full-width q-pb-xl">
     <div class="container">
       <div class="payment-settings-card text-center full-width bg-block border-radius-lg">
         <div class="flex column items-start q-gap-sm full-width">
           <!-- Not Configured State -->
           <div v-if="!user?.stripeAccountID" class="payment-not-configured flex column items-center justify-center full-width">
-            <div class="q-mb-md text-body2 text-grey-7">
+            <div class="q-mb-md text-body2 text-grey-7 text-left">
               Configure your payment settings to receive payments from clients
             </div>
             <div class="flex q-gap-sm full-width no-wrap">
@@ -125,6 +130,8 @@ import {
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useStripe from 'src/composables/useStripe';
+import PaymentSetupSuccessDialog from 'src/components/Dialogs/PaymentSetupSuccessDialog.vue';
+import { usePaymentSetupSuccessDialog } from 'src/composables/usePaymentSetupSuccessDialog';
 
 const { showSuccess, showError } = useNotify();
 const { fetchMe, user } = useUser();
@@ -133,6 +140,13 @@ const { openStripeUrl, addBrowserFinishedListener, removeAllBrowserListeners } =
 const stripeSetupLoading = ref(false);
 const stripeDashboardLoading = ref(false);
 const stripeStatusLoading = ref(false);
+
+// Payment success dialog
+const {
+  showPaymentSuccessDialog,
+  handleDismissPaymentSuccessDialog,
+  checkAndShowPaymentSuccessDialog,
+} = usePaymentSetupSuccessDialog({ user });
 
 // Stripe mutations
 const {
@@ -221,15 +235,20 @@ onDoneCheckStripeAccountStatus((result) => {
 
   const statusData = result.data?.checkStripeAccountStatus;
   if (statusData) {
-    void fetchMe();
-
-    if (statusData.payoutsEnabled) {
-      showSuccess('Payment account is fully configured');
-    } else if (statusData.detailsSubmitted) {
-      showError('Payment account setup is incomplete. Please complete the setup.');
-    } else {
-      showError('Payment account is not yet configured');
-    }
+    const wasPayoutsEnabledBefore = user.value?.payoutsEnabled === true;
+    void fetchMe().then(() => {
+      if (statusData.payoutsEnabled) {
+        showSuccess('Payment account is fully configured');
+        // Check if payoutsEnabled changed from false to true
+        if (!wasPayoutsEnabledBefore && statusData.payoutsEnabled) {
+          checkAndShowPaymentSuccessDialog();
+        }
+      } else if (statusData.detailsSubmitted) {
+        showError('Payment account setup is incomplete. Please complete the setup.');
+      } else {
+        showError('Payment account is not yet configured');
+      }
+    });
   }
 });
 
@@ -246,7 +265,12 @@ const onCopyToClipboard = (text: string) => {
 
 const handleBrowserFinished = async () => {
   console.log('Browser closed, refreshing user data...');
+  const wasPayoutsEnabledBefore = user.value?.payoutsEnabled === true;
   await fetchMe();
+  // Check if payoutsEnabled changed from false/undefined to true
+  if (!wasPayoutsEnabledBefore && user.value?.payoutsEnabled === true) {
+    checkAndShowPaymentSuccessDialog();
+  }
 };
 
 onMounted(() => {

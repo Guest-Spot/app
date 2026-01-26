@@ -20,6 +20,20 @@
   </q-page>
 </template>
 
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { Capacitor } from '@capacitor/core';
+
+onMounted(() => {
+  // Close browser on native platforms after showing success message
+  if (Capacitor.isNativePlatform()) {
+    setTimeout(() => {
+      window.location.href = 'com.guestspot.app://close-browser';
+    }, 500);
+  }
+});
+</script>
+
 <style scoped lang="scss">
 .success-icon-wrapper {
   display: flex;

@@ -15,6 +15,7 @@ import useSettings from 'src/composables/useSettings';
 import useTattooStyles from 'src/modules/useTattooStyles';
 import useNavigationBar from 'src/modules/useNavigationBar';
 import { App } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 import { useRouter } from 'vue-router';
 
 const { fetchMe, user } = useUser();
@@ -53,6 +54,14 @@ onMounted(() => {
   // Handle deep links when app is already open
   void App.addListener('appUrlOpen', (event) => {
     const url = new URL(event.url);
+    
+    // Check if this is a close-browser command
+    if (event.url.includes('close-browser')) {
+      void Browser.close();
+      return;
+    }
+    
+    // Handle navigation deep links
     if (url.hash) {
       void router.replace(url.hash.substring(1));
     }

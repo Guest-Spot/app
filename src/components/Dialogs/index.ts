@@ -1,4 +1,3 @@
-export { default as AcceptTipsDialog } from './AcceptTipsDialog.vue';
 export { default as ArtistInviteDialog } from './ArtistInviteDialog.vue';
 export { default as BookingDetailsDialog } from './BookingDetailsDialog.vue';
 export { default as ClaimProfileDialog } from './ClaimProfileDialog.vue';
@@ -6,6 +5,7 @@ export { default as DeleteImageConfirmationDialog } from './DeleteImageConfirmat
 export { default as EmailConfirmationDialog } from './EmailConfirmationDialog.vue';
 export { default as FilterDialog } from './FilterDialog.vue';
 export { default as ImagePreviewDialog } from './ImagePreviewDialog.vue';
+export { default as PaymentSetupSuccessDialog } from './PaymentSetupSuccessDialog.vue';
 export { default as SearchDialog } from './SearchDialog.vue';
 export { default as ShopInfoDialog } from './ShopInfoDialog.vue';
 export { default as SortDialog } from './SortDialog.vue';
