@@ -139,7 +139,13 @@ export default function useGuestSpot() {
 
   onResultBookings((result) => {
     if (result.data?.guestSpotBookings) {
-      guestSpotStore.setBookings(result.data.guestSpotBookings);
+      const mappedBookings = result.data.guestSpotBookings.map((booking) => ({
+        ...booking,
+        guestSpotSlotDocumentId: booking.slot?.documentId || '',
+        artistDocumentId: booking.artist?.documentId || '',
+        shopDocumentId: booking.shop?.documentId || '',
+      }));
+      guestSpotStore.setBookings(mappedBookings);
     }
   });
 
@@ -150,7 +156,14 @@ export default function useGuestSpot() {
 
   onResultBooking((result) => {
     if (result.data?.guestSpotBooking) {
-      guestSpotStore.updateBooking(result.data.guestSpotBooking);
+      const booking = result.data.guestSpotBooking;
+      const mappedBooking = {
+        ...booking,
+        guestSpotSlotDocumentId: booking.slot?.documentId || '',
+        artistDocumentId: booking.artist?.documentId || '',
+        shopDocumentId: booking.shop?.documentId || '',
+      };
+      guestSpotStore.updateBooking(mappedBooking);
     }
   });
 
@@ -209,10 +222,10 @@ export default function useGuestSpot() {
         graphQLFilters.status = { eq: filters.status };
       }
       if (filters.shopDocumentId) {
-        graphQLFilters.shopDocumentId = { eq: filters.shopDocumentId };
+        graphQLFilters.shop = { documentId: { eq: filters.shopDocumentId } };
       }
       if (filters.artistDocumentId) {
-        graphQLFilters.artistDocumentId = { eq: filters.artistDocumentId };
+        graphQLFilters.artist = { documentId: { eq: filters.artistDocumentId } };
       }
       if (filters.date) {
         graphQLFilters.selectedDate = { eq: filters.date };
@@ -441,7 +454,13 @@ export default function useGuestSpot() {
 
       const booking = result?.data?.createGuestSpotBooking as IGuestSpotBooking | undefined;
       if (booking) {
-        guestSpotStore.setBookings([...guestSpotStore.getBookings, booking]);
+        const mappedBooking = {
+          ...booking,
+          guestSpotSlotDocumentId: booking.slot?.documentId || data.guestSpotSlotDocumentId,
+          artistDocumentId: booking.artist?.documentId || '',
+          shopDocumentId: booking.shop?.documentId || '',
+        };
+        guestSpotStore.setBookings([...guestSpotStore.getBookings, mappedBooking]);
         showSuccess('Booking request created successfully');
 
         // Create public event for booking creation
@@ -455,11 +474,11 @@ export default function useGuestSpot() {
             shopDocumentId: slot.shop.documentId,
             artistDocumentId: artist.documentId,
             guestSpotSlotDocumentId: slot.documentId,
-            guestSpotBookingDocumentId: booking.documentId,
+            guestSpotBookingDocumentId: mappedBooking.documentId,
           });
         }
 
-        return booking;
+        return mappedBooking;
       }
       return null;
     } catch (error) {

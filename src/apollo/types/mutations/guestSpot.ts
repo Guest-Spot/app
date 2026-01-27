@@ -71,9 +71,6 @@ export const CREATE_GUEST_SPOT_BOOKING_MUTATION = gql`
   mutation CreateGuestSpotBooking($data: GuestSpotBookingInput!) {
     createGuestSpotBooking(data: $data) {
       documentId
-      guestSpotSlotDocumentId
-      artistDocumentId
-      shopDocumentId
       status
       selectedDate
       selectedTime

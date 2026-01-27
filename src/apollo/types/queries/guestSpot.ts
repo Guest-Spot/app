@@ -100,9 +100,6 @@ export const GUEST_SPOT_BOOKINGS_QUERY = gql`
   ) {
     guestSpotBookings(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
-      guestSpotSlotDocumentId
-      artistDocumentId
-      shopDocumentId
       status
       selectedDate
       selectedTime
@@ -160,7 +157,7 @@ export const GUEST_SPOT_BOOKINGS_QUERY = gql`
         depositAmount
         spaces
         openingHours {
-          documentId
+          id
           day
           start
           end
@@ -174,9 +171,6 @@ export const GUEST_SPOT_BOOKING_QUERY = gql`
   query GuestSpotBooking($documentId: ID!) {
     guestSpotBooking(documentId: $documentId) {
       documentId
-      guestSpotSlotDocumentId
-      artistDocumentId
-      shopDocumentId
       status
       selectedDate
       selectedTime
@@ -234,7 +228,7 @@ export const GUEST_SPOT_BOOKING_QUERY = gql`
         depositAmount
         spaces
         openingHours {
-          documentId
+          id
           day
           start
           end
