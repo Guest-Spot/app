@@ -35,6 +35,7 @@
       <AboutMeTab v-show="activeTab.tab === TAB_ABOUT" />
       <ShopArtistsTab v-show="activeTab.tab === TAB_ARTISTS" />
       <PortfolioTab v-show="activeTab.tab === TAB_PORTFOLIO" profile-type="shop" />
+      <GuestSpotTab v-show="activeTab.tab === TAB_GUEST_SPOT" />
     </div>
   </q-page>
 </template>
@@ -43,7 +44,7 @@
 import { ref, watch } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
-import { ShopArtistsTab } from 'src/components/ShopProfile';
+import { ShopArtistsTab, GuestSpotTab } from 'src/components/ShopProfile';
 import { TabsComp, PortfolioTab } from 'src/components';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -59,6 +60,7 @@ const { user, isShop } = useUser();
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
 const TAB_PORTFOLIO = 'portfolio';
+const TAB_GUEST_SPOT = 'guest-spot';
 
 const TABS: ITab[] = [
   {
@@ -72,6 +74,10 @@ const TABS: ITab[] = [
   {
     label: 'Shop Artists',
     tab: TAB_ARTISTS,
+  },
+  {
+    label: 'Guest Spot',
+    tab: TAB_GUEST_SPOT,
   },
 ];
 

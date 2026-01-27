@@ -50,8 +50,8 @@ const bus = inject('bus') as EventBus;
 const bookings = {
   [UserType.Shop]: {
     icon: 'event_note',
-    label: 'Bookings',
-    path: '/bookings',
+    label: 'Guest Spot',
+    path: '/guest-spot-bookings',
   },
   [UserType.Artist]: {
     icon: 'event',

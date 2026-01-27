@@ -33,6 +33,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Shop Bookings' },
       },
       {
+        path: 'guest-spot-bookings',
+        component: () => import('pages/GuestSpotBookingsPage.vue'),
+        meta: { title: 'Guest Spot Bookings' },
+      },
+      {
         path: 'my-bookings',
         component: () => import('pages/MyBookingsPage.vue'),
         meta: { title: 'My Booking Requests' },
@@ -189,6 +194,16 @@ const routes: RouteRecordRaw[] = [
         path: 'shop/:documentId',
         component: () => import('pages/PublicShopProfile.vue'),
         meta: { title: 'Shop Profile', hasBack: true },
+      },
+      {
+        path: 'guest-spots',
+        component: () => import('pages/GuestSpotSlotsPage.vue'),
+        meta: { title: 'Guest Spots' },
+      },
+      {
+        path: 'shop/:documentId/guest-spot',
+        component: () => import('pages/GuestSpotBookingPage.vue'),
+        meta: { title: 'Book Guest Spot', hasBack: true },
       },
       {
         path: 'store-redirect',

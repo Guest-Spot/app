@@ -30,6 +30,10 @@
           <q-icon name="schedule" size="16px" />
           <span>{{ openingHourText }}</span>
         </div>
+        <div v-if="hasGuestSpots" class="guest-spot-badge text-primary">
+          <q-icon name="event_available" size="16px" />
+          <span class="text-caption text-weight-medium">Guest Spots Available</span>
+        </div>
       </div>
     </div>
   </div>
@@ -45,6 +49,7 @@ import { OpeningHoursIndexDays } from 'src/interfaces/enums';
 
 interface Props {
   shop: IUser;
+  hasGuestSpots?: boolean;
 }
 
 interface Emits {
@@ -52,7 +57,10 @@ interface Emits {
   (e: 'favorite', shopDocumentId: string): void;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  hasGuestSpots: false,
+});
+
 const emit = defineEmits<Emits>();
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
@@ -135,7 +143,8 @@ const toggleFavorite = () => {
 }
 
 .shop-location,
-.shop-hours {
+.shop-hours,
+.guest-spot-badge {
   display: flex;
   align-items: center;
   gap: 6px;

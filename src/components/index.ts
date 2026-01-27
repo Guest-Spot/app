@@ -22,3 +22,10 @@ export { default as InviteNotificationItem } from './Cards/InviteNotificationIte
 
 // Portfolio components
 export * from './Portfolio';
+
+// Guest Spot components
+export { default as GuestSpotSlotCard } from './GuestSpot/GuestSpotSlotCard.vue';
+export { default as GuestSpotBookingCard } from './GuestSpot/GuestSpotBookingCard.vue';
+export { default as GuestSpotBookingDialog } from './GuestSpot/GuestSpotBookingDialog.vue';
+export { default as ArtistGuestSpotBookings } from './GuestSpot/ArtistGuestSpotBookings.vue';
+export { default as GuestSpotEventCard } from './GuestSpot/GuestSpotEventCard.vue';

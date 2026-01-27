@@ -80,3 +80,26 @@ export enum EBookingPaymentStatus {
   Canceled = 'canceled',
   Authorized = 'authorized',
 }
+
+export enum EGuestSpotBookingStatus {
+  Pending = 'pending',
+  Accepted = 'accepted',
+  Rejected = 'rejected',
+  Completed = 'completed',
+  Cancelled = 'cancelled',
+}
+
+export enum EGuestSpotPricingType {
+  Hourly = 'hourly',
+  Daily = 'daily',
+  Flat = 'flat',
+}
+
+export enum EGuestSpotEventType {
+  SlotOpened = 'slot_opened',
+  SlotUpdated = 'slot_updated',
+  BookingCreated = 'booking_created',
+  BookingAccepted = 'booking_accepted',
+  BookingRejected = 'booking_rejected',
+  BookingCompleted = 'booking_completed',
+}
