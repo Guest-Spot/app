@@ -75,29 +75,19 @@
         </div>
 
         <!-- Slot Form Dialog -->
-        <q-dialog v-model="showSlotForm">
-          <q-card style="min-width: 500px; max-width: 800px">
-            <q-card-section>
-              <div class="text-h6">{{ editingSlot ? 'Edit Slot' : 'Create Slot' }}</div>
-            </q-card-section>
-
-            <q-card-section class="q-pt-none">
-              <GuestSpotSlotForm
-                :slot-data="editingSlot"
-                :loading="isCreatingSlot || isUpdatingSlot"
-                @submit="handleSlotSubmit"
-                @cancel="showSlotForm = false"
-              />
-            </q-card-section>
-          </q-card>
-        </q-dialog>
+        <GuestSpotSlotDialog
+          v-model="showSlotForm"
+          :slot-data="editingSlot"
+          :loading="isUpdatingSlot"
+          @submit="handleSlotSubmit"
+        />
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 
@@ -116,7 +106,7 @@ import {
   NoResult,
   GuestSpotSlotManagementCard,
 } from 'src/components';
-import GuestSpotSlotForm from 'src/components/ShopProfile/GuestSpotTab/GuestSpotSlotForm.vue';
+import { GuestSpotSlotDialog } from 'src/components/Dialogs';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -125,11 +115,11 @@ const { user } = useUser();
 const {
   slots,
   isLoadingSlots,
-  isCreatingSlot,
   isUpdatingSlot,
   isDeletingSlot,
   isTogglingEnabled,
   loadSlots,
+  refetchSlots,
   updateSlot,
   deleteSlot,
   toggleEnabled,
@@ -208,14 +198,30 @@ const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
 
   // Only handle updates here (editing), creation is handled on separate page
   if (editingSlot.value?.documentId) {
-    const slot = await updateSlot(editingSlot.value.documentId, data);
-    if (slot) {
-      showSlotForm.value = false;
-      editingSlot.value = null;
-      const shopDocumentId = user.value?.documentId;
-      if (shopDocumentId) {
-        // Reload slots after update
-        await loadSlots({ shopDocumentId });
+    await updateSlot(editingSlot.value.documentId, data);
+    
+    // Close dialog first
+    showSlotForm.value = false;
+    editingSlot.value = null;
+    
+    // Wait for next tick to ensure dialog is closed and mutation is complete
+    await nextTick();
+    
+    // Refetch all slots after update to ensure data is up to date
+    const shopDocumentId = user.value?.documentId;
+    if (shopDocumentId) {
+      // Use refetchSlots with the same variables to bypass cache
+      try {
+        const variables: Record<string, unknown> = {
+          filters: {
+            shop: { documentId: { eq: shopDocumentId } },
+          },
+        };
+        await refetchSlots(variables);
+      } catch (error) {
+        // Fallback to loadSlots if refetch fails (e.g., query not loaded yet)
+        console.warn('Refetch failed, using loadSlots:', error);
+        await loadUserSlots();
       }
     }
   }

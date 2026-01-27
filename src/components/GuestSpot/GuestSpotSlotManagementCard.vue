@@ -1,5 +1,5 @@
 <template>
-  <div class="slot-card bg-block border-radius-lg flex column q-gap-md q-pa-md">
+  <div @click="handleEdit" class="slot-card bg-block border-radius-lg flex column q-gap-md q-pa-md">
     <!-- Header: Icon + Title + Status + Actions -->
     <div class="slot-header flex items-center justify-between">
       <div class="slot-header-left flex items-center q-gap-md">

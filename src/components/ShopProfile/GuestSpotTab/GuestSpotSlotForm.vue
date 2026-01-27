@@ -1,6 +1,6 @@
 <template>
   <div class="guest-spot-slot-form">
-    <q-form @submit="handleSubmit" class="flex column items-start q-gap-sm full-width">
+    <q-form ref="formRef" @submit="handleSubmit" class="flex column items-start q-gap-sm full-width">
       <!-- Description -->
       <div class="flex column items-start q-gap-xs full-width">
         <label class="input-label">Description</label>
@@ -96,32 +96,13 @@
           </p>
         </div>
       </div>
-
-      <!-- Actions -->
-      <div class="flex q-gap-sm justify-end full-width q-mt-md">
-        <q-btn
-          flat
-          label="Cancel"
-          rounded
-          unelevated
-          class="bg-block"
-          @click="$emit('cancel')"
-        />
-        <q-btn
-          type="submit"
-          color="primary"
-          :label="isEditing ? 'Update Slot' : 'Create Slot'"
-          :loading="loading"
-          rounded
-          unelevated
-        />
-      </div>
     </q-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
+import type { QForm } from 'quasar';
 import type { IGuestSpotSlotForm } from 'src/interfaces/guestSpot';
 import { EGuestSpotPricingType } from 'src/interfaces/enums';
 
@@ -141,7 +122,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   submit: [data: IGuestSpotSlotForm];
-  cancel: [];
 }>();
 
 const formData = ref<IGuestSpotSlotForm>({
@@ -170,8 +150,6 @@ const priceRules = [
     return true;
   },
 ];
-
-const isEditing = computed(() => !!props.slotData);
 
 // Initialize form data from slotData if editing
 watch(
@@ -275,8 +253,18 @@ const handleSubmit = () => {
   emit('submit', data);
 };
 
-// Expose component for Vetur type checking
-defineExpose({});
+const formRef = ref<QForm | null>(null);
+
+const submit = () => {
+  if (formRef.value) {
+    formRef.value.submit();
+  }
+};
+
+// Expose component methods
+defineExpose({
+  submit,
+});
 </script>
 
 <style scoped lang="scss">
