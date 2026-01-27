@@ -3,18 +3,18 @@
     <!-- Enable/Disable Toggle -->
     <div class="toggle-section bg-block border-radius-lg q-pa-md q-mb-md">
       <div class="flex items-center justify-between">
-        <div>
+        <div class="flex items-center justify-between full-width">
           <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Availability</h3>
-          <p class="text-body2 text-grey-6 q-mt-xs q-mb-none">
-            Enable guest spot slots for artists to book
-          </p>
+          <q-toggle
+            v-model="isEnabled"
+            color="primary"
+            :loading="isTogglingEnabled"
+            @update:model-value="handleToggleEnabled"
+          />
         </div>
-        <q-toggle
-          v-model="isEnabled"
-          color="primary"
-          :loading="isTogglingEnabled"
-          @update:model-value="handleToggleEnabled"
-        />
+        <p class="text-body2 text-grey-6 q-mt-xs q-mb-none">
+          Enable guest spot slots for artists to book
+        </p>
       </div>
     </div>
 
@@ -26,8 +26,9 @@
           color="primary"
           icon="add"
           label="Create Slot"
-          @click="showSlotForm = true"
+          @click="handleCreateSlot"
           unelevated
+          rounded
         />
       </div>
 
@@ -118,7 +119,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { defineOptions } from 'vue';
+import { useRouter } from 'vue-router';
 
 defineOptions({
   name: 'GuestSpotTab',
@@ -133,6 +134,7 @@ import { LoadingState, NoResult } from 'src/components';
 import GuestSpotSlotForm from './GuestSpotSlotForm.vue';
 
 const $q = useQuasar();
+const router = useRouter();
 const { user } = useUser();
 
 const {
@@ -143,7 +145,6 @@ const {
   isDeletingSlot,
   isTogglingEnabled,
   loadSlots,
-  createSlot,
   updateSlot,
   deleteSlot,
   toggleEnabled,
@@ -180,25 +181,23 @@ const handleToggleEnabled = async (enabled: boolean) => {
   }
 };
 
+const handleCreateSlot = () => {
+  void router.push('/create-guest-spot-slot');
+};
+
 const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
   if (!user.value?.documentId) return;
 
-  let success = false;
+  // Only handle updates here (editing), creation is handled on separate page
   if (editingSlot.value?.documentId) {
-    // Update existing slot
     const slot = await updateSlot(editingSlot.value.documentId, data);
-    success = !!slot;
-  } else {
-    const slot = await createSlot(data);
-    success = !!slot;
-  }
-
-  if (success) {
-    showSlotForm.value = false;
-    editingSlot.value = null;
-    const shopDocumentId = user.value?.documentId;
-    if (shopDocumentId) {
-      await loadSlots({ shopDocumentId, enabled: true });
+    if (slot) {
+      showSlotForm.value = false;
+      editingSlot.value = null;
+      const shopDocumentId = user.value?.documentId;
+      if (shopDocumentId) {
+        await loadSlots({ shopDocumentId, enabled: true });
+      }
     }
   }
 };

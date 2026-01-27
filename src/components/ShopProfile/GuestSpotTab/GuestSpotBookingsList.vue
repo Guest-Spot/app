@@ -1,16 +1,15 @@
 <template>
   <div class="guest-spot-bookings-list">
-    <div class="bookings-header bg-block border-radius-lg q-pa-md q-mb-md">
-      <h3 class="text-subtitle1 text-bold q-my-none q-mb-md">Guest Spot Bookings</h3>
-      <TabsComp
-        size="sm"
-        unelevated
-        send-initial-tab
-        :tabs="filterTabs"
-        :activeTab="activeFilterTab"
-        @set-active-tab="setActiveTab"
-      />
-    </div>
+    <!-- Header -->
+    <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Bookings</h3>
+    <TabsComp
+      size="sm"
+      unelevated
+      send-initial-tab
+      :tabs="filterTabs"
+      :activeTab="activeFilterTab"
+      @set-active-tab="setActiveTab"
+    />
 
     <LoadingState
       v-if="loading && !bookings.length"
