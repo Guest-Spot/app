@@ -34,6 +34,7 @@ export const ME_QUERY = gql`
       depositAmount
       chargeDeposit
       verified
+      guestSpotEnabled
       parent {
         documentId
         name

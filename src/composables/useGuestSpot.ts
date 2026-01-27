@@ -242,9 +242,9 @@ export default function useGuestSpot() {
         },
         { immediate: true },
       );
-      
+
       void loadGuestSpotBooking(undefined, { documentId });
-      
+
       // Timeout fallback
       setTimeout(() => {
         unwatch();
@@ -262,26 +262,38 @@ export default function useGuestSpot() {
         return null;
       }
 
+      // Prepare data for mutation
+      const mutationData = {
+        shop: shopDocumentId,
+        enabled: true,
+        description: data.description,
+        pricingOptions: data.pricingOptions || [],
+        depositAmount: data.depositAmount || 0,
+        spaces: data.spaces || 1,
+        openingHours: (data.openingHours || []).map((hour) => ({
+          day: hour.day,
+          start: hour.start,
+          end: hour.end,
+          // Don't include id for new opening hours
+        })),
+      };
+
+      console.log('Creating guest spot slot with data:', mutationData);
+
       const result = await createGuestSpotSlot({
-        data: {
-          shop: shopDocumentId,
-          enabled: true,
-          description: data.description,
-          pricingOptions: data.pricingOptions,
-          depositAmount: data.depositAmount,
-          spaces: data.spaces,
-          openingHours: data.openingHours,
-        },
+        data: mutationData,
       });
 
+      console.log('Mutation result:', result);
+
       const slot = result?.data?.createGuestSpotSlot as IGuestSpotSlot | undefined;
-      if (slot) {
+      if (slot && slot.documentId) {
         guestSpotStore.setSlots([...guestSpotStore.getSlots, slot]);
         showSuccess('Guest spot slot created successfully');
-        
+
         // Create public event for slot opening
         const shop = userStore.getUser;
-        if (shop) {
+        if (shop && shop.documentId) {
           void createGuestSpotEvent({
             type: EGuestSpotEventType.SlotOpened,
             title: `${shop.name} opened a Guest Spot`,
@@ -290,13 +302,25 @@ export default function useGuestSpot() {
             guestSpotSlotDocumentId: slot.documentId,
           });
         }
-        
+
         return slot;
       }
+
+      if (slot && !slot.documentId) {
+        console.error('Slot created but documentId is missing:', slot);
+        showError('Slot created but missing document ID');
+      }
+
+      if (!slot) {
+        console.error('No slot returned from mutation:', result);
+        showError('Failed to create guest spot slot: no data returned');
+      }
+
       return null;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating guest spot slot:', error);
-      showError('Failed to create guest spot slot');
+      const errorMessage = (error as Error)?.message || 'Failed to create guest spot slot';
+      showError(errorMessage);
       return null;
     }
   };
@@ -321,7 +345,7 @@ export default function useGuestSpot() {
       if (slot) {
         guestSpotStore.updateSlot(slot);
         showSuccess('Guest spot slot updated successfully');
-        
+
         // Create public event for slot update
         const shop = userStore.getUser;
         if (shop) {
@@ -333,7 +357,7 @@ export default function useGuestSpot() {
             guestSpotSlotDocumentId: slot.documentId,
           });
         }
-        
+
         return slot;
       }
       return null;
@@ -359,7 +383,18 @@ export default function useGuestSpot() {
 
   const toggleEnabled = async (shopDocumentId: string, enabled: boolean): Promise<boolean> => {
     try {
-      await toggleGuestSpotEnabled({ shopDocumentId, enabled });
+      const result = await toggleGuestSpotEnabled({ shopDocumentId, enabled });
+      
+      // Update user's guestSpotEnabled status in store
+      const currentUser = userStore.getUser;
+      if (currentUser && result?.data?.toggleGuestSpotEnabled) {
+        const updatedUser = {
+          ...currentUser,
+          guestSpotEnabled: result.data.toggleGuestSpotEnabled.guestSpotEnabled,
+        };
+        userStore.setUser(updatedUser);
+      }
+      
       showSuccess(`Guest spot ${enabled ? 'enabled' : 'disabled'} successfully`);
       return true;
     } catch (error) {
@@ -408,7 +443,7 @@ export default function useGuestSpot() {
       if (booking) {
         guestSpotStore.setBookings([...guestSpotStore.getBookings, booking]);
         showSuccess('Booking request created successfully');
-        
+
         // Create public event for booking creation
         const artist = userStore.getUser;
         const slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
@@ -423,7 +458,7 @@ export default function useGuestSpot() {
             guestSpotBookingDocumentId: booking.documentId,
           });
         }
-        
+
         return booking;
       }
       return null;
@@ -439,7 +474,7 @@ export default function useGuestSpot() {
       await approveGuestSpotBooking({ documentId });
       const booking = await loadBooking(documentId);
       showSuccess('Booking approved successfully');
-      
+
       // Create public event for booking approval
       if (booking) {
         const shop = userStore.getUser;
@@ -455,7 +490,7 @@ export default function useGuestSpot() {
           });
         }
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error approving booking:', error);
@@ -469,7 +504,7 @@ export default function useGuestSpot() {
       await rejectGuestSpotBooking({ documentId, rejectNote });
       const booking = await loadBooking(documentId);
       showSuccess('Booking rejected successfully');
-      
+
       // Create public event for booking rejection
       if (booking) {
         const shop = userStore.getUser;
@@ -485,7 +520,7 @@ export default function useGuestSpot() {
           });
         }
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error rejecting booking:', error);

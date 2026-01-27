@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 
@@ -169,15 +169,46 @@ const isEnabled = ref(false);
 const showSlotForm = ref(false);
 const editingSlot = ref<(IGuestSpotSlotForm & { documentId?: string }) | null>(null);
 
-onMounted(async () => {
-  if (user.value?.documentId) {
-    // Check if guest spot is enabled for this shop
-    // This would come from user.guestSpotEnabled in the future
-    isEnabled.value = true; // Default for now
+// Function to load slots for current user
+const loadUserSlots = async () => {
+  const shopDocumentId = user.value?.documentId;
+  if (shopDocumentId) {
+    // Load all slots for this shop (without enabled filter)
+    await loadSlots({ shopDocumentId });
+  }
+};
 
-    if (user.value.documentId) {
-      await loadSlots({ shopDocumentId: user.value.documentId, enabled: true });
+// Watch for user data changes to update isEnabled
+watch(
+  () => user.value?.guestSpotEnabled,
+  (guestSpotEnabled) => {
+    if (guestSpotEnabled !== undefined) {
+      isEnabled.value = guestSpotEnabled;
     }
+  },
+  { immediate: true },
+);
+
+// Watch for user documentId to load slots when user is available
+watch(
+  () => user.value?.documentId,
+  async (documentId) => {
+    if (documentId) {
+      // Update isEnabled from user data
+      isEnabled.value = user.value?.guestSpotEnabled ?? false;
+      
+      // Load all slots for this shop
+      await loadUserSlots();
+    }
+  },
+  { immediate: true },
+);
+
+onMounted(async () => {
+  // Ensure slots are loaded if user is already available
+  if (user.value?.documentId) {
+    isEnabled.value = user.value.guestSpotEnabled ?? false;
+    await loadUserSlots();
   }
 });
 
@@ -186,11 +217,13 @@ const handleToggleEnabled = async (enabled: boolean) => {
 
   const success = await toggleEnabled(user.value.documentId, enabled);
   if (success) {
-    isEnabled.value = enabled;
+    // Update isEnabled from user data (which was updated by toggleEnabled)
+    isEnabled.value = user.value.guestSpotEnabled ?? enabled;
     if (enabled) {
       const shopDocumentId = user.value.documentId;
       if (shopDocumentId) {
-        await loadSlots({ shopDocumentId, enabled: true });
+        // Reload all slots for this shop
+        await loadSlots({ shopDocumentId });
       }
     }
   }
@@ -211,7 +244,8 @@ const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
       editingSlot.value = null;
       const shopDocumentId = user.value?.documentId;
       if (shopDocumentId) {
-        await loadSlots({ shopDocumentId, enabled: true });
+        // Reload slots after update
+        await loadSlots({ shopDocumentId });
       }
     }
   }
@@ -241,7 +275,8 @@ const handleDeleteSlot = (documentId: string) => {
       if (success) {
         const shopDocumentId = user.value?.documentId;
         if (shopDocumentId) {
-          await loadSlots({ shopDocumentId, enabled: true });
+          // Reload slots after delete
+          await loadSlots({ shopDocumentId });
         }
       }
     })();

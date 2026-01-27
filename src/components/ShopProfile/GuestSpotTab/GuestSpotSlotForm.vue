@@ -47,51 +47,54 @@
       <!-- Pricing Options -->
       <div class="flex column items-start q-gap-xs full-width">
         <label class="input-label">Pricing</label>
-        
-        <!-- Pricing Type Selector -->
-        <q-select
-          v-model="pricingType"
-          :options="pricingTypeOptions"
-          option-label="label"
-          option-value="value"
-          emit-value
-          map-options
-          outlined
-          rounded
-          size="lg"
-          placeholder="Select pricing type"
-          class="full-width"
-          bg-color="transparent"
-        >
-          <template v-slot:prepend>
-            <q-icon name="attach_money" color="grey-6" />
-          </template>
-        </q-select>
 
-        <!-- Price Input (shown only when Hourly or Daily is selected) -->
-        <div v-if="pricingType && pricingType !== 'free'" class="flex column items-start q-gap-xs full-width">
-          <q-input
-            v-model.number="price"
-            type="number"
-            :placeholder="pricingType === 'hourly' ? 'Price per hour ($)' : 'Price per day ($)'"
+        <div class="flex q-gap-md column full-width">
+
+          <!-- Pricing Type Selector -->
+          <q-select
+            v-model="pricingType"
+            :options="pricingTypeOptions"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
             outlined
             rounded
             size="lg"
-            step="0.01"
-            min="0"
-            :rules="priceRules"
+            placeholder="Select pricing type"
             class="full-width"
             bg-color="transparent"
           >
             <template v-slot:prepend>
-              <q-icon :name="pricingType === 'hourly' ? 'schedule' : 'event'" color="grey-6" />
+              <q-icon name="attach_money" color="grey-6" />
             </template>
-          </q-input>
-        </div>
+          </q-select>
 
-        <p v-if="pricingError" class="text-negative text-caption q-mt-xs">
-          {{ pricingError }}
-        </p>
+          <!-- Price Input (shown only when Hourly or Daily is selected) -->
+          <div v-if="pricingType && pricingType !== 'free'" class="flex column items-start q-gap-xs full-width">
+            <q-input
+              v-model.number="price"
+              type="number"
+              :placeholder="pricingType === 'hourly' ? 'Price per hour ($)' : 'Price per day ($)'"
+              outlined
+              rounded
+              size="lg"
+              step="0.01"
+              min="0"
+              :rules="priceRules"
+              class="full-width"
+              bg-color="transparent"
+            >
+              <template v-slot:prepend>
+                <q-icon :name="pricingType === 'hourly' ? 'schedule' : 'event'" color="grey-6" />
+              </template>
+            </q-input>
+          </div>
+
+          <p v-if="pricingError" class="text-negative text-caption q-mt-xs">
+            {{ pricingError }}
+          </p>
+        </div>
       </div>
 
       <!-- Actions -->
@@ -189,7 +192,7 @@ watch(
       // Extract pricing type and price
       const hourlyOption = slot.pricingOptions.find((opt) => opt.type === EGuestSpotPricingType.Hourly);
       const dailyOption = slot.pricingOptions.find((opt) => opt.type === EGuestSpotPricingType.Daily);
-      
+
       if (hourlyOption) {
         pricingType.value = 'hourly';
         price.value = hourlyOption.amount / 100;
@@ -245,7 +248,7 @@ const handleSubmit = () => {
 
   // Build pricing options
   const pricingOptions: IGuestSpotSlotForm['pricingOptions'] = [];
-  
+
   if (pricingType.value === 'hourly' && price.value && price.value > 0) {
     pricingOptions.push({
       type: EGuestSpotPricingType.Hourly,
@@ -268,7 +271,7 @@ const handleSubmit = () => {
     spaces: formData.value.spaces,
     openingHours: [], // Empty array as per requirements
   };
-  
+
   emit('submit', data);
 };
 

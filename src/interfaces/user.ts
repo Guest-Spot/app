@@ -73,6 +73,7 @@ export interface IUser {
   depositAmount?: number | null;
   chargeDeposit?: boolean;
   verified?: boolean;
+  guestSpotEnabled?: boolean;
   profile?: IProfile;
 }
 
