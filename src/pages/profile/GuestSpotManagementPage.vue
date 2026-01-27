@@ -9,7 +9,7 @@
       </h2>
     </div>
 
-    <div class="container full-width">
+    <div class="container ">
       <div class="guest-spot-management">
         <!-- Enable/Disable Toggle -->
         <div class="toggle-section bg-block border-radius-lg q-pa-md q-mb-md">
@@ -37,10 +37,10 @@
             <q-btn
               color="primary"
               icon="add"
-              label="Create Slot"
               @click="handleCreateSlot"
               unelevated
-              rounded
+              round
+              size="sm"
             />
           </div>
 
@@ -53,50 +53,16 @@
           />
 
           <div v-else-if="slots.length" class="slots-list">
-            <q-card
-              v-for="slot in slots"
-              :key="slot.documentId"
-              class="slot-card bg-block q-mb-md"
-            >
-              <q-card-section>
-                <div class="flex items-center justify-between q-mb-sm">
-                  <div>
-                    <div class="text-subtitle2 text-weight-bold">{{ slot.description }}</div>
-                    <div class="text-caption text-grey-6">
-                      Deposit: ${{ (slot.depositAmount / 100).toFixed(2) }} | Spaces:
-                      {{ slot.spaces }}
-                    </div>
-                  </div>
-                  <div class="flex q-gap-xs">
-                    <q-btn
-                      flat
-                      icon="edit"
-                      size="sm"
-                      @click="handleEditSlot(slot)"
-                      :loading="isUpdatingSlot"
-                    />
-                    <q-btn
-                      flat
-                      icon="delete"
-                      size="sm"
-                      color="negative"
-                      @click="handleDeleteSlot(slot.documentId)"
-                      :loading="isDeletingSlot"
-                    />
-                  </div>
-                </div>
-                <div class="pricing-options q-mt-sm">
-                  <q-chip
-                    v-for="(option, index) in slot.pricingOptions"
-                    :key="index"
-                    size="sm"
-                    :label="`${option.type}: $${(option.amount / 100).toFixed(2)}`"
-                    color="primary"
-                    text-color="white"
-                  />
-                </div>
-              </q-card-section>
-            </q-card>
+            <GuestSpotSlotManagementCard
+              v-for="(slotItem, index) in slots"
+              :key="slotItem.documentId"
+              :slot-data="slotItem"
+              :index="index + 1"
+              :is-updating="isUpdatingSlot"
+              :is-deleting="isDeletingSlot"
+              @edit="handleEditSlot"
+              @delete="handleDeleteSlot"
+            />
           </div>
 
           <NoResult
@@ -145,7 +111,11 @@ import type {
 } from 'src/interfaces/guestSpot';
 import useGuestSpot from 'src/composables/useGuestSpot';
 import useUser from 'src/modules/useUser';
-import { LoadingState, NoResult } from 'src/components';
+import {
+  LoadingState,
+  NoResult,
+  GuestSpotSlotManagementCard,
+} from 'src/components';
 import GuestSpotSlotForm from 'src/components/ShopProfile/GuestSpotTab/GuestSpotSlotForm.vue';
 
 const $q = useQuasar();
@@ -196,7 +166,7 @@ watch(
     if (documentId) {
       // Update isEnabled from user data
       isEnabled.value = user.value?.guestSpotEnabled ?? false;
-      
+
       // Load all slots for this shop
       await loadUserSlots();
     }
@@ -305,15 +275,5 @@ const handleDeleteSlot = (documentId: string) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.slot-card {
-  width: 100%;
-}
-
-.pricing-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 </style>

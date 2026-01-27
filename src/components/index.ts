@@ -25,6 +25,7 @@ export * from './Portfolio';
 
 // Guest Spot components
 export { default as GuestSpotSlotCard } from './GuestSpot/GuestSpotSlotCard.vue';
+export { default as GuestSpotSlotManagementCard } from './GuestSpot/GuestSpotSlotManagementCard.vue';
 export { default as GuestSpotBookingCard } from './GuestSpot/GuestSpotBookingCard.vue';
 export { default as GuestSpotBookingDialog } from './GuestSpot/GuestSpotBookingDialog.vue';
 export { default as ArtistGuestSpotBookings } from './GuestSpot/ArtistGuestSpotBookings.vue';
