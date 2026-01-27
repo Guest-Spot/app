@@ -8,7 +8,6 @@ export const GUEST_SPOT_SLOTS_QUERY = gql`
   ) {
     guestSpotSlots(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
-      shopDocumentId
       enabled
       description
       pricingOptions {
@@ -19,7 +18,7 @@ export const GUEST_SPOT_SLOTS_QUERY = gql`
       depositAmount
       spaces
       openingHours {
-        documentId
+        id
         day
         start
         end
@@ -53,7 +52,6 @@ export const GUEST_SPOT_SLOT_QUERY = gql`
   query GuestSpotSlot($documentId: ID!) {
     guestSpotSlot(documentId: $documentId) {
       documentId
-      shopDocumentId
       enabled
       description
       pricingOptions {
@@ -64,7 +62,7 @@ export const GUEST_SPOT_SLOT_QUERY = gql`
       depositAmount
       spaces
       openingHours {
-        documentId
+        id
         day
         start
         end

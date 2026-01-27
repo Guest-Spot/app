@@ -4,7 +4,6 @@ export const CREATE_GUEST_SPOT_SLOT_MUTATION = gql`
   mutation CreateGuestSpotSlot($data: GuestSpotSlotInput!) {
     createGuestSpotSlot(data: $data) {
       documentId
-      shopDocumentId
       enabled
       description
       pricingOptions {
@@ -15,7 +14,7 @@ export const CREATE_GUEST_SPOT_SLOT_MUTATION = gql`
       depositAmount
       spaces
       openingHours {
-        documentId
+        id
         day
         start
         end
@@ -30,7 +29,6 @@ export const UPDATE_GUEST_SPOT_SLOT_MUTATION = gql`
   mutation UpdateGuestSpotSlot($documentId: ID!, $data: GuestSpotSlotInput!) {
     updateGuestSpotSlot(documentId: $documentId, data: $data) {
       documentId
-      shopDocumentId
       enabled
       description
       pricingOptions {
@@ -41,7 +39,7 @@ export const UPDATE_GUEST_SPOT_SLOT_MUTATION = gql`
       depositAmount
       spaces
       openingHours {
-        documentId
+        id
         day
         start
         end

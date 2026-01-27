@@ -111,11 +111,11 @@ export default function useGuestSpotEvents() {
     } else {
       variables.pagination = { limit: 20, start: (pageEvents.value - 1) * 20 };
     }
-    await loadGuestSpotEvents(variables);
+    await loadGuestSpotEvents(undefined, variables);
   };
 
   const loadEvent = async (documentId: string) => {
-    await loadGuestSpotEvent({ documentId });
+    await loadGuestSpotEvent(undefined, { documentId });
   };
 
   const createEvent = async (input: ICreateGuestSpotEventInput): Promise<IGuestSpotEvent | null> => {

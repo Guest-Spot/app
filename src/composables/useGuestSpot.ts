@@ -169,7 +169,7 @@ export default function useGuestSpot() {
     if (filters) {
       const graphQLFilters: Record<string, unknown> = {};
       if (filters.shopDocumentId) {
-        graphQLFilters.shopDocumentId = { eq: filters.shopDocumentId };
+        graphQLFilters.shop = { documentId: { eq: filters.shopDocumentId } };
       }
       if (filters.enabled !== undefined) {
         graphQLFilters.enabled = { eq: filters.enabled };
@@ -184,11 +184,11 @@ export default function useGuestSpot() {
     if (pagination) {
       variables.pagination = pagination;
     }
-    await loadGuestSpotSlots(variables);
+    await loadGuestSpotSlots(undefined, variables);
   };
 
   const loadSlot = async (documentId: string) => {
-    await loadGuestSpotSlot({ documentId });
+    await loadGuestSpotSlot(undefined, { documentId });
     // After loading, the slot will be updated in store via onResultSlot
   };
 
@@ -227,7 +227,7 @@ export default function useGuestSpot() {
     if (pagination) {
       variables.pagination = pagination;
     }
-    await loadGuestSpotBookings(variables);
+    await loadGuestSpotBookings(undefined, variables);
   };
 
   const loadBooking = async (documentId: string): Promise<IGuestSpotBooking | null> => {
@@ -243,7 +243,7 @@ export default function useGuestSpot() {
         { immediate: true },
       );
       
-      void loadGuestSpotBooking({ documentId });
+      void loadGuestSpotBooking(undefined, { documentId });
       
       // Timeout fallback
       setTimeout(() => {
@@ -264,7 +264,7 @@ export default function useGuestSpot() {
 
       const result = await createGuestSpotSlot({
         data: {
-          shopDocumentId,
+          shop: shopDocumentId,
           enabled: true,
           description: data.description,
           pricingOptions: data.pricingOptions,
@@ -412,12 +412,12 @@ export default function useGuestSpot() {
         // Create public event for booking creation
         const artist = userStore.getUser;
         const slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
-        if (artist && slot?.shop) {
+        if (artist && slot?.shop?.documentId) {
           void createGuestSpotEvent({
             type: EGuestSpotEventType.BookingCreated,
             title: `${artist.name} requested a Guest Spot at ${slot.shop.name}`,
             description: `Booking request for ${data.selectedDate}${data.selectedTime ? ` at ${data.selectedTime}` : ''}`,
-            shopDocumentId: slot.shopDocumentId,
+            shopDocumentId: slot.shop.documentId,
             artistDocumentId: artist.documentId,
             guestSpotSlotDocumentId: slot.documentId,
             guestSpotBookingDocumentId: booking.documentId,

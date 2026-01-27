@@ -24,7 +24,7 @@ export interface ITag {
 }
 
 export interface IOpeningHours {
-  documentId?: string;
+  id?: string;
   day: keyof typeof OpeningHoursDays;
   start: string | null;
   end: string | null;

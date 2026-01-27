@@ -18,6 +18,7 @@
               <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Availability</h3>
               <q-toggle
                 v-model="isEnabled"
+                dense
                 color="primary"
                 :loading="isTogglingEnabled"
                 @update:model-value="handleToggleEnabled"

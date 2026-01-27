@@ -48,7 +48,9 @@ onMounted(async () => {
 });
 
 const handleSlotClick = (slot: IGuestSpotSlot) => {
-  void router.push(`/shop/${slot.shopDocumentId}/guest-spot?slotId=${slot.documentId}`);
+  if (slot.shop?.documentId) {
+    void router.push(`/shop/${slot.shop.documentId}/guest-spot?slotId=${slot.documentId}`);
+  }
 };
 </script>
 

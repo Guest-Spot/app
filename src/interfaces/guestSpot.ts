@@ -10,7 +10,6 @@ export interface IGuestSpotPricing {
 
 export interface IGuestSpotSlot {
   documentId: string;
-  shopDocumentId: string;
   enabled: boolean;
   description: string;
   pricingOptions: IGuestSpotPricing[];

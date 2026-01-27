@@ -61,7 +61,7 @@ export const GUEST_SPOT_EVENTS_QUERY = gql`
         depositAmount
         spaces
         openingHours {
-          documentId
+          id
           day
           start
           end
@@ -136,7 +136,7 @@ export const GUEST_SPOT_EVENT_QUERY = gql`
         depositAmount
         spaces
         openingHours {
-          documentId
+          id
           day
           start
           end
