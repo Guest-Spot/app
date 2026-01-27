@@ -48,8 +48,11 @@ onMounted(async () => {
 });
 
 const handleSlotClick = (slot: IGuestSpotSlot) => {
-  if (slot.shop?.documentId) {
-    void router.push(`/shop/${slot.shop.documentId}/guest-spot?slotId=${slot.documentId}`);
+  if (slot.documentId) {
+    void router.push({
+      name: 'CreateGuestSpotBooking',
+      query: { slotId: slot.documentId },
+    });
   }
 };
 </script>

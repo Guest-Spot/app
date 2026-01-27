@@ -115,6 +115,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Create Booking Request' },
       },
       {
+        path: 'create-guest-spot-booking',
+        component: () => import('pages/CreateGuestSpotBookingPage.vue'),
+        name: 'CreateGuestSpotBooking',
+        meta: { title: 'Book Guest Spot', hasBack: true },
+      },
+      {
         path: 'portfolio',
         component: () => import('pages/PortfolioPage.vue'),
         name: 'Portfolio',

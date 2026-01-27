@@ -122,7 +122,7 @@
           <q-btn
             v-if="hasGuestSpots"
             rounded
-            class="full-width q-py-sm"
+            class="full-width q-py-sm q-mb-lg q-mt-md"
             color="primary"
             :disable="!shopData.documentId"
             @click="goToGuestSpotBooking"
@@ -312,7 +312,7 @@ const goToBookingPage = () => {
   });
 };
 
-const { slots: guestSpotSlots } = useGuestSpot();
+const { slots: guestSpotSlots, loadSlots } = useGuestSpot();
 
 const hasGuestSpots = computed(() => {
   return guestSpotSlots.value.length > 0;

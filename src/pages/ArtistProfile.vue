@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import { PortfolioTab, ArtistGuestSpotBookings } from 'src/components';
 import { TabsComp } from 'src/components';
