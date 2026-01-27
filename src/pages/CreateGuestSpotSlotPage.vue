@@ -43,8 +43,8 @@ const handleSubmit = async (data: IGuestSpotSlotForm) => {
 
   const slot = await createSlot(data);
   if (slot) {
-    // Navigate back to profile (GuestSpotTab)
-    void router.push('/profile');
+    // Navigate to guest spot management page
+    void router.push('/profile/guest-spot');
   }
 };
 

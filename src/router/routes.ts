@@ -191,6 +191,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Change Account Type', requiresAuth: true },
       },
       {
+        path: 'profile/guest-spot',
+        component: () => import('pages/profile/GuestSpotManagementPage.vue'),
+        meta: { title: 'Guest Spot Management', requiresAuth: true },
+      },
+      {
         path: 'shop/:documentId',
         component: () => import('pages/PublicShopProfile.vue'),
         meta: { title: 'Shop Profile', hasBack: true },
