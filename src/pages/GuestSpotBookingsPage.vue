@@ -1,14 +1,27 @@
 <template>
-  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-md">
+  <q-page class="page q-pb-xl q-pt-lg flex column items-start q-gap-lg">
     <template v-if="isAuthenticated">
+      <!-- Header -->
       <div class="container">
-        <GuestSpotBookingsList
-          :bookings="bookings"
-          :loading="isLoadingBookings"
-          @approve="handleApproveBooking"
-          @reject="handleRejectBooking"
-          @view-details="handleViewBookingDetails"
-        />
+        <div class="page-header">
+          <h2 class="page-title text-h5 text-bold q-my-none">Guest Spot <span class="text-primary">Bookings</span></h2>
+          <p class="page-subtitle text-body2 text-grey-7 q-mt-xs q-mb-none">
+            Manage and review guest spot booking requests
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="container">
+        <div class="main-content flex column q-gap-md">
+          <GuestSpotBookingsList
+            :bookings="bookings"
+            :loading="isLoadingBookings"
+            @approve="handleApproveBooking"
+            @reject="handleRejectBooking"
+            @view-details="handleViewBookingDetails"
+          />
+        </div>
       </div>
 
       <!-- Booking Details Dialog -->
@@ -34,7 +47,11 @@
       </q-dialog>
     </template>
 
-    <SingInToContinue v-else-if="!hasTokens" class="fixed-center full-width" title="Guest Spot Bookings" />
+    <SingInToContinue
+      v-else-if="!hasTokens"
+      class="fixed-center full-width"
+      title="Guest Spot Bookings"
+    />
   </q-page>
 </template>
 
@@ -104,3 +121,20 @@ const handleViewBookingDetails = (booking: IGuestSpotBooking) => {
   showBookingDetails.value = true;
 };
 </script>
+
+<style scoped lang="scss">
+.page-header {
+  .page-title {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+  }
+}
+
+.main-content {
+  min-height: 400px;
+}
+</style>

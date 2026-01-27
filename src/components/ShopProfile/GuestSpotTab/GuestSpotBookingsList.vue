@@ -1,7 +1,5 @@
 <template>
-  <div class="guest-spot-bookings-list">
-    <!-- Header -->
-    <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Bookings</h3>
+  <div class="guest-spot-bookings-list flex column q-gap-md">
     <TabsComp
       size="sm"
       unelevated
@@ -66,13 +64,11 @@ const emit = defineEmits<{
 const PENDING_TAB = 'pending';
 const ACCEPTED_TAB = 'accepted';
 const REJECTED_TAB = 'rejected';
-const COMPLETED_TAB = 'completed';
 
 const filterTabs: ITab[] = [
   { label: 'Pending', tab: PENDING_TAB },
   { label: 'Accepted', tab: ACCEPTED_TAB },
   { label: 'Rejected', tab: REJECTED_TAB },
-  { label: 'Completed', tab: COMPLETED_TAB },
 ];
 
 const activeFilterTab = ref<ITab>(filterTabs[0]!);
@@ -82,7 +78,6 @@ const filteredBookings = computed(() => {
     [PENDING_TAB]: Status.Pending,
     [ACCEPTED_TAB]: Status.Accepted,
     [REJECTED_TAB]: Status.Rejected,
-    [COMPLETED_TAB]: Status.Completed,
   };
 
   const targetStatus = statusMap[activeFilterTab.value.tab];
