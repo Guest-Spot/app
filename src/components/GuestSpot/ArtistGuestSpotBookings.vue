@@ -1,5 +1,5 @@
 <template>
-  <div class="artist-guest-spot-bookings">
+  <div class="artist-guest-spot-bookings flex column q-gap-md">
     <ListHeader title="My Guest Spot Bookings" />
 
     <LoadingState

@@ -32,7 +32,7 @@ import { useUserStore } from 'src/stores/user';
 import { useSettingsStore } from 'src/stores/settings';
 import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
 import useGuestSpotEvents from './useGuestSpotEvents';
-import { EGuestSpotEventType } from 'src/interfaces/enums';
+import { EGuestSpotEventType, EGuestSpotBookingStatus } from 'src/interfaces/enums';
 
 export default function useGuestSpot() {
   const guestSpotStore = useGuestSpotStore();
@@ -434,8 +434,17 @@ export default function useGuestSpot() {
       const totalFeePercent = settingsStore.getTotalFeePercent;
       let platformCommissionAmount = 0;
 
-      // Get slot to calculate commission
-      const slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
+      let slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
+      if (!slot) {
+        await loadSlot(data.guestSpotSlotDocumentId);
+        slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
+      }
+
+      if (!slot) {
+        showError('Slot not found');
+        return null;
+      }
+
       if (slot && totalFeePercent) {
         const depositInDollars = centsToDollars(slot.depositAmount) || 0;
         const feePercent = totalFeePercent / 100;
@@ -443,14 +452,25 @@ export default function useGuestSpot() {
         platformCommissionAmount = dollarsToCents(commissionInDollars) || 0;
       }
 
+      if (!slot.shop?.documentId) {
+        showError('Shop information is not available for this slot');
+        return null;
+      }
+
       const result = await createGuestSpotBooking({
         data: {
-          guestSpotSlotDocumentId: data.guestSpotSlotDocumentId,
-          artistDocumentId,
+          slot: slot.documentId,
+          artist: artistDocumentId,
+          shop: slot.shop.documentId,
           selectedDate: data.selectedDate,
           selectedTime: data.selectedTime,
           comment: data.comment,
+          depositAmount: slot.depositAmount,
+          depositAuthorized: false,
+          depositCaptured: false,
           platformCommissionAmount,
+          platformCommissionPaid: false,
+          status: EGuestSpotBookingStatus.Pending,
         },
       });
 
@@ -467,15 +487,15 @@ export default function useGuestSpot() {
 
         // Create public event for booking creation
         const artist = userStore.getUser;
-        const slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
-        if (artist && slot?.shop?.documentId) {
+        const slotForEvent = slot;
+        if (artist && slotForEvent?.shop?.documentId) {
           void createGuestSpotEvent({
             type: EGuestSpotEventType.BookingCreated,
-            title: `${artist.name} requested a Guest Spot at ${slot.shop.name}`,
+            title: `${artist.name} requested a Guest Spot at ${slotForEvent.shop.name}`,
             description: `Booking request for ${data.selectedDate}${data.selectedTime ? ` at ${data.selectedTime}` : ''}`,
-            shopDocumentId: slot.shop.documentId,
+            shopDocumentId: slotForEvent.shop.documentId,
             artistDocumentId: artist.documentId,
-            guestSpotSlotDocumentId: slot.documentId,
+            guestSpotSlotDocumentId: slotForEvent.documentId,
             guestSpotBookingDocumentId: mappedBooking.documentId,
           });
         }

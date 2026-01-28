@@ -34,21 +34,14 @@
       <!-- Tab Content -->
       <AboutMeTab v-show="activeTab.tab === TAB_ABOUT" />
       <PortfolioTab v-show="activeTab.tab === TAB_PORTFOLIO" profile-type="artist" />
-      <ArtistGuestSpotBookings
-        v-show="activeTab.tab === TAB_GUEST_SPOT_BOOKINGS"
-        :bookings="guestSpotBookings"
-        :loading="isLoadingGuestSpotBookings"
-        @view-booking="handleViewGuestSpotBooking"
-      />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
-import { PortfolioTab, ArtistGuestSpotBookings } from 'src/components';
-import { TabsComp } from 'src/components';
+import { PortfolioTab, TabsComp } from 'src/components';
 import { type ITab } from 'src/interfaces/tabs';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import useUser from 'src/modules/useUser';
@@ -58,14 +51,11 @@ import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog
 import { useAccountTypeUpgradeDialog } from 'src/composables/useAccountTypeUpgradeDialog';
 import AccountTypeUpgradeDialog from 'src/components/Dialogs/AccountTypeUpgradeDialog.vue';
 import { UserType } from 'src/interfaces/enums';
-import useGuestSpot from 'src/composables/useGuestSpot';
 
 const { user, isArtist } = useUser();
-const { bookings: guestSpotBookings, isLoadingBookings: isLoadingGuestSpotBookings, loadBookings: loadGuestSpotBookings } = useGuestSpot();
 
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
-const TAB_GUEST_SPOT_BOOKINGS = 'guest-spot-bookings';
 
 const TABS: ITab[] = [
   {
@@ -75,10 +65,6 @@ const TABS: ITab[] = [
   {
     label: 'Portfolio',
     tab: TAB_PORTFOLIO,
-  },
-  {
-    label: 'Guest Spot Bookings',
-    tab: TAB_GUEST_SPOT_BOOKINGS,
   },
 ];
 
@@ -138,15 +124,4 @@ watch(
   ([value]) => handleUpgradeQuery(value),
   { immediate: true },
 );
-
-onMounted(async () => {
-  if (user.value?.documentId && isArtist.value) {
-    await loadGuestSpotBookings({ artistDocumentId: user.value.documentId });
-  }
-});
-
-const handleViewGuestSpotBooking = (booking: unknown) => {
-  // Navigate to booking details or show dialog
-  console.log('View guest spot booking:', booking);
-};
 </script>
