@@ -96,30 +96,19 @@
       />
     </div>
 
-    <!-- Slot Form Dialog -->
-    <q-dialog v-model="showSlotForm">
-      <q-card style="min-width: 500px; max-width: 800px">
-        <q-card-section>
-          <div class="text-h6">{{ editingSlot ? 'Edit Slot' : 'Create Slot' }}</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <GuestSpotSlotForm
-            :slot-data="editingSlot"
-            :loading="isCreatingSlot || isUpdatingSlot"
-            @submit="handleSlotSubmit"
-            @cancel="showSlotForm = false"
-          />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+      <!-- Slot Form Dialog -->
+      <GuestSpotSlotDialog
+        v-model="showSlotForm"
+        :slot-data="editingSlot"
+        :loading="isCreatingSlot || isUpdatingSlot"
+        @submit="handleSlotSubmit"
+      />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { useRouter } from 'vue-router';
 
 defineOptions({
   name: 'GuestSpotTab',
@@ -131,10 +120,9 @@ import type {
 import useGuestSpot from 'src/composables/useGuestSpot';
 import useUser from 'src/modules/useUser';
 import { LoadingState, NoResult } from 'src/components';
-import GuestSpotSlotForm from './GuestSpotSlotForm.vue';
+import { GuestSpotSlotDialog } from 'src/components/Dialogs';
 
 const $q = useQuasar();
-const router = useRouter();
 const { user } = useUser();
 
 const {
@@ -145,6 +133,7 @@ const {
   isDeletingSlot,
   isTogglingEnabled,
   loadSlots,
+  createSlot,
   updateSlot,
   deleteSlot,
   toggleEnabled,
@@ -182,18 +171,32 @@ const handleToggleEnabled = async (enabled: boolean) => {
 };
 
 const handleCreateSlot = () => {
-  void router.push('/create-guest-spot-slot');
+  editingSlot.value = null;
+  showSlotForm.value = true;
 };
 
 const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
   if (!user.value?.documentId) return;
 
-  // Only handle updates here (editing), creation is handled on separate page
-  if (editingSlot.value?.documentId) {
-    const slot = await updateSlot(editingSlot.value.documentId, data);
+  const slotDocumentId = editingSlot.value?.documentId;
+  const wasEditing = !!slotDocumentId;
+
+  showSlotForm.value = false;
+  editingSlot.value = null;
+
+  if (wasEditing && slotDocumentId) {
+    // Handle update
+    const slot = await updateSlot(slotDocumentId, data);
     if (slot) {
-      showSlotForm.value = false;
-      editingSlot.value = null;
+      const shopDocumentId = user.value?.documentId;
+      if (shopDocumentId) {
+        await loadSlots({ shopDocumentId, enabled: true });
+      }
+    }
+  } else {
+    // Handle creation
+    const slot = await createSlot(data);
+    if (slot) {
       const shopDocumentId = user.value?.documentId;
       if (shopDocumentId) {
         await loadSlots({ shopDocumentId, enabled: true });

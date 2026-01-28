@@ -120,16 +120,29 @@ export default function useGuestSpotEvents() {
 
   const createEvent = async (input: ICreateGuestSpotEventInput): Promise<IGuestSpotEvent | null> => {
     try {
+      // Build data object - try different relation formats
+      const mutationData: Record<string, unknown> = {
+        type: input.type,
+        title: input.title,
+        description: input.description,
+      };
+
+      // Try simple ID format for relations
+      if (input.guestSpotSlotDocumentId) {
+        mutationData.slot = input.guestSpotSlotDocumentId;
+      }
+      if (input.guestSpotBookingDocumentId) {
+        mutationData.booking = input.guestSpotBookingDocumentId;
+      }
+      if (input.artistDocumentId) {
+        mutationData.artist = input.artistDocumentId;
+      }
+      if (input.shopDocumentId) {
+        mutationData.shop = input.shopDocumentId;
+      }
+
       const result = await createGuestSpotEvent({
-        data: {
-          type: input.type,
-          title: input.title,
-          description: input.description,
-          shopDocumentId: input.shopDocumentId,
-          artistDocumentId: input.artistDocumentId || undefined,
-          guestSpotSlotDocumentId: input.guestSpotSlotDocumentId || undefined,
-          guestSpotBookingDocumentId: input.guestSpotBookingDocumentId || undefined,
-        },
+        data: mutationData,
       });
 
       const event = result?.data?.createGuestSpotEvent?.data as IGuestSpotEvent | undefined;

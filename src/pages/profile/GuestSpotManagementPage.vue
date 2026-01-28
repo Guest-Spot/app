@@ -78,7 +78,7 @@
         <GuestSpotSlotDialog
           v-model="showSlotForm"
           :slot-data="editingSlot"
-          :loading="isUpdatingSlot"
+          :loading="isCreatingSlot || isUpdatingSlot"
           @submit="handleSlotSubmit"
         />
       </div>
@@ -89,7 +89,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
-import { useRouter } from 'vue-router';
 
 defineOptions({
   name: 'GuestSpotManagementPage',
@@ -109,17 +108,18 @@ import {
 import { GuestSpotSlotDialog } from 'src/components/Dialogs';
 
 const $q = useQuasar();
-const router = useRouter();
 const { user } = useUser();
 
 const {
   slots,
   isLoadingSlots,
+  isCreatingSlot,
   isUpdatingSlot,
   isDeletingSlot,
   isTogglingEnabled,
   loadSlots,
   refetchSlots,
+  createSlot,
   updateSlot,
   deleteSlot,
   toggleEnabled,
@@ -190,39 +190,46 @@ const handleToggleEnabled = async (enabled: boolean) => {
 };
 
 const handleCreateSlot = () => {
-  void router.push('/create-guest-spot-slot');
+  editingSlot.value = null;
+  showSlotForm.value = true;
 };
 
 const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
   if (!user.value?.documentId) return;
 
-  // Only handle updates here (editing), creation is handled on separate page
-  if (editingSlot.value?.documentId) {
-    await updateSlot(editingSlot.value.documentId, data);
+  const slotDocumentId = editingSlot.value?.documentId;
+  const wasEditing = !!slotDocumentId;
 
-    // Close dialog first
-    showSlotForm.value = false;
-    editingSlot.value = null;
+  // Close dialog first
+  showSlotForm.value = false;
+  editingSlot.value = null;
 
-    // Wait for next tick to ensure dialog is closed and mutation is complete
-    await nextTick();
+  // Wait for next tick to ensure dialog is closed
+  await nextTick();
 
-    // Refetch all slots after update to ensure data is up to date
-    const shopDocumentId = user.value?.documentId;
-    if (shopDocumentId) {
-      // Use refetchSlots with the same variables to bypass cache
-      try {
-        const variables: Record<string, unknown> = {
-          filters: {
-            shop: { documentId: { eq: shopDocumentId } },
-          },
-        };
-        await refetchSlots(variables);
-      } catch (error) {
-        // Fallback to loadSlots if refetch fails (e.g., query not loaded yet)
-        console.warn('Refetch failed, using loadSlots:', error);
-        await loadUserSlots();
-      }
+  if (wasEditing && slotDocumentId) {
+    // Handle update
+    await updateSlot(slotDocumentId, data);
+  } else {
+    // Handle creation
+    await createSlot(data);
+  }
+
+  // Refetch all slots after create/update to ensure data is up to date
+  const shopDocumentId = user.value?.documentId;
+  if (shopDocumentId) {
+    // Use refetchSlots with the same variables to bypass cache
+    try {
+      const variables: Record<string, unknown> = {
+        filters: {
+          shop: { documentId: { eq: shopDocumentId } },
+        },
+      };
+      await refetchSlots(variables);
+    } catch (error) {
+      // Fallback to loadSlots if refetch fails (e.g., query not loaded yet)
+      console.warn('Refetch failed, using loadSlots:', error);
+      await loadUserSlots();
     }
   }
 };

@@ -29,7 +29,7 @@
           color="grey-7"
           size="sm"
           class="bg-block"
-          @click="handleEdit"
+          @click.stop="handleEdit"
           :loading="isUpdating"
         />
         <q-btn
@@ -153,7 +153,7 @@ const priceUnit = computed(() => {
 });
 
 const formattedSpaces = computed(() => {
-  return props.slotData.spaces.toString().padStart(2, '0');
+  return props.slotData.spaces.toString();
 });
 
 const formattedDeposit = computed(() => {

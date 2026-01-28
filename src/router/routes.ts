@@ -217,11 +217,6 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Book Guest Spot', hasBack: true },
       },
       {
-        path: 'create-guest-spot-slot',
-        component: () => import('pages/CreateGuestSpotSlotPage.vue'),
-        meta: { title: 'Create Guest Spot Slot', requiresAuth: true },
-      },
-      {
         path: 'store-redirect',
         name: 'StoreRedirect',
         component: () => import('pages/StoreRedirect.vue'),
