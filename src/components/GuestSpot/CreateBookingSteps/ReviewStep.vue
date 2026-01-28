@@ -1,22 +1,6 @@
 <template>
   <div class="step-content">
-    <div class="review-section">
-      <div class="review-item">
-        <strong>Date:</strong> {{ formattedDate }}
-      </div>
-      <div v-if="comment" class="review-item">
-        <strong>Comment:</strong> {{ comment }}
-      </div>
-      <div class="review-item">
-        <strong>Deposit:</strong> ${{ depositAmountText }}
-      </div>
-      <div v-if="platformCommissionText" class="review-item">
-        <strong>Platform Commission:</strong> ${{ platformCommissionText }}
-      </div>
-      <div v-if="totalAmountText" class="review-item">
-        <strong>Total:</strong> ${{ totalAmountText }}
-      </div>
-    </div>
+    <InfoCard title="Review" icon="info" :data="reviewData" />
   </div>
 </template>
 
@@ -26,6 +10,8 @@ import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
 import useDate from 'src/modules/useDate';
 import { centsToDollars } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
+import { InfoCard } from 'src/components';
+import { EGuestSpotPricingType } from 'src/interfaces/enums';
 
 interface Props {
   selectedDate: string;
@@ -65,6 +51,73 @@ const totalAmountText = computed(() => {
   const total = deposit + commission;
   return total > 0 ? total.toFixed(2) : null;
 });
+
+const getPricingTypeLabel = (type: EGuestSpotPricingType): string => {
+  const labels: Record<EGuestSpotPricingType, string> = {
+    [EGuestSpotPricingType.Hourly]: 'Hourly',
+    [EGuestSpotPricingType.Daily]: 'Daily',
+    [EGuestSpotPricingType.Flat]: 'Flat',
+  };
+  return labels[type] || type;
+};
+
+const slotPriceText = computed(() => {
+  if (!props.slotData || !props.slotData.pricingOptions || props.slotData.pricingOptions.length === 0) {
+    return 'Free';
+  }
+
+  return props.slotData.pricingOptions
+    .map((option) => {
+      const amount = centsToDollars(option.amount);
+      const formattedAmount = amount ? amount.toFixed(2) : '0.00';
+      return `${getPricingTypeLabel(option.type)}: $${formattedAmount}`;
+    })
+    .join(', ');
+});
+
+const reviewData = computed(() => {
+  const data: { label: string; value: string }[] = [
+    {
+      label: 'Date',
+      value: formattedDate.value,
+    },
+  ];
+
+  if (props.slotData) {
+    data.push({
+      label: 'Price',
+      value: slotPriceText.value,
+    });
+  }
+
+  if (props.comment) {
+    data.push({
+      label: 'Comment',
+      value: props.comment,
+    });
+  }
+
+  data.push({
+    label: 'Deposit',
+    value: `$${depositAmountText.value}`,
+  });
+
+  if (platformCommissionText.value) {
+    data.push({
+      label: 'Platform Commission',
+      value: `$${platformCommissionText.value}`,
+    });
+  }
+
+  if (totalAmountText.value) {
+    data.push({
+      label: 'Total',
+      value: `$${totalAmountText.value}`,
+    });
+  }
+
+  return data;
+});
 </script>
 
 <style scoped lang="scss">
@@ -73,17 +126,5 @@ const totalAmountText = computed(() => {
   flex-direction: column;
   gap: 20px;
   padding-bottom: 20px;
-}
-
-.review-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.review-item {
-  padding: 12px;
-  background-color: var(--bg-block);
-  border-radius: 8px;
 }
 </style>
