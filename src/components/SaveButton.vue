@@ -36,7 +36,8 @@ const emit = defineEmits<{ save: [] }>();
   width: 100%;
   position: fixed;
   bottom: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
 }

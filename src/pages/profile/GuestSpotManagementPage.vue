@@ -9,7 +9,7 @@
       </h2>
     </div>
 
-    <div class="container ">
+    <div class="container">
       <div class="guest-spot-management">
         <!-- Enable/Disable Toggle -->
         <div class="toggle-section bg-block border-radius-lg q-pa-md q-mb-md">
@@ -30,251 +30,232 @@
           </div>
         </div>
 
-        <!-- Slots Section -->
-        <div v-if="isEnabled" class="slots-section">
-          <div class="section-header q-mb-md flex items-center justify-between">
-            <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Slots</h3>
-            <q-btn
-              color="primary"
-              icon="add"
-              @click="handleCreateSlot"
-              unelevated
-              round
-              size="sm"
-            />
-          </div>
-
-          <LoadingState
-            v-if="isLoadingSlots && !slots.length"
-            :is-loading="isLoadingSlots"
-            title="Loading slots..."
-            description="Please wait while we fetch the slots"
-            spinner-name="dots"
-          />
-
-          <div v-else-if="slots.length" class="slots-list">
-            <GuestSpotSlotManagementCard
-              v-for="(slotItem, index) in slots"
-              :key="slotItem.documentId"
-              :slot-data="slotItem"
-              :index="index + 1"
-              :is-updating="isUpdatingSlot"
-              :is-deleting="isDeletingSlot"
-              @edit="handleEditSlot"
-              @delete="handleDeleteSlot"
-            />
-          </div>
-
-          <NoResult
-            v-else
-            icon="event_available"
-            title="No slots created yet"
-            description="Create your first guest spot slot to start accepting bookings"
-            no-btn
+        <div class="content-wrapper full-width">
+          <GuestSpotSlotForm
+            ref="slotFormRef"
+            :slot-data="slotFormData"
+            :loading="isSavingSlot"
+            :disabled="!isEnabled"
+            @submit="handleSlotSubmit"
           />
         </div>
-
-        <!-- Slot Form Dialog -->
-        <GuestSpotSlotDialog
-          v-model="showSlotForm"
-          :slot-data="editingSlot"
-          :loading="isCreatingSlot || isUpdatingSlot"
-          @submit="handleSlotSubmit"
-        />
       </div>
     </div>
+    <SaveButton
+      :has-changes="isEnabled && hasChanges"
+      :loading="isSavingSlot"
+      @save="handleSaveClick"
+    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue';
-import { useQuasar } from 'quasar';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 defineOptions({
   name: 'GuestSpotManagementPage',
 });
 
-import type {
-  IGuestSpotSlot,
-  IGuestSpotSlotForm,
-} from 'src/interfaces/guestSpot';
+import type { IGuestSpotSlot, IGuestSpotSlotForm } from 'src/interfaces/guestSpot';
+import SaveButton from 'src/components/SaveButton.vue';
+import GuestSpotSlotForm from 'src/components/ShopProfile/GuestSpotTab/GuestSpotSlotForm.vue';
 import useGuestSpot from 'src/composables/useGuestSpot';
 import useUser from 'src/modules/useUser';
-import {
-  LoadingState,
-  NoResult,
-  GuestSpotSlotManagementCard,
-} from 'src/components';
-import { GuestSpotSlotDialog } from 'src/components/Dialogs';
 
-const $q = useQuasar();
 const { user } = useUser();
 
 const {
   slots,
-  isLoadingSlots,
   isCreatingSlot,
   isUpdatingSlot,
-  isDeletingSlot,
   isTogglingEnabled,
   loadSlots,
-  refetchSlots,
   createSlot,
   updateSlot,
-  deleteSlot,
   toggleEnabled,
 } = useGuestSpot();
 
+const slotFormRef = ref<InstanceType<typeof GuestSpotSlotForm> | null>(null);
+const slotFormData = ref<IGuestSpotSlotForm | null>(null);
+const currentSlot = ref<IGuestSpotSlot | null>(null);
+const initialFormSnapshot = ref<IGuestSpotSlotForm | null>(null);
 const isEnabled = ref(false);
-const showSlotForm = ref(false);
-const editingSlot = ref<(IGuestSpotSlotForm & { documentId?: string }) | null>(null);
 
-// Function to load slots for current user
+const isSavingSlot = computed(() => isCreatingSlot.value || isUpdatingSlot.value);
+
 const loadUserSlots = async () => {
   const shopDocumentId = user.value?.documentId;
-  if (shopDocumentId) {
-    // Load all slots for this shop (without enabled filter)
-    await loadSlots({ shopDocumentId });
+  if (!shopDocumentId) {
+    return;
+  }
+
+  await loadSlots({ shopDocumentId, enabled: true });
+};
+
+const cloneFormData = (value: IGuestSpotSlotForm | null): IGuestSpotSlotForm | null =>
+  value ? JSON.parse(JSON.stringify(value)) : null;
+
+const captureInitialSnapshot = async () => {
+  await nextTick();
+  if (!slotFormRef.value) {
+    await nextTick();
+  }
+
+  if (slotFormRef.value) {
+    initialFormSnapshot.value = cloneFormData(slotFormRef.value.formData.value);
+  } else {
+    initialFormSnapshot.value = null;
   }
 };
 
-// Watch for user data changes to update isEnabled
+const mapSlotToFormData = (slot: IGuestSpotSlot | null): IGuestSpotSlotForm | null => {
+  if (!slot) {
+    return null;
+  }
+
+  return {
+    title: slot.title ?? '',
+    description: slot.description,
+    pricingOptions: slot.pricingOptions.map((option) => ({
+      type: option.type,
+      amount: option.amount,
+      description: option.description ?? null,
+    })),
+    depositAmount: slot.depositAmount,
+    spaces: slot.spaces,
+    openingHours: slot.openingHours.map((hour) => ({
+      id: hour.id,
+      day: hour.day,
+      start: hour.start,
+      end: hour.end,
+    })),
+  };
+};
+
+const initializeFormFromSlot = async (slot: IGuestSpotSlot | null) => {
+  currentSlot.value = slot;
+  slotFormData.value = mapSlotToFormData(slot);
+  await captureInitialSnapshot();
+};
+
+const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
+  if (!user.value?.documentId) {
+    return;
+  }
+
+  const slotDocumentId = currentSlot.value?.documentId;
+  let savedSlot: IGuestSpotSlot | null = null;
+
+  if (slotDocumentId) {
+    savedSlot = await updateSlot(slotDocumentId, data);
+  } else {
+    savedSlot = await createSlot(data);
+  }
+
+  if (savedSlot) {
+    await initializeFormFromSlot(savedSlot);
+  }
+};
+
+const handleSaveClick = () => {
+  slotFormRef.value?.submit();
+};
+
+const normalizePricingOptions = (options: IGuestSpotSlotForm['pricingOptions']) =>
+  [...options]
+    .map((option) => ({
+      type: option.type,
+      amount: option.amount,
+      description: option.description ?? '',
+    }))
+    .sort((a, b) => a.type.localeCompare(b.type));
+
+const normalizeOpeningHours = (hours: IGuestSpotSlotForm['openingHours']) =>
+  [...hours]
+    .map((hour) => ({
+      day: hour.day,
+      start: hour.start ?? '',
+      end: hour.end ?? '',
+    }))
+    .sort((a, b) =>
+      a.day.localeCompare(b.day) ||
+      a.start.localeCompare(b.start) ||
+      a.end.localeCompare(b.end),
+    );
+
+const normalizeFormForComparison = (form: IGuestSpotSlotForm) => ({
+  title: form.title ?? '',
+  description: form.description,
+  depositAmount: form.depositAmount,
+  spaces: form.spaces,
+  pricingOptions: normalizePricingOptions(form.pricingOptions),
+  openingHours: normalizeOpeningHours(form.openingHours),
+});
+
+const areFormsEqual = (a: IGuestSpotSlotForm, b: IGuestSpotSlotForm) =>
+  JSON.stringify(normalizeFormForComparison(a)) === JSON.stringify(normalizeFormForComparison(b));
+
+const handleToggleEnabled = async (enabled: boolean) => {
+  if (!user.value?.documentId) {
+    return;
+  }
+
+  const success = await toggleEnabled(user.value.documentId, enabled);
+  if (success) {
+    isEnabled.value = user.value.guestSpotEnabled ?? enabled;
+    if (enabled) {
+      await loadUserSlots();
+    }
+  }
+};
+
+const hasChanges = computed(() => {
+  const formInstance = slotFormRef.value;
+  if (!formInstance || !initialFormSnapshot.value) {
+    return false;
+  }
+
+  return !areFormsEqual(formInstance.formData.value, initialFormSnapshot.value);
+});
+
 watch(
   () => user.value?.guestSpotEnabled,
   (guestSpotEnabled) => {
     if (guestSpotEnabled !== undefined) {
       isEnabled.value = guestSpotEnabled;
+      if (guestSpotEnabled) {
+        void loadUserSlots();
+      }
     }
   },
   { immediate: true },
 );
 
-// Watch for user documentId to load slots when user is available
 watch(
   () => user.value?.documentId,
   async (documentId) => {
     if (documentId) {
-      // Update isEnabled from user data
-      isEnabled.value = user.value?.guestSpotEnabled ?? false;
-
-      // Load all slots for this shop
       await loadUserSlots();
     }
+  },
+  { immediate: true },
+);
+
+watch(
+  slots,
+  (newSlots) => {
+    const firstSlot = newSlots?.[0] ?? null;
+    void initializeFormFromSlot(firstSlot);
   },
   { immediate: true },
 );
 
 onMounted(async () => {
-  // Ensure slots are loaded if user is already available
   if (user.value?.documentId) {
     isEnabled.value = user.value.guestSpotEnabled ?? false;
     await loadUserSlots();
   }
 });
-
-const handleToggleEnabled = async (enabled: boolean) => {
-  if (!user.value?.documentId) return;
-
-  const success = await toggleEnabled(user.value.documentId, enabled);
-  if (success) {
-    // Update isEnabled from user data (which was updated by toggleEnabled)
-    isEnabled.value = user.value.guestSpotEnabled ?? enabled;
-    if (enabled) {
-      const shopDocumentId = user.value.documentId;
-      if (shopDocumentId) {
-        // Reload all slots for this shop
-        await loadSlots({ shopDocumentId });
-      }
-    }
-  }
-};
-
-const handleCreateSlot = () => {
-  editingSlot.value = null;
-  showSlotForm.value = true;
-};
-
-const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
-  if (!user.value?.documentId) return;
-
-  const slotDocumentId = editingSlot.value?.documentId;
-  const wasEditing = !!slotDocumentId;
-
-  // Close dialog first
-  showSlotForm.value = false;
-  editingSlot.value = null;
-
-  // Wait for next tick to ensure dialog is closed
-  await nextTick();
-
-  if (wasEditing && slotDocumentId) {
-    // Handle update
-    await updateSlot(slotDocumentId, data);
-  } else {
-    // Handle creation
-    await createSlot(data);
-  }
-
-  // Refetch all slots after create/update to ensure data is up to date
-  const shopDocumentId = user.value?.documentId;
-  if (shopDocumentId) {
-    // Use refetchSlots with the same variables to bypass cache
-    try {
-      const variables: Record<string, unknown> = {
-        filters: {
-          shop: { documentId: { eq: shopDocumentId } },
-        },
-      };
-      await refetchSlots(variables);
-    } catch (error) {
-      // Fallback to loadSlots if refetch fails (e.g., query not loaded yet)
-      console.warn('Refetch failed, using loadSlots:', error);
-      await loadUserSlots();
-    }
-  }
-};
-
-const handleEditSlot = (slot: IGuestSpotSlot) => {
-  editingSlot.value = {
-    documentId: slot.documentId,
-    title: slot.title || '',
-    description: slot.description,
-    pricingOptions: slot.pricingOptions,
-    depositAmount: slot.depositAmount,
-    spaces: slot.spaces,
-    openingHours: slot.openingHours,
-  } as unknown as IGuestSpotSlotForm;
-  showSlotForm.value = true;
-};
-
-const handleDeleteSlot = (documentId: string) => {
-  $q.dialog({
-    title: 'Confirm Delete',
-    message: 'Are you sure you want to delete this slot?',
-    persistent: true,
-    cancel: {
-      color: 'grey-9',
-      rounded: true,
-      label: 'No, Keep It',
-    },
-    ok: {
-      color: 'negative',
-      rounded: true,
-      label: 'Yes, Delete',
-    },
-  }).onOk(() => {
-    void (async () => {
-      const success = await deleteSlot(documentId);
-      if (success) {
-        const shopDocumentId = user.value?.documentId;
-        if (shopDocumentId) {
-          // Reload slots after delete
-          await loadSlots({ shopDocumentId });
-        }
-      }
-    })();
-  });
-};
 </script>
 
 <style scoped lang="scss">
@@ -286,17 +267,7 @@ const handleDeleteSlot = (documentId: string) => {
   width: 100%;
 }
 
-.slots-section {
-  width: 100%;
-}
-
-.section-header {
-  width: 100%;
-}
-
-.slots-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.content-wrapper {
+  padding-bottom: 100px;
 }
 </style>

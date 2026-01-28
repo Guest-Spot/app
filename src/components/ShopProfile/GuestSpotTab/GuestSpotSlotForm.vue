@@ -1,24 +1,6 @@
 <template>
   <div class="guest-spot-slot-form">
     <q-form ref="formRef" @submit="handleSubmit" class="flex column items-start q-gap-sm full-width">
-      <!-- Title -->
-      <div class="flex column items-start q-gap-xs full-width">
-        <label class="input-label">Title</label>
-        <q-input
-          v-model="formData.title"
-          type="text"
-          placeholder="Enter slot title (e.g., VIP, Standard)"
-          outlined
-          rounded
-          size="lg"
-          class="full-width"
-          bg-color="transparent"
-        >
-          <template v-slot:prepend>
-            <q-icon name="title" color="grey-6" />
-          </template>
-        </q-input>
-      </div>
 
       <!-- Description -->
       <div class="flex column items-start q-gap-xs full-width">
@@ -35,6 +17,7 @@
           :rules="[(val) => !!val || 'Description is required']"
           class="full-width"
           bg-color="transparent"
+          :disable="isDisabled"
         >
           <template v-slot:prepend>
             <q-icon name="description" color="grey-6" />
@@ -56,6 +39,7 @@
           :rules="[(val) => val > 0 || 'Spaces must be greater than 0']"
           class="full-width"
           bg-color="transparent"
+          :disable="isDisabled"
         >
           <template v-slot:prepend>
             <q-icon name="people" color="grey-6" />
@@ -70,20 +54,21 @@
         <div class="flex q-gap-md column full-width">
 
           <!-- Pricing Type Selector -->
-          <q-select
-            v-model="pricingType"
-            :options="pricingTypeOptions"
-            option-label="label"
-            option-value="value"
-            emit-value
-            map-options
-            outlined
-            rounded
-            size="lg"
-            placeholder="Select pricing type"
-            class="full-width"
-            bg-color="transparent"
-          >
+        <q-select
+          v-model="pricingType"
+          :options="pricingTypeOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          outlined
+          rounded
+          size="lg"
+          placeholder="Select pricing type"
+          class="full-width"
+          bg-color="transparent"
+          :disable="isDisabled"
+        >
             <template v-slot:prepend>
               <q-icon name="attach_money" color="grey-6" />
             </template>
@@ -103,6 +88,7 @@
               :rules="priceRules"
               class="full-width"
               bg-color="transparent"
+              :disable="isDisabled"
             >
               <template v-slot:prepend>
                 <q-icon :name="pricingType === 'hourly' ? 'schedule' : 'event'" color="grey-6" />
@@ -120,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { QForm } from 'quasar';
 import type { IGuestSpotSlotForm } from 'src/interfaces/guestSpot';
 import { EGuestSpotPricingType } from 'src/interfaces/enums';
@@ -132,11 +118,13 @@ defineOptions({
 interface Props {
   slotData?: IGuestSpotSlotForm | null;
   loading?: boolean;
+  disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   slotData: null,
   loading: false,
+  disabled: false,
 });
 
 const emit = defineEmits<{
@@ -161,6 +149,8 @@ const pricingTypeOptions = [
   { label: 'Daily', value: 'daily' },
   { label: 'Free', value: 'free' },
 ];
+
+const isDisabled = computed(() => props.disabled ?? false);
 
 const priceRules = [
   (val: number | null) => {
@@ -287,6 +277,7 @@ const submit = () => {
 // Expose component methods
 defineExpose({
   submit,
+  formData,
 });
 </script>
 
