@@ -10,7 +10,7 @@
       <div class="flex justify-between items-start q-mb-sm">
         <div>
           <h4 class="slot-shop-name text-weight-bold q-my-none">
-            {{ slotData.shop?.name || 'Unknown shop' }}
+            {{ slotData.title || slotData.shop?.name || 'Unknown slot' }}
           </h4>
           <VerifiedBadge v-if="slotData.shop?.verified" icon-only class="q-mt-xs" />
         </div>
