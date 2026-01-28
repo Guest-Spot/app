@@ -11,12 +11,17 @@
       :account-type="UserType.Artist"
       @dismiss="dismissUpgradeDialog"
     />
+
     <div class="container">
       <ProfileHeader
-        :name="user?.name || user?.username || 'Artist'"
-        sub-title="My Profile"
-        @openPublicProfile="openPublicProfile"
+      :name="user?.name || user?.username || 'Artist'"
+      sub-title="My Profile"
+      @openPublicProfile="openPublicProfile"
       />
+    </div>
+
+    <div v-if="user && user.approved !== true" class="container">
+      <PendingApprovalBanner title="Profile under review" text="We will review your account soon and make it visible to everyone." />
     </div>
 
     <div class="container">
@@ -52,6 +57,7 @@ import { useAddressRequestDialog } from 'src/composables/useAddressRequestDialog
 import { useAccountTypeUpgradeDialog } from 'src/composables/useAccountTypeUpgradeDialog';
 import AccountTypeUpgradeDialog from 'src/components/Dialogs/AccountTypeUpgradeDialog.vue';
 import { UserType } from 'src/interfaces/enums';
+import PendingApprovalBanner from 'src/components/Profile/PendingApprovalBanner.vue';
 
 const { user, isArtist } = useUser();
 
