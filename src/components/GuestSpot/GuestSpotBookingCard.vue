@@ -5,7 +5,7 @@
   >
     <div class="card-header q-mb-md">
       <div class="status-badge" :class="`status-badge--${statusVariant}`">
-        <q-icon :name="statusIcon" size="16px" class="q-mr-xs" />
+        <q-icon :name="statusIcon" size="16px" />
         <span>{{ statusLabel }}</span>
       </div>
     </div>
@@ -48,21 +48,23 @@
 
     <div v-if="showActions" class="actions q-mt-md">
       <q-btn
-        v-if="canApprove"
-        color="positive"
-        label="Approve"
-        @click.stop="handleApprove"
-        :loading="isProcessing"
-        unelevated
-        class="q-mr-sm"
-      />
-      <q-btn
         v-if="canReject"
-        color="negative"
         label="Reject"
+        color="negative"
+        rounded
+        flat
+        class="bg-block"
         @click.stop="handleReject"
         :loading="isProcessing"
-        unelevated
+      />
+      <q-btn
+        v-if="canApprove"
+        label="Approve"
+        color="primary"
+        rounded
+        class="bg-block"
+        @click.stop="handleApprove"
+        :loading="isProcessing"
       />
     </div>
   </div>
@@ -172,6 +174,7 @@ const handleReject = () => {
 <style scoped lang="scss">
 .guest-spot-booking-card {
   transition: all 0.3s ease;
+  overflow: hidden;
 
   &:hover {
     transform: translateY(-2px);
@@ -187,33 +190,34 @@ const handleReject = () => {
 .status-badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   padding: 4px 12px;
-  border-radius: 16px;
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
 
   &--warning {
-    background-color: rgba(242, 192, 55, 0.2);
+    background-color: rgba(242, 192, 55, 0.15);
     color: #f2c037;
   }
 
   &--info {
-    background-color: rgba(49, 204, 236, 0.2);
+    background-color: rgba(49, 204, 236, 0.15);
     color: #31ccec;
   }
 
   &--negative {
-    background-color: rgba(193, 0, 21, 0.2);
+    background-color: rgba(193, 0, 21, 0.15);
     color: #c10015;
   }
 
   &--positive {
-    background-color: rgba(33, 186, 69, 0.2);
+    background-color: rgba(33, 186, 69, 0.15);
     color: #21ba45;
   }
 
   &--grey {
-    background-color: rgba(128, 128, 128, 0.2);
+    background-color: rgba(128, 128, 128, 0.15);
     color: #808080;
   }
 }
@@ -243,6 +247,12 @@ const handleReject = () => {
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 16px;
+
+  .q-btn {
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+  }
 }
 </style>
