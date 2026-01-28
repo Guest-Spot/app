@@ -39,7 +39,7 @@
           color="negative"
           size="sm"
           class="bg-block"
-          @click="handleDelete"
+          @click.stop="handleDelete"
           :loading="isDeleting"
         />
       </div>

@@ -199,14 +199,14 @@ const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
   // Only handle updates here (editing), creation is handled on separate page
   if (editingSlot.value?.documentId) {
     await updateSlot(editingSlot.value.documentId, data);
-    
+
     // Close dialog first
     showSlotForm.value = false;
     editingSlot.value = null;
-    
+
     // Wait for next tick to ensure dialog is closed and mutation is complete
     await nextTick();
-    
+
     // Refetch all slots after update to ensure data is up to date
     const shopDocumentId = user.value?.documentId;
     if (shopDocumentId) {
@@ -243,8 +243,17 @@ const handleDeleteSlot = (documentId: string) => {
   $q.dialog({
     title: 'Confirm Delete',
     message: 'Are you sure you want to delete this slot?',
-    cancel: true,
     persistent: true,
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'No, Keep It',
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Yes, Delete',
+    },
   }).onOk(() => {
     void (async () => {
       const success = await deleteSlot(documentId);

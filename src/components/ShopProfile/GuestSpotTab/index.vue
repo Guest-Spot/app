@@ -68,7 +68,7 @@
                   icon="delete"
                   size="sm"
                   color="negative"
-                  @click="handleDeleteSlot(slot.documentId)"
+                  @click.stop="handleDeleteSlot(slot.documentId)"
                   :loading="isDeletingSlot"
                 />
               </div>

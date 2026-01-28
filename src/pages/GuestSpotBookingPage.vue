@@ -63,7 +63,7 @@
 
     <!-- Slot not found -->
     <NoResult
-      v-else-if="!isLoadingSlot && !isLoadingSlots"
+      v-else-if="hasAttemptedLoad && !isLoadingSlot && !isLoadingSlots && !slotData"
       icon="error"
       title="Slot not found"
       description="This guest spot slot may have been removed"
@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
 import useGuestSpot from 'src/composables/useGuestSpot';
@@ -93,6 +93,9 @@ const shopDocumentId = computed(() => route.params.documentId as string);
 const slotId = computed(() => route.query.slotId as string | undefined);
 const hasSlotId = computed(() => !!slotId.value);
 
+// Track if we've attempted to load the slot
+const hasAttemptedLoad = ref(false);
+
 // Try to get slot from currentSlot first, then from slots list
 const slotData = computed(() => {
   if (currentSlot.value) {
@@ -106,16 +109,31 @@ const slotData = computed(() => {
 });
 
 const loadSlotData = async () => {
+  hasAttemptedLoad.value = false;
+
   if (slotId.value) {
     // Load specific slot if slotId is provided
     await loadSlot(slotId.value);
-    // If slot not found in currentSlot, try loading slots list as fallback
-    if (!currentSlot.value && shopDocumentId.value) {
+
+    // Wait a bit for the result to be processed and stored
+    // This gives time for onResultSlot to update the store
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Check if slot was found in currentSlot or slots list
+    const slotFound = currentSlot.value || slots.value.find((s) => s.documentId === slotId.value);
+
+    // If slot not found in currentSlot or slots, try loading slots list as fallback
+    if (!slotFound && shopDocumentId.value) {
       await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
+      // Wait again for slots to be processed
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
+
+    hasAttemptedLoad.value = true;
   } else if (shopDocumentId.value) {
     // Load all slots for the shop if no slotId is provided
     await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
+    hasAttemptedLoad.value = true;
   }
 };
 
@@ -129,19 +147,43 @@ watch(
   async (newSlotId, oldSlotId) => {
     // Only reload if slotId actually changed
     if (newSlotId !== oldSlotId) {
+      hasAttemptedLoad.value = false;
+
       if (newSlotId) {
         await loadSlot(newSlotId as string);
-        // If slot not found in currentSlot, try loading slots list as fallback
-        if (!currentSlot.value && shopDocumentId.value) {
+
+        // Wait a bit for the result to be processed and stored
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Check if slot was found in currentSlot or slots list
+        const slotFound = currentSlot.value || slots.value.find((s) => s.documentId === newSlotId);
+
+        // If slot not found in currentSlot or slots, try loading slots list as fallback
+        if (!slotFound && shopDocumentId.value) {
           await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
+          // Wait again for slots to be processed
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
+
+        hasAttemptedLoad.value = true;
       } else if (shopDocumentId.value) {
         // If slotId is removed, reload slots list
         await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
+        hasAttemptedLoad.value = true;
       }
     }
   },
   { immediate: false }
+);
+
+// Watch for currentSlot and slots changes to update slotData reactively
+watch(
+  [currentSlot, slots],
+  () => {
+    // This ensures slotData updates when data is loaded
+    // The computed will automatically update, but this ensures reactivity
+  },
+  { deep: true }
 );
 
 const handleSlotClick = (slot: IGuestSpotSlot) => {

@@ -14,7 +14,7 @@
           </h4>
           <VerifiedBadge v-if="slotData.shop?.verified" icon-only class="q-mt-xs" />
         </div>
-        <q-chip size="sm" color="primary" text-color="white">
+        <q-chip color="primary" text-color="white">
           {{ slotData.spaces }} space{{ slotData.spaces !== 1 ? 's' : '' }}
         </q-chip>
       </div>
@@ -29,7 +29,6 @@
           <q-chip
             v-for="(option, index) in slotData.pricingOptions"
             :key="index"
-            size="sm"
             :label="`${getPricingTypeLabel(option.type)}: $${(option.amount / 100).toFixed(2)}`"
             color="primary"
             text-color="white"

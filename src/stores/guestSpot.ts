@@ -68,7 +68,12 @@ export const useGuestSpotStore = defineStore('guestSpot', {
     updateSlot(slot: IGuestSpotSlot) {
       const index = this.slots.findIndex((s) => s.documentId === slot.documentId);
       if (index !== -1) {
-        this.slots[index] = slot;
+        // Create a new array to avoid read-only property error
+        this.slots = [
+          ...this.slots.slice(0, index),
+          slot,
+          ...this.slots.slice(index + 1),
+        ];
       }
     },
     removeSlot(documentId: string) {
@@ -77,7 +82,12 @@ export const useGuestSpotStore = defineStore('guestSpot', {
     updateBooking(booking: IGuestSpotBooking) {
       const index = this.bookings.findIndex((b) => b.documentId === booking.documentId);
       if (index !== -1) {
-        this.bookings[index] = booking;
+        // Create a new array to avoid read-only property error
+        this.bookings = [
+          ...this.bookings.slice(0, index),
+          booking,
+          ...this.bookings.slice(index + 1),
+        ];
       }
     },
   },
