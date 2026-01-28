@@ -9,6 +9,7 @@ export const GUEST_SPOT_SLOTS_QUERY = gql`
     guestSpotSlots(filters: $filters, sort: $sort, pagination: $pagination) {
       documentId
       enabled
+      title
       description
       pricingOptions {
         type
@@ -53,6 +54,7 @@ export const GUEST_SPOT_SLOT_QUERY = gql`
     guestSpotSlot(documentId: $documentId) {
       documentId
       enabled
+      title
       description
       pricingOptions {
         type
@@ -148,6 +150,7 @@ export const GUEST_SPOT_BOOKINGS_QUERY = gql`
       }
       slot {
         documentId
+        title
         description
         pricingOptions {
           type
@@ -219,6 +222,7 @@ export const GUEST_SPOT_BOOKING_QUERY = gql`
       }
       slot {
         documentId
+        title
         description
         pricingOptions {
           type

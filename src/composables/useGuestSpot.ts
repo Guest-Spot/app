@@ -279,6 +279,7 @@ export default function useGuestSpot() {
       const mutationData = {
         shop: shopDocumentId,
         enabled: true,
+        title: data.title || '',
         description: data.description,
         pricingOptions: data.pricingOptions || [],
         depositAmount: data.depositAmount || 0,
@@ -346,6 +347,7 @@ export default function useGuestSpot() {
       const result = await updateGuestSpotSlot({
         documentId,
         data: {
+          title: data.title || '',
           description: data.description,
           pricingOptions: data.pricingOptions,
           depositAmount: data.depositAmount,

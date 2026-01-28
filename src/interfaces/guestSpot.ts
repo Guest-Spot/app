@@ -11,6 +11,7 @@ export interface IGuestSpotPricing {
 export interface IGuestSpotSlot {
   documentId: string;
   enabled: boolean;
+  title?: string;
   description: string;
   pricingOptions: IGuestSpotPricing[];
   depositAmount: number; // in cents
@@ -46,6 +47,7 @@ export interface IGuestSpotBooking {
 }
 
 export interface IGuestSpotSlotForm {
+  title?: string;
   description: string;
   pricingOptions: IGuestSpotPricing[];
   depositAmount: number; // in cents

@@ -230,6 +230,7 @@ const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
 const handleEditSlot = (slot: IGuestSpotSlot) => {
   editingSlot.value = {
     documentId: slot.documentId,
+    title: slot.title || '',
     description: slot.description,
     pricingOptions: slot.pricingOptions,
     depositAmount: slot.depositAmount,

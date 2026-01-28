@@ -11,7 +11,7 @@
         <!-- Title and Status -->
         <div class="slot-title-section flex column">
           <div class="slot-title-main text-subtitle1 text-weight-bold">
-            Slot {{ index }}
+            {{ slotData.title && slotData.title.trim() ? slotData.title : `Slot ${index}` }}
           </div>
           <div class="slot-status flex items-center q-gap-xs">
             <q-icon name="circle" size="8px" color="positive" />

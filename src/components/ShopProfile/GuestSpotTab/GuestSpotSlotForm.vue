@@ -1,6 +1,25 @@
 <template>
   <div class="guest-spot-slot-form">
     <q-form ref="formRef" @submit="handleSubmit" class="flex column items-start q-gap-sm full-width">
+      <!-- Title -->
+      <div class="flex column items-start q-gap-xs full-width">
+        <label class="input-label">Title</label>
+        <q-input
+          v-model="formData.title"
+          type="text"
+          placeholder="Enter slot title (e.g., VIP, Standard)"
+          outlined
+          rounded
+          size="lg"
+          class="full-width"
+          bg-color="transparent"
+        >
+          <template v-slot:prepend>
+            <q-icon name="title" color="grey-6" />
+          </template>
+        </q-input>
+      </div>
+
       <!-- Description -->
       <div class="flex column items-start q-gap-xs full-width">
         <label class="input-label">Description</label>
@@ -125,6 +144,7 @@ const emit = defineEmits<{
 }>();
 
 const formData = ref<IGuestSpotSlotForm>({
+  title: '',
   description: '',
   pricingOptions: [],
   depositAmount: 0,
@@ -157,6 +177,7 @@ watch(
   (slot) => {
     if (slot) {
       formData.value = {
+        title: slot.title || '',
         description: slot.description,
         pricingOptions: slot.pricingOptions.map((opt) => ({
           ...opt,
@@ -186,6 +207,7 @@ watch(
       }
     } else {
       formData.value = {
+        title: '',
         description: '',
         pricingOptions: [],
         depositAmount: 0,
@@ -243,6 +265,7 @@ const handleSubmit = () => {
   // If 'free', pricingOptions remains empty array
 
   const data: IGuestSpotSlotForm = {
+    ...(formData.value.title && { title: formData.value.title }),
     description: formData.value.description,
     pricingOptions,
     depositAmount: 0, // Set to 0 as per requirements

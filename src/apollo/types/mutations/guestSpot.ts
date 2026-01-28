@@ -5,6 +5,7 @@ export const CREATE_GUEST_SPOT_SLOT_MUTATION = gql`
     createGuestSpotSlot(data: $data) {
       documentId
       enabled
+      title
       description
       pricingOptions {
         type
@@ -30,6 +31,7 @@ export const UPDATE_GUEST_SPOT_SLOT_MUTATION = gql`
     updateGuestSpotSlot(documentId: $documentId, data: $data) {
       documentId
       enabled
+      title
       description
       pricingOptions {
         type
