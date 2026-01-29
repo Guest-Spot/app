@@ -27,7 +27,7 @@
           mask="YYYY-MM-DD"
           class="date-picker-inline bg-block border-radius-md"
           :options="isDateAllowed"
-          :events="isBookedDate"
+          :events="bookedDates"
           event-color="primary"
           @update:model-value="onDateSelect"
         />
@@ -108,6 +108,10 @@ const bookingByDate = computed(() => {
   return m;
 });
 
+const bookedDates = computed(() =>
+  Array.from(bookingByDate.value.keys()).map((key) => key.replace(/-/g, '/')),
+);
+
 let bookingRequestId = 0;
 
 const currentSlotDocumentId = ref<string | null>(null);
@@ -139,27 +143,27 @@ const loadUserBookingsForSlot = async (slotDocumentId: string | null) => {
 watch(
   () => props.slotData?.documentId ?? null,
   (slotDocumentId) => {
-    bookingRequestId += 1;
-    currentSlotDocumentId.value = slotDocumentId;
     resetBookedDateDialog();
+    currentSlotDocumentId.value = slotDocumentId;
     if (!slotDocumentId) {
+      bookingRequestId += 1;
       userBookings.value = [];
     }
   },
   { immediate: true },
 );
 
+// Load bookings only when both slot and user are available (getBookingsForCurrentUser returns [] if user not in store yet).
 watch(
   () => [currentSlotDocumentId.value, artistDocumentId.value] as const,
-  ([slotDocumentId, artistId]) => {
-    if (!slotDocumentId) {
-      return;
-    }
+  ([slotId, artistId]) => {
+    if (!slotId) return;
     if (!artistId) {
+      bookingRequestId += 1;
       userBookings.value = [];
       return;
     }
-    void loadUserBookingsForSlot(slotDocumentId);
+    void loadUserBookingsForSlot(slotId);
   },
   { immediate: true },
 );
@@ -191,11 +195,6 @@ watch(
 );
 
 const formRef = ref<QForm | null>(null);
-
-const isBookedDate = (date: string) => {
-  const key = toDateKey(date);
-  return key ? bookingByDate.value.has(key) : false;
-};
 
 const onDateSelect = (val: string | null) => {
   const key = toDateKey(val);

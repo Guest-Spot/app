@@ -5,20 +5,43 @@
   >
     <div class="flex no-wrap items-start justify-between full-width">
       <div class="user-info q-mb-md">
-        <q-avatar size="40px" class="q-mr-sm bg-block">
-          <q-img
-            v-if="booking.artist?.avatar?.url"
-            :src="booking.artist.avatar.url"
-            spinner-color="dark"
-            spinner-size="16px"
-            :ratio="0.85"
-          />
-          <q-icon v-else name="person" size="22px" color="grey-6" />
-        </q-avatar>
-        <div class="flex column">
-          <div class="user-role text-grey-6 text-caption">Artist</div>
-          <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
-        </div>
+        <!-- Shop view: show artist -->
+        <template v-if="viewAs === 'shop'">
+          <q-avatar size="40px" class="q-mr-sm bg-block">
+            <q-img
+              v-if="booking.artist?.avatar?.url"
+              :src="booking.artist.avatar.url"
+              spinner-color="dark"
+              spinner-size="16px"
+              :ratio="0.85"
+            />
+            <q-icon v-else name="person" size="22px" color="grey-6" />
+          </q-avatar>
+          <div class="flex column">
+            <div class="user-role text-grey-6 text-caption">Artist</div>
+            <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
+          </div>
+        </template>
+        <!-- Artist view: show shop and slot -->
+        <template v-else>
+          <q-avatar size="40px" class="q-mr-sm bg-block">
+            <q-img
+              v-if="booking.shop?.avatar?.url"
+              :src="booking.shop.avatar.url"
+              spinner-color="dark"
+              spinner-size="16px"
+              :ratio="0.85"
+            />
+            <q-icon v-else name="store" size="22px" color="grey-6" />
+          </q-avatar>
+          <div class="flex column">
+            <div class="user-role text-grey-6 text-caption">Guest Spot</div>
+            <div class="user-name text-weight-medium">{{ booking.shop?.name || 'Unknown' }}</div>
+            <div v-if="slotTitleOrDescription" class="text-caption text-grey-7 q-mt-xs">
+              {{ slotTitleOrDescription }}
+            </div>
+          </div>
+        </template>
       </div>
 
       <div class="card-header q-mb-md">
@@ -48,7 +71,7 @@
       </div>
     </div>
 
-    <div v-if="!readOnly && showActions" class="actions q-mt-md">
+    <div v-if="viewAs === 'shop' && !readOnly && showActions" class="actions q-mt-md">
       <q-btn
         v-if="canReject"
         label="Reject"
@@ -83,11 +106,13 @@ interface Props {
   booking: IGuestSpotBooking;
   isProcessing?: boolean;
   readOnly?: boolean;
+  viewAs?: 'shop' | 'artist';
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isProcessing: false,
   readOnly: false,
+  viewAs: 'shop',
 });
 
 const emit = defineEmits<{
@@ -148,6 +173,12 @@ const depositAmountText = computed(() => {
 
 const showDeposit = computed(() => {
   return props.booking.depositAuthorized || props.booking.depositCaptured;
+});
+
+const slotTitleOrDescription = computed(() => {
+  const slot = props.booking.slot;
+  if (!slot) return '';
+  return slot.title?.trim() || slot.description?.trim() || '';
 });
 
 const canApprove = computed(() => {

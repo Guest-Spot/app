@@ -14,7 +14,7 @@
       </q-card-section>
 
       <q-card-section v-if="booking" class="dialog-content">
-        <GuestSpotBookingCard :booking="booking" :read-only="true" />
+        <GuestSpotBookingCard :booking="booking" :read-only="true" view-as="artist" />
       </q-card-section>
 
       <q-card-actions class="dialog-actions bg-block">

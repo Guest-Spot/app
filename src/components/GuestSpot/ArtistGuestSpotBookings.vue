@@ -15,6 +15,7 @@
         v-for="booking in bookings"
         :key="booking.documentId"
         :booking="booking"
+        view-as="artist"
         @click="handleViewBooking"
       />
     </div>

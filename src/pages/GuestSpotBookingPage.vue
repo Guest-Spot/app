@@ -45,6 +45,16 @@ const hasSlotId = computed(() => !!slotId.value);
 
 const hasAttemptedLoad = ref(false);
 
+const buildCreateBookingQuery = (slotIdValue: string) => {
+  const query: Record<string, string> = {
+    slotId: slotIdValue,
+  };
+  if (shopDocumentId.value) {
+    query.shopId = shopDocumentId.value;
+  }
+  return query;
+};
+
 const loadSlotData = async () => {
   hasAttemptedLoad.value = false;
 
@@ -52,7 +62,7 @@ const loadSlotData = async () => {
     // Redirect to calendar page with slotId (no cards shown)
     await router.replace({
       name: 'CreateGuestSpotBooking',
-      query: { slotId: slotId.value },
+      query: buildCreateBookingQuery(slotId.value),
     });
     return;
   }
@@ -64,7 +74,7 @@ const loadSlotData = async () => {
     if (slots.value.length === 1) {
       await router.replace({
         name: 'CreateGuestSpotBooking',
-        query: { slotId: slots.value[0]!.documentId },
+        query: buildCreateBookingQuery(slots.value[0]!.documentId),
       });
     }
   }

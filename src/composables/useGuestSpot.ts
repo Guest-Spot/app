@@ -355,15 +355,18 @@ export default function useGuestSpot() {
     });
   };
 
-  const getBookingsForCurrentUser = (slotDocumentId?: string): Promise<IGuestSpotBooking[]> => {
-    const artistDocumentId = userStore.getUser?.documentId;
-    if (!artistDocumentId) {
+  const getBookingsForCurrentUser = (
+    slotDocumentId?: string,
+    artistDocumentId?: string | null,
+  ): Promise<IGuestSpotBooking[]> => {
+    const resolvedArtistId = artistDocumentId ?? userStore.getUser?.documentId;
+    if (!resolvedArtistId) {
       return Promise.resolve([]);
     }
     return new Promise((resolve) => {
       bookedDatesResolveRef.value = resolve;
       const filters: Record<string, unknown> = {
-        artist: { documentId: { eq: artistDocumentId } },
+        artist: { documentId: { eq: resolvedArtistId } },
       };
       if (slotDocumentId) {
         filters.slot = { documentId: { eq: slotDocumentId } };
@@ -371,6 +374,8 @@ export default function useGuestSpot() {
       void loadMyBookedDatesBookings(undefined, {
         filters,
         pagination: { limit: 200 },
+      }, {
+        fetchPolicy: 'network-only',
       });
       setTimeout(() => {
         if (bookedDatesResolveRef.value === resolve) {
