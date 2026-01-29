@@ -154,6 +154,10 @@ const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
 
   if (savedSlot) {
     await initializeFormFromSlot(savedSlot);
+    await nextTick();
+    if (slotFormRef.value) {
+      initialFormSnapshot.value = cloneFormData(slotFormRef.value.formData);
+    }
   }
 };
 

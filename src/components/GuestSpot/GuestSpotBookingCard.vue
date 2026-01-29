@@ -4,7 +4,7 @@
     @click="handleClick"
   >
     <div class="flex no-wrap items-start justify-between full-width">
-      <div class="user-info q-mb-md">
+      <div class="user-info">
         <!-- Shop view: show artist -->
         <template v-if="viewAs === 'shop'">
           <q-avatar size="40px" class="q-mr-sm bg-block">
@@ -41,7 +41,7 @@
         </template>
       </div>
 
-      <div class="card-header q-mb-md">
+      <div class="card-header">
         <div class="status-badge" :class="`status-badge--${statusVariant}`">
           <q-icon :name="statusIcon" size="16px" />
           <span>{{ statusLabel }}</span>
@@ -49,22 +49,27 @@
       </div>
     </div>
 
+    <div v-if="slotTitleOrDescription" class="shop-conditions q-mb-md q-mt-sm bg-block border-radius-md">
+      <div class="shop-conditions__label text-caption text-primary">Shop conditions</div>
+      <div class="shop-conditions__text text-body2 text-grey-6">{{ slotTitleOrDescription }}</div>
+    </div>
+
     <div class="booking-details">
       <div class="detail-item q-mb-xs">
         <q-icon name="event" size="16px" color="grey-6" />
-        <span class="text-grey-7">{{ formattedDate }}</span>
+        <span class="text-grey-6">{{ formattedDate }}</span>
       </div>
       <div v-if="booking.selectedTime" class="detail-item q-mb-xs">
         <q-icon name="schedule" size="16px" color="grey-6" />
-        <span class="text-grey-7">{{ formattedTime }}</span>
+        <span class="text-grey-6">{{ formattedTime }}</span>
       </div>
       <div v-if="booking.comment" class="detail-item q-mb-xs">
         <q-icon name="comment" size="16px" color="grey-6" />
-        <span class="text-grey-7">{{ booking.comment }}</span>
+        <span class="text-grey-6">{{ booking.comment }}</span>
       </div>
       <div v-if="showDeposit" class="detail-item q-mb-xs">
         <q-icon name="payment" size="16px" color="grey-6" />
-        <span class="text-grey-7">Deposit: ${{ depositAmountText }}</span>
+        <span class="text-grey-6">Deposit: ${{ depositAmountText }}</span>
       </div>
     </div>
 
@@ -172,6 +177,12 @@ const showDeposit = computed(() => {
   return props.booking.depositAuthorized || props.booking.depositCaptured;
 });
 
+const slotTitleOrDescription = computed(() => {
+  const slot = props.booking.slot;
+  if (!slot) return '';
+  return slot.title?.trim() || slot.description?.trim() || '';
+});
+
 const canApprove = computed(() => {
   return props.booking.status === EGuestSpotBookingStatus.Pending;
 });
@@ -255,6 +266,21 @@ const handleReject = () => {
 
 .user-name {
   font-size: 16px;
+}
+
+.shop-conditions {
+  padding: 10px 12px;
+}
+
+.shop-conditions__label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.shop-conditions__text {
+  line-height: 1.4;
 }
 
 .booking-details {
