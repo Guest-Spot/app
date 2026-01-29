@@ -65,6 +65,12 @@ export default function useGuestSpot() {
   } = useLazyQuery<IGuestSpotBookingsQueryResponse>(GUEST_SPOT_BOOKINGS_QUERY);
 
   const {
+    load: loadAvailabilityBookings,
+    onResult: onResultAvailabilityBookings,
+    onError: onErrorAvailabilityBookings,
+  } = useLazyQuery<IGuestSpotBookingsQueryResponse>(GUEST_SPOT_BOOKINGS_QUERY);
+
+  const {
     load: loadGuestSpotBooking,
     loading: isLoadingBooking,
     onResult: onResultBooking,
@@ -154,6 +160,28 @@ export default function useGuestSpot() {
     showError('Failed to load guest spot bookings');
   });
 
+  const availabilityResolveRef = ref<((value: { taken: number }) => void) | null>(null);
+
+  onResultAvailabilityBookings((result) => {
+    const resolve = availabilityResolveRef.value;
+    availabilityResolveRef.value = null;
+    if (!resolve) return;
+    const bookingsList = result.data?.guestSpotBookings ?? [];
+    const statusesThatTakeSpot = [
+      EGuestSpotBookingStatus.Pending,
+      EGuestSpotBookingStatus.Accepted,
+      EGuestSpotBookingStatus.Completed,
+    ];
+    const taken = bookingsList.filter((b) => statusesThatTakeSpot.includes(b.status)).length;
+    resolve({ taken });
+  });
+
+  onErrorAvailabilityBookings(() => {
+    const resolve = availabilityResolveRef.value;
+    availabilityResolveRef.value = null;
+    if (resolve) resolve({ taken: 0 });
+  });
+
   onResultBooking((result) => {
     if (result.data?.guestSpotBooking) {
       const booking = result.data.guestSpotBooking;
@@ -227,6 +255,9 @@ export default function useGuestSpot() {
       if (filters.artistDocumentId) {
         graphQLFilters.artist = { documentId: { eq: filters.artistDocumentId } };
       }
+      if (filters.guestSpotSlotDocumentId) {
+        graphQLFilters.slot = { documentId: { eq: filters.guestSpotSlotDocumentId } };
+      }
       if (filters.date) {
         graphQLFilters.selectedDate = { eq: filters.date };
       }
@@ -264,6 +295,28 @@ export default function useGuestSpot() {
         const booking = guestSpotStore.getBookings.find((b) => b.documentId === documentId);
         resolve(booking || null);
       }, 2000);
+    });
+  };
+
+  const getAvailabilityForSlotAndDate = (
+    slotDocumentId: string,
+    date: string,
+  ): Promise<{ taken: number }> => {
+    return new Promise((resolve) => {
+      availabilityResolveRef.value = resolve;
+      void loadAvailabilityBookings(undefined, {
+        filters: {
+          slot: { documentId: { eq: slotDocumentId } },
+          selectedDate: { eq: date },
+        },
+      });
+      // Timeout fallback if no result
+      setTimeout(() => {
+        if (availabilityResolveRef.value === resolve) {
+          availabilityResolveRef.value = null;
+          resolve({ taken: 0 });
+        }
+      }, 10000);
     });
   };
 
@@ -589,6 +642,7 @@ export default function useGuestSpot() {
     loadSlot,
     loadBookings,
     loadBooking,
+    getAvailabilityForSlotAndDate,
     refetchSlots: refetchGuestSpotSlots,
     refetchBookings: refetchGuestSpotBookings,
     createSlot,

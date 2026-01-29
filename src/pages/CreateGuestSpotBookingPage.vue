@@ -54,7 +54,9 @@
             ref="dateStepRef"
             v-model:date="bookingData.selectedDate"
             :opening-hours="slotData.openingHours"
+            :slot-data="slotData"
             :rules="rules"
+            @update:availability="dateAvailability = $event"
           />
 
           <CommentStep
@@ -272,9 +274,13 @@ const totalPaymentAmount = computed<number | null>(() => {
   return Math.round(total * 100) / 100;
 });
 
+const dateAvailability = ref<{ available: number; total: number; taken: number } | null>(null);
+
 const isNextDisabled = computed(() => {
   if (currentStep.value === 1) {
-    return !bookingData.selectedDate;
+    if (!bookingData.selectedDate) return true;
+    if (dateAvailability.value?.available === 0) return true;
+    return false;
   }
   return false;
 });

@@ -66,6 +66,7 @@ export interface IGuestSpotBookingFilters {
   status?: EGuestSpotBookingStatus;
   shopDocumentId?: string;
   artistDocumentId?: string;
+  guestSpotSlotDocumentId?: string;
   date?: string;
 }
 
