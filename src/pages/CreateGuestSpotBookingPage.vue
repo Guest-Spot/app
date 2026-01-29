@@ -15,7 +15,7 @@
         />
       </div>
 
-      <div class="dialog-content">
+      <div class="dialog-content q-mt-md">
         <LoadingState
           v-if="isLoadingSlotOrSlots"
           :is-loading="isLoadingSlotOrSlots"
@@ -493,7 +493,8 @@ onBeforeUnmount(async () => {
 .stepper-header {
   display: flex;
   gap: 8px;
-  padding: 20px 0 16px;
+  padding: 2px 16px 0;
+  margin-bottom: 16px;
   flex-shrink: 0;
   overflow-x: auto;
   flex-wrap: nowrap;

@@ -71,6 +71,12 @@ export default function useGuestSpot() {
   } = useLazyQuery<IGuestSpotBookingsQueryResponse>(GUEST_SPOT_BOOKINGS_QUERY);
 
   const {
+    load: loadMyBookedDatesBookings,
+    onResult: onResultMyBookedDatesBookings,
+    onError: onErrorMyBookedDatesBookings,
+  } = useLazyQuery<IGuestSpotBookingsQueryResponse>(GUEST_SPOT_BOOKINGS_QUERY);
+
+  const {
     load: loadGuestSpotBooking,
     loading: isLoadingBooking,
     onResult: onResultBooking,
@@ -180,6 +186,35 @@ export default function useGuestSpot() {
     const resolve = availabilityResolveRef.value;
     availabilityResolveRef.value = null;
     if (resolve) resolve({ taken: 0 });
+  });
+
+  const bookedDatesResolveRef = ref<((value: IGuestSpotBooking[]) => void) | null>(null);
+
+  onResultMyBookedDatesBookings((result) => {
+    const resolve = bookedDatesResolveRef.value;
+    bookedDatesResolveRef.value = null;
+    if (!resolve) return;
+    const bookingsList = result.data?.guestSpotBookings ?? [];
+    const statusesThatBlockDay = [
+      EGuestSpotBookingStatus.Pending,
+      EGuestSpotBookingStatus.Accepted,
+      EGuestSpotBookingStatus.Completed,
+    ];
+    const mappedBookings: IGuestSpotBooking[] = bookingsList
+      .filter((b) => statusesThatBlockDay.includes(b.status) && b.selectedDate)
+      .map((booking) => ({
+        ...booking,
+        guestSpotSlotDocumentId: booking.slot?.documentId || '',
+        artistDocumentId: booking.artist?.documentId || '',
+        shopDocumentId: booking.shop?.documentId || '',
+      }));
+    resolve(mappedBookings);
+  });
+
+  onErrorMyBookedDatesBookings(() => {
+    const resolve = bookedDatesResolveRef.value;
+    bookedDatesResolveRef.value = null;
+    if (resolve) resolve([]);
   });
 
   onResultBooking((result) => {
@@ -315,6 +350,32 @@ export default function useGuestSpot() {
         if (availabilityResolveRef.value === resolve) {
           availabilityResolveRef.value = null;
           resolve({ taken: 0 });
+        }
+      }, 10000);
+    });
+  };
+
+  const getBookingsForCurrentUser = (slotDocumentId?: string): Promise<IGuestSpotBooking[]> => {
+    const artistDocumentId = userStore.getUser?.documentId;
+    if (!artistDocumentId) {
+      return Promise.resolve([]);
+    }
+    return new Promise((resolve) => {
+      bookedDatesResolveRef.value = resolve;
+      const filters: Record<string, unknown> = {
+        artist: { documentId: { eq: artistDocumentId } },
+      };
+      if (slotDocumentId) {
+        filters.slot = { documentId: { eq: slotDocumentId } };
+      }
+      void loadMyBookedDatesBookings(undefined, {
+        filters,
+        pagination: { limit: 200 },
+      });
+      setTimeout(() => {
+        if (bookedDatesResolveRef.value === resolve) {
+          bookedDatesResolveRef.value = null;
+          resolve([]);
         }
       }, 10000);
     });
@@ -643,6 +704,7 @@ export default function useGuestSpot() {
     loadBookings,
     loadBooking,
     getAvailabilityForSlotAndDate,
+    getBookingsForCurrentUser,
     refetchSlots: refetchGuestSpotSlots,
     refetchBookings: refetchGuestSpotBookings,
     createSlot,

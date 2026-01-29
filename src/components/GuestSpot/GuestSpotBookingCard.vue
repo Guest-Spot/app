@@ -3,27 +3,29 @@
     class="guest-spot-booking-card bg-block q-pa-md border-radius-md cursor-pointer"
     @click="handleClick"
   >
-    <div class="card-header q-mb-md">
-      <div class="status-badge" :class="`status-badge--${statusVariant}`">
-        <q-icon :name="statusIcon" size="16px" />
-        <span>{{ statusLabel }}</span>
+    <div class="flex no-wrap items-start justify-between full-width">
+      <div class="user-info q-mb-md">
+        <q-avatar size="40px" class="q-mr-sm bg-block">
+          <q-img
+            v-if="booking.artist?.avatar?.url"
+            :src="booking.artist.avatar.url"
+            spinner-color="dark"
+            spinner-size="16px"
+            :ratio="0.85"
+          />
+          <q-icon v-else name="person" size="22px" color="grey-6" />
+        </q-avatar>
+        <div class="flex column">
+          <div class="user-role text-grey-6 text-caption">Artist</div>
+          <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
+        </div>
       </div>
-    </div>
 
-    <div class="user-info q-mb-md">
-      <q-avatar size="40px" class="q-mr-sm bg-block">
-        <q-img
-          v-if="booking.artist?.avatar?.url"
-          :src="booking.artist.avatar.url"
-          spinner-color="dark"
-          spinner-size="16px"
-          :ratio="0.85"
-        />
-        <q-icon v-else name="person" size="22px" color="grey-6" />
-      </q-avatar>
-      <div class="flex column">
-        <div class="user-role text-grey-6 text-caption">Artist</div>
-        <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
+      <div class="card-header q-mb-md">
+        <div class="status-badge" :class="`status-badge--${statusVariant}`">
+          <q-icon :name="statusIcon" size="16px" />
+          <span>{{ statusLabel }}</span>
+        </div>
       </div>
     </div>
 
@@ -46,7 +48,7 @@
       </div>
     </div>
 
-    <div v-if="showActions" class="actions q-mt-md">
+    <div v-if="!readOnly && showActions" class="actions q-mt-md">
       <q-btn
         v-if="canReject"
         label="Reject"
@@ -80,10 +82,12 @@ import { centsToDollars } from 'src/helpers/currency';
 interface Props {
   booking: IGuestSpotBooking;
   isProcessing?: boolean;
+  readOnly?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isProcessing: false,
+  readOnly: false,
 });
 
 const emit = defineEmits<{

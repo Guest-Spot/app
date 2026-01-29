@@ -23,13 +23,21 @@
           </template>
         </div>
         <q-date
-          v-model="dateModel"
+          :model-value="props.date"
           mask="YYYY-MM-DD"
           class="date-picker-inline bg-block border-radius-md"
           :options="isDateAllowed"
+          :events="isBookedDate"
+          event-color="primary"
+          @update:model-value="onDateSelect"
         />
       </div>
     </q-form>
+
+    <BookedDateDialog
+      v-model="showBookedDateDialog"
+      :booking="selectedBookingForDialog"
+    />
   </div>
 </template>
 
@@ -37,8 +45,10 @@
 import { computed, ref, watch, type PropType } from 'vue';
 import type { QForm } from 'quasar';
 import type { IOpeningHours } from 'src/interfaces/common';
-import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
+import type { IGuestSpotSlot, IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import useGuestSpot from 'src/composables/useGuestSpot';
+import BookedDateDialog from 'src/components/Dialogs/BookedDateDialog.vue';
+import { useUserStore } from 'src/stores/user';
 
 type Rules = {
   required: (field: string) => (val: string | null | undefined) => true | string;
@@ -74,9 +84,85 @@ const emit = defineEmits<{
   (e: 'update:availability', value: AvailabilityResult): void;
 }>();
 
-const { getAvailabilityForSlotAndDate } = useGuestSpot();
+const userStore = useUserStore();
+const artistDocumentId = computed(() => userStore.getUser?.documentId);
+const { getAvailabilityForSlotAndDate, getBookingsForCurrentUser } = useGuestSpot();
 const availabilityLoading = ref(false);
 const availabilityResult = ref<AvailabilityResult | null>(null);
+const userBookings = ref<IGuestSpotBooking[]>([]);
+const showBookedDateDialog = ref(false);
+const selectedBookingForDialog = ref<IGuestSpotBooking | null>(null);
+
+/** Normalize to YYYY-MM-DD (API or QDate may use slashes/ISO) */
+const toDateKey = (d?: string | null) => {
+  if (!d) return '';
+  return d.slice(0, 10).replace(/\//g, '-');
+};
+
+const bookingByDate = computed(() => {
+  const m = new Map<string, IGuestSpotBooking>();
+  userBookings.value.forEach((b) => {
+    const key = toDateKey(b.selectedDate);
+    if (key) m.set(key, b);
+  });
+  return m;
+});
+
+let bookingRequestId = 0;
+
+const currentSlotDocumentId = ref<string | null>(null);
+
+const resetBookedDateDialog = () => {
+  showBookedDateDialog.value = false;
+  selectedBookingForDialog.value = null;
+};
+
+const loadUserBookingsForSlot = async (slotDocumentId: string | null) => {
+  if (!slotDocumentId) {
+    bookingRequestId += 1;
+    userBookings.value = [];
+    return;
+  }
+  const requestId = ++bookingRequestId;
+  try {
+    const bookings = await getBookingsForCurrentUser(slotDocumentId);
+    if (requestId !== bookingRequestId) return;
+    userBookings.value = bookings;
+  } catch (error) {
+    console.error('Failed to load bookings for slot:', error);
+    if (requestId === bookingRequestId) {
+      userBookings.value = [];
+    }
+  }
+};
+
+watch(
+  () => props.slotData?.documentId ?? null,
+  (slotDocumentId) => {
+    bookingRequestId += 1;
+    currentSlotDocumentId.value = slotDocumentId;
+    resetBookedDateDialog();
+    if (!slotDocumentId) {
+      userBookings.value = [];
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  () => [currentSlotDocumentId.value, artistDocumentId.value] as const,
+  ([slotDocumentId, artistId]) => {
+    if (!slotDocumentId) {
+      return;
+    }
+    if (!artistId) {
+      userBookings.value = [];
+      return;
+    }
+    void loadUserBookingsForSlot(slotDocumentId);
+  },
+  { immediate: true },
+);
 
 watch(
   () => [props.date, props.slotData] as const,
@@ -106,10 +192,25 @@ watch(
 
 const formRef = ref<QForm | null>(null);
 
-const dateModel = computed({
-  get: () => props.date,
-  set: (val: string) => emit('update:date', val),
-});
+const isBookedDate = (date: string) => {
+  const key = toDateKey(date);
+  return key ? bookingByDate.value.has(key) : false;
+};
+
+const onDateSelect = (val: string | null) => {
+  const key = toDateKey(val);
+  const booking = bookingByDate.value.get(key);
+  if (!key) {
+    emit('update:date', '');
+    return;
+  }
+  if (booking) {
+    selectedBookingForDialog.value = booking;
+    showBookedDateDialog.value = true;
+    return;
+  }
+  emit('update:date', key);
+};
 
 const isDateAllowed = (date: string) => {
   const selected = new Date(date);
