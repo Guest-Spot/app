@@ -132,7 +132,6 @@ const emit = defineEmits<{
 }>();
 
 const formData = ref<IGuestSpotSlotForm>({
-  title: '',
   description: '',
   pricingOptions: [],
   depositAmount: 0,
@@ -167,7 +166,6 @@ watch(
   (slot) => {
     if (slot) {
       formData.value = {
-        title: slot.title || '',
         description: slot.description,
         pricingOptions: slot.pricingOptions.map((opt) => ({
           ...opt,
@@ -197,7 +195,6 @@ watch(
       }
     } else {
       formData.value = {
-        title: '',
         description: '',
         pricingOptions: [],
         depositAmount: 0,
@@ -255,7 +252,6 @@ const handleSubmit = () => {
   // If 'free', pricingOptions remains empty array
 
   const data: IGuestSpotSlotForm = {
-    ...(formData.value.title && { title: formData.value.title }),
     description: formData.value.description,
     pricingOptions,
     depositAmount: 0, // Set to 0 as per requirements

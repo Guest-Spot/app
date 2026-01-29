@@ -20,17 +20,9 @@
 
     <!-- Slots Section -->
     <div v-if="isEnabled" class="slots-section">
-      <div class="section-header q-mb-md flex items-center justify-between">
-        <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Slots</h3>
-        <q-btn
-          color="primary"
-          icon="add"
-          label="Create Slot"
-          @click="handleCreateSlot"
-          unelevated
-          rounded
-        />
-      </div>
+        <div class="section-header q-mb-md flex items-center justify-between">
+          <h3 class="text-subtitle1 text-bold q-my-none">Guest Spot Slots</h3>
+        </div>
 
       <LoadingState
         v-if="isLoadingSlots && !slots.length"
@@ -56,13 +48,6 @@
                 </div>
               </div>
               <div class="flex q-gap-xs">
-                <q-btn
-                  flat
-                  icon="edit"
-                  size="sm"
-                  @click="handleEditSlot(slot)"
-                  :loading="isUpdatingSlot"
-                />
                 <q-btn
                   flat
                   icon="delete"
@@ -97,12 +82,6 @@
     </div>
 
       <!-- Slot Form Dialog -->
-      <GuestSpotSlotDialog
-        v-model="showSlotForm"
-        :slot-data="editingSlot"
-        :loading="isCreatingSlot || isUpdatingSlot"
-        @submit="handleSlotSubmit"
-      />
   </div>
 </template>
 
@@ -113,14 +92,10 @@ import { useQuasar } from 'quasar';
 defineOptions({
   name: 'GuestSpotTab',
 });
-import type {
-  IGuestSpotSlot,
-  IGuestSpotSlotForm,
-} from 'src/interfaces/guestSpot';
+
 import useGuestSpot from 'src/composables/useGuestSpot';
 import useUser from 'src/modules/useUser';
 import { LoadingState, NoResult } from 'src/components';
-import { GuestSpotSlotDialog } from 'src/components/Dialogs';
 
 const $q = useQuasar();
 const { user } = useUser();
@@ -128,20 +103,14 @@ const { user } = useUser();
 const {
   slots,
   isLoadingSlots,
-  isCreatingSlot,
-  isUpdatingSlot,
   isDeletingSlot,
   isTogglingEnabled,
   loadSlots,
-  createSlot,
-  updateSlot,
   deleteSlot,
   toggleEnabled,
 } = useGuestSpot();
 
 const isEnabled = ref(false);
-const showSlotForm = ref(false);
-const editingSlot = ref<(IGuestSpotSlotForm & { documentId?: string }) | null>(null);
 
 onMounted(async () => {
   if (user.value?.documentId) {
@@ -168,54 +137,6 @@ const handleToggleEnabled = async (enabled: boolean) => {
       }
     }
   }
-};
-
-const handleCreateSlot = () => {
-  editingSlot.value = null;
-  showSlotForm.value = true;
-};
-
-const handleSlotSubmit = async (data: IGuestSpotSlotForm) => {
-  if (!user.value?.documentId) return;
-
-  const slotDocumentId = editingSlot.value?.documentId;
-  const wasEditing = !!slotDocumentId;
-
-  showSlotForm.value = false;
-  editingSlot.value = null;
-
-  if (wasEditing && slotDocumentId) {
-    // Handle update
-    const slot = await updateSlot(slotDocumentId, data);
-    if (slot) {
-      const shopDocumentId = user.value?.documentId;
-      if (shopDocumentId) {
-        await loadSlots({ shopDocumentId, enabled: true });
-      }
-    }
-  } else {
-    // Handle creation
-    const slot = await createSlot(data);
-    if (slot) {
-      const shopDocumentId = user.value?.documentId;
-      if (shopDocumentId) {
-        await loadSlots({ shopDocumentId, enabled: true });
-      }
-    }
-  }
-};
-
-const handleEditSlot = (slot: IGuestSpotSlot) => {
-  editingSlot.value = {
-    documentId: slot.documentId,
-    title: slot.title || '',
-    description: slot.description,
-    pricingOptions: slot.pricingOptions,
-    depositAmount: slot.depositAmount,
-    spaces: slot.spaces,
-    openingHours: slot.openingHours,
-  } as unknown as IGuestSpotSlotForm;
-  showSlotForm.value = true;
 };
 
 const handleDeleteSlot = (documentId: string) => {

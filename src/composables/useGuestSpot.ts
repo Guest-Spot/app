@@ -292,13 +292,9 @@ export default function useGuestSpot() {
         })),
       };
 
-      console.log('Creating guest spot slot with data:', mutationData);
-
       const result = await createGuestSpotSlot({
         data: mutationData,
       });
-
-      console.log('Mutation result:', result);
 
       const slot = result?.data?.createGuestSpotSlot as IGuestSpotSlot | undefined;
       if (slot && slot.documentId) {
@@ -399,7 +395,7 @@ export default function useGuestSpot() {
   const toggleEnabled = async (shopDocumentId: string, enabled: boolean): Promise<boolean> => {
     try {
       const result = await toggleGuestSpotEnabled({ shopDocumentId, enabled });
-      
+
       // Update user's guestSpotEnabled status in store
       const currentUser = userStore.getUser;
       if (currentUser && result?.data?.toggleGuestSpotEnabled) {
@@ -409,7 +405,7 @@ export default function useGuestSpot() {
         };
         userStore.setUser(updatedUser);
       }
-      
+
       showSuccess(`Guest spot ${enabled ? 'enabled' : 'disabled'} successfully`);
       return true;
     } catch (error) {

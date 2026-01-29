@@ -12,4 +12,3 @@ export { default as SortDialog } from './SortDialog.vue';
 export { default as TimePickerDialog } from './TimePickerDialog.vue';
 export { default as TripDialog } from './TripDialog.vue';
 export { default as TipArtistDialog } from './TipArtistDialog.vue';
-export { default as GuestSpotSlotDialog } from './GuestSpotSlotDialog.vue';

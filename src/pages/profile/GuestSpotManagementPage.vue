@@ -61,6 +61,7 @@ import SaveButton from 'src/components/SaveButton.vue';
 import GuestSpotSlotForm from 'src/components/ShopProfile/GuestSpotTab/GuestSpotSlotForm.vue';
 import useGuestSpot from 'src/composables/useGuestSpot';
 import useUser from 'src/modules/useUser';
+import type { IOpeningHours } from 'src/interfaces/common';
 
 const { user } = useUser();
 
@@ -102,7 +103,7 @@ const captureInitialSnapshot = async () => {
   }
 
   if (slotFormRef.value) {
-    initialFormSnapshot.value = cloneFormData(slotFormRef.value.formData.value);
+    initialFormSnapshot.value = cloneFormData(slotFormRef.value.formData);
   } else {
     initialFormSnapshot.value = null;
   }
@@ -114,7 +115,6 @@ const mapSlotToFormData = (slot: IGuestSpotSlot | null): IGuestSpotSlotForm | nu
   }
 
   return {
-    title: slot.title ?? '',
     description: slot.description,
     pricingOptions: slot.pricingOptions.map((option) => ({
       type: option.type,
@@ -123,8 +123,8 @@ const mapSlotToFormData = (slot: IGuestSpotSlot | null): IGuestSpotSlotForm | nu
     })),
     depositAmount: slot.depositAmount,
     spaces: slot.spaces,
-    openingHours: slot.openingHours.map((hour) => ({
-      id: hour.id,
+    openingHours: slot.openingHours.map((hour: IOpeningHours) => ({
+      id: hour.id ?? '',
       day: hour.day,
       start: hour.start,
       end: hour.end,
@@ -184,7 +184,6 @@ const normalizeOpeningHours = (hours: IGuestSpotSlotForm['openingHours']) =>
     );
 
 const normalizeFormForComparison = (form: IGuestSpotSlotForm) => ({
-  title: form.title ?? '',
   description: form.description,
   depositAmount: form.depositAmount,
   spaces: form.spaces,
@@ -215,7 +214,7 @@ const hasChanges = computed(() => {
     return false;
   }
 
-  return !areFormsEqual(formInstance.formData.value, initialFormSnapshot.value);
+  return !areFormsEqual(formInstance.formData, initialFormSnapshot.value);
 });
 
 watch(
