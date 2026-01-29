@@ -374,7 +374,7 @@ const onSubmit = async () => {
     } else {
       showSuccess('Booking request sent!');
       await resetFormState();
-      void router.push('/events');
+      void router.push('/events?tab=guest-spot');
     }
   } catch (error) {
     console.error('Failed to submit booking:', error);

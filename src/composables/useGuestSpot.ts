@@ -576,20 +576,16 @@ export default function useGuestSpot() {
         data: {
           slot: slot.documentId,
           artist: artistDocumentId,
-          shop: slot.shop.documentId,
           selectedDate: data.selectedDate,
           selectedTime: data.selectedTime,
           comment: data.comment,
-          depositAmount: slot.depositAmount,
-          depositAuthorized: false,
-          depositCaptured: false,
           platformCommissionAmount,
-          platformCommissionPaid: false,
-          status: EGuestSpotBookingStatus.Pending,
         },
       });
 
-      const booking = result?.data?.createGuestSpotBooking as IGuestSpotBooking | undefined;
+      const response = result?.data?.createGuestSpotBooking;
+      const booking = response?.data as IGuestSpotBooking | undefined;
+
       if (booking) {
         const mappedBooking = {
           ...booking,
@@ -598,7 +594,6 @@ export default function useGuestSpot() {
           shopDocumentId: booking.shop?.documentId || '',
         };
         guestSpotStore.setBookings([...guestSpotStore.getBookings, mappedBooking]);
-        showSuccess('Booking request created successfully');
 
         // Create public event for booking creation
         const artist = userStore.getUser;

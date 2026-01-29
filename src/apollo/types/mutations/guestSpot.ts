@@ -70,39 +70,41 @@ export const TOGGLE_GUEST_SPOT_ENABLED_MUTATION = gql`
 `;
 
 export const CREATE_GUEST_SPOT_BOOKING_MUTATION = gql`
-  mutation CreateGuestSpotBooking($data: GuestSpotBookingInput!) {
+  mutation CreateGuestSpotBooking($data: CreateGuestSpotBookingInput!) {
     createGuestSpotBooking(data: $data) {
-      documentId
-      status
-      selectedDate
-      selectedTime
-      comment
-      depositAmount
-      platformCommissionAmount
-      platformCommissionPaid
-      createdAt
-      artist {
+      data {
         documentId
-        name
-        avatar {
-          id
-          documentId
-          url
-        }
-      }
-      shop {
-        documentId
-        name
-        avatar {
-          id
-          documentId
-          url
-        }
-      }
-      slot {
-        documentId
-        description
+        status
+        selectedDate
+        selectedTime
+        comment
         depositAmount
+        platformCommissionAmount
+        platformCommissionPaid
+        createdAt
+        artist {
+          documentId
+          name
+          avatar {
+            id
+            documentId
+            url
+          }
+        }
+        shop {
+          documentId
+          name
+          avatar {
+            id
+            documentId
+            url
+          }
+        }
+        slot {
+          documentId
+          description
+          depositAmount
+        }
       }
     }
   }

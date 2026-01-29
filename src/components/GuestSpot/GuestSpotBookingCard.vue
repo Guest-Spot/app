@@ -37,9 +37,6 @@
           <div class="flex column">
             <div class="user-role text-grey-6 text-caption">Guest Spot</div>
             <div class="user-name text-weight-medium">{{ booking.shop?.name || 'Unknown' }}</div>
-            <div v-if="slotTitleOrDescription" class="text-caption text-grey-7 q-mt-xs">
-              {{ slotTitleOrDescription }}
-            </div>
           </div>
         </template>
       </div>
@@ -173,12 +170,6 @@ const depositAmountText = computed(() => {
 
 const showDeposit = computed(() => {
   return props.booking.depositAuthorized || props.booking.depositCaptured;
-});
-
-const slotTitleOrDescription = computed(() => {
-  const slot = props.booking.slot;
-  if (!slot) return '';
-  return slot.title?.trim() || slot.description?.trim() || '';
 });
 
 const canApprove = computed(() => {
