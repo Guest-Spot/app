@@ -1,11 +1,26 @@
 <template>
   <div class="step-content">
     <InfoCard title="Review" icon="info" :data="reviewData" />
+    <q-form ref="formRef" class="comment-form flex column q-gap-lg">
+      <div class="input-group">
+        <label class="input-label">Comment (optional)</label>
+        <q-input
+          v-model="commentModel"
+          type="textarea"
+          rows="4"
+          outlined
+          dense
+          rounded
+          placeholder="Add any additional information..."
+        />
+      </div>
+    </q-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import type { QForm } from 'quasar';
 import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
 import useDate from 'src/modules/useDate';
 import { centsToDollars } from 'src/helpers/currency';
@@ -20,6 +35,17 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  (e: 'update:comment', value: string): void;
+}>();
+
+const formRef = ref<QForm | null>(null);
+
+const commentModel = computed({
+  get: () => props.comment ?? '',
+  set: (val: string) => emit('update:comment', val),
+});
 
 const { formatDate } = useDate();
 const settingsStore = useSettingsStore();
@@ -118,6 +144,20 @@ const reviewData = computed(() => {
 
   return data;
 });
+
+const validateForm = (): boolean => {
+  return true;
+};
+
+const resetForm = () => {
+  formRef.value?.resetValidation();
+  formRef.value?.reset();
+};
+
+defineExpose({
+  validateForm,
+  resetForm,
+});
 </script>
 
 <style scoped lang="scss">
@@ -126,5 +166,16 @@ const reviewData = computed(() => {
   flex-direction: column;
   gap: 20px;
   padding-bottom: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .input-label {
+    font-weight: 600;
+    font-size: 14px;
+  }
 }
 </style>

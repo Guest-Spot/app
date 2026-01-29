@@ -49,8 +49,13 @@
             </div>
           </div>
 
-          <DateStep
+          <RequirementsStep
             v-if="currentStep === 1"
+            :description="slotData?.description ?? null"
+          />
+
+          <DateStep
+            v-else-if="currentStep === 2"
             ref="dateStepRef"
             v-model:date="bookingData.selectedDate"
             :opening-hours="slotData.openingHours"
@@ -59,16 +64,11 @@
             @update:availability="dateAvailability = $event"
           />
 
-          <CommentStep
-            v-else-if="currentStep === 2"
-            ref="commentStepRef"
-            v-model:comment="bookingData.comment"
-          />
-
           <ReviewStep
             v-else-if="currentStep === 3"
+            ref="reviewStepRef"
+            v-model:comment="bookingData.comment"
             :selected-date="bookingData.selectedDate"
-            :comment="bookingData.comment"
             :slot-data="slotData"
           />
 
@@ -142,7 +142,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { DateStep, CommentStep, ReviewStep } from 'src/components/GuestSpot/CreateBookingSteps';
+import {
+  DateStep,
+  RequirementsStep,
+  ReviewStep,
+} from 'src/components/GuestSpot/CreateBookingSteps';
 import { PaymentStep } from 'src/components/Dialogs/CreateBookingSteps';
 import { LoadingState, NoResult } from 'src/components';
 import useGuestSpot from 'src/composables/useGuestSpot';
@@ -193,8 +197,8 @@ const isLoadingSlotOrSlots = computed(
 );
 
 const baseSteps = [
-  { id: 1, title: 'Date', icon: 'event' },
-  { id: 2, title: 'Comment', icon: 'comment' },
+  { id: 1, title: 'Requirements', icon: 'description' },
+  { id: 2, title: 'Date', icon: 'event' },
   { id: 3, title: 'Review', icon: 'check' },
   { id: 4, title: 'Payment', icon: 'payment' },
 ] as const;
@@ -230,7 +234,7 @@ const stepperHeaderRef = ref<HTMLDivElement | null>(null);
 const createdBooking = ref<IGuestSpotBooking | null>(null);
 
 const dateStepRef = ref<InstanceType<typeof DateStep> | null>(null);
-const commentStepRef = ref<InstanceType<typeof CommentStep> | null>(null);
+const reviewStepRef = ref<InstanceType<typeof ReviewStep> | null>(null);
 
 const isAtFirstStep = computed(() => currentStep.value === firstVisibleStepId.value);
 const isAtLastStep = computed(() => currentStep.value === lastVisibleStepId.value);
@@ -277,7 +281,7 @@ const totalPaymentAmount = computed<number | null>(() => {
 const dateAvailability = ref<{ available: number; total: number; taken: number } | null>(null);
 
 const isNextDisabled = computed(() => {
-  if (currentStep.value === 1) {
+  if (currentStep.value === 2) {
     if (!bookingData.selectedDate) return true;
     if (dateAvailability.value?.available === 0) return true;
     return false;
@@ -323,12 +327,8 @@ const handleStepClick = (stepId: number) => {
 };
 
 const validateCurrentStep = async (): Promise<boolean> => {
-  if (currentStep.value === 1) {
-    const result = await dateStepRef.value?.validateForm();
-    return !!result;
-  }
   if (currentStep.value === 2) {
-    const result = await commentStepRef.value?.validateForm();
+    const result = await dateStepRef.value?.validateForm();
     return !!result;
   }
   return true;
@@ -401,7 +401,7 @@ const resetFormState = async () => {
 
   await nextTick();
   dateStepRef.value?.resetForm();
-  commentStepRef.value?.resetForm();
+  reviewStepRef.value?.resetForm();
 };
 
 const closePage = () => {
