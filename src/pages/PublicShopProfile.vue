@@ -326,7 +326,8 @@ const goToGuestSpotBooking = () => {
   }
   if (!shopData.value.documentId) return;
   void router.push({
-    path: `/shop/${shopData.value.documentId}/guest-spot`,
+    name: 'CreateGuestSpotBooking',
+    query: { shopId: shopData.value.documentId },
   });
 };
 

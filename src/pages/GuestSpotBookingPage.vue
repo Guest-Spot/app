@@ -9,202 +9,74 @@
       </h2>
     </div>
 
-    <!-- Single slot booking view -->
-    <div v-if="slotData" class="container full-width">
-      <GuestSpotSlotCard :slot-data="slotData" class="q-mb-md" @click="handleSlotClick" />
-      <div class="flex justify-center q-mt-md">
-        <q-btn
-          rounded
-          color="primary"
-          size="lg"
-          label="Book This Guest Spot"
-          icon="event_available"
-          @click="handleSlotClick(slotData)"
-        />
-      </div>
-    </div>
-
-    <!-- Slots list view -->
-    <div v-else-if="!hasSlotId" class="container full-width">
+    <div class="container full-width">
       <LoadingState
-        v-if="isLoadingSlots && !slots.length"
-        :is-loading="isLoadingSlots"
+        v-if="!hasAttemptedLoad && (isLoadingSlots || isLoadingSlot)"
+        :is-loading="true"
         title="Loading guest spots..."
-        description="Please wait while we fetch available slots"
+        description="Please wait"
         spinner-name="dots"
       />
 
-      <div v-else-if="slots.length" class="slots-grid">
-        <GuestSpotSlotCard
-          v-for="slotItem in slots"
-          :key="slotItem.documentId"
-          :slot-data="slotItem"
-          @click="handleSlotClick"
-        />
-      </div>
-
       <NoResult
-        v-else
+        v-else-if="hasAttemptedLoad && !hasSlotId && slots.length === 0"
         icon="event_available"
         title="No guest spots available"
         description="This shop doesn't have any available guest spots at the moment"
         no-btn
       />
     </div>
-
-    <!-- Loading single slot -->
-    <LoadingState
-      v-else-if="isLoadingSlot"
-      :is-loading="isLoadingSlot"
-      title="Loading slot..."
-      description="Please wait"
-      spinner-name="dots"
-    />
-
-    <!-- Slot not found -->
-    <NoResult
-      v-else-if="hasAttemptedLoad && !isLoadingSlot && !isLoadingSlots && !slotData"
-      icon="error"
-      title="Slot not found"
-      description="This guest spot slot may have been removed"
-      no-btn
-    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
 import useGuestSpot from 'src/composables/useGuestSpot';
-import { GuestSpotSlotCard, LoadingState, NoResult } from 'src/components';
+import { LoadingState, NoResult } from 'src/components';
 
 const route = useRoute();
 const router = useRouter();
-const {
-  slots,
-  currentSlot,
-  isLoadingSlot,
-  isLoadingSlots,
-  loadSlot,
-  loadSlots,
-} = useGuestSpot();
+const { slots, isLoadingSlot, isLoadingSlots, loadSlots } = useGuestSpot();
+
 const shopDocumentId = computed(() => route.params.documentId as string);
 const slotId = computed(() => route.query.slotId as string | undefined);
 const hasSlotId = computed(() => !!slotId.value);
 
-// Track if we've attempted to load the slot
 const hasAttemptedLoad = ref(false);
-
-// Try to get slot from currentSlot first, then from slots list
-const slotData = computed(() => {
-  if (currentSlot.value) {
-    return currentSlot.value;
-  }
-  // Fallback: try to find slot in loaded slots list
-  if (slotId.value) {
-    return slots.value.find((s) => s.documentId === slotId.value) || null;
-  }
-  return null;
-});
 
 const loadSlotData = async () => {
   hasAttemptedLoad.value = false;
 
   if (slotId.value) {
-    // Load specific slot if slotId is provided
-    await loadSlot(slotId.value);
+    // Redirect to calendar page with slotId (no cards shown)
+    await router.replace({
+      name: 'CreateGuestSpotBooking',
+      query: { slotId: slotId.value },
+    });
+    return;
+  }
 
-    // Wait a bit for the result to be processed and stored
-    // This gives time for onResultSlot to update the store
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Check if slot was found in currentSlot or slots list
-    const slotFound = currentSlot.value || slots.value.find((s) => s.documentId === slotId.value);
-
-    // If slot not found in currentSlot or slots, try loading slots list as fallback
-    if (!slotFound && shopDocumentId.value) {
-      await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
-      // Wait again for slots to be processed
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    hasAttemptedLoad.value = true;
-  } else if (shopDocumentId.value) {
-    // Load all slots for the shop if no slotId is provided
+  if (shopDocumentId.value) {
     await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
     hasAttemptedLoad.value = true;
-  }
-};
 
-onMounted(async () => {
-  await loadSlotData();
-});
-
-// Watch for slotId changes in query params
-watch(
-  () => route.query.slotId,
-  async (newSlotId, oldSlotId) => {
-    // Only reload if slotId actually changed
-    if (newSlotId !== oldSlotId) {
-      hasAttemptedLoad.value = false;
-
-      if (newSlotId) {
-        await loadSlot(newSlotId as string);
-
-        // Wait a bit for the result to be processed and stored
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // Check if slot was found in currentSlot or slots list
-        const slotFound = currentSlot.value || slots.value.find((s) => s.documentId === newSlotId);
-
-        // If slot not found in currentSlot or slots, try loading slots list as fallback
-        if (!slotFound && shopDocumentId.value) {
-          await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
-          // Wait again for slots to be processed
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
-
-        hasAttemptedLoad.value = true;
-      } else if (shopDocumentId.value) {
-        // If slotId is removed, reload slots list
-        await loadSlots({ shopDocumentId: shopDocumentId.value, enabled: true });
-        hasAttemptedLoad.value = true;
-      }
+    if (slots.value.length === 1) {
+      await router.replace({
+        name: 'CreateGuestSpotBooking',
+        query: { slotId: slots.value[0]!.documentId },
+      });
     }
-  },
-  { immediate: false }
-);
-
-// Watch for currentSlot and slots changes to update slotData reactively
-watch(
-  [currentSlot, slots],
-  () => {
-    // This ensures slotData updates when data is loaded
-    // The computed will automatically update, but this ensures reactivity
-  },
-  { deep: true }
-);
-
-const handleSlotClick = (slot: IGuestSpotSlot) => {
-  if (slot.documentId) {
-    void router.push({
-      name: 'CreateGuestSpotBooking',
-      query: { slotId: slot.documentId },
-    });
   }
 };
+
+onMounted(() => {
+  void loadSlotData();
+});
 </script>
 
 <style scoped lang="scss">
 .container {
-  width: 100%;
-}
-
-.slots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
   width: 100%;
 }
 </style>

@@ -17,8 +17,8 @@
 
       <div class="dialog-content">
         <LoadingState
-          v-if="isLoadingSlot"
-          :is-loading="isLoadingSlot"
+          v-if="isLoadingSlotOrSlots"
+          :is-loading="isLoadingSlotOrSlots"
           title="Loading slot..."
           description="Please wait"
           spinner-name="dots"
@@ -160,8 +160,11 @@ const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 
 const {
   currentSlot,
+  slots,
   isLoadingSlot,
+  isLoadingSlots,
   loadSlot,
+  loadSlots,
   createBooking,
 } = useGuestSpot();
 
@@ -171,7 +174,21 @@ const {
 } = useGuestSpotPayment();
 
 const slotId = computed(() => route.query.slotId as string | undefined);
-const slotData = computed(() => currentSlot.value);
+const shopId = computed(() => route.query.shopId as string | undefined);
+
+const slotData = computed(() => {
+  if (slotId.value && currentSlot.value) {
+    return currentSlot.value;
+  }
+  if (shopId.value && slots.value.length > 0) {
+    return slots.value[0] ?? null;
+  }
+  return null;
+});
+
+const isLoadingSlotOrSlots = computed(
+  () => (slotId.value && isLoadingSlot.value) || (shopId.value && isLoadingSlots.value),
+);
 
 const baseSteps = [
   { id: 1, title: 'Date', icon: 'event' },
@@ -407,8 +424,10 @@ watch(currentStep, (newStep, oldStep) => {
 const loadSlotData = async () => {
   if (slotId.value) {
     await loadSlot(slotId.value);
+  } else if (shopId.value) {
+    await loadSlots({ shopDocumentId: shopId.value, enabled: true });
   } else {
-    showError('Slot ID is required');
+    showError('Slot or shop is required');
     void router.push('/');
   }
 };

@@ -13,17 +13,28 @@
         spinner-name="dots"
       />
 
-      <div v-else-if="slots.length" class="slots-grid">
-        <GuestSpotSlotCard
+      <q-list v-else-if="slots.length > 1" class="slots-list bg-block border-radius-md">
+        <q-item
           v-for="slotItem in slots"
           :key="slotItem.documentId"
-          :slot-data="slotItem"
-          @click="handleSlotClick"
-        />
-      </div>
+          clickable
+          v-ripple
+          @click="handleSlotClick(slotItem)"
+        >
+          <q-item-section avatar>
+            <q-icon name="store" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ slotItem.shop?.name || slotItem.title || 'Guest Spot' }}</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-icon name="chevron_right" color="grey" />
+          </q-item-section>
+        </q-item>
+      </q-list>
 
       <NoResult
-        v-else
+        v-else-if="!slots.length"
         icon="event_available"
         title="No guest spots available"
         description="Check back later for new guest spot opportunities"
@@ -38,13 +49,20 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
 import useGuestSpot from 'src/composables/useGuestSpot';
-import { GuestSpotSlotCard, LoadingState, NoResult } from 'src/components';
+import { LoadingState, NoResult } from 'src/components';
 
 const router = useRouter();
 const { slots, isLoadingSlots, loadSlots } = useGuestSpot();
 
 onMounted(async () => {
   await loadSlots({ enabled: true });
+
+  if (slots.value.length === 1) {
+    await router.replace({
+      name: 'CreateGuestSpotBooking',
+      query: { slotId: slots.value[0]!.documentId },
+    });
+  }
 });
 
 const handleSlotClick = (slot: IGuestSpotSlot) => {
@@ -58,10 +76,7 @@ const handleSlotClick = (slot: IGuestSpotSlot) => {
 </script>
 
 <style scoped lang="scss">
-.slots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-  width: 100%;
+.slots-list {
+  overflow: hidden;
 }
 </style>
