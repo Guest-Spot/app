@@ -10,14 +10,14 @@
     />
 
     <LoadingState
-      v-if="loading && !bookings.length"
+      v-if="loading && !filteredBookings.length"
       :is-loading="loading"
       title="Loading bookings..."
       description="Please wait while we fetch the bookings"
       spinner-name="dots"
     />
 
-    <div v-else-if="bookings.length" class="bookings-grid">
+    <div v-else-if="filteredBookings.length" class="bookings-grid">
       <GuestSpotBookingCard
         v-for="booking in filteredBookings"
         :key="booking.documentId"

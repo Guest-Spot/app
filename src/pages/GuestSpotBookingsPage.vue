@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import useUser from 'src/modules/useUser';
 import useTokens from 'src/modules/useTokens';
@@ -82,12 +82,6 @@ const {
 const showBookingDetails = ref(false);
 const selectedBooking = ref<IGuestSpotBooking | null>(null);
 
-onMounted(async () => {
-  if (user.value?.documentId) {
-    await loadBookings({ shopDocumentId: user.value.documentId });
-  }
-});
-
 const handleApproveBooking = async (documentId: string) => {
   const success = await approveBooking(documentId);
   if (success && user.value?.documentId) {
@@ -101,10 +95,34 @@ const handleRejectBooking = (documentId: string, rejectNote?: string) => {
     message: 'Are you sure you want to reject this booking?',
     prompt: {
       model: rejectNote || '',
-      type: 'text',
-      label: 'Reason (optional)',
+      type: 'textarea',
+      placeholder: 'Enter reason for rejection...',
+      outlined: true,
+      counter: true,
+      rounded: true,
+      maxlength: 250,
+      color: 'primary',
+      required: true,
+      isValid: (val: string) => {
+        const trimmedValue = val.trim();
+        return trimmedValue.length > 0 && trimmedValue.length <= 250;
+      },
+      rules: [
+        (val: string) => !!val.trim() || 'Reason is required',
+        (val: string) =>
+          val.trim().length <= 250 || 'Reason must be less than 250 characters',
+      ],
     },
-    cancel: true,
+    cancel: {
+      color: 'grey-9',
+      rounded: true,
+      label: 'Cancel',
+    },
+    ok: {
+      color: 'negative',
+      rounded: true,
+      label: 'Reject',
+    },
     persistent: true,
   }).onOk((note?: string) => {
     void (async () => {
@@ -120,6 +138,12 @@ const handleViewBookingDetails = (booking: IGuestSpotBooking) => {
   selectedBooking.value = booking;
   showBookingDetails.value = true;
 };
+
+watch(user, (newUser) => {
+  if (newUser?.documentId) {
+    void loadBookings({ shopDocumentId: newUser.documentId });
+  }
+}, { immediate: true });
 </script>
 
 <style scoped lang="scss">
