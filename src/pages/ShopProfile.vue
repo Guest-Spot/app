@@ -21,12 +21,13 @@
       />
     </div>
 
-    <div v-if="user && user.approved !== true" class="container">
-      <PendingApprovalBanner title="Profile under review" text="We will review your account soon and make it visible to everyone." />
-    </div>
-
     <div class="container">
-      <GuestSpotBanner class="q-mb-md" />
+      <PendingApprovalBanner
+        v-if="user && user.approved !== true"
+        title="Profile under review"
+        text="We will review your account soon and make it visible to everyone."
+      />
+      <GuestSpotBanner v-else />
     </div>
 
     <div class="container">
