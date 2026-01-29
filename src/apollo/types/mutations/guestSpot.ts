@@ -111,9 +111,11 @@ export const CREATE_GUEST_SPOT_BOOKING_MUTATION = gql`
 export const APPROVE_GUEST_SPOT_BOOKING_MUTATION = gql`
   mutation ApproveGuestSpotBooking($documentId: ID!) {
     approveGuestSpotBooking(documentId: $documentId) {
-      documentId
-      status
-      updatedAt
+      data {
+        documentId
+        status
+        updatedAt
+      }
     }
   }
 `;
@@ -121,10 +123,12 @@ export const APPROVE_GUEST_SPOT_BOOKING_MUTATION = gql`
 export const REJECT_GUEST_SPOT_BOOKING_MUTATION = gql`
   mutation RejectGuestSpotBooking($documentId: ID!, $rejectNote: String) {
     rejectGuestSpotBooking(documentId: $documentId, rejectNote: $rejectNote) {
-      documentId
-      status
-      rejectNote
-      updatedAt
+      data {
+        documentId
+        status
+        rejectNote
+        updatedAt
+      }
     }
   }
 `;

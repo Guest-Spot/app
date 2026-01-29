@@ -22,6 +22,7 @@
             </div>
           </template>
         </div>
+
         <q-date
           :model-value="props.date"
           mask="YYYY-MM-DD"

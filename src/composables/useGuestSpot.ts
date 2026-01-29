@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useLazyQuery, useMutation } from '@vue/apollo-composable';
 import {
   GUEST_SPOT_SLOTS_QUERY,
@@ -315,7 +315,7 @@ export default function useGuestSpot() {
         () => guestSpotStore.getBookings.find((b) => b.documentId === documentId),
         (booking) => {
           if (booking) {
-            unwatch();
+            void nextTick(() => unwatch());
             resolve(booking);
           }
         },
