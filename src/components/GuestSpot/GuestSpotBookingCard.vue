@@ -50,7 +50,7 @@
     </div>
 
     <div v-if="slotTitleOrDescription && viewAs === 'artist'" class="shop-conditions q-mt-md bg-block border-radius-md">
-      <div class="shop-conditions__label text-caption text-primary">Shop conditions</div>
+      <div class="shop-conditions__label text-caption text-primary">Shop disclaimer</div>
       <div class="shop-conditions__text text-body2 text-grey-6">{{ slotTitleOrDescription }}</div>
     </div>
 

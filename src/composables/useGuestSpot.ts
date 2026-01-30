@@ -4,6 +4,7 @@ import {
   GUEST_SPOT_SLOTS_QUERY,
   GUEST_SPOT_SLOT_QUERY,
   GUEST_SPOT_BOOKINGS_QUERY,
+  GUEST_SPOT_AVAILABILITY_BOOKINGS_QUERY,
   GUEST_SPOT_BOOKING_QUERY,
 } from 'src/apollo/types/queries/guestSpot';
 import {
@@ -68,7 +69,7 @@ export default function useGuestSpot() {
     load: loadAvailabilityBookings,
     onResult: onResultAvailabilityBookings,
     onError: onErrorAvailabilityBookings,
-  } = useLazyQuery<IGuestSpotBookingsQueryResponse>(GUEST_SPOT_BOOKINGS_QUERY);
+  } = useLazyQuery<IGuestSpotBookingsQueryResponse>(GUEST_SPOT_AVAILABILITY_BOOKINGS_QUERY);
 
   const {
     load: loadMyBookedDatesBookings,

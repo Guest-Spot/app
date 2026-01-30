@@ -20,6 +20,7 @@ export { default as BookingCalendar } from './Bookings/BookingCalendar.vue';
 export { default as NotificationItem } from './Cards/NotificationItem.vue';
 export { default as InviteNotificationItem } from './Cards/InviteNotificationItem.vue';
 export { default as GuestSpotBookingCreatedNotificationItem } from './Cards/GuestSpotBookingCreatedNotificationItem.vue';
+export { default as GuestSpotBookingStatusNotificationItem } from './Cards/GuestSpotBookingStatusNotificationItem.vue';
 
 // Portfolio components
 export * from './Portfolio';

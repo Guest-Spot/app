@@ -69,6 +69,8 @@ export enum NotificationType {
   BookingAccepted = 'booking_accepted',
   BookingRejected = 'booking_rejected',
   GuestSpotBookingCreated = 'guest_spot_booking_created',
+  GuestSpotBookingAccepted = 'guest_spot_booking_accepted',
+  GuestSpotBookingRejected = 'guest_spot_booking_rejected',
   InviteCreated = 'invite_created',
   InviteAccepted = 'invite_accepted',
   InviteRejected = 'invite_rejected',

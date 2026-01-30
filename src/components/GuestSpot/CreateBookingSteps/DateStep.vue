@@ -2,27 +2,6 @@
   <div class="step-content">
     <q-form ref="formRef" class="date-form flex column items-center q-gap-lg">
       <div class="input-group">
-        <div v-if="slotData && date" class="availability-info bg-block border-radius-lg">
-          <div v-if="availabilityLoading" class="availability-loading flex items-center q-gap-sm">
-            <q-spinner size="20px" color="primary" />
-            <span class="text-body2 text-weight-medium">Checking availability…</span>
-          </div>
-          <template v-else-if="availabilityResult !== null">
-            <q-banner v-if="availabilityResult.available === 0" class="availability-none rounded-borders">
-              <template #avatar>
-                <q-icon name="event_busy" color="warning" size="24px" />
-              </template>
-              No spots left for this date
-            </q-banner>
-            <div v-else class="availability-spots bg-block">
-              <q-icon name="event_available" size="20px" color="primary" class="q-mr-sm" />
-              <span class="availability-spots__text">
-                {{ availabilityResult.available }} of {{ availabilityResult.total }} spots available
-              </span>
-            </div>
-          </template>
-        </div>
-
         <q-date
           :model-value="props.date"
           mask="YYYY-MM-DD"
@@ -55,12 +34,6 @@ type Rules = {
   required: (field: string) => (val: string | null | undefined) => true | string;
 };
 
-interface AvailabilityResult {
-  available: number;
-  total: number;
-  taken: number;
-}
-
 const props = defineProps({
   date: {
     type: String,
@@ -82,14 +55,11 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'update:date', value: string): void;
-  (e: 'update:availability', value: AvailabilityResult): void;
 }>();
 
 const userStore = useUserStore();
 const artistDocumentId = computed(() => userStore.getUser?.documentId);
-const { getAvailabilityForSlotAndDate, getBookingsForCurrentUser } = useGuestSpot();
-const availabilityLoading = ref(false);
-const availabilityResult = ref<AvailabilityResult | null>(null);
+const { getBookingsForCurrentUser } = useGuestSpot();
 const userBookings = ref<IGuestSpotBooking[]>([]);
 const showBookedDateDialog = ref(false);
 const selectedBookingForDialog = ref<IGuestSpotBooking | null>(null);
@@ -165,32 +135,6 @@ watch(
       return;
     }
     void loadUserBookingsForSlot(slotId);
-  },
-  { immediate: true },
-);
-
-watch(
-  () => [props.date, props.slotData] as const,
-  async ([date, slotData]) => {
-    if (!date || !slotData?.documentId) {
-      availabilityResult.value = null;
-      // Emit non-blocking so parent does not disable Next when no date selected
-      const total = slotData?.spaces ?? 1;
-      emit('update:availability', { available: total, total, taken: 0 });
-      return;
-    }
-    availabilityLoading.value = true;
-    availabilityResult.value = null;
-    try {
-      const { taken } = await getAvailabilityForSlotAndDate(slotData.documentId, date);
-      const total = slotData.spaces ?? 0;
-      const available = Math.max(0, total - taken);
-      const result: AvailabilityResult = { available, total, taken };
-      availabilityResult.value = result;
-      emit('update:availability', result);
-    } finally {
-      availabilityLoading.value = false;
-    }
   },
   { immediate: true },
 );
@@ -287,28 +231,5 @@ defineExpose({
 .date-picker-inline {
   width: 100%;
   max-width: 320px;
-}
-
-.availability-loading {
-  color: var(--q-primary);
-}
-
-.availability-none {
-  background: rgba(255, 193, 7, 0.15);
-  border-left: 4px solid var(--q-warning);
-  font-weight: 600;
-}
-
-.availability-spots {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: var(--bg-block);
-}
-
-.availability-spots__text {
-  font-size: 14px;
-  font-weight: 600;
 }
 </style>

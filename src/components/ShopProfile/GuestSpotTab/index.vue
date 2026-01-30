@@ -43,7 +43,7 @@
               <div>
                 <div class="text-subtitle2 text-weight-bold">{{ slot.description }}</div>
                 <div class="text-caption text-grey-6">
-                  Deposit: ${{ (slot.depositAmount / 100).toFixed(2) }} | Spaces:
+                  Deposit: ${{ (slot.depositAmount / 100).toFixed(2) }} | Slots:
                   {{ slot.spaces }}
                 </div>
               </div>

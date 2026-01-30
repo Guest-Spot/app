@@ -61,7 +61,6 @@
             :opening-hours="slotData.openingHours"
             :slot-data="slotData"
             :rules="rules"
-            @update:availability="dateAvailability = $event"
           />
 
           <ReviewStep
@@ -106,7 +105,7 @@
       <div class="actions-right flex q-gap-sm">
         <q-btn
           v-if="currentStep < 3"
-          label="Next"
+          :label="currentStep === 1 ? 'Confirm' : 'Next'"
           color="primary"
           rounded
           unelevated
@@ -197,7 +196,7 @@ const isLoadingSlotOrSlots = computed(
 );
 
 const baseSteps = [
-  { id: 1, title: 'Requirements', icon: 'description' },
+  { id: 1, title: 'Disclaimer', icon: 'description' },
   { id: 2, title: 'Date', icon: 'event' },
   { id: 3, title: 'Review', icon: 'check' },
   { id: 4, title: 'Payment', icon: 'payment' },
@@ -278,13 +277,9 @@ const totalPaymentAmount = computed<number | null>(() => {
   return Math.round(total * 100) / 100;
 });
 
-const dateAvailability = ref<{ available: number; total: number; taken: number } | null>(null);
-
 const isNextDisabled = computed(() => {
   if (currentStep.value === 2) {
-    if (!bookingData.selectedDate) return true;
-    if (dateAvailability.value?.available === 0) return true;
-    return false;
+    return !bookingData.selectedDate;
   }
   return false;
 });
@@ -433,7 +428,7 @@ const loadSlotData = async () => {
   } else if (shopId.value) {
     await loadSlots({ shopDocumentId: shopId.value, enabled: true });
   } else {
-    showError('Slot or shop is required');
+    showError('A slot or shop is required.');
     void router.push('/');
   }
 };

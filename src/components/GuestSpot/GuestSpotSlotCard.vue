@@ -15,7 +15,7 @@
           <VerifiedBadge v-if="slotData.shop?.verified" icon-only class="q-mt-xs" />
         </div>
         <q-chip color="primary" text-color="white">
-          {{ slotData.spaces }} space{{ slotData.spaces !== 1 ? 's' : '' }}
+          {{ slotData.spaces }} slot{{ slotData.spaces !== 1 ? 's' : '' }}
         </q-chip>
       </div>
 

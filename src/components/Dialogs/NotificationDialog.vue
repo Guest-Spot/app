@@ -66,6 +66,7 @@ import useNotify from 'src/modules/useNotify';
 import useNotifyCompos from 'src/composables/useNotifyCompos';
 import { InviteNotificationItem, NotificationItem } from 'src/components';
 import GuestSpotBookingCreatedNotificationItem from 'src/components/Cards/GuestSpotBookingCreatedNotificationItem.vue';
+import GuestSpotBookingStatusNotificationItem from 'src/components/Cards/GuestSpotBookingStatusNotificationItem.vue';
 import type { INotify } from 'src/interfaces/notify';
 import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import VirtualListV2 from 'src/components/VirtualListV2.vue';
@@ -155,6 +156,12 @@ const loadMoreNotifies = () => {
 const resolveNotificationComponent = (type: INotify['type']) => {
   if (type === NotificationType.GuestSpotBookingCreated) {
     return GuestSpotBookingCreatedNotificationItem;
+  }
+  if (
+    type === NotificationType.GuestSpotBookingAccepted ||
+    type === NotificationType.GuestSpotBookingRejected
+  ) {
+    return GuestSpotBookingStatusNotificationItem;
   }
   return inviteNotificationTypes.has(type) ? InviteNotificationItem : NotificationItem;
 };

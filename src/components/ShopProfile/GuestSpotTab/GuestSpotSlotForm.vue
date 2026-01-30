@@ -25,18 +25,18 @@
         </q-input>
       </div>
 
-      <!-- Spaces -->
+      <!-- Slots -->
       <div class="flex column items-start q-gap-xs full-width">
-        <label class="input-label">Available Spaces</label>
+        <label class="input-label">Available Slots</label>
         <q-input
           v-model.number="formData.spaces"
           type="number"
-          placeholder="Enter number of available spaces"
+          placeholder="Enter number of available slots"
           outlined
           rounded
           size="lg"
           min="1"
-          :rules="[(val) => val > 0 || 'Spaces must be greater than 0']"
+          :rules="[(val) => val > 0 || 'Slots must be greater than 0']"
           class="full-width"
           bg-color="transparent"
           :disable="isDisabled"

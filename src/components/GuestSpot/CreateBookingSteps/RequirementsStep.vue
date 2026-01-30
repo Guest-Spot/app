@@ -1,7 +1,7 @@
 <template>
   <div class="step-content">
     <InfoCard
-      title="Shop requirements"
+      title="Shop disclaimer"
       icon="description"
       :data="[{ label: '', value: requirementsText }]"
     />
@@ -17,7 +17,7 @@ const props = defineProps<{
 }>();
 
 const requirementsText = computed(
-  () => (props.description?.trim() || '') || 'No specific requirements.',
+  () => (props.description?.trim() || '') || 'No disclaimer provided.',
 );
 </script>
 

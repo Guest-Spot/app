@@ -170,6 +170,24 @@ export const GUEST_SPOT_BOOKINGS_QUERY = gql`
   }
 `;
 
+/** Separate query for availability check so Vue Apollo delivers result to the correct onResult (same document used in 3 useLazyQuery otherwise triggers only one callback). */
+export const GUEST_SPOT_AVAILABILITY_BOOKINGS_QUERY = gql`
+  query GuestSpotBookingsForAvailability(
+    $filters: GuestSpotBookingFiltersInput
+    $sort: [String!]
+    $pagination: PaginationArg
+  ) {
+    guestSpotBookings(filters: $filters, sort: $sort, pagination: $pagination) {
+      documentId
+      status
+      selectedDate
+      slot {
+        documentId
+      }
+    }
+  }
+`;
+
 export const GUEST_SPOT_BOOKING_QUERY = gql`
   query GuestSpotBooking($documentId: ID!) {
     guestSpotBooking(documentId: $documentId) {

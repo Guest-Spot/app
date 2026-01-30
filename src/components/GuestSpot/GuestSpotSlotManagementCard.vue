@@ -56,9 +56,9 @@
         </div>
       </div>
 
-      <!-- Spaces Block -->
+      <!-- Slots Block -->
       <div class="info-block bg-block border-radius-md q-pa-md">
-        <div class="info-label text-caption text-weight-medium text-grey-6">SPACES</div>
+        <div class="info-label text-caption text-weight-medium text-grey-6">SLOTS</div>
         <div class="info-value flex items-center q-gap-xs q-mt-xs">
           <span class="value-amount text-body1 text-weight-bold">{{ formattedSpaces }}</span>
         </div>
