@@ -11,6 +11,21 @@
       @on-remove="onRemoveImages"
       @on-update="onUpdateImages"
     />
+    <!-- Guest Spot Management (shop only, first in list) -->
+    <div v-if="isShop" class="navigation-list flex column bg-block border-radius-lg">
+      <div
+        class="nav-item q-pa-md cursor-pointer"
+        @click="navigateTo('/profile/guest-spot')"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center q-gap-md">
+            <q-icon name="event_available" size="24px" color="grey-6" />
+            <span>Guest Spot Management</span>
+          </div>
+          <q-icon name="chevron_right" size="24px" color="grey-6" />
+        </div>
+      </div>
+    </div>
     <!-- Navigation List -->
     <div class="navigation-list flex column bg-block border-radius-lg">
       <!-- Basic Information -->

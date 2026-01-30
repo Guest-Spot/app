@@ -196,7 +196,7 @@ const isLoadingSlotOrSlots = computed(
 );
 
 const baseSteps = [
-  { id: 1, title: 'Disclaimer', icon: 'description' },
+  { id: 1, title: 'description', icon: 'description' },
   { id: 2, title: 'Date', icon: 'event' },
   { id: 3, title: 'Review', icon: 'check' },
   { id: 4, title: 'Payment', icon: 'payment' },
@@ -229,6 +229,11 @@ const lastVisibleStepId = computed<number>(() => {
 
 const currentStep = ref(firstVisibleStepId.value);
 const isSubmitting = ref(false);
+
+const syncTabToUrl = () => {
+  const query = { ...route.query, tab: String(currentStep.value) };
+  void router.replace({ path: route.path, query });
+};
 const stepperHeaderRef = ref<HTMLDivElement | null>(null);
 const createdBooking = ref<IGuestSpotBooking | null>(null);
 
@@ -408,6 +413,7 @@ const closePage = () => {
 };
 
 watch(currentStep, (newStep, oldStep) => {
+  syncTabToUrl();
   if (newStep > oldStep && newStep === 2) {
     stepperHeaderRef.value?.scrollTo({
       left: stepperHeaderRef.value?.offsetWidth ?? 0,
@@ -440,6 +446,14 @@ const handleBrowserFinished = () => {
 
 onMounted(async () => {
   await loadSlotData();
+  const tabParam = route.query.tab;
+  if (typeof tabParam === 'string') {
+    const stepNum = Number(tabParam);
+    if (Number.isInteger(stepNum) && visibleSteps.value.some((s) => s.id === stepNum)) {
+      currentStep.value = stepNum as 1 | 2 | 3 | 4;
+    }
+  }
+  syncTabToUrl();
   addBrowserFinishedListener(() => void handleBrowserFinished());
 });
 

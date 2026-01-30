@@ -4,41 +4,81 @@
     @click="handleClick"
   >
     <div class="flex no-wrap items-start justify-between full-width">
-      <div class="user-info">
-        <!-- Shop view: show artist -->
-        <template v-if="viewAs === 'shop'">
-          <q-avatar size="40px" class="q-mr-sm bg-block">
-            <q-img
-              v-if="booking.artist?.avatar?.url"
-              :src="booking.artist.avatar.url"
-              spinner-color="dark"
-              spinner-size="16px"
-              :ratio="0.85"
-            />
-            <q-icon v-else name="person" size="22px" color="grey-6" />
-          </q-avatar>
-          <div class="flex column">
-            <div class="user-role text-grey-6 text-caption">Artist</div>
-            <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
-          </div>
-        </template>
-        <!-- Artist view: show shop and slot -->
-        <template v-else>
-          <q-avatar size="40px" class="q-mr-sm bg-block">
-            <q-img
-              v-if="booking.shop?.avatar?.url"
-              :src="booking.shop.avatar.url"
-              spinner-color="dark"
-              spinner-size="16px"
-              :ratio="0.85"
-            />
-            <q-icon v-else name="store" size="22px" color="grey-6" />
-          </q-avatar>
-          <div class="flex column">
-            <div class="user-role text-grey-6 text-caption">Guest Spot</div>
-            <div class="user-name text-weight-medium">{{ booking.shop?.name || 'Unknown' }}</div>
-          </div>
-        </template>
+      <!-- Shop view: show artist (link to public profile when id available) -->
+      <router-link
+        v-if="viewAs === 'shop' && artistProfileUrl"
+        :to="artistProfileUrl"
+        class="user-info text-grey-6 no-underline"
+        @click.stop
+      >
+        <q-avatar size="40px" class="q-mr-sm bg-block">
+          <q-img
+            v-if="booking.artist?.avatar?.url"
+            :src="booking.artist.avatar.url"
+            spinner-color="dark"
+            spinner-size="16px"
+            :ratio="0.85"
+          />
+          <q-icon v-else name="person" size="22px" color="grey-6" />
+        </q-avatar>
+        <div class="flex column">
+          <div class="user-role text-grey-6 text-caption">Artist</div>
+          <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
+        </div>
+      </router-link>
+      <div v-else-if="viewAs === 'shop'" class="user-info">
+        <q-avatar size="40px" class="q-mr-sm bg-block">
+          <q-img
+            v-if="booking.artist?.avatar?.url"
+            :src="booking.artist.avatar.url"
+            spinner-color="dark"
+            spinner-size="16px"
+            :ratio="0.85"
+          />
+          <q-icon v-else name="person" size="22px" color="grey-6" />
+        </q-avatar>
+        <div class="flex column">
+          <div class="user-role text-grey-6 text-caption">Artist</div>
+          <div class="user-name text-weight-medium">{{ booking.artist?.name || 'Unknown' }}</div>
+        </div>
+      </div>
+      <!-- Artist view: show shop (link to public profile when id available) -->
+      <router-link
+        v-else-if="shopProfileUrl"
+        :to="shopProfileUrl"
+        class="user-info text-grey-6 no-underline"
+        @click.stop
+      >
+        <q-avatar size="40px" class="q-mr-sm bg-block">
+          <q-img
+            v-if="booking.shop?.avatar?.url"
+            :src="booking.shop.avatar.url"
+            spinner-color="dark"
+            spinner-size="16px"
+            :ratio="0.85"
+          />
+          <q-icon v-else name="store" size="22px" color="grey-6" />
+        </q-avatar>
+        <div class="flex column">
+          <div class="user-role text-grey-6 text-caption">Guest Spot</div>
+          <div class="user-name text-weight-medium">{{ booking.shop?.name || 'Unknown' }}</div>
+        </div>
+      </router-link>
+      <div v-else class="user-info">
+        <q-avatar size="40px" class="q-mr-sm bg-block">
+          <q-img
+            v-if="booking.shop?.avatar?.url"
+            :src="booking.shop.avatar.url"
+            spinner-color="dark"
+            spinner-size="16px"
+            :ratio="0.85"
+          />
+          <q-icon v-else name="store" size="22px" color="grey-6" />
+        </q-avatar>
+        <div class="flex column">
+          <div class="user-role text-grey-6 text-caption">Guest Spot</div>
+          <div class="user-name text-weight-medium">{{ booking.shop?.name || 'Unknown' }}</div>
+        </div>
       </div>
 
       <div class="card-header">
@@ -50,7 +90,7 @@
     </div>
 
     <div v-if="slotTitleOrDescription && viewAs === 'artist'" class="shop-conditions q-mt-md bg-block border-radius-md">
-      <div class="shop-conditions__label text-caption text-primary">Shop disclaimer</div>
+      <div class="shop-conditions__label text-caption text-primary">Shop description</div>
       <div class="shop-conditions__text text-body2 text-grey-6">{{ slotTitleOrDescription }}</div>
     </div>
 
@@ -181,6 +221,16 @@ const slotTitleOrDescription = computed(() => {
   const slot = props.booking.slot;
   if (!slot) return '';
   return slot.title?.trim() || slot.description?.trim() || '';
+});
+
+const artistProfileUrl = computed(() => {
+  const id = props.booking.artist?.documentId ?? props.booking.artistDocumentId;
+  return id ? `/artist/${id}` : '';
+});
+
+const shopProfileUrl = computed(() => {
+  const id = props.booking.shop?.documentId ?? props.booking.shopDocumentId;
+  return id ? `/shop/${id}` : '';
 });
 
 const canApprove = computed(() => {

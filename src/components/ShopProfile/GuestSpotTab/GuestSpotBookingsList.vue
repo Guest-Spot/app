@@ -6,6 +6,7 @@
       send-initial-tab
       :tabs="filterTabs"
       :activeTab="activeFilterTab"
+      use-query
       @set-active-tab="setActiveTab"
     />
 
@@ -47,7 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import { EGuestSpotBookingStatus as Status } from 'src/interfaces/enums';
 import type { EGuestSpotBookingStatus } from 'src/interfaces/enums';
@@ -55,6 +57,9 @@ import { TabsComp, LoadingState, NoResult } from 'src/components';
 import type { ITab } from 'src/interfaces/tabs';
 import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import GuestSpotBookingCard from 'src/components/GuestSpot/GuestSpotBookingCard.vue';
+
+const route = useRoute();
+const VALID_TAB_VALUES = ['pending', 'accepted', 'rejected'] as const;
 
 interface Props {
   bookings: IGuestSpotBooking[];
@@ -85,6 +90,17 @@ const filterTabs: ITab[] = [
 ];
 
 const activeFilterTab = ref<ITab>(filterTabs[0]!);
+
+watch(
+  () => route.query.tab as string | undefined,
+  (tabFromUrl) => {
+    if (tabFromUrl && VALID_TAB_VALUES.includes(tabFromUrl as (typeof VALID_TAB_VALUES)[number])) {
+      const tabObj = filterTabs.find((t) => t.tab === tabFromUrl);
+      if (tabObj) activeFilterTab.value = tabObj;
+    }
+  },
+  { immediate: true },
+);
 
 const filteredBookings = computed(() => {
   const statusMap: Record<string, EGuestSpotBookingStatus> = {

@@ -26,7 +26,9 @@
             <ArtistGuestSpotBookings
               :bookings="guestSpotBookings"
               :loading="isLoadingGuestSpotBookings"
+              :has-more="hasMoreGuestSpotBookings"
               @view-booking="handleViewGuestSpotBooking"
+              @load-more="loadMoreGuestSpotBookings"
             />
           </div>
         </div>
@@ -54,6 +56,7 @@ import useGuestSpot from 'src/composables/useGuestSpot';
 const TAB_INVITES = 'invites';
 const TAB_GUEST_SPOT = 'guest-spot';
 const TAB_BOOKINGS = 'bookings';
+const GUEST_SPOT_PAGE_SIZE = 20;
 
 const { isAuthenticated, isArtist } = useUser();
 const { getStoredTokens } = useTokens();
@@ -146,8 +149,28 @@ const bookingFilters = computed(() => {
 const {
   bookings: guestSpotBookings,
   isLoadingBookings: isLoadingGuestSpotBookings,
+  hasMoreBookings: hasMoreGuestSpotBookings,
   loadBookings: loadGuestSpotBookings,
 } = useGuestSpot();
+
+const guestSpotSort = ['createdAt:desc'] as const;
+const loadGuestSpotBookingsInitial = () => {
+  if (!userDocumentId.value) return;
+  void loadGuestSpotBookings(
+    { artistDocumentId: userDocumentId.value },
+    [...guestSpotSort],
+    { limit: GUEST_SPOT_PAGE_SIZE },
+  );
+};
+const loadMoreGuestSpotBookings = () => {
+  if (!userDocumentId.value) return;
+  void loadGuestSpotBookings(
+    { artistDocumentId: userDocumentId.value },
+    [...guestSpotSort],
+    { limit: GUEST_SPOT_PAGE_SIZE, start: guestSpotBookings.value.length },
+    { append: true },
+  );
+};
 
 const {
   result,
@@ -180,18 +203,14 @@ const setActiveTab = (tab: ITab) => {
 
   if (tab.tab === TAB_BOOKINGS) {
     void refetchBookings();
-  } else if (tab.tab === TAB_GUEST_SPOT && isArtist.value && userDocumentId.value) {
-    void loadGuestSpotBookings({
-      artistDocumentId: userDocumentId.value,
-    });
+  } else if (tab.tab === TAB_GUEST_SPOT && isArtist.value) {
+    loadGuestSpotBookingsInitial();
   }
 };
 
-onMounted(async () => {
-  if (isArtist.value && userDocumentId.value) {
-    await loadGuestSpotBookings({
-      artistDocumentId: userDocumentId.value,
-    });
+onMounted(() => {
+  if (isArtist.value) {
+    loadGuestSpotBookingsInitial();
   }
 });
 

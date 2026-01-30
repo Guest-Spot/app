@@ -27,7 +27,6 @@
         title="Profile under review"
         text="We will review your account soon and make it visible to everyone."
       />
-      <GuestSpotBanner v-else />
     </div>
 
     <div class="container">
@@ -55,7 +54,6 @@ import { ref, watch } from 'vue';
 import { type ITab } from 'src/interfaces/tabs';
 import AboutMeTab from 'src/components/Profile/AboutMeTab.vue';
 import { ShopArtistsTab } from 'src/components/ShopProfile';
-import GuestSpotBanner from 'src/components/ShopProfile/GuestSpotBanner.vue';
 import { TabsComp, PortfolioTab } from 'src/components';
 import ProfileHeader from 'src/components/Profile/ProfileHeader.vue';
 import { useRouter, useRoute } from 'vue-router';

@@ -10,15 +10,24 @@
       spinner-name="dots"
     />
 
-    <div v-else-if="bookings.length" class="bookings-list">
-      <GuestSpotBookingCard
-        v-for="booking in bookings"
-        :key="booking.documentId"
-        :booking="booking"
-        view-as="artist"
-        @click="handleViewBooking"
-      />
-    </div>
+    <VirtualListV2
+      v-else-if="bookings.length"
+      :items="bookings"
+      key-field="documentId"
+      :min-item-size="200"
+      :gap="16"
+      :loading="loading"
+      :has-more="hasMore"
+      @load-more="emit('load-more')"
+    >
+      <template #default="{ item }">
+        <GuestSpotBookingCard
+          :booking="asBooking(item)"
+          view-as="artist"
+          @click="handleViewBooking(asBooking(item))"
+        />
+      </template>
+    </VirtualListV2>
 
     <NoResult
       v-else
@@ -33,20 +42,26 @@
 <script setup lang="ts">
 import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import { ListHeader, LoadingState, NoResult } from 'src/components';
+import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import GuestSpotBookingCard from './GuestSpotBookingCard.vue';
 
 interface Props {
   bookings: IGuestSpotBooking[];
   loading?: boolean;
+  hasMore?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   loading: false,
+  hasMore: true,
 });
 
 const emit = defineEmits<{
   viewBooking: [booking: IGuestSpotBooking];
+  loadMore: [];
 }>();
+
+const asBooking = (item: unknown): IGuestSpotBooking => item as IGuestSpotBooking;
 
 const handleViewBooking = (booking: IGuestSpotBooking) => {
   emit('viewBooking', booking);
@@ -58,9 +73,4 @@ const handleViewBooking = (booking: IGuestSpotBooking) => {
   width: 100%;
 }
 
-.bookings-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
 </style>

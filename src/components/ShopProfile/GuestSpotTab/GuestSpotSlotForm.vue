@@ -8,12 +8,13 @@
         <q-input
           v-model="formData.description"
           type="textarea"
-          placeholder="Enter slot description"
+          placeholder="Shop description for this slot"
           outlined
           rounded
           size="lg"
-          rows="4"
+          :rows="2"
           autogrow
+          clearable
           :rules="[(val) => !!val || 'Description is required']"
           class="full-width"
           bg-color="transparent"
@@ -36,6 +37,7 @@
           rounded
           size="lg"
           min="1"
+          clearable
           :rules="[(val) => val > 0 || 'Slots must be greater than 0']"
           class="full-width"
           bg-color="transparent"
@@ -52,7 +54,7 @@
         class="flex column items-start q-gap-xs full-width"
         :class="{ 'q-mb-md': pricingType === 'free' }"
       >
-        <label class="input-label">Pricing</label>
+        <label class="input-label">Pricing model</label>
 
         <div class="flex q-gap-md column full-width">
 
@@ -68,6 +70,7 @@
           rounded
           size="lg"
           placeholder="Select pricing type"
+          clearable
           class="full-width"
           bg-color="transparent"
           :disable="isDisabled"
@@ -88,6 +91,7 @@
               size="lg"
               step="0.01"
               min="0"
+              clearable
               :rules="priceRules"
               class="full-width"
               bg-color="transparent"
@@ -111,17 +115,18 @@
         <q-input
           v-model.number="formData.depositAmount"
           type="number"
-          placeholder="0 = no deposit"
+          placeholder="0 for no deposit"
           outlined
           rounded
           size="lg"
           step="0.01"
           min="0"
+          clearable
           :rules="[(val) => val >= 0 || 'Deposit must be zero or greater']"
           class="full-width"
           bg-color="transparent"
           :disable="isDisabled"
-          hint="Amount charged when an artist books this slot (0 = no deposit)"
+          hint="Amount charged when an artist books this slot (0 means no deposit)"
         >
           <template v-slot:prepend>
             <q-icon name="account_balance_wallet" color="grey-6" />
