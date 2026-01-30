@@ -107,9 +107,14 @@
         <q-icon name="comment" size="16px" color="grey-6" />
         <span class="text-grey-6">{{ booking.comment }}</span>
       </div>
-      <div v-if="showDeposit" class="detail-item q-mb-xs">
-        <q-icon name="payment" size="16px" color="grey-6" />
-        <span class="text-grey-6">Deposit: ${{ depositAmountText }}</span>
+      <div v-if="showDepositLine" class="deposit-detail">
+        <div class="detail-item q-mb-xs">
+          <q-icon name="payment" size="16px" color="grey-6" />
+          <span class="text-grey-6">Deposit: ${{ depositAmountText }}</span>
+        </div>
+        <div v-if="commissionDollars > 0" class="detail-item q-mb-xs deposit-detail__commission">
+          <span class="text-grey-6">Platform commission: ${{ commissionAmountText }}</span>
+        </div>
       </div>
     </div>
 
@@ -134,6 +139,18 @@
         :loading="isProcessing"
       />
     </div>
+
+    <div v-if="viewAs === 'artist' && needsDepositPayment && canShowPayButton" class="actions q-mt-md">
+      <q-btn
+        :label="payButtonLabel"
+        color="primary"
+        rounded
+        class="bg-block full-width"
+        icon="payment"
+        :loading="isPaymentProcessing"
+        @click.stop="handlePayDeposit"
+      />
+    </div>
   </div>
 </template>
 
@@ -141,8 +158,11 @@
 import { computed } from 'vue';
 import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import { EGuestSpotBookingStatus } from 'src/interfaces/enums';
+import { getGuestSpotBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
-import { centsToDollars } from 'src/helpers/currency';
+import { centsToDollars, computeTotalPaymentAmount } from 'src/helpers/currency';
+import { useSettingsStore } from 'src/stores/settings';
+import useGuestSpotPayment from 'src/composables/useGuestSpotPayment';
 
 interface Props {
   booking: IGuestSpotBooking;
@@ -161,42 +181,28 @@ const emit = defineEmits<{
   approve: [documentId: string];
   reject: [documentId: string, rejectNote?: string];
   click: [booking: IGuestSpotBooking];
+  paid: [];
 }>();
 
+const settingsStore = useSettingsStore();
+const { initiateDeposit, isProcessing: isPaymentProcessing } = useGuestSpotPayment();
 const { formatDate, formatTime } = useDate();
 
-const statusLabel = computed(() => {
-  const statusMap: Record<EGuestSpotBookingStatus, string> = {
-    [EGuestSpotBookingStatus.Pending]: 'Pending',
-    [EGuestSpotBookingStatus.Accepted]: 'Accepted',
-    [EGuestSpotBookingStatus.Rejected]: 'Rejected',
-    [EGuestSpotBookingStatus.Completed]: 'Completed',
-    [EGuestSpotBookingStatus.Cancelled]: 'Cancelled',
-  };
-  return statusMap[props.booking.status] || 'Unknown';
-});
+const statusInfo = computed(() =>
+  getGuestSpotBookingStatusInfo(props.booking, props.viewAs ?? 'shop')
+);
+const statusLabel = computed(() => statusInfo.value.label);
+const statusVariant = computed(() => statusInfo.value.variant);
+const statusIcon = computed(() => statusInfo.value.icon ?? 'help');
 
-const statusVariant = computed(() => {
-  const variantMap: Record<EGuestSpotBookingStatus, string> = {
-    [EGuestSpotBookingStatus.Pending]: 'warning',
-    [EGuestSpotBookingStatus.Accepted]: 'info',
-    [EGuestSpotBookingStatus.Rejected]: 'negative',
-    [EGuestSpotBookingStatus.Completed]: 'positive',
-    [EGuestSpotBookingStatus.Cancelled]: 'grey',
-  };
-  return variantMap[props.booking.status] || 'grey';
-});
-
-const statusIcon = computed(() => {
-  const iconMap: Record<EGuestSpotBookingStatus, string> = {
-    [EGuestSpotBookingStatus.Pending]: 'schedule',
-    [EGuestSpotBookingStatus.Accepted]: 'check_circle',
-    [EGuestSpotBookingStatus.Rejected]: 'cancel',
-    [EGuestSpotBookingStatus.Completed]: 'done_all',
-    [EGuestSpotBookingStatus.Cancelled]: 'block',
-  };
-  return iconMap[props.booking.status] || 'help';
-});
+const needsDepositPayment = computed(
+  () =>
+    props.viewAs === 'artist' &&
+    props.booking.status === EGuestSpotBookingStatus.Pending &&
+    !props.booking.depositAuthorized &&
+    !props.booking.depositCaptured &&
+    (props.booking.depositAmount ?? 0) > 0
+);
 
 const formattedDate = computed(() => {
   if (!props.booking.selectedDate) return 'N/A';
@@ -216,6 +222,10 @@ const depositAmountText = computed(() => {
 const showDeposit = computed(() => {
   return props.booking.depositAuthorized || props.booking.depositCaptured;
 });
+
+const showDepositLine = computed(
+  () => showDeposit.value || needsDepositPayment.value
+);
 
 const slotTitleOrDescription = computed(() => {
   const slot = props.booking.slot;
@@ -245,8 +255,45 @@ const showActions = computed(() => {
   return canApprove.value || canReject.value;
 });
 
+const depositDollars = computed(() => {
+  const d = centsToDollars(props.booking.depositAmount);
+  return d ?? 0;
+});
+
+const commissionDollars = computed(() => {
+  const feePercent = settingsStore.getTotalFeePercent;
+  if (!depositDollars.value || feePercent == null) return 0;
+  return Math.round(depositDollars.value * (feePercent / 100) * 100) / 100;
+});
+
+const commissionAmountText = computed(() =>
+  commissionDollars.value > 0 ? commissionDollars.value.toFixed(2) : '0.00'
+);
+
+const totalPaymentAmount = computed(() => {
+  const feePercent = settingsStore.getTotalFeePercent;
+  return computeTotalPaymentAmount(depositDollars.value, feePercent ?? null);
+});
+
+const canShowPayButton = computed(
+  () => settingsStore.getStripeEnabled === true
+);
+
+const payButtonLabel = computed(() =>
+  totalPaymentAmount.value
+    ? `Pay Deposit ($${totalPaymentAmount.value.toFixed(2)})`
+    : 'Pay Deposit'
+);
+
 const handleClick = () => {
   emit('click', props.booking);
+};
+
+const handlePayDeposit = async () => {
+  const success = await initiateDeposit(props.booking.documentId);
+  if (success) {
+    emit('paid');
+  }
 };
 
 const handleApprove = () => {
@@ -303,7 +350,8 @@ const handleReject = () => {
     color: #21ba45;
   }
 
-  &--grey {
+  &--grey,
+  &--neutral {
     background-color: rgba(128, 128, 128, 0.15);
     color: #808080;
   }
@@ -344,6 +392,10 @@ const handleReject = () => {
   align-items: center;
   gap: 8px;
   font-size: 14px;
+}
+
+.deposit-detail__commission {
+  padding-left: 24px;
 }
 
 .actions {

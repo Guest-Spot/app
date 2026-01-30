@@ -24,7 +24,7 @@
         <GuestSpotBookingCard
           :booking="asBooking(item)"
           view-as="artist"
-          @click="handleViewBooking(asBooking(item))"
+          @paid="emit('paid')"
         />
       </template>
     </VirtualListV2>
@@ -57,15 +57,11 @@ withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  viewBooking: [booking: IGuestSpotBooking];
   loadMore: [];
+  paid: [];
 }>();
 
 const asBooking = (item: unknown): IGuestSpotBooking => item as IGuestSpotBooking;
-
-const handleViewBooking = (booking: IGuestSpotBooking) => {
-  emit('viewBooking', booking);
-};
 </script>
 
 <style scoped lang="scss">

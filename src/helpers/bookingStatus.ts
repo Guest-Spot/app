@@ -1,5 +1,6 @@
 import type { IBooking } from 'src/interfaces/booking';
-import { EBookingPaymentStatus, EReactions } from 'src/interfaces/enums';
+import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
+import { EBookingPaymentStatus, EReactions, EGuestSpotBookingStatus } from 'src/interfaces/enums';
 
 export type BookingStatusVariant = 'positive' | 'warning' | 'negative' | 'info' | 'neutral';
 
@@ -141,4 +142,78 @@ export const getBookingStatusInfo = (
     variant: 'neutral',
     icon: 'help_outline',
   };
+};
+
+type GuestSpotViewAs = 'artist' | 'shop';
+
+/**
+ * Returns status info for Guest Spot booking (same shape as getBookingStatusInfo).
+ * For artist view with Pending + unpaid deposit returns "Deposit payment required" to match guest booking card.
+ */
+export const getGuestSpotBookingStatusInfo = (
+  booking: IGuestSpotBooking | null | undefined,
+  viewAs: GuestSpotViewAs
+): BookingStatusInfo => {
+  if (!booking) {
+    return {
+      label: 'Status unavailable',
+      variant: 'neutral',
+      icon: 'help_outline',
+    };
+  }
+
+  const status = booking.status;
+  const needsDepositPayment =
+    viewAs === 'artist' &&
+    status === EGuestSpotBookingStatus.Pending &&
+    !booking.depositAuthorized &&
+    !booking.depositCaptured &&
+    (booking.depositAmount ?? 0) > 0;
+
+  if (needsDepositPayment) {
+    return {
+      label: 'Deposit payment required',
+      variant: 'warning',
+      icon: 'payments',
+    };
+  }
+
+  switch (status) {
+    case EGuestSpotBookingStatus.Pending:
+      return {
+        label: 'Pending',
+        variant: 'warning',
+        icon: 'schedule',
+      };
+    case EGuestSpotBookingStatus.Accepted:
+      return {
+        label: 'Accepted',
+        variant: 'positive',
+        icon: 'check_circle',
+      };
+    case EGuestSpotBookingStatus.Rejected:
+      return {
+        label: 'Rejected',
+        variant: 'negative',
+        icon: 'cancel',
+      };
+    case EGuestSpotBookingStatus.Completed:
+      return {
+        label: 'Completed',
+        variant: 'positive',
+        icon: 'done_all',
+      };
+    case EGuestSpotBookingStatus.Cancelled:
+      return {
+        label: 'Cancelled',
+        variant: 'neutral',
+        icon: 'block',
+      };
+    default:
+      return {
+        label: 'Unknown',
+        variant: 'neutral',
+        icon: 'help',
+      };
+  }
 };

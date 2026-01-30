@@ -27,8 +27,8 @@
               :bookings="guestSpotBookings"
               :loading="isLoadingGuestSpotBookings"
               :has-more="hasMoreGuestSpotBookings"
-              @view-booking="handleViewGuestSpotBooking"
               @load-more="loadMoreGuestSpotBookings"
+              @paid="handleGuestSpotPaid"
             />
           </div>
         </div>
@@ -45,7 +45,6 @@ import { BookingCalendar, TabsComp, ArtistGuestSpotBookings } from 'src/componen
 import { useUserStore } from 'src/stores/user';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 import type { IBookingsQueryResponse } from 'src/interfaces/booking';
-import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import { type ITab } from 'src/interfaces/tabs';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
@@ -151,6 +150,7 @@ const {
   isLoadingBookings: isLoadingGuestSpotBookings,
   hasMoreBookings: hasMoreGuestSpotBookings,
   loadBookings: loadGuestSpotBookings,
+  refetchBookings: refetchGuestSpotBookings,
 } = useGuestSpot();
 
 const guestSpotSort = ['createdAt:desc'] as const;
@@ -214,8 +214,8 @@ onMounted(() => {
   }
 });
 
-const handleViewGuestSpotBooking = (booking: IGuestSpotBooking) => {
-  console.log('View guest spot booking:', booking);
+const handleGuestSpotPaid = () => {
+  void refetchGuestSpotBookings();
 };
 </script>
 

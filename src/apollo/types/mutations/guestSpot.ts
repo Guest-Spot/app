@@ -139,7 +139,9 @@ export const CREATE_GUEST_SPOT_DEPOSIT_MUTATION = gql`
   mutation CreateGuestSpotDeposit($bookingId: ID!, $customerEmail: String) {
     createGuestSpotDeposit(bookingId: $bookingId, customerEmail: $customerEmail) {
       booking {
-        documentId
+        data {
+          documentId
+        }
       }
       sessionId
       sessionUrl
