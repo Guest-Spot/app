@@ -24,6 +24,13 @@
             </div>
             <q-icon name="credit_card" size="24px" color="grey-5" class="q-ml-auto" />
           </div>
+
+          <q-banner dense rounded class="q-mt-md booking-notice">
+            <template #avatar>
+              <q-icon name="info" size="20px" />
+            </template>
+            Your booking will be created only after successful payment.
+          </q-banner>
         </div>
       </div>
     </div>
@@ -117,6 +124,15 @@ defineEmits<{
 
 .pricing-card {
   padding: 24px;
+}
+
+.booking-notice {
+  background: rgba(var(--q-primary-rgb), 0.08);
+  color: rgba(var(--q-primary-rgb), 0.9);
+
+  .body--dark & {
+    background: rgba(var(--q-primary-rgb), 0.15);
+  }
 }
 
 .icon-box {
