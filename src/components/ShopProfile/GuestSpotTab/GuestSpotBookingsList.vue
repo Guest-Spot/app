@@ -17,16 +17,24 @@
       spinner-name="dots"
     />
 
-    <div v-else-if="filteredBookings.length" class="bookings-grid">
-      <GuestSpotBookingCard
-        v-for="booking in filteredBookings"
-        :key="booking.documentId"
-        :booking="booking"
-        @approve="handleApprove"
-        @reject="handleReject"
-        @view-details="handleViewDetails"
-      />
-    </div>
+    <VirtualListV2
+      v-else-if="filteredBookings.length"
+      :items="filteredBookings"
+      :min-item-size="200"
+      :gap="16"
+      :loading="loading"
+      :has-more="hasMore"
+      @load-more="$emit('load-more')"
+    >
+      <template #default="{ item }">
+        <GuestSpotBookingCard
+          :booking="asBooking(item)"
+          @approve="handleApprove"
+          @reject="handleReject"
+          @view-details="handleViewDetails"
+        />
+      </template>
+    </VirtualListV2>
 
     <NoResult
       v-else
@@ -40,25 +48,30 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { IGuestSpotBooking, EGuestSpotBookingStatus } from 'src/interfaces/guestSpot';
+import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import { EGuestSpotBookingStatus as Status } from 'src/interfaces/enums';
+import type { EGuestSpotBookingStatus } from 'src/interfaces/enums';
 import { TabsComp, LoadingState, NoResult } from 'src/components';
 import type { ITab } from 'src/interfaces/tabs';
+import VirtualListV2 from 'src/components/VirtualListV2.vue';
 import GuestSpotBookingCard from 'src/components/GuestSpot/GuestSpotBookingCard.vue';
 
 interface Props {
   bookings: IGuestSpotBooking[];
   loading?: boolean;
+  hasMore?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
+  hasMore: true,
 });
 
 const emit = defineEmits<{
   approve: [documentId: string];
   reject: [documentId: string, rejectNote?: string];
   viewDetails: [booking: IGuestSpotBooking];
+  'load-more': [];
 }>();
 
 const PENDING_TAB = 'pending';
@@ -99,6 +112,8 @@ const handleReject = (documentId: string, rejectNote?: string) => {
 const handleViewDetails = (booking: IGuestSpotBooking) => {
   emit('viewDetails', booking);
 };
+
+const asBooking = (item: unknown): IGuestSpotBooking => item as IGuestSpotBooking;
 </script>
 
 <style scoped lang="scss">
@@ -108,11 +123,5 @@ const handleViewDetails = (booking: IGuestSpotBooking) => {
 
 .bookings-header {
   width: 100%;
-}
-
-.bookings-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 </style>

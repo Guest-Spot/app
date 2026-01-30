@@ -49,12 +49,12 @@
       </div>
     </div>
 
-    <div v-if="slotTitleOrDescription" class="shop-conditions q-mb-md q-mt-sm bg-block border-radius-md">
+    <div v-if="slotTitleOrDescription && viewAs === 'artist'" class="shop-conditions q-mt-md bg-block border-radius-md">
       <div class="shop-conditions__label text-caption text-primary">Shop conditions</div>
       <div class="shop-conditions__text text-body2 text-grey-6">{{ slotTitleOrDescription }}</div>
     </div>
 
-    <div class="booking-details">
+    <div class="booking-details q-mt-md">
       <div class="detail-item q-mb-xs">
         <q-icon name="event" size="16px" color="grey-6" />
         <span class="text-grey-6">{{ formattedDate }}</span>

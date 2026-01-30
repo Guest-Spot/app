@@ -117,6 +117,7 @@ export default function useGuestSpot() {
   const bookings = computed(() => guestSpotStore.getBookings);
   const totalSlots = computed(() => guestSpotStore.getTotalSlots);
   const totalBookings = computed(() => guestSpotStore.getTotalBookings);
+  const hasMoreBookings = computed(() => guestSpotStore.getHasMoreBookings);
 
   // Handlers
   onResultSlots((result) => {
@@ -149,6 +150,9 @@ export default function useGuestSpot() {
     showError('Failed to load guest spot slot');
   });
 
+  const lastBookingsLoadAppend = ref(false);
+  const lastBookingsLoadLimit = ref(0);
+
   onResultBookings((result) => {
     if (result.data?.guestSpotBookings) {
       const mappedBookings = result.data.guestSpotBookings.map((booking) => ({
@@ -157,7 +161,14 @@ export default function useGuestSpot() {
         artistDocumentId: booking.artist?.documentId || '',
         shopDocumentId: booking.shop?.documentId || '',
       }));
-      guestSpotStore.setBookings(mappedBookings);
+      if (lastBookingsLoadAppend.value) {
+        guestSpotStore.addBookings(mappedBookings);
+      } else {
+        guestSpotStore.setBookings(mappedBookings);
+      }
+      if (lastBookingsLoadLimit.value > 0) {
+        guestSpotStore.setHasMoreBookings(mappedBookings.length === lastBookingsLoadLimit.value);
+      }
     }
   });
 
@@ -277,7 +288,11 @@ export default function useGuestSpot() {
     filters?: IGuestSpotBookingFilters,
     sort?: string[],
     pagination?: { limit?: number; start?: number },
+    options?: { append?: boolean },
   ) => {
+    lastBookingsLoadAppend.value = options?.append ?? false;
+    lastBookingsLoadLimit.value = pagination?.limit ?? 0;
+
     const variables: Record<string, unknown> = {};
     if (filters) {
       const graphQLFilters: Record<string, unknown> = {};
@@ -686,6 +701,7 @@ export default function useGuestSpot() {
     bookings,
     totalSlots,
     totalBookings,
+    hasMoreBookings,
     currentSlot,
     isLoadingSlots,
     isLoadingSlot,

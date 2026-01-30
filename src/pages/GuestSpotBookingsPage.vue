@@ -17,9 +17,11 @@
           <GuestSpotBookingsList
             :bookings="bookings"
             :loading="isLoadingBookings"
+            :has-more="hasMoreBookings"
             @approve="handleApproveBooking"
             @reject="handleRejectBooking"
             @view-details="handleViewBookingDetails"
+            @load-more="handleLoadMore"
           />
         </div>
       </div>
@@ -62,6 +64,7 @@ import useUser from 'src/modules/useUser';
 import useTokens from 'src/modules/useTokens';
 import useGuestSpot from 'src/composables/useGuestSpot';
 import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
+import { PAGINATION_PAGE_SIZE } from 'src/config/constants';
 import GuestSpotBookingsList from 'src/components/ShopProfile/GuestSpotTab/GuestSpotBookingsList.vue';
 import GuestSpotBookingCard from 'src/components/GuestSpot/GuestSpotBookingCard.vue';
 import SingInToContinue from 'src/components/SingInToContinue.vue';
@@ -74,6 +77,7 @@ const $q = useQuasar();
 const {
   bookings,
   isLoadingBookings,
+  hasMoreBookings,
   loadBookings,
   approveBooking,
   rejectBooking,
@@ -85,7 +89,12 @@ const selectedBooking = ref<IGuestSpotBooking | null>(null);
 const handleApproveBooking = async (documentId: string) => {
   const success = await approveBooking(documentId);
   if (success && user.value?.documentId) {
-    await loadBookings({ shopDocumentId: user.value.documentId });
+    await loadBookings(
+      { shopDocumentId: user.value.documentId },
+      undefined,
+      { limit: PAGINATION_PAGE_SIZE, start: 0 },
+      { append: false },
+    );
   }
 };
 
@@ -128,7 +137,12 @@ const handleRejectBooking = (documentId: string, rejectNote?: string) => {
     void (async () => {
       const success = await rejectBooking(documentId, note);
       if (success && user.value?.documentId) {
-        await loadBookings({ shopDocumentId: user.value.documentId });
+        await loadBookings(
+          { shopDocumentId: user.value.documentId },
+          undefined,
+          { limit: PAGINATION_PAGE_SIZE, start: 0 },
+          { append: false },
+        );
       }
     })();
   });
@@ -139,9 +153,24 @@ const handleViewBookingDetails = (booking: IGuestSpotBooking) => {
   showBookingDetails.value = true;
 };
 
+const handleLoadMore = () => {
+  if (!user.value?.documentId || !hasMoreBookings.value) return;
+  void loadBookings(
+    { shopDocumentId: user.value.documentId },
+    undefined,
+    { limit: PAGINATION_PAGE_SIZE, start: bookings.value.length },
+    { append: true },
+  );
+};
+
 watch(user, (newUser) => {
   if (newUser?.documentId) {
-    void loadBookings({ shopDocumentId: newUser.documentId });
+    void loadBookings(
+      { shopDocumentId: newUser.documentId },
+      undefined,
+      { limit: PAGINATION_PAGE_SIZE, start: 0 },
+      { append: false },
+    );
   }
 }, { immediate: true });
 </script>
