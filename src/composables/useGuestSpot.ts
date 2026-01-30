@@ -322,7 +322,9 @@ export default function useGuestSpot() {
     if (pagination) {
       variables.pagination = pagination;
     }
-    await loadGuestSpotBookings(undefined, variables);
+    await loadGuestSpotBookings(undefined, variables, {
+      fetchPolicy: 'network-only',
+    });
   };
 
   const loadBooking = async (documentId: string): Promise<IGuestSpotBooking | null> => {

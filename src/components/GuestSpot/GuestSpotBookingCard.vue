@@ -140,7 +140,7 @@
       />
     </div>
 
-    <div v-if="viewAs === 'artist' && needsDepositPayment && canShowPayButton" class="actions q-mt-md">
+    <div v-if="viewAs === 'artist' && needsDepositPayment && canShowPayButton" class="actions column items-center q-mt-md">
       <q-btn
         :label="payButtonLabel"
         color="primary"
@@ -150,6 +150,9 @@
         :loading="isPaymentProcessing"
         @click.stop="handlePayDeposit"
       />
+      <p class="pay-deposit-hint text-caption text-grey-6 q-mt-none q-mb-none">
+        Booking will be confirmed only after payment
+      </p>
     </div>
   </div>
 </template>
@@ -401,7 +404,7 @@ const handleReject = () => {
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 4px;
 
   .q-btn {
     font-weight: 600;

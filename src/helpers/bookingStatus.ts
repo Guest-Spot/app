@@ -72,7 +72,7 @@ export const getBookingStatusInfo = (
   if (reaction === EReactions.Pending) {
     if (paymentStatus === EBookingPaymentStatus.Unpaid || paymentStatus === null) {
       return {
-        label: 'Deposit payment required',
+        label: 'Payment required',
         variant: 'warning',
         icon: 'payments',
       };
@@ -148,7 +148,7 @@ type GuestSpotViewAs = 'artist' | 'shop';
 
 /**
  * Returns status info for Guest Spot booking (same shape as getBookingStatusInfo).
- * For artist view with Pending + unpaid deposit returns "Deposit payment required" to match guest booking card.
+ * For artist view with Pending + unpaid deposit returns "Payment required" to match guest booking card.
  */
 export const getGuestSpotBookingStatusInfo = (
   booking: IGuestSpotBooking | null | undefined,
@@ -172,7 +172,7 @@ export const getGuestSpotBookingStatusInfo = (
 
   if (needsDepositPayment) {
     return {
-      label: 'Deposit payment required',
+      label: 'Payment required',
       variant: 'warning',
       icon: 'payments',
     };

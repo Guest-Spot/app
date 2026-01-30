@@ -7,11 +7,11 @@
 
         <div class="pricing-breakdown">
           <div class="price-row q-mb-sm">
-            <span class="text-grey-8">Deposit</span>
+            <span class="text-grey-6">Deposit</span>
             <span class="text-weight-bold">${{ depositDisplayText }}</span>
           </div>
           <div v-if="commissionDisplayText" class="price-row q-mb-sm">
-            <span class="text-grey-8">Service Fee</span>
+            <span class="text-grey-6">Service Fee</span>
             <span class="text-weight-bold">${{ commissionDisplayText }}</span>
           </div>
 
@@ -19,34 +19,10 @@
 
           <div class="price-row flex items-center">
             <div class="flex column">
-              <span class="text-caption text-grey-7">Total to pay now</span>
+              <span class="text-caption text-grey-6">Total to pay now</span>
               <span class="text-h5 text-bold text-primary">${{ totalDisplayText }}</span>
             </div>
             <q-icon name="credit_card" size="24px" color="grey-5" class="q-ml-auto" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Deposit Info -->
-      <div class="info-card bg-block border-radius-lg">
-        <div class="text-center q-mb-lg">
-          <div class="icon-box q-mx-auto">
-            <q-icon name="verified_user" size="42px" color="primary" />
-          </div>
-          <h3 class="text-h6 text-bold q-mb-sm">Secure Your Booking</h3>
-          <p class="text-body2 text-grey-7 q-mb-none" style="max-width: 280px; margin: 0 auto">
-            A deposit is required to confirm your appointment. The remaining balance is paid to the artist.
-          </p>
-        </div>
-
-        <div class="trust-indicators full-width">
-          <div class="indicator-item">
-            <q-icon name="lock" size="20px" color="primary" class="q-mr-md" />
-            <div class="text-body2 text-weight-medium">Secure SSL Payment</div>
-          </div>
-          <div class="indicator-item">
-            <q-icon name="check_circle" size="20px" color="primary" class="q-mr-md" />
-            <div class="text-body2 text-weight-medium">Instant Confirmation</div>
           </div>
         </div>
       </div>
