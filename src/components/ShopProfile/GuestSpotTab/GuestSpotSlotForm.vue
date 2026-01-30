@@ -3,7 +3,7 @@
     <q-form ref="formRef" @submit="handleSubmit" class="flex column items-start q-gap-sm full-width">
 
       <!-- Description -->
-      <div class="flex column items-start q-gap-xs full-width">
+      <div class="flex column items-start q-gap-md full-width">
         <label class="input-label">Description</label>
         <q-input
           v-model="formData.description"
@@ -48,7 +48,10 @@
       </div>
 
       <!-- Pricing Options -->
-      <div class="flex column items-start q-gap-xs full-width">
+      <div
+        class="flex column items-start q-gap-xs full-width"
+        :class="{ 'q-mb-md': pricingType === 'free' }"
+      >
         <label class="input-label">Pricing</label>
 
         <div class="flex q-gap-md column full-width">
@@ -100,6 +103,30 @@
             {{ pricingError }}
           </p>
         </div>
+      </div>
+
+      <!-- Deposit -->
+      <div class="flex column items-start q-gap-xs full-width">
+        <label class="input-label">Deposit ($)</label>
+        <q-input
+          v-model.number="formData.depositAmount"
+          type="number"
+          placeholder="0 = no deposit"
+          outlined
+          rounded
+          size="lg"
+          step="0.01"
+          min="0"
+          :rules="[(val) => val >= 0 || 'Deposit must be zero or greater']"
+          class="full-width"
+          bg-color="transparent"
+          :disable="isDisabled"
+          hint="Amount charged when an artist books this slot (0 = no deposit)"
+        >
+          <template v-slot:prepend>
+            <q-icon name="account_balance_wallet" color="grey-6" />
+          </template>
+        </q-input>
       </div>
     </q-form>
   </div>
@@ -251,10 +278,12 @@ const handleSubmit = () => {
   }
   // If 'free', pricingOptions remains empty array
 
+  const depositCents = Math.round((formData.value.depositAmount ?? 0) * 100);
+
   const data: IGuestSpotSlotForm = {
     description: formData.value.description,
     pricingOptions,
-    depositAmount: 0, // Set to 0 as per requirements
+    depositAmount: depositCents,
     spaces: formData.value.spaces,
     openingHours: [], // Empty array as per requirements
   };
