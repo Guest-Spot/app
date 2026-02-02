@@ -11,7 +11,16 @@
           <p class="text-positive text-center q-mb-md q-pa-md text-subtitle2 bg-block border-radius-lg">
             Your payment has been processed successfully.
           </p>
-          <p class="text-grey-6 text-center q-px-xl text-bold">
+          <q-btn
+            v-if="isApp"
+            label="Go to home"
+            color="primary"
+            rounded
+            unelevated
+            class="bg-block"
+            to="/"
+          />
+          <p v-else class="text-grey-6 text-center q-px-xl text-bold">
             You can safely close this browser window now.
           </p>
         </div>
@@ -21,7 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar();
+const isApp = computed(() => $q.platform.is.nativeMobile || $q.platform.is.cordova || $q.platform.is.capacitor);
 
 onMounted(() => {
   setTimeout(() => {
