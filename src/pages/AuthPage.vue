@@ -7,7 +7,7 @@
       <div class="flex column items-start">
         <h2 class="text-h5 q-my-none">Welcome to <span class="text-primary">GuestSpot</span></h2>
         <p class="text-grey-6 q-mt-sm q-mb-none">
-          Sign in to discover tattoo artists and book sessions
+          The AirBnB of Tattoo World
         </p>
       </div>
     </div>
@@ -29,7 +29,7 @@
                   <q-icon name="brush" color="primary" size="md" />
                 </div>
                 <div class="flex-grow">
-                  <div class="text-subtitle1 text-weight-medium">Become an Artist</div>
+                  <div class="text-subtitle1 text-weight-medium">Register as Artist</div>
                   <div class="text-caption text-grey-5">
                     Showcase your work and accept appointments
                   </div>
@@ -49,7 +49,7 @@
                   <q-icon name="storefront" color="primary" size="md" />
                 </div>
                 <div class="flex-grow">
-                  <div class="text-subtitle1 text-weight-medium">Open a Shop</div>
+                  <div class="text-subtitle1 text-weight-medium">Register as Shop</div>
                   <div class="text-caption text-grey-5">
                     Promote your shop and manage bookings
                   </div>
@@ -57,6 +57,23 @@
                 <q-icon name="chevron_right" color="grey-9" size="sm" />
               </div>
             </q-card>
+          </div>
+
+          <!-- Sign in to existing account -->
+          <q-btn
+            flat
+            class="bg-block full-width"
+            rounded
+            color="primary"
+            label="Sign in to existing account"
+            to="/sign-in"
+          />
+
+          <!-- Divider -->
+          <div class="divider flex items-center q-gap-md">
+            <div class="divider-line"></div>
+            <span class="text-grey-6 text-caption">or just explore</span>
+            <div class="divider-line"></div>
           </div>
 
           <!-- Social login buttons -->
@@ -87,25 +104,6 @@
                 <span>Continue with Apple</span>
               </div>
             </q-btn>
-          </div>
-
-          <!-- Divider -->
-          <div class="divider flex items-center q-gap-md">
-            <div class="divider-line"></div>
-            <span class="text-grey-6 text-caption">or</span>
-            <div class="divider-line"></div>
-          </div>
-
-          <!-- Email login toggle -->
-          <div class="text-center">
-            <q-btn
-              flat
-              class="bg-block"
-              rounded
-              color="primary"
-              label="Sign in with login"
-              to="/sign-in"
-            />
           </div>
         </div>
       </div>

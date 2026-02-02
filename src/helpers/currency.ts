@@ -22,3 +22,21 @@ export function dollarsToCents(dollars: number | null | undefined): number | nul
   return Math.round(dollars * 100);
 }
 
+/**
+ * Compute total payment amount (deposit + platform commission).
+ * Used by both artist booking and Guest Spot deposit payment dialogs.
+ * @param depositDollars - Deposit amount in dollars
+ * @param feePercent - Platform fee as percentage (e.g. 5 for 5%), or null
+ * @returns Total in dollars, rounded to 2 decimal places
+ */
+export function computeTotalPaymentAmount(
+  depositDollars: number,
+  feePercent: number | null
+): number {
+  if (!depositDollars || feePercent == null) {
+    return Math.round(depositDollars * 100) / 100;
+  }
+  const feeDecimal = feePercent / 100;
+  const commission = Math.round(depositDollars * feeDecimal * 100) / 100;
+  return Math.round((depositDollars + commission) * 100) / 100;
+}

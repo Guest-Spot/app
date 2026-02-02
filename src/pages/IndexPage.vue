@@ -22,7 +22,12 @@
       <!-- Dialogs -->
       <SearchDialog v-model="showSearchDialog" v-model:query="searchQuery" />
 
-      <FilterDialog v-model="showFilterDialog" v-model:filterValue="activeFilters" no-styles />
+      <FilterDialog
+        v-model="showFilterDialog"
+        v-model:filterValue="activeFilters"
+        :show-guest-spot-filter="activeTab === TAB_SHOPS"
+        no-styles
+      />
 
       <SortDialog v-model="showSortDialog" v-model:sortValue="sortSettings" />
 
@@ -47,7 +52,11 @@
             @load-more="loadMoreShopsWrapper"
           >
             <template #default="{ item: shop }">
-              <ShopCard :shop="castUser(shop)" @click="selectShop" />
+              <ShopCard
+                :shop="castUser(shop)"
+                :has-guest-spots="false"
+                @click="selectShop"
+              />
             </template>
           </VirtualListV2>
           <NoResult

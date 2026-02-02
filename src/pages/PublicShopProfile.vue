@@ -115,21 +115,24 @@
         </div>
       </div>
     </div>
-    <!-- Booking Button -->
-    <div v-if="artists?.length" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
+    <!-- Action Buttons -->
+    <div class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
-        <q-btn
-          rounded
-          class="full-width q-py-sm q-mb-lg q-mt-md"
-          color="primary"
-          :disable="!shopData.documentId"
-          @click="goToBookingPage"
-        >
-          <div class="flex items-center justify-center q-gap-sm">
-            <q-icon name="event" />
-            <span class="text-h6">Book</span>
-          </div>
-        </q-btn>
+        <div class="flex column q-gap-sm">
+          <q-btn
+            v-if="hasGuestSpots"
+            rounded
+            class="full-width q-py-sm q-mb-lg q-mt-md"
+            color="primary"
+            :disable="!shopData.documentId"
+            @click="goToGuestSpotBooking"
+          >
+            <div class="flex items-center justify-center q-gap-sm">
+              <q-icon name="event_available" />
+              <span class="text-h6">Book Guest Spot</span>
+            </div>
+          </q-btn>
+        </div>
       </div>
     </div>
     <ClaimProfileDialog
@@ -169,6 +172,7 @@ import { ClaimProfileDialog } from 'src/components/Dialogs';
 import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
 import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
 import { BackButton } from 'src/components';
+import useGuestSpot from 'src/composables/useGuestSpot';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -279,8 +283,13 @@ const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
 };
 
-// Booking dialog state
-const goToBookingPage = () => {
+const { slots: guestSpotSlots, loadSlots } = useGuestSpot();
+
+const hasGuestSpots = computed(() => {
+  return guestSpotSlots.value.length > 0;
+});
+
+const goToGuestSpotBooking = () => {
   if (!isAuthenticated.value) {
     return router.push({
       path: '/auth',
@@ -288,10 +297,8 @@ const goToBookingPage = () => {
   }
   if (!shopData.value.documentId) return;
   void router.push({
-    name: 'CreateBooking',
-    query: {
-      shopId: shopData.value.documentId,
-    },
+    name: 'CreateGuestSpotBooking',
+    query: { shopId: shopData.value.documentId },
   });
 };
 
@@ -326,6 +333,12 @@ const loadShopData = () => {
 onResultShop((result) => {
   if (result.data?.usersPermissionsUser) {
     shopData.value = result.data.usersPermissionsUser;
+    // Check if shop has guest spots
+    if (shopData.value.documentId) {
+      void loadSlots({ shopDocumentId: shopData.value.documentId, enabled: true });
+      // This would be set from the slots result, but for now we'll check if slots exist
+      // In a real implementation, you'd check if slots.length > 0
+    }
   }
 });
 

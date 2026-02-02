@@ -76,13 +76,6 @@
               </div>
             </div>
 
-            <InfoCard
-              v-if="paymentData.length"
-              title="Payment"
-              icon="payment"
-              :data="paymentData"
-            />
-
             <InfoCard title="Session Details" icon="event" :data="sessionDetailsData" />
 
             <InfoCard
@@ -118,29 +111,17 @@
           </div>
         </template>
         <template v-else>
-          <div v-if="canInitiatePayment" class="dialog-actions__controls">
-            <q-btn
-              v-if="canCancelBooking"
-              label="Cancel"
-              color="negative"
-              rounded
-              flat
-              class="bg-block"
-              :loading="isCancelProcessing"
-              :disable="actionsDisabled"
-              @click="handleCancelBooking"
-            />
-            <q-btn
-              :label="totalPaymentAmount ? `Pay Deposit ($${totalPaymentAmount.toFixed(2)})` : 'Pay Deposit'"
-              color="primary"
-              rounded
-              class="full-width"
-              icon="payment"
-              :loading="isPaymentProcessing"
-              :disable="actionsDisabled"
-              @click="handlePayment"
-            />
-          </div>
+          <DepositPaymentSection
+            v-if="canInitiatePayment"
+            :deposit-amount="depositAmount ?? 0"
+            :total-amount="totalPaymentAmount"
+            :can-initiate-payment="canInitiatePayment"
+            :is-processing="isPaymentProcessing"
+            :show-cancel="canCancelBooking"
+            :cancel-loading="isCancelProcessing"
+            @pay="handlePayment"
+            @cancel="handleCancelBooking"
+          />
           <q-btn
             v-else
             label="Close"
@@ -172,6 +153,7 @@ import type { IPicture } from 'src/interfaces/common';
 import { ArtistCard } from 'src/components/SearchPage';
 import { InfoCard } from 'src/components';
 import { ImagePreviewDialog } from 'src/components/Dialogs';
+import DepositPaymentSection from 'src/components/Bookings/DepositPaymentSection.vue';
 import useDate from 'src/modules/useDate';
 import { useUserStore } from 'src/stores/user';
 import { useSettingsStore } from 'src/stores/settings';
@@ -360,24 +342,6 @@ const descriptionData = computed(() => {
       value: props.booking?.size || '',
     },
   ].filter((item) => item.value);
-});
-
-// Payment data for InfoCard
-const paymentData = computed(() => {
-  if (!canInitiatePayment.value || !depositAmount.value) return [];
-
-  const data: { label: string; value: string; className?: string }[] = [
-    {
-      label: 'Deposit',
-      value: `$${depositAmount.value.toFixed(2)}`,
-    },
-    {
-      label: 'Platform Commission',
-      value: `$${platformCommission.value.toFixed(2)}`,
-    },
-  ];
-
-  return data;
 });
 
 const referenceImages = computed<IPicture[]>(() => props.booking?.references ?? []);

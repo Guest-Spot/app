@@ -22,8 +22,14 @@
           <div v-else-if="activeTab.tab === TAB_INVITES" class="tab-content">
             <InvitesTab />
           </div>
-          <div v-else-if="activeTab.tab === TAB_TRIPS" class="tab-content">
-            <TripsTab />
+          <div v-else-if="activeTab.tab === TAB_GUEST_SPOT" class="tab-content">
+            <ArtistGuestSpotBookings
+              :bookings="guestSpotBookings"
+              :loading="isLoadingGuestSpotBookings"
+              :has-more="hasMoreGuestSpotBookings"
+              @load-more="loadMoreGuestSpotBookings"
+              @paid="handleGuestSpotPaid"
+            />
           </div>
         </div>
       </div>
@@ -33,10 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import { useQuery } from '@vue/apollo-composable';
-import TripsTab from 'src/components/ArtistProfile/TripsTab.vue';
-import { BookingCalendar, TabsComp } from 'src/components';
+import { BookingCalendar, TabsComp, ArtistGuestSpotBookings } from 'src/components';
 import { useUserStore } from 'src/stores/user';
 import { BOOKINGS_QUERY } from 'src/apollo/types/queries/booking';
 import type { IBookingsQueryResponse } from 'src/interfaces/booking';
@@ -45,10 +50,12 @@ import SingInToContinue from 'src/components/SingInToContinue.vue';
 import useUser from 'src/modules/useUser';
 import InvitesTab from 'src/components/Events/InvitesTab/index.vue';
 import useTokens from 'src/modules/useTokens';
+import useGuestSpot from 'src/composables/useGuestSpot';
 
 const TAB_INVITES = 'invites';
-const TAB_TRIPS = 'trips';
+const TAB_GUEST_SPOT = 'guest-spot';
 const TAB_BOOKINGS = 'bookings';
+const GUEST_SPOT_PAGE_SIZE = 20;
 
 const { isAuthenticated, isArtist } = useUser();
 const { getStoredTokens } = useTokens();
@@ -61,11 +68,14 @@ const tabs = computed<ITab[]>(() => {
       label: 'Invites',
       tab: TAB_INVITES,
     },
-    {
-      label: 'Trips',
-      tab: TAB_TRIPS,
-    },
   ];
+
+  if (isArtist.value) {
+    baseTabs.push({
+      label: 'Guest Spot',
+      tab: TAB_GUEST_SPOT,
+    });
+  }
 
   return [
     {
@@ -136,6 +146,33 @@ const bookingFilters = computed(() => {
 });
 
 const {
+  bookings: guestSpotBookings,
+  isLoadingBookings: isLoadingGuestSpotBookings,
+  hasMoreBookings: hasMoreGuestSpotBookings,
+  loadBookings: loadGuestSpotBookings,
+  refetchBookings: refetchGuestSpotBookings,
+} = useGuestSpot();
+
+const guestSpotSort = ['createdAt:desc'] as const;
+const loadGuestSpotBookingsInitial = () => {
+  if (!userDocumentId.value) return;
+  void loadGuestSpotBookings(
+    { artistDocumentId: userDocumentId.value },
+    [...guestSpotSort],
+    { limit: GUEST_SPOT_PAGE_SIZE },
+  );
+};
+const loadMoreGuestSpotBookings = () => {
+  if (!userDocumentId.value) return;
+  void loadGuestSpotBookings(
+    { artistDocumentId: userDocumentId.value },
+    [...guestSpotSort],
+    { limit: GUEST_SPOT_PAGE_SIZE, start: guestSpotBookings.value.length },
+    { append: true },
+  );
+};
+
+const {
   result,
   loading,
   refetch: refetchBookings,
@@ -166,7 +203,19 @@ const setActiveTab = (tab: ITab) => {
 
   if (tab.tab === TAB_BOOKINGS) {
     void refetchBookings();
+  } else if (tab.tab === TAB_GUEST_SPOT && isArtist.value) {
+    loadGuestSpotBookingsInitial();
   }
+};
+
+onMounted(() => {
+  if (isArtist.value) {
+    loadGuestSpotBookingsInitial();
+  }
+});
+
+const handleGuestSpotPaid = () => {
+  void refetchGuestSpotBookings();
 };
 </script>
 

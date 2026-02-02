@@ -1,5 +1,7 @@
 export { default as ArtistInviteDialog } from './ArtistInviteDialog.vue';
+export { default as BookedDateDialog } from './BookedDateDialog.vue';
 export { default as BookingDetailsDialog } from './BookingDetailsDialog.vue';
+export { default as GuestSpotBookingDetailsDialog } from './GuestSpotBookingDetailsDialog.vue';
 export { default as ClaimProfileDialog } from './ClaimProfileDialog.vue';
 export { default as DeleteImageConfirmationDialog } from './DeleteImageConfirmationDialog.vue';
 export { default as EmailConfirmationDialog } from './EmailConfirmationDialog.vue';

@@ -5,6 +5,7 @@ export interface IFilters {
   name?: string | null;
   city?: string | null;
   styles?: string[] | null;
+  guestSpotsAvailable?: boolean | null;
 }
 
 export interface IGraphQLFilters {

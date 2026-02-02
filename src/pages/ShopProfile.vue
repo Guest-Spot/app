@@ -21,8 +21,12 @@
       />
     </div>
 
-    <div v-if="user && user.approved !== true" class="container">
-      <PendingApprovalBanner title="Profile under review" text="We will review your account soon and make it visible to everyone." />
+    <div class="container">
+      <PendingApprovalBanner
+        v-if="user && user.approved !== true"
+        title="Profile under review"
+        text="We will review your account soon and make it visible to everyone."
+      />
     </div>
 
     <div class="container">

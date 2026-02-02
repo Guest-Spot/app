@@ -19,6 +19,16 @@ export { default as BookingCalendar } from './Bookings/BookingCalendar.vue';
 // Card components
 export { default as NotificationItem } from './Cards/NotificationItem.vue';
 export { default as InviteNotificationItem } from './Cards/InviteNotificationItem.vue';
+export { default as GuestSpotBookingCreatedNotificationItem } from './Cards/GuestSpotBookingCreatedNotificationItem.vue';
+export { default as GuestSpotBookingStatusNotificationItem } from './Cards/GuestSpotBookingStatusNotificationItem.vue';
 
 // Portfolio components
 export * from './Portfolio';
+
+// Guest Spot components
+export { default as GuestSpotSlotCard } from './GuestSpot/GuestSpotSlotCard.vue';
+export { default as GuestSpotSlotManagementCard } from './GuestSpot/GuestSpotSlotManagementCard.vue';
+export { default as GuestSpotBookingCard } from './GuestSpot/GuestSpotBookingCard.vue';
+export { default as GuestSpotBookingDialog } from './GuestSpot/GuestSpotBookingDialog.vue';
+export { default as ArtistGuestSpotBookings } from './GuestSpot/ArtistGuestSpotBookings.vue';
+export { default as GuestSpotEventCard } from './GuestSpot/GuestSpotEventCard.vue';

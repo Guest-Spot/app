@@ -63,6 +63,16 @@
               </template>
             </q-select>
           </div>
+
+          <!-- Guest Spots Available Filter (only for shops) -->
+          <div v-if="showGuestSpotFilter" class="filter-group">
+            <q-toggle
+              v-model="filters.guestSpotsAvailable"
+              label="Guest Spots Available"
+              color="primary"
+              @update:model-value="onChangeFilters"
+            />
+          </div>
         </div>
       </q-card-section>
 
@@ -106,6 +116,10 @@ const props = defineProps({
     default: false,
   },
   noStyles: {
+    type: Boolean,
+    default: false,
+  },
+  showGuestSpotFilter: {
     type: Boolean,
     default: false,
   },
@@ -199,6 +213,7 @@ const clearFilters = () => {
     ...filters.value,
     city: null,
     styles: null,
+    guestSpotsAvailable: null,
   };
   if (!props.noRouteReplace) {
     void router.replace({ query: { ...route.query, ...filters.value } });
