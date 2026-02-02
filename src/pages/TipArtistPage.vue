@@ -73,6 +73,29 @@
                   :rules="[validateMinAmount]"
                 />
               </div>
+
+              <div v-if="tipAmount" class="fee-summary q-mt-md">
+                <div class="flex justify-between items-center text-body2 text-grey-7 q-mb-xs">
+                  <span>Tip amount</span>
+                  <span>${{ tipAmount.toFixed(2) }}</span>
+                </div>
+                <div v-if="platformFeePercent > 0" class="flex justify-between items-center text-body2 text-grey-7 q-mb-xs">
+                  <span>Service fee ({{ platformFeePercent }}%)</span>
+                  <span>${{ platformFeeAmount.toFixed(2) }}</span>
+                </div>
+                <div v-if="stripeFeePercent > 0" class="flex justify-between items-center text-body2 text-grey-7 q-mb-xs">
+                  <span>Stripe fee ({{ stripeFeePercent }}%)</span>
+                  <span>${{ stripeFeeAmount.toFixed(2) }}</span>
+                </div>
+                <q-separator class="q-my-sm" />
+                <div class="flex justify-between items-center text-subtitle1 text-bold">
+                  <span>Total</span>
+                  <span>{{ formattedTotalAmount }}</span>
+                </div>
+              </div>
+
+
+              </div>
             </div>
           </div>
         </div>
@@ -89,12 +112,11 @@
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="payments" />
             <span class="text-h6">
-              Submit tip<template v-if="formattedTipAmount"> {{ formattedTipAmount }}</template>
+              Submit tip<template v-if="formattedTotalAmount"> {{ formattedTotalAmount }}</template>
             </span>
           </div>
         </q-btn>
       </div>
-    </div>
   </q-page>
 </template>
 
@@ -108,11 +130,16 @@ import type { IGraphQLUserResult, IUser } from 'src/interfaces/user';
 import useNotify from 'src/modules/useNotify';
 import { dollarsToCents } from 'src/helpers/currency';
 import { ArtistCard } from 'src/components/SearchPage';
+import useSettings from 'src/composables/useSettings';
+import { useSettingsStore } from 'src/stores/settings';
 
 const route = useRoute();
 const router = useRouter();
 const { showError } = useNotify();
 const { isProcessing, initiateTipPayment } = useTipPayment();
+const { fetchSettings } = useSettings();
+const settingsStore = useSettingsStore();
+
 const tipOptions = [
   { amount: 5, label: 'Quick thanks' },
   { amount: 20, label: 'Small support', badge: 'Popular' },
@@ -121,6 +148,9 @@ const tipOptions = [
 ];
 const selectedAmount = ref<number | null>(tipOptions[1]!.amount);
 const customAmount = ref<number | null>(null);
+
+const platformFeePercent = computed(() => settingsStore.getPlatformFeePercent ?? 0);
+const stripeFeePercent = computed(() => settingsStore.getStripeFeePercent ?? 0);
 
 const customAmountIsValid = computed(
   (): boolean => typeof customAmount.value === 'number' && customAmount.value >= 1,
@@ -159,11 +189,31 @@ const tipAmount = computed(() => {
   return selectedAmount.value ?? tipOptions[1]!.amount;
 });
 
-const formattedTipAmount = computed(() => {
-  if (tipAmount.value === null) {
-    return '';
+const platformFeeAmount = computed(() => {
+  if (tipAmount.value === null || platformFeePercent.value === 0) {
+    return 0;
   }
-  return `$${tipAmount.value.toFixed(2)}`;
+  return tipAmount.value * (platformFeePercent.value / 100);
+});
+
+const stripeFeeAmount = computed(() => {
+  if (tipAmount.value === null || stripeFeePercent.value === 0) {
+    return 0;
+  }
+  return tipAmount.value * (stripeFeePercent.value / 100);
+});
+
+const feeAmount = computed(() => platformFeeAmount.value + stripeFeeAmount.value);
+
+const totalAmount = computed(() => {
+  if (tipAmount.value === null) {
+    return 0;
+  }
+  return tipAmount.value + feeAmount.value;
+});
+
+const formattedTotalAmount = computed(() => {
+  return `$${totalAmount.value.toFixed(2)}`;
 });
 
 const canSubmit = computed(() => {
@@ -194,7 +244,7 @@ const handleSubmit = async () => {
     return;
   }
 
-  const amountInCents = dollarsToCents(amountToProcess);
+  const amountInCents = dollarsToCents(totalAmount.value);
   if (!amountInCents || amountInCents <= 0) {
     showError('Enter a valid tip amount.');
     return;
@@ -245,6 +295,7 @@ onError((error) => {
 });
 
 onBeforeMount(() => {
+  fetchSettings();
   const documentId = route.params.documentId as string;
   if (documentId) {
     void loadArtist(null, { documentId });
