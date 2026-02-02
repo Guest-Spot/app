@@ -29,7 +29,7 @@
           </p>
         </div>
 
-        <div v-else class="full-width flex colimmn q-gap-md">
+        <div v-else class="full-width flex column q-gap-md">
 
           <!-- Artist Summary -->
           <ArtistCard :artist="artistData" class="full-width" no-bookmarks />
@@ -43,21 +43,23 @@
                 </div>
               </div>
 
-              <div class="tip-options">
+              <div v-if="isLoadingPresets" class="tip-options">
+                <q-skeleton v-for="i in 3" :key="i" height="50px" class="border-radius-lg" />
+              </div>
+              <div v-else class="tip-options">
                 <button
                   v-for="option in tipOptions"
-                  :key="option.amount"
+                  :key="option.id"
                   type="button"
                   class="tip-option bg-block"
-                  :class="{ 'tip-option--active': selectedAmount === option.amount }"
-                  @click="handleSelectOption(option.amount)"
+                  :class="{ 'tip-option--active': selectedPresetId === option.id }"
+                  @click="handleSelectOption(option)"
                 >
-                  <span v-if="option.badge" class="tip-option__badge">{{ option.badge }}</span>
                   <span class="tip-option__price">{{ getOptionTotal(option.amount) }}</span>
                   <span class="tip-option__label">{{ option.label }}</span>
                 </button>
               </div>
-              <div class="custom-tip-field">
+              <div class="custom-tip-field full-width">
                 <q-input
                   v-model.number="customAmount"
                   dense
@@ -69,7 +71,7 @@
                   hide-bottom-space
                   class="custom-tip-field__input"
                   placeholder="Enter any amount"
-                  hint="Leave blank to use one of the presets."
+                  hint="Select a preset above to submit."
                   :rules="[validateMinAmount]"
                 />
               </div>
@@ -123,12 +125,14 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useLazyQuery } from '@vue/apollo-composable';
+import { useLazyQuery, useQuery } from '@vue/apollo-composable';
 import useTipPayment from 'src/composables/useTipPayment';
 import { USER_QUERY } from 'src/apollo/types/user';
+import { TIP_PRESETS_QUERY } from 'src/apollo/types/queries/tip';
 import type { IGraphQLUserResult, IUser } from 'src/interfaces/user';
+import type { ITipPresetsResult } from 'src/interfaces/tip';
 import useNotify from 'src/modules/useNotify';
-import { dollarsToCents, roundMoney } from 'src/helpers/currency';
+import { roundMoney } from 'src/helpers/currency';
 import { ArtistCard } from 'src/components/SearchPage';
 import useSettings from 'src/composables/useSettings';
 import { useSettingsStore } from 'src/stores/settings';
@@ -140,14 +144,26 @@ const { isProcessing, initiateTipPayment } = useTipPayment();
 const { fetchSettings } = useSettings();
 const settingsStore = useSettingsStore();
 
-const tipOptions = [
-  { amount: 5, label: 'Quick thanks' },
-  { amount: 20, label: 'Small support', badge: 'Popular' },
-  { amount: 50, label: 'Big support' },
-  { amount: 100, label: 'Super fan' },
-];
-const selectedAmount = ref<number | null>(tipOptions[1]!.amount);
+const { result: tipPresetsResult, loading: isLoadingPresets } = useQuery<ITipPresetsResult>(TIP_PRESETS_QUERY);
+
+const tipOptions = computed(() => {
+  const presets = tipPresetsResult.value?.tipPresets ?? [];
+  return [...presets].sort((a, b) => a.order - b.order).map((p) => ({
+    id: p.id,
+    label: p.label,
+    amountCents: p.amountCents,
+    amount: p.amountCents / 100,
+  }));
+});
+
+const selectedPresetId = ref<string | null>(null);
 const customAmount = ref<number | null>(null);
+
+watch(tipOptions, (options) => {
+  if (options.length > 0 && selectedPresetId.value === null) {
+    selectedPresetId.value = options[0]!.id;
+  }
+}, { immediate: true });
 
 const platformFeePercent = computed(() => settingsStore.getPlatformFeePercent ?? 0);
 const stripeFeePercent = computed(() => settingsStore.getStripeFeePercent ?? 0);
@@ -179,6 +195,11 @@ const artistName = computed(() => artistData.value?.name ?? artistData.value?.em
 
 const canTip = computed(() => artistData.value?.payoutsEnabled === true);
 
+const selectedPreset = computed(() => {
+  if (!selectedPresetId.value || tipOptions.value.length === 0) return null;
+  return tipOptions.value.find((o) => o.id === selectedPresetId.value) ?? null;
+});
+
 const tipAmount = computed(() => {
   if (customAmountIsValid.value) {
     return customAmount.value!;
@@ -186,7 +207,7 @@ const tipAmount = computed(() => {
   if (hasInvalidCustomAmount.value) {
     return null; // Don't show amount if custom value is invalid
   }
-  return selectedAmount.value ?? tipOptions[1]!.amount;
+  return selectedPreset.value?.amount ?? null;
 });
 
 const platformFeeAmount = computed(() => {
@@ -225,11 +246,11 @@ const getOptionTotal = (amount: number) => {
 const canSubmit = computed(() => {
   if (!canTip.value) return false;
   if (hasInvalidCustomAmount.value) return false;
-  return tipAmount.value !== null && tipAmount.value >= 1;
+  return selectedPresetId.value !== null;
 });
 
-const handleSelectOption = (amount: number) => {
-  selectedAmount.value = amount;
+const handleSelectOption = (option: { id: string; label: string; amountCents: number; amount: number }) => {
+  selectedPresetId.value = option.id;
   customAmount.value = null;
 };
 
@@ -244,19 +265,12 @@ const handleSubmit = async () => {
     return;
   }
 
-  const amountToProcess = tipAmount.value;
-  if (!amountToProcess || amountToProcess < 1) {
-    showError('Minimum tip amount is $1.');
+  if (!selectedPresetId.value) {
+    showError('Choose a tip amount to continue.');
     return;
   }
 
-  const amountInCents = dollarsToCents(totalAmount.value);
-  if (!amountInCents || amountInCents <= 0) {
-    showError('Enter a valid tip amount.');
-    return;
-  }
-
-  await initiateTipPayment(artistData.value.documentId, amountInCents);
+  await initiateTipPayment(artistData.value.documentId, selectedPresetId.value);
 };
 
 onResult((result) => {
@@ -288,9 +302,9 @@ watch(
 watch(
   () => customAmount.value,
   (newVal) => {
-    // Clear selected amount when user starts typing custom value
+    // Clear selected preset when user starts typing custom value
     if (newVal !== null && newVal !== undefined) {
-      selectedAmount.value = null;
+      selectedPresetId.value = null;
     }
   },
 );
@@ -329,7 +343,6 @@ onBeforeMount(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-width: 320px;
 }
 
 .custom-tip-field__input {
@@ -409,7 +422,8 @@ onBeforeMount(() => {
 .action-buttons {
   position: fixed;
   bottom: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   border-top-left-radius: 32px;
   border-top-right-radius: 32px;
 }
