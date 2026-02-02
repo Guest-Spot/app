@@ -162,7 +162,7 @@ import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useNotify from 'src/modules/useNotify';
 import useBookingPayment from 'src/composables/useBookingPayment';
 import useSettings from 'src/composables/useSettings';
-import { centsToDollars } from 'src/helpers/currency';
+import { centsToDollars, roundMoney } from 'src/helpers/currency';
 import { DELETE_BOOKING_MUTATION } from 'src/apollo/types/mutations/booking';
 
 interface Props {
@@ -240,14 +240,14 @@ const platformCommission = computed(() => {
   const totalFeePercent = settingsStore.getTotalFeePercent;
   if (!depositAmount.value || !totalFeePercent) return 0;
   const feePercent = totalFeePercent / 100; // Convert percentage to decimal
-  return Math.round(depositAmount.value * feePercent * 100) / 100; // Round to 2 decimal places
+  return roundMoney(depositAmount.value * feePercent);
 });
 
 // Total payment amount (deposit + platform commission)
 const totalPaymentAmount = computed(() => {
   const deposit = depositAmount.value ?? 0;
   const commission = platformCommission.value;
-  return deposit + commission;
+  return roundMoney(deposit + commission);
 });
 
 // Show deposit only for paid or authorized bookings

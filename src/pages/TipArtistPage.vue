@@ -53,7 +53,7 @@
                   @click="handleSelectOption(option.amount)"
                 >
                   <span v-if="option.badge" class="tip-option__badge">{{ option.badge }}</span>
-                  <span class="tip-option__price">${{ option.amount }}</span>
+                  <span class="tip-option__price">{{ getOptionTotal(option.amount) }}</span>
                   <span class="tip-option__label">{{ option.label }}</span>
                 </button>
               </div>
@@ -128,7 +128,7 @@ import useTipPayment from 'src/composables/useTipPayment';
 import { USER_QUERY } from 'src/apollo/types/user';
 import type { IGraphQLUserResult, IUser } from 'src/interfaces/user';
 import useNotify from 'src/modules/useNotify';
-import { dollarsToCents } from 'src/helpers/currency';
+import { dollarsToCents, roundMoney } from 'src/helpers/currency';
 import { ArtistCard } from 'src/components/SearchPage';
 import useSettings from 'src/composables/useSettings';
 import { useSettingsStore } from 'src/stores/settings';
@@ -193,14 +193,14 @@ const platformFeeAmount = computed(() => {
   if (tipAmount.value === null || platformFeePercent.value === 0) {
     return 0;
   }
-  return tipAmount.value * (platformFeePercent.value / 100);
+  return roundMoney(tipAmount.value * (platformFeePercent.value / 100));
 });
 
 const stripeFeeAmount = computed(() => {
   if (tipAmount.value === null || stripeFeePercent.value === 0) {
     return 0;
   }
-  return tipAmount.value * (stripeFeePercent.value / 100);
+  return roundMoney(tipAmount.value * (stripeFeePercent.value / 100));
 });
 
 const feeAmount = computed(() => platformFeeAmount.value + stripeFeeAmount.value);
@@ -209,12 +209,18 @@ const totalAmount = computed(() => {
   if (tipAmount.value === null) {
     return 0;
   }
-  return tipAmount.value + feeAmount.value;
+  return roundMoney(tipAmount.value + feeAmount.value);
 });
 
 const formattedTotalAmount = computed(() => {
   return `$${totalAmount.value.toFixed(2)}`;
 });
+
+const getOptionTotal = (amount: number) => {
+  const fees = amount * (platformFeePercent.value / 100) + amount * (stripeFeePercent.value / 100);
+  const total = roundMoney(amount + fees);
+  return `$${total % 1 === 0 ? total.toFixed(0) : total.toFixed(2)}`;
+};
 
 const canSubmit = computed(() => {
   if (!canTip.value) return false;

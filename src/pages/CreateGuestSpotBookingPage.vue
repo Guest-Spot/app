@@ -150,7 +150,7 @@ import { PaymentStep } from 'src/components/Dialogs/CreateBookingSteps';
 import { LoadingState, NoResult } from 'src/components';
 import useGuestSpot from 'src/composables/useGuestSpot';
 import useGuestSpotPayment from 'src/composables/useGuestSpotPayment';
-import { centsToDollars } from 'src/helpers/currency';
+import { centsToDollars, roundMoney } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
 import useNotify from 'src/modules/useNotify';
 import useStripe from 'src/composables/useStripe';
@@ -258,7 +258,7 @@ const depositAmountDisplay = computed<number | null>(() => {
   if (!amount || amount <= 0) {
     return null;
   }
-  return Math.round(amount * 100) / 100;
+  return roundMoney(amount);
 });
 
 const platformCommissionAmount = computed<number | null>(() => {
@@ -269,7 +269,7 @@ const platformCommissionAmount = computed<number | null>(() => {
   }
   const feePercent = totalFeePercent / 100;
   const commission = deposit * feePercent;
-  return Math.round(commission * 100) / 100;
+  return roundMoney(commission);
 });
 
 const totalPaymentAmount = computed<number | null>(() => {
@@ -279,7 +279,7 @@ const totalPaymentAmount = computed<number | null>(() => {
   }
   const commission = platformCommissionAmount.value ?? 0;
   const total = deposit + commission;
-  return Math.round(total * 100) / 100;
+  return roundMoney(total);
 });
 
 const isNextDisabled = computed(() => {

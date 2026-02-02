@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { computed, withDefaults } from 'vue';
+import { roundMoney } from 'src/helpers/currency';
 
 const props = withDefaults(
   defineProps<{
@@ -61,19 +62,19 @@ const depositDisplay = computed<number | null>(() => {
   if (props.depositAmount === null || props.depositAmount === undefined) {
     return null;
   }
-  return Math.round(props.depositAmount * 100) / 100;
+  return roundMoney(props.depositAmount);
 });
 
 const commissionDisplay = computed<number | null>(() => {
   if (props.platformCommission === null || props.platformCommission === undefined) {
     return null;
   }
-  return Math.round(props.platformCommission * 100) / 100;
+  return roundMoney(props.platformCommission);
 });
 
 const totalDisplay = computed<number | null>(() => {
   if (props.totalAmount !== null && props.totalAmount !== undefined) {
-    return Math.round(props.totalAmount * 100) / 100;
+    return roundMoney(props.totalAmount);
   }
   if (depositDisplay.value !== null) {
     return depositDisplay.value;

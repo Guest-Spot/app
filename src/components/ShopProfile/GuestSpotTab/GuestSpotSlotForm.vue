@@ -142,6 +142,7 @@ import { computed, ref, watch } from 'vue';
 import type { QForm } from 'quasar';
 import type { IGuestSpotSlotForm } from 'src/interfaces/guestSpot';
 import { EGuestSpotPricingType } from 'src/interfaces/enums';
+import { dollarsToCents, roundMoney } from 'src/helpers/currency';
 
 defineOptions({
   name: 'GuestSpotSlotForm',
@@ -271,19 +272,19 @@ const handleSubmit = () => {
   if (pricingType.value === 'hourly' && price.value && price.value > 0) {
     pricingOptions.push({
       type: EGuestSpotPricingType.Hourly,
-      amount: Math.round(price.value * 100), // Convert dollars to cents
+      amount: dollarsToCents(roundMoney(price.value, 2)) ?? 0,
       description: null,
     });
   } else if (pricingType.value === 'daily' && price.value && price.value > 0) {
     pricingOptions.push({
       type: EGuestSpotPricingType.Daily,
-      amount: Math.round(price.value * 100), // Convert dollars to cents
+      amount: dollarsToCents(roundMoney(price.value, 2)) ?? 0,
       description: null,
     });
   }
   // If 'free', pricingOptions remains empty array
 
-  const depositCents = Math.round((formData.value.depositAmount ?? 0) * 100);
+  const depositCents = dollarsToCents(roundMoney(formData.value.depositAmount ?? 0, 2)) ?? 0;
 
   const data: IGuestSpotSlotForm = {
     description: formData.value.description,
