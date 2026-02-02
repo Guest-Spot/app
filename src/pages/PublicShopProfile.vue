@@ -132,19 +132,6 @@
               <span class="text-h6">Book Guest Spot</span>
             </div>
           </q-btn>
-          <q-btn
-            v-if="artists?.length"
-            rounded
-            class="full-width q-py-sm q-mb-lg q-mt-md"
-            color="primary"
-            :disable="!shopData.documentId"
-            @click="goToBookingPage"
-          >
-            <div class="flex items-center justify-center q-gap-sm">
-              <q-icon name="event" />
-              <span class="text-h6">Book</span>
-            </div>
-          </q-btn>
         </div>
       </div>
     </div>
@@ -294,22 +281,6 @@ const onClaim = () => {
 
 const setActiveTab = (tab: ITab) => {
   activeTab.value = tab;
-};
-
-// Booking dialog state
-const goToBookingPage = () => {
-  if (!isAuthenticated.value) {
-    return router.push({
-      path: '/auth',
-    });
-  }
-  if (!shopData.value.documentId) return;
-  void router.push({
-    name: 'CreateBooking',
-    query: {
-      shopId: shopData.value.documentId,
-    },
-  });
 };
 
 const { slots: guestSpotSlots, loadSlots } = useGuestSpot();

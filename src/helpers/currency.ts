@@ -40,4 +40,3 @@ export function computeTotalPaymentAmount(
   const commission = Math.round(depositDollars * feeDecimal * 100) / 100;
   return Math.round((depositDollars + commission) * 100) / 100;
 }
-
