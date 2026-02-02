@@ -114,7 +114,7 @@
           <div class="flex items-center justify-center q-gap-sm">
             <q-icon name="payments" />
             <span class="text-h6">
-              Submit tip<template v-if="formattedTotalAmount"> {{ formattedTotalAmount }}</template>
+              Submit tip <span v-if="formattedTotalAmount"> {{ formattedTotalAmount }}</span>
             </span>
           </div>
         </q-btn>
