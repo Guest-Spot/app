@@ -30,8 +30,7 @@ import type {
 import { useGuestSpotStore } from 'src/stores/guestSpot';
 import useNotify from 'src/modules/useNotify';
 import { useUserStore } from 'src/stores/user';
-import { useSettingsStore } from 'src/stores/settings';
-import { centsToDollars, dollarsToCents } from 'src/helpers/currency';
+
 import useGuestSpotEvents from './useGuestSpotEvents';
 import { EGuestSpotEventType, EGuestSpotBookingStatus } from 'src/interfaces/enums';
 
@@ -562,10 +561,7 @@ export default function useGuestSpot() {
         return null;
       }
 
-      // Calculate platform commission
-      const settingsStore = useSettingsStore();
-      const totalFeePercent = settingsStore.getTotalFeePercent;
-      let platformCommissionAmount = 0;
+
 
       let slot = guestSpotStore.getSlots.find((s) => s.documentId === data.guestSpotSlotDocumentId);
       if (!slot) {
@@ -578,12 +574,7 @@ export default function useGuestSpot() {
         return null;
       }
 
-      if (slot && totalFeePercent) {
-        const depositInDollars = centsToDollars(slot.depositAmount) || 0;
-        const feePercent = totalFeePercent / 100;
-        const commissionInDollars = depositInDollars * feePercent;
-        platformCommissionAmount = dollarsToCents(commissionInDollars) || 0;
-      }
+
 
       if (!slot.shop?.documentId) {
         showError('Shop information is not available for this slot');
@@ -597,7 +588,7 @@ export default function useGuestSpot() {
           selectedDate: data.selectedDate,
           selectedTime: data.selectedTime,
           comment: data.comment,
-          platformCommissionAmount,
+
         },
       });
 

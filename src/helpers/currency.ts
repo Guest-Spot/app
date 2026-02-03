@@ -1,3 +1,22 @@
+const FLOAT_BIAS = 1e-10;
+
+/**
+ * Round a monetary value to the given decimal places using half-up rule.
+ * Resilient to floating-point representation (e.g. 5.145 rounds to 5.15, not 5.14).
+ * @param value - Amount to round
+ * @param decimals - Number of decimal places (default 2)
+ * @returns Rounded number
+ */
+export function roundMoney(value: number, decimals = 2): number {
+  if (!Number.isFinite(value)) {
+    return value;
+  }
+  const factor = 10 ** decimals;
+  const scaled = value * factor;
+  const bias = value >= 0 ? FLOAT_BIAS : -FLOAT_BIAS;
+  return Math.round(scaled + bias) / factor;
+}
+
 /**
  * Convert cents to dollars
  * @param cents - Amount in cents
@@ -13,13 +32,14 @@ export function centsToDollars(cents: number | null | undefined): number | null 
 /**
  * Convert dollars to cents
  * @param dollars - Amount in dollars
- * @returns Amount in cents (rounded) or null if input is null/undefined
+ * @returns Amount in cents (rounded half-up) or null if input is null/undefined
  */
 export function dollarsToCents(dollars: number | null | undefined): number | null {
   if (dollars === null || dollars === undefined) {
     return null;
   }
-  return Math.round(dollars * 100);
+  const rounded = roundMoney(dollars, 2);
+  return Math.round(rounded * 100);
 }
 
 /**
@@ -27,16 +47,16 @@ export function dollarsToCents(dollars: number | null | undefined): number | nul
  * Used by both artist booking and Guest Spot deposit payment dialogs.
  * @param depositDollars - Deposit amount in dollars
  * @param feePercent - Platform fee as percentage (e.g. 5 for 5%), or null
- * @returns Total in dollars, rounded to 2 decimal places
+ * @returns Total in dollars, rounded to 2 decimal places (half-up)
  */
 export function computeTotalPaymentAmount(
   depositDollars: number,
   feePercent: number | null
 ): number {
   if (!depositDollars || feePercent == null) {
-    return Math.round(depositDollars * 100) / 100;
+    return roundMoney(depositDollars);
   }
   const feeDecimal = feePercent / 100;
-  const commission = Math.round(depositDollars * feeDecimal * 100) / 100;
-  return Math.round((depositDollars + commission) * 100) / 100;
+  const commission = roundMoney(depositDollars * feeDecimal);
+  return roundMoney(depositDollars + commission);
 }

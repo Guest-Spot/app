@@ -34,6 +34,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InfoCard from 'src/components/InfoCard.vue';
+import { roundMoney } from 'src/helpers/currency';
 
 interface Props {
   depositAmount: number;
@@ -56,7 +57,7 @@ const emit = defineEmits<{
 
 const paymentData = computed(() => {
   if (!props.canInitiatePayment || !props.depositAmount) return [];
-  const commission = Math.round((props.totalAmount - props.depositAmount) * 100) / 100;
+  const commission = roundMoney(props.totalAmount - props.depositAmount);
   return [
     { label: 'Deposit', value: `$${props.depositAmount.toFixed(2)}` },
     { label: 'Platform Commission', value: `$${commission.toFixed(2)}` },

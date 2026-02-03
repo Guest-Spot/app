@@ -163,7 +163,7 @@ import type { IGuestSpotBooking } from 'src/interfaces/guestSpot';
 import { EGuestSpotBookingStatus } from 'src/interfaces/enums';
 import { getGuestSpotBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
-import { centsToDollars, computeTotalPaymentAmount } from 'src/helpers/currency';
+import { centsToDollars, computeTotalPaymentAmount, roundMoney } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
 import useGuestSpotPayment from 'src/composables/useGuestSpotPayment';
 
@@ -266,7 +266,7 @@ const depositDollars = computed(() => {
 const commissionDollars = computed(() => {
   const feePercent = settingsStore.getTotalFeePercent;
   if (!depositDollars.value || feePercent == null) return 0;
-  return Math.round(depositDollars.value * (feePercent / 100) * 100) / 100;
+  return roundMoney(depositDollars.value * (feePercent / 100));
 });
 
 const commissionAmountText = computed(() =>

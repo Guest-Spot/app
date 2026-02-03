@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client/core';
 
 export const CREATE_TIP_PAYMENT_MUTATION = gql`
-  mutation CreateTipPayment($artistDocumentId: ID!, $amount: Int!, $customerEmail: String) {
+  mutation CreateTipPayment($artistDocumentId: ID!, $tipPresetId: ID!, $customerEmail: String) {
     createTipPayment(
       artistDocumentId: $artistDocumentId
-      amount: $amount
+      tipPresetId: $tipPresetId
       customerEmail: $customerEmail
     ) {
       sessionId

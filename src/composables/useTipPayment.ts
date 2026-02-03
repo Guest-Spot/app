@@ -15,7 +15,7 @@ export default function useTipPayment() {
 
   const initiateTipPayment = async (
     artistDocumentId?: string | null,
-    amount?: number | null,
+    tipPresetId?: string | null,
     customerEmail?: string | null,
   ): Promise<boolean> => {
     if (!artistDocumentId) {
@@ -23,17 +23,17 @@ export default function useTipPayment() {
       return false;
     }
 
-    if (!amount || amount <= 0) {
-      showError('Choose a valid tip amount to continue.');
+    if (!tipPresetId?.trim()) {
+      showError('Choose a tip amount to continue.');
       return false;
     }
 
     try {
       isProcessing.value = true;
 
-      const variables: { artistDocumentId: string; amount: number; customerEmail?: string } = {
+      const variables: { artistDocumentId: string; tipPresetId: string; customerEmail?: string } = {
         artistDocumentId,
-        amount,
+        tipPresetId: tipPresetId.trim(),
       };
 
       const email = customerEmail ?? user.value?.email;

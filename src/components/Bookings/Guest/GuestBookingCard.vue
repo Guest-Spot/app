@@ -55,6 +55,19 @@
         <span v-else>n/a</span>
       </div>
 
+      <!-- Pay Deposit (when status is Payment required) -->
+      <q-btn
+        v-if="canShowPaymentButton"
+        :label="totalPaymentAmount ? `Pay Deposit ($${totalPaymentAmount.toFixed(2)})` : 'Pay Deposit'"
+        color="primary"
+        rounded
+        icon="payment"
+        class="q-mt-sm full-width"
+        :loading="isProcessing"
+        :disable="isProcessing"
+        @click.stop="handlePayment"
+      />
+
       <!-- Deposit Info -->
       <div
         v-if="showDeposit && depositAmount"
@@ -94,6 +107,7 @@ import { getBookingStatusInfo } from 'src/helpers/bookingStatus';
 import useDate from 'src/modules/useDate';
 import { centsToDollars } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
+import useBookingPayment from 'src/composables/useBookingPayment';
 
 interface Props {
   booking: IBooking;
@@ -108,6 +122,7 @@ const emit = defineEmits<Emits>();
 
 const { formatTime } = useDate();
 const settingsStore = useSettingsStore();
+const { initiatePayment, isProcessing } = useBookingPayment();
 
 const formattedDate = computed(() => {
   const date = new Date(props.booking.day || '');
@@ -145,8 +160,29 @@ const showDeposit = computed(() => {
       paymentStatus === EBookingPaymentStatus.Authorized);
 });
 
+// Platform commission for payment button (same as BookingDetailsDialog)
+const platformCommission = computed(() => {
+  const totalFeePercent = settingsStore.getTotalFeePercent;
+  if (!depositAmount.value || !totalFeePercent) return 0;
+  const feePercent = totalFeePercent / 100;
+  return Math.round(depositAmount.value * feePercent * 100) / 100;
+});
+
+const totalPaymentAmount = computed(() => {
+  const deposit = depositAmount.value ?? 0;
+  return deposit + platformCommission.value;
+});
+
+const canShowPaymentButton = computed(
+  () => statusInfo.value.label === 'Payment required',
+);
+
 const handleClick = () => {
   emit('click', props.booking);
+};
+
+const handlePayment = () => {
+  void initiatePayment(props.booking.documentId);
 };
 </script>
 

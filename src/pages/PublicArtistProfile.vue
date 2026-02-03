@@ -124,7 +124,7 @@
     </div>
 
     <!-- Booking Actions -->
-    <div v-if="artistData.documentId" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
+    <div v-if="artistData.documentId && !isShop" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
         <div class="buttons-wrapper flex flex-wrap items-center q-gap-sm">
           <q-btn
@@ -190,6 +190,7 @@ import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import { useTipDialog } from 'src/composables/useTipDialog';
+import useUser from 'src/modules/useUser';
 
 const {
   load: loadArtist,
@@ -217,7 +218,7 @@ const artistsStore = useArtistsStore();
 const { onInviteSuccess, onInviteError } = useInviteCompos();
 const { showError, showSuccess } = useNotify();
 const userStore = useUserStore();
-
+const { isShop } = useUser();
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
 const TAB_TRIPS = 'trips';

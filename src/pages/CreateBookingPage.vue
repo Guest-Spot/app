@@ -188,7 +188,7 @@ import { uploadFiles, type UploadFileResponse } from 'src/api';
 import useDate from 'src/modules/useDate';
 import useUser from 'src/modules/useUser';
 import useBookingPayment from 'src/composables/useBookingPayment';
-import { centsToDollars } from 'src/helpers/currency';
+import { centsToDollars, roundMoney } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
 import useStripe from 'src/composables/useStripe';
 
@@ -243,7 +243,7 @@ const depositAmountDisplay = computed<number | null>(() => {
   if (!amount || amount <= 0) {
     return null;
   }
-  return Math.round(amount * 100) / 100;
+  return roundMoney(amount);
 });
 
 const platformCommissionAmount = computed<number | null>(() => {
@@ -254,7 +254,7 @@ const platformCommissionAmount = computed<number | null>(() => {
   }
   const feePercent = totalFeePercent / 100;
   const commission = deposit * feePercent;
-  return Math.round(commission * 100) / 100;
+  return roundMoney(commission);
 });
 
 const totalPaymentAmount = computed<number | null>(() => {
@@ -264,7 +264,7 @@ const totalPaymentAmount = computed<number | null>(() => {
   }
   const commission = platformCommissionAmount.value ?? 0;
   const total = deposit + commission;
-  return Math.round(total * 100) / 100;
+  return roundMoney(total);
 });
 
 const visibleSteps = computed(() => {

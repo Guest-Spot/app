@@ -26,6 +26,13 @@
 - **UI**: Quasar components, Vue Router (`src/router`), i18n translations (`src/i18n`).
 - **Mobile-specific**: Capacitor config and native modules live under `src-capacitor/`; Cordova support exists via `src-cordova` for legacy needs.
 
+## Brand Identity (Anthropic Style)
+- **Palette**: Dark (`#141413`), Light (`#faf9f5`), Mid Gray (`#b0aea5`).
+- **Accents**: Orange (`#d97757` - Primary CTA), Blue (`#6a9bcc`), Green (`#788c5d`).
+- **Typography**: `Poppins` for headings, `Lora` for body text.
+- **Voice**: Professional, Clear, and Empathetic. Use plain language, be direct and reassuring.
+- **UI UX**: Prefer glassmorphism, micro-animations, and vibrant interactive elements.
+
 ## Key Documentation
 - Follow `docs/QUICK_START.md` and `docs/MOBILE_SETUP.md` for onboarding.
 - Use `docs/ANDROID_BUILD.md`, `docs/GOOGLE_AUTH_SETUP.md`, `docs/FIREBASE_PUSH_NOTIFICATIONS_SETUP.md`, `docs/SENTRY_SETUP.md`, and `docs/PAYMENT_FLOW.md` when touching respective domains.

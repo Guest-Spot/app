@@ -23,7 +23,7 @@ import { computed, ref } from 'vue';
 import type { QForm } from 'quasar';
 import type { IGuestSpotSlot } from 'src/interfaces/guestSpot';
 import useDate from 'src/modules/useDate';
-import { centsToDollars } from 'src/helpers/currency';
+import { centsToDollars, roundMoney } from 'src/helpers/currency';
 import { useSettingsStore } from 'src/stores/settings';
 import { InfoCard } from 'src/components';
 import { EGuestSpotPricingType } from 'src/interfaces/enums';
@@ -68,14 +68,14 @@ const platformCommissionText = computed(() => {
   if (!deposit || !totalFeePercent) return null;
   const feePercent = totalFeePercent / 100;
   const commission = deposit * feePercent;
-  return (Math.round(commission * 100) / 100).toFixed(2);
+  return roundMoney(commission).toFixed(2);
 });
 
 const totalAmountText = computed(() => {
   const deposit = depositAmountText.value ? parseFloat(depositAmountText.value) : 0;
   const commission = platformCommissionText.value ? parseFloat(platformCommissionText.value) : 0;
   const total = deposit + commission;
-  return total > 0 ? total.toFixed(2) : null;
+  return total > 0 ? roundMoney(total).toFixed(2) : null;
 });
 
 const getPricingTypeLabel = (type: EGuestSpotPricingType): string => {
