@@ -1,7 +1,7 @@
 <template>
   <q-page class="page q-py-md flex column items-start q-gap-md q-pb-5xl">
     <div class="container flex no-wrap items-center justify-start q-gap-md">
-      <q-btn round unelevated text-color="grey-6" @click="redirectToArtistProfile" class="bg-block">
+      <q-btn round unelevated text-color="grey-6" @click="handleBack" class="bg-block">
         <q-icon name="arrow_back" />
       </q-btn>
       <h2 class="text-h5 q-my-none">
@@ -278,6 +278,14 @@ onResult((result) => {
     artistData.value = result.data.usersPermissionsUser;
   }
 });
+
+const handleBack = () => {
+  if (window.history.length > 1) {
+    router.back();
+    return;
+  }
+  redirectToArtistProfile();
+};
 
 const redirectToArtistProfile = () => {
   const documentId = artistData.value?.documentId ?? (route.params.documentId as string);
