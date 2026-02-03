@@ -116,7 +116,7 @@
       </div>
     </div>
     <!-- Action Buttons -->
-    <div class="action-buttons full-width bg-block flex justify-center q-gap-sm">
+    <div v-if="isArtist" class="action-buttons full-width bg-block flex justify-center q-gap-sm">
       <div class="container">
         <div class="flex column q-gap-sm">
           <q-btn
@@ -173,6 +173,7 @@ import SocialLinks from 'src/components/PublicArtistProfile/SocialLinks.vue';
 import ProfileActionsMenu from 'src/components/ProfileActionsMenu.vue';
 import { BackButton } from 'src/components';
 import useGuestSpot from 'src/composables/useGuestSpot';
+import useUser from 'src/modules/useUser';
 
 const { isShopFavorite, toggleShopFavorite } = useFavorites();
 const route = useRoute();
@@ -201,6 +202,8 @@ const {
   onResult: onResultPortfolio,
   loading: isLoadingPortfolio,
 } = useLazyQuery<IGraphQLPortfoliosResult>(PORTFOLIOS_QUERY);
+
+const { isArtist } = useUser();
 
 const TAB_ABOUT = 'about';
 const TAB_ARTISTS = 'artists';
