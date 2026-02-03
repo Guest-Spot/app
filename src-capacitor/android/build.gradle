@@ -24,12 +24,14 @@ allprojects {
     }
 }
 
-// Force Java 17 across all Android subprojects (application and libraries)
+// Force Java 21 across all Android subprojects (application and libraries)
 subprojects { subproj ->
-    // Ensure JavaCompile tasks use Java 17 regardless of individual module settings
+    // Ensure JavaCompile tasks use Java 21 regardless of individual module settings
+    // Ensure JavaCompile tasks use Java 21 toolchain
     tasks.withType(JavaCompile).configureEach {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        javaCompiler = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 
     // Also override Android Gradle Plugin compileOptions when present
@@ -37,8 +39,8 @@ subprojects { subproj ->
         if (subproj.hasProperty('android')) {
             subproj.android {
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_17
-                    targetCompatibility JavaVersion.VERSION_17
+                    sourceCompatibility JavaVersion.VERSION_21
+                    targetCompatibility JavaVersion.VERSION_21
                 }
             }
         }
