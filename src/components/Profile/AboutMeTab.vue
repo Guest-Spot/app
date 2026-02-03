@@ -12,7 +12,7 @@
       @on-update="onUpdateImages"
     />
     <!-- Guest Spot Management (shop only, first in list) -->
-    <div v-if="isShop" class="navigation-list flex column bg-block border-radius-lg">
+    <div v-if="isShop && user?.payoutsEnabled === true" class="navigation-list flex column bg-block border-radius-lg">
       <div
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/guest-spot')"
@@ -144,7 +144,7 @@
         </div>
       </div>
       <div
-        v-if="user?.payoutsEnabled === true"
+        v-if="isArtist && user?.payoutsEnabled === true"
         class="nav-item q-pa-md cursor-pointer"
         @click="navigateTo('/profile/accept-tips')"
       >
