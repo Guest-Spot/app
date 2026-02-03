@@ -340,7 +340,7 @@ onBeforeMount(() => {
 }
 
 .custom-tip-field {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 6px;
 }
