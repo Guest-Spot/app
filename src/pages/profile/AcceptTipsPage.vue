@@ -79,7 +79,7 @@ import { copyToClipboard } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 import useUser from 'src/modules/useUser';
 import useStripe from 'src/composables/useStripe';
-import { getAddressDialogStorageKey } from 'src/composables/useAddressRequestDialog';
+
 import { WEB_FALLBACK } from 'src/config/constants';
 import { useSettingsStore } from 'src/stores/settings';
 import { UPDATE_USER_MUTATION } from 'src/apollo/types/user';
@@ -88,30 +88,14 @@ const router = useRouter();
 const { user, fetchMe } = useUser();
 const { addBrowserFinishedListener, removeAllBrowserListeners } = useStripe();
 const { showError, showSuccess } = useNotify();
-const isClient = typeof window !== 'undefined';
 const settingsStore = useSettingsStore();
 const stripeFeePercent = computed(() => settingsStore.getStripeFeePercent);
 const stripeFeePercentLabel = computed(() => (stripeFeePercent.value !== null ? `${stripeFeePercent.value}%` : 'процент'));
-
-const hasDismissedAddressDialog = computed(() => {
-  if (!isClient) {
-    return false;
-  }
-  const storageKey = getAddressDialogStorageKey(user.value?.id);
-  if (!storageKey) {
-    return false;
-  }
-  return window.localStorage.getItem(storageKey) === 'true';
-});
 
 const isStripeConfigured = computed(() => user.value?.payoutsEnabled === true);
 
 const redirectIfUnavailable = () => {
   if (!user.value?.id) return;
-  if (!hasDismissedAddressDialog.value) {
-    void router.replace('/profile/basic-information');
-    return;
-  }
   if (!isStripeConfigured.value) {
     void router.replace('/profile/payment-settings');
   }

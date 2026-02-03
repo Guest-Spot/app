@@ -190,6 +190,7 @@ import useNotify from 'src/modules/useNotify';
 import { UserType } from 'src/interfaces/enums';
 import { useUserStore } from 'src/stores/user';
 import { useTipDialog } from 'src/composables/useTipDialog';
+import { useSettingsStore } from 'src/stores/settings';
 import useUser from 'src/modules/useUser';
 
 const {
@@ -218,6 +219,7 @@ const artistsStore = useArtistsStore();
 const { onInviteSuccess, onInviteError } = useInviteCompos();
 const { showError, showSuccess } = useNotify();
 const userStore = useUserStore();
+const settingsStore = useSettingsStore();
 const { isShop } = useUser();
 const TAB_ABOUT = 'about';
 const TAB_PORTFOLIO = 'portfolio';
@@ -261,7 +263,9 @@ const { showTipDialog, dismissTipDialog } = useTipDialog({
   currentUser,
 });
 const canShowTipButton = computed(
-  () => artistData.value?.payoutsEnabled === true && Boolean(artistData.value?.documentId),
+  () => artistData.value?.payoutsEnabled === true &&
+    Boolean(artistData.value?.documentId) &&
+      settingsStore.getStripeEnabled,
 );
 
 // Portfolio data
