@@ -169,10 +169,6 @@ const handleForgotPassword = async () => {
 </script>
 
 <style scoped lang="scss">
-.auth-card {
-  max-width: 400px;
-}
-
 .input-label {
   display: block;
   text-align: left;
