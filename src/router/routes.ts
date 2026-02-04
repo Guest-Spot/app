@@ -147,6 +147,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Tip Artist', hasBack: true },
       },
       {
+        path: 'project-donation',
+        component: () => import('pages/ProjectDonationPage.vue'),
+        meta: { title: 'Support Project', hasBack: true },
+      },
+      {
         path: 'profile/basic-information',
         component: () => import('pages/profile/BasicInformationPage.vue'),
         meta: { title: 'Basic Information', requiresAuth: true },

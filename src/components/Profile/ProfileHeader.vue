@@ -10,6 +10,14 @@
     <div class="flex items-center no-wrap q-gap-sm">
       <q-btn
         text-color="primary"
+        icon="volunteer_activism"
+        round
+        unelevated
+        class="bg-block"
+        @click="goToDonationPage"
+      />
+      <q-btn
+        text-color="primary"
         icon="notifications"
         round
         unelevated
@@ -166,6 +174,10 @@ const showNotificationDialog = () => {
   $q.dialog({
     component: NotificationDialog,
   });
+};
+
+const goToDonationPage = () => {
+  void router.push('/project-donation');
 };
 
 const handleFeedback = () => {

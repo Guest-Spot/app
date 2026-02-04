@@ -26,12 +26,12 @@
         </div>
 
         <h3 class="text-h5 text-bold q-mb-sm">
-          Tip
-          <span v-if="artistName" class="text-primary">{{ artistName }}</span>
-          <span v-else>the artist</span>
+          {{ title }}
+          <span v-if="artistName && !isProjectDonation" class="text-primary">{{ artistName }}</span>
+          <span v-else-if="!isProjectDonation">the artist</span>
         </h3>
         <p class="text-body1 text-grey-6 q-mb-xs">
-          Support your favorite artist and keep them inspired to create more work you love.
+          {{ subtitle }}
         </p>
       </q-card-section>
 
@@ -45,7 +45,7 @@
           @click="handleDismiss"
         />
         <q-btn
-          label="Tip artist"
+          :label="buttonLabel"
           color="primary"
           rounded
           unelevated
@@ -59,11 +59,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 interface Props {
   modelValue: boolean;
   artistName?: string;
+  isProjectDonation?: boolean;
 }
 
 interface Emits {
@@ -76,6 +77,27 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const isVisible = ref(props.modelValue);
+
+const title = computed(() => {
+  if (props.isProjectDonation) {
+    return 'Support GuestSpot';
+  }
+  return 'Tip';
+});
+
+const subtitle = computed(() => {
+  if (props.isProjectDonation) {
+    return 'Help us keep the platform running and growing.';
+  }
+  return 'Support your favorite artist and keep them inspired to create more work you love.';
+});
+
+const buttonLabel = computed(() => {
+   if (props.isProjectDonation) {
+    return 'Support';
+  }
+  return 'Tip artist';
+})
 
 watch(
   () => props.modelValue,
