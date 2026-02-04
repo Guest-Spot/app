@@ -112,6 +112,8 @@ export default defineConfig((ctx) => {
         SENTRY_RELEASE: sentryRelease,
         SENTRY_TRACES_SAMPLE_RATE: process.env.SENTRY_TRACES_SAMPLE_RATE,
         SENTRY_DEBUG: process.env.SENTRY_DEBUG,
+        REVENUECAT_API_KEY_IOS: process.env.REVENUECAT_API_KEY_IOS,
+        REVENUECAT_API_KEY_ANDROID: process.env.REVENUECAT_API_KEY_ANDROID,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

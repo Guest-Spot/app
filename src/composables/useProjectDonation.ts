@@ -3,9 +3,9 @@ import { Purchases, type PurchasesOfferings, type PurchasesPackage } from '@reve
 import { Platform } from 'quasar';
 import useNotify from 'src/modules/useNotify';
 
-// TODO: Replace with actual RevenueCat API Keys
-const API_KEY_IOS = 'appl_placeholder'; 
-const API_KEY_ANDROID = 'goog_placeholder';
+// Keys are loaded from .env file and exposed via quasar.config.ts
+const API_KEY_IOS = process.env.REVENUECAT_API_KEY_IOS as string; 
+const API_KEY_ANDROID = process.env.REVENUECAT_API_KEY_ANDROID as string;
 
 export default function useProjectDonation() {
   const { showError, showSuccess } = useNotify();

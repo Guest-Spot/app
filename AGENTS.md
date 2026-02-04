@@ -20,7 +20,11 @@
 4. Linting via `npm run lint` and formatting via `npm run format`.
 
 ## Developer Notes
-- **Environments**: Environment variables are handled via Quasar/Vite conventions, and Capacitor syncs web assets from `src/`.
+- **Environments**: To add a new environment variable:
+  1. Add it to `.env` (and `.env.example`).
+  2. Register it in `quasar.config.ts` under the `build.env` object.
+  3. Access it in code via `process.env.YOUR_VAR`.
+  Native assets are synced from `src/`.
 - **State & data**: Pinia stores under `src/stores`, `src/modules` hold reusable logic, and `src/composables` (e.g., `useGuestSpot`, `useUser`).
 - **GraphQL**: Apollo client configured with `@apollo/client` and `@vue/apollo-composable` for queries/mutations; look at `src/graphql` (if present) or modules interacting with API.
 - **UI**: Quasar components, Vue Router (`src/router`), i18n translations (`src/i18n`).
