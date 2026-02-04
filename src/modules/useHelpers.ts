@@ -21,6 +21,11 @@ const useHelpers = () => {
             },
           },
         }),
+      ...(filters.guestSpotEnabled && {
+        guestSpotEnabled: {
+          eq: true,
+        },
+      }),
     };
   };
 

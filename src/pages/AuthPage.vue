@@ -176,10 +176,6 @@ onMounted(() => {
   margin-top: 24px;
 }
 
-.auth-card {
-  max-width: 400px;
-}
-
 .input-label {
   display: block;
   text-align: left;
