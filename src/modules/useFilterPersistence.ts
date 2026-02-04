@@ -20,6 +20,7 @@ const DEFAULT_STATE: FilterState = {
     type: null,
     city: null,
     styles: null,
+    guestSpotEnabled: false,
   },
   searchQuery: null,
   sortSettings: {
@@ -28,7 +29,7 @@ const DEFAULT_STATE: FilterState = {
   },
 };
 
-const FILTER_QUERY_KEYS = ['search', 'type', 'city', 'styles', 'sort'] as const;
+const FILTER_QUERY_KEYS = ['search', 'type', 'city', 'styles', 'guestSpotEnabled', 'sort'] as const;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value != null && typeof value === 'object' && !Array.isArray(value);
@@ -103,12 +104,17 @@ const normalizeFilters = (value: unknown, fallback: IFilters): IFilters => {
   const type = resolveValue(normalizeUserTypeValue(value.type), fallback.type ?? null);
   const city = resolveValue(normalizeNullableString(value.city), fallback.city ?? null);
   const styles = resolveValue(normalizeNullableStringArray(value.styles), fallback.styles ?? null);
+  const guestSpotEnabled = resolveValue(
+    value.guestSpotEnabled === true || value.guestSpotEnabled === 'true' ? true : null,
+    fallback.guestSpotEnabled ?? null,
+  );
 
   return {
     ...fallback,
     type,
     city,
     styles,
+    guestSpotEnabled,
   };
 };
 
@@ -180,6 +186,11 @@ const readFiltersFromQuery = (
       normalizeNullableStringArray(routeQuery.styles),
       defaults.filters.styles ?? null,
     );
+  }
+
+  if (hasQueryKey(routeQuery, 'guestSpotEnabled')) {
+    const val = routeQuery.guestSpotEnabled;
+    filters.guestSpotEnabled = val === 'true' ? true : null;
   }
 
   const searchQuery = hasQueryKey(routeQuery, 'search')

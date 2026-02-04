@@ -5,7 +5,7 @@ export interface IFilters {
   name?: string | null;
   city?: string | null;
   styles?: string[] | null;
-  guestSpotsAvailable?: boolean | null;
+  guestSpotEnabled?: boolean | null;
 }
 
 export interface IGraphQLFilters {
@@ -24,5 +24,8 @@ export interface IGraphQLFilters {
     city?: {
       containsi: string | null;
     };
+  };
+  guestSpotEnabled?: {
+    eq: boolean;
   };
 }

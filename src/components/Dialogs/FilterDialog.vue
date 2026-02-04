@@ -67,7 +67,7 @@
           <!-- Guest Spots Available Filter (only for shops) -->
           <div v-if="showGuestSpotFilter" class="filter-group">
             <q-toggle
-              v-model="filters.guestSpotsAvailable"
+              v-model="filters.guestSpotEnabled"
               label="Guest Spots Available"
               color="primary"
               @update:model-value="onChangeFilters"
@@ -98,7 +98,7 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, type PropType } from 'vue';
 import type { IFilters } from 'src/interfaces/filters';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter, useRoute, type LocationQueryRaw } from 'vue-router';
 import { useCitiesStore } from 'src/stores/cities';
 import useTattooStyles from 'src/modules/useTattooStyles';
 
@@ -143,8 +143,11 @@ const allStyleNames = ref<string[]>([]);
 // Dialog visibility
 const isVisible = ref(props.modelValue);
 
-// Filters state
-const filters = ref<IFilters>({ ...props.filterValue });
+// Filters state (guestSpotEnabled defaults to false when undefined/null)
+const filters = ref<IFilters>({
+  ...props.filterValue,
+  guestSpotEnabled: props.filterValue.guestSpotEnabled ?? false,
+});
 
 onMounted(() => {
   void fetchStyles();
@@ -171,7 +174,10 @@ watch(
 watch(
   () => props.filterValue,
   (newValue) => {
-    filters.value = { ...newValue };
+    filters.value = {
+      ...newValue,
+      guestSpotEnabled: newValue.guestSpotEnabled ?? false,
+    };
   },
   { deep: true },
 );
@@ -199,7 +205,7 @@ const filterStyles = (val: string, update: (value: () => void) => void) => {
 
 const onChangeFilters = () => {
   if (!props.noRouteReplace) {
-    void router.replace({ query: { ...route.query, ...filters.value } });
+    void router.replace({ query: { ...route.query, ...(filters.value as unknown as LocationQueryRaw) } });
   }
   emit('update:filterValue', filters.value);
 };
@@ -213,10 +219,10 @@ const clearFilters = () => {
     ...filters.value,
     city: null,
     styles: null,
-    guestSpotsAvailable: null,
+    guestSpotEnabled: false,
   };
   if (!props.noRouteReplace) {
-    void router.replace({ query: { ...route.query, ...filters.value } });
+    void router.replace({ query: { ...route.query, ...(filters.value as unknown as LocationQueryRaw) } });
   }
   emit('update:filterValue', filters.value);
   closeDialog();
