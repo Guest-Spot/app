@@ -10,29 +10,29 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
-  - Capacitor (7.4.3):
+  - Capacitor (8.0.2):
     - CapacitorCordova
-  - CapacitorApp (7.0.2):
+  - CapacitorApp (8.0.0):
     - Capacitor
-  - CapacitorBrowser (7.0.2):
+  - CapacitorBrowser (8.0.0):
     - Capacitor
-  - CapacitorCamera (7.0.2):
+  - CapacitorCamera (8.0.0):
     - Capacitor
   - CapacitorCommunityAppleSignIn (7.1.0):
     - Capacitor
-  - CapacitorCordova (7.4.3)
-  - CapacitorGeolocation (7.1.7):
+  - CapacitorCordova (8.0.2)
+  - CapacitorGeolocation (8.0.0):
     - Capacitor
-    - IONGeolocationLib (= 1.0.1)
-  - CapacitorPushNotifications (7.0.3):
+    - IONGeolocationLib (= 2.0.0)
+  - CapacitorPushNotifications (8.0.0):
     - Capacitor
-  - CapacitorShare (7.0.3):
+  - CapacitorShare (8.0.0):
     - Capacitor
-  - CapacitorStatusBar (7.0.3):
+  - CapacitorStatusBar (8.0.0):
     - Capacitor
-  - CapgoCapacitorNavigationBar (7.3.14):
+  - CapgoCapacitorNavigationBar (8.0.17):
     - Capacitor
-  - CapgoCapacitorSocialLogin (7.14.11):
+  - CapgoCapacitorSocialLogin (8.2.21):
     - Alamofire (~> 5.10.2)
     - Capacitor
     - FBSDKCoreKit (= 18.0.0)
@@ -102,17 +102,23 @@ PODS:
     - AppAuth/Core (~> 2.0)
     - GTMSessionFetcher/Core (< 4.0, >= 3.3)
   - GTMSessionFetcher/Core (3.5.0)
-  - IONGeolocationLib (1.0.1)
+  - IONGeolocationLib (2.0.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
   - PromisesObjC (2.4.0)
-  - Sentry/HybridSDK (8.55.0)
-  - SentryCapacitor (2.3.1):
+  - PurchasesHybridCommon (17.30.0):
+    - RevenueCat (= 5.56.0)
+  - RevenueCat (5.56.0)
+  - RevenuecatPurchasesCapacitor (12.1.0):
     - Capacitor
-    - Sentry/HybridSDK (= 8.55.0)
+    - PurchasesHybridCommon (= 17.30.0)
+  - Sentry/HybridSDK (8.56.2)
+  - SentryCapacitor (2.4.1):
+    - Capacitor
+    - Sentry/HybridSDK (= 8.56.2)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -129,6 +135,7 @@ DEPENDENCIES:
   - "CapgoCapacitorSocialLogin (from `../../node_modules/@capgo/capacitor-social-login`)"
   - FirebaseCore
   - FirebaseMessaging
+  - "RevenuecatPurchasesCapacitor (from `../../node_modules/@revenuecat/purchases-capacitor`)"
   - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
@@ -152,6 +159,8 @@ SPEC REPOS:
     - IONGeolocationLib
     - nanopb
     - PromisesObjC
+    - PurchasesHybridCommon
+    - RevenueCat
     - Sentry
 
 EXTERNAL SOURCES:
@@ -179,6 +188,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capgo/capacitor-navigation-bar"
   CapgoCapacitorSocialLogin:
     :path: "../../node_modules/@capgo/capacitor-social-login"
+  RevenuecatPurchasesCapacitor:
+    :path: "../../node_modules/@revenuecat/purchases-capacitor"
   SentryCapacitor:
     :path: "../../node_modules/@sentry/capacitor"
 
@@ -186,18 +197,18 @@ SPEC CHECKSUMS:
   Alamofire: 7193b3b92c74a07f85569e1a6c4f4237291e7496
   AppAuth: 1c1a8afa7e12f2ec3a294d9882dfa5ab7d3cb063
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
-  Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
-  CapacitorApp: 1f6922c9c5c8b1c538d7fbe92ebe44a81b34bed3
-  CapacitorBrowser: 22541e48442de44dc629c214388290d6eecc6ae9
-  CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
+  Capacitor: 2b79172ad27f3be2d103cce88b8eb9803fdcc744
+  CapacitorApp: 3963a84197280757b84f126afd1520a85ae3b092
+  CapacitorBrowser: b7d7f05f840fe042e46f6528bb8db853e3058fb2
+  CapacitorCamera: 592acb7ab9fb748e2d8571eb03af30ec4e1ace12
   CapacitorCommunityAppleSignIn: 271cb2860576fd2961508bbfa7a82117d93eadca
-  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
-  CapacitorGeolocation: bb6f441b53393984f1c4e8b7e4a826fe3e133309
-  CapacitorPushNotifications: bdd621fbd562be34a41f4a7b1750efa000447d5a
-  CapacitorShare: a4f4f86eabd4b3ff52ba6a11b754713c6926a8d1
-  CapacitorStatusBar: 0659ddc7b1713764a05831463d215b177a15d054
-  CapgoCapacitorNavigationBar: 70b9e067b12659099e0d0626e7b7f63b2bf11f8e
-  CapgoCapacitorSocialLogin: 412f46c6df5d5d523ac368f7ff0e5d9116808172
+  CapacitorCordova: 921bdb690ebe82421b24fce45552fd3dea2ae43a
+  CapacitorGeolocation: 8a405e707de9aff6ac9eca7f408966a370f7ca33
+  CapacitorPushNotifications: 722c1528eabbefd355f47e373a4c6235d01e85e9
+  CapacitorShare: 12f1d192170cbcf9f108fd675ac8e343761a4638
+  CapacitorStatusBar: 312e2e67928dfe9514c4a8916a1fd610552f5f35
+  CapgoCapacitorNavigationBar: 76bb56fbfa4687b8d951bc1a0d87217ba7a688d7
+  CapgoCapacitorSocialLogin: 5d3a5483115c00c91a91595da4f29dd1443351af
   FBAEMKit: e34530df538b8eb8aeb53c35867715ba6c63ef0c
   FBSDKCoreKit: d3f479a69127acebb1c6aad91c1a33907bcf6c2f
   FBSDKCoreKit_Basics: 017b6dc2a1862024815a8229e75661e627ac1e29
@@ -211,12 +222,15 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  IONGeolocationLib: 20f9d0248a0b5264511fb57a37e25dd2badf797a
+  IONGeolocationLib: a5e40b54edc2ee9902036eda5aaa41ddf07bb68d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  Sentry: f7dddfabe691274d6d630f04621e1345f9d6b9e0
-  SentryCapacitor: 09d18680bd9366850de59dc3859af859ad4116fa
+  PurchasesHybridCommon: c00f6ce5933b9928e99766a45c9e53c0a5a03240
+  RevenueCat: 9e2a13bead55198a72272ff105a7265e9510cd11
+  RevenuecatPurchasesCapacitor: 93ff2bb47adafa0507cc39c3dc72f92bfc8e321b
+  Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
+  SentryCapacitor: 84549a1440a7f58a336ed3175db0f067d571cd5b
 
-PODFILE CHECKSUM: a52f8015527188c31c055cda32fcd55250133405
+PODFILE CHECKSUM: 0c4a8e16a5864a296190d720b7309db81d8b39c2
 
 COCOAPODS: 1.16.2
